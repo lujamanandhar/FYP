@@ -1,45 +1,90 @@
 import 'package:flutter/material.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeIn;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+    _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green[100],
+      backgroundColor: Colors.green[50],
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Replace with your app logo if available
-            Icon(
-              Icons.local_dining,
-              size: 100,
-              color: Colors.green[700],
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'NutriLift',
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-                letterSpacing: 2,
+        child: FadeTransition(
+          opacity: _fadeIn,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.green[100],
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.withOpacity(0.2),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(24),
+                child: Icon(
+                  Icons.local_dining,
+                  size: 80,
+                  color: Colors.green[700],
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Eat Well. Live Well.',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.black54,
+              const SizedBox(height: 32),
+              Text(
+                'NutriLift',
+                style: TextStyle(
+                  fontFamily: 'Montserrat', // Use your custom font if available
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green[800],
+                  letterSpacing: 2,
+                ),
               ),
-            ),
-            const SizedBox(height: 40),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-            ),
-          ],
+              const SizedBox(height: 12),
+              Text(
+                'Eat Well. Live Well.',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.green[600],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              const SizedBox(height: 40),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.green[700]!),
+                strokeWidth: 4,
+              ),
+            ],
+          ),
         ),
       ),
     );
