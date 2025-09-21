@@ -31,52 +31,6 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
     super.dispose();
   }
 
-  Widget _buildHeader(ThemeData theme) {
-    return Column(
-      children: [
-        CircleAvatar(
-          backgroundColor: theme.colorScheme.primary.withOpacity(0.12),
-          radius: 40,
-          child: Icon(Icons.fitness_center, color: theme.colorScheme.primary, size: 40),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'NutriLift',
-          style: theme.textTheme.headlineLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.primary,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Your personal nutrition and fitness companion.',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: theme.colorScheme.onSurface.withOpacity(0.7),
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFeatureCard(IconData icon, String title, String desc, ThemeData theme) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: theme.colorScheme.primary.withOpacity(0.08),
-          child: Icon(icon, color: theme.colorScheme.primary),
-        ),
-        title: Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-        subtitle: Text(desc, style: theme.textTheme.bodyMedium),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -91,31 +45,41 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
         opacity: _fadeIn,
         child: SlideTransition(
           position: _slideIn,
-          child: SingleChildScrollView(
+          child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(theme),
-                const SizedBox(height: 32),
-                _buildFeatureCard(
-                  Icons.restaurant_menu,
-                  'Meal Tracking',
-                  'Easily log your meals and monitor your daily nutrition.',
-                  theme,
-                ),
-                _buildFeatureCard(
-                  Icons.show_chart,
-                  'Progress Monitoring',
-                  'Visualize your fitness journey and reach your goals.',
-                  theme,
-                ),
-                _buildFeatureCard(
-                  Icons.insights,
-                  'Personalized Insights',
-                  'Get tailored recommendations for a healthier lifestyle.',
-                  theme,
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                      radius: 28,
+                      child: Icon(Icons.fitness_center, color: theme.colorScheme.primary, size: 32),
+                    ),
+                    const SizedBox(width: 16),
+                    Text(
+                      'NutriLift',
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
+                Text(
+                  'Your personal nutrition and fitness companion.',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Track your meals, monitor your progress, and achieve your health goals with ease. NutriLift empowers you to live healthier every day with personalized insights and easy-to-use tools.',
+                  style: theme.textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 32),
                 Card(
                   color: theme.colorScheme.surfaceVariant,
                   elevation: 0,
@@ -123,7 +87,6 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 16.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.info_outline, color: theme.colorScheme.primary, size: 20),
                         const SizedBox(width: 8),
@@ -138,11 +101,12 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
-                Text(
-                  '© 2024 NutriLift Team',
-                  style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
-                  textAlign: TextAlign.center,
+                const Spacer(),
+                Center(
+                  child: Text(
+                    '© 2024 NutriLift Team',
+                    style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
+                  ),
                 ),
               ],
             ),
