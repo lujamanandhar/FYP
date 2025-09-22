@@ -11,7 +11,7 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeIn;
-  late Animation<double> _scaleUp;
+  late Animation<double> _slideUp;
 
   @override
   void initState() {
@@ -21,8 +21,8 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
     );
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    _scaleUp = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    _slideUp = Tween<double>(begin: 80, end: 0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
     _controller.forward();
   }
@@ -36,58 +36,68 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green[50],
+      backgroundColor: Colors.grey[900],
       body: Center(
         child: FadeTransition(
           opacity: _fadeIn,
-          child: ScaleTransition(
-            scale: _scaleUp,
+          child: AnimatedBuilder(
+            animation: _slideUp,
+            builder: (context, child) {
+              return Transform.translate(
+                offset: Offset(0, _slideUp.value),
+                child: child,
+              );
+            },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.green[100],
+                    gradient: LinearGradient(
+                      colors: [Colors.orange[700]!, Colors.red[700]!],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.green.withOpacity(0.2),
-                        blurRadius: 16,
-                        offset: const Offset(0, 8),
+                        color: Colors.red.withOpacity(0.3),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
                       ),
                     ],
                   ),
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(28),
                   child: Icon(
-                    Icons.local_dining,
-                    size: 80,
-                    color: Colors.green[700],
+                    Icons.fitness_center,
+                    size: 90,
+                    color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 36),
                 Text(
-                  'NutriLift',
+                  'GymPro',
                   style: TextStyle(
                     fontFamily: 'Montserrat',
-                    fontSize: 36,
+                    fontSize: 38,
                     fontWeight: FontWeight.bold,
-                    color: Colors.green[800],
+                    color: Colors.orange[200],
                     letterSpacing: 2,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 Text(
-                  'Eat Well. Live Well.',
+                  'Push Your Limits',
                   style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.green[600],
+                    fontSize: 20,
+                    color: Colors.orange[100],
                     fontStyle: FontStyle.italic,
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 44),
                 CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green[700]!),
-                  strokeWidth: 4,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange[700]!),
+                  strokeWidth: 5,
                 ),
               ],
             ),
