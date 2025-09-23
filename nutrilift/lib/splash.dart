@@ -9,9 +9,9 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeIn;
-  late Animation<double> _slideUp;
+  late final AnimationController _controller;
+  late final Animation<double> _fadeIn;
+  late final Animation<double> _slideUp;
 
   @override
   void initState() {
@@ -42,12 +42,10 @@ class _SplashScreenState extends State<SplashScreen>
           opacity: _fadeIn,
           child: AnimatedBuilder(
             animation: _slideUp,
-            builder: (context, child) {
-              return Transform.translate(
-                offset: Offset(0, _slideUp.value),
-                child: child,
-              );
-            },
+            builder: (context, child) => Transform.translate(
+              offset: Offset(0, _slideUp.value),
+              child: child,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -68,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ],
                   ),
                   padding: const EdgeInsets.all(28),
-                  child: Icon(
+                  child: const Icon(
                     Icons.fitness_center,
                     size: 90,
                     color: Colors.white,
