@@ -33,6 +33,13 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
+  void _goToNextPage() {
+    // Replace with your next page navigation
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const NextPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,11 +104,42 @@ class _SplashScreenState extends State<SplashScreen>
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.orange[700]!),
                   strokeWidth: 5,
                 ),
+                const SizedBox(height: 36),
+                ElevatedButton(
+                  onPressed: _goToNextPage,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange[700],
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  child: const Text(
+                    'Continue',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+// Dummy next page for navigation example
+class NextPage extends StatelessWidget {
+  const NextPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(child: Text('Next Page')),
     );
   }
 }
