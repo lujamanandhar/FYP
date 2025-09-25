@@ -6,8 +6,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightGreen[50],
+      backgroundColor: Colors.yellow[100], // Brighter background
       appBar: AppBar(
+        backgroundColor: Colors.yellow[700], // Brighter app bar
         title: const Text('NutriLift Home'),
         centerTitle: true,
       ),
@@ -15,20 +16,24 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.fitness_center, size: 80, color: Colors.green),
+            const Icon(Icons.fitness_center, size: 80, color: Colors.orange),
             const SizedBox(height: 20),
             const Text(
               'Welcome to NutriLift!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.deepOrange),
             ),
             const SizedBox(height: 10),
             const Text(
               'Track your nutrition and lift your health.',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: Colors.brown),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orangeAccent,
+                foregroundColor: Colors.white,
+              ),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -50,7 +55,10 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(
+        backgroundColor: Colors.yellow[700],
+        title: const Text('Profile'),
+      ),
       body: const Center(child: Text('This is the Profile Screen')),
     );
   }
