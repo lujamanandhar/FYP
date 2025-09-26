@@ -14,30 +14,30 @@ class HomeScreen extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
       child: Card(
-        elevation: 6,
+        elevation: 8, // Increased elevation
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        color: color.withOpacity(0.9),
+        color: color.withOpacity(0.95), // Slightly less transparent
         child: SizedBox(
-          width: 150,
-          height: 170,
+          width: 160, // Slightly wider
+          height: 180, // Slightly taller
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 48, color: Colors.white),
-              const SizedBox(height: 12),
+              Icon(icon, size: 54, color: Colors.white), // Larger icon
+              const SizedBox(height: 14),
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               Text(
                 subtitle,
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   color: Colors.white70,
                 ),
                 textAlign: TextAlign.center,
@@ -52,14 +52,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const LinearGradient(
-        colors: [Color(0xFFB2FEFA), Color(0xFF0ED2F7)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ).createShader(const Rect.fromLTWH(0, 0, 500, 800)).transform(Offset.zero) !=
-              null
-          ? null
-          : Colors.blue[50],
+      // Removed backgroundColor property to avoid conflict with gradient
       appBar: AppBar(
         backgroundColor: Colors.blue[700],
         elevation: 0,
@@ -101,34 +94,34 @@ class HomeScreen extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.blue.withOpacity(0.2),
-                        blurRadius: 16,
-                        offset: const Offset(0, 8),
+                        color: Colors.blue.withOpacity(0.25), // Slightly more shadow
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.directions_run, size: 80, color: Colors.white),
+                  child: const Icon(Icons.directions_run, size: 90, color: Colors.white), // Larger icon
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 28),
                 const Text(
                   'Welcome to NutriLift!',
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 30,
                     fontWeight: FontWeight.bold,
                     color: Colors.blue,
-                    letterSpacing: 1.2,
+                    letterSpacing: 1.3,
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 32),
                   child: Text(
                     'Track workouts, nutrition, and reach your fitness goals.',
-                    style: TextStyle(fontSize: 17, color: Colors.black87),
+                    style: TextStyle(fontSize: 18, color: Colors.black87),
                     textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(height: 36),
+                const SizedBox(height: 40),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -144,7 +137,7 @@ class HomeScreen extends StatelessWidget {
                         );
                       },
                     ),
-                    const SizedBox(width: 24),
+                    const SizedBox(width: 28),
                     _buildCard(
                       icon: Icons.restaurant,
                       title: 'Nutrition',
@@ -159,28 +152,29 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 36),
+                const SizedBox(height: 40),
                 Card(
                   margin: const EdgeInsets.symmetric(horizontal: 32),
-                  elevation: 3,
+                  elevation: 4,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   child: Padding(
-                    padding: const EdgeInsets.all(18.0),
+                    padding: const EdgeInsets.all(20.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
                         Icon(Icons.info_outline, color: Colors.blueAccent),
-                        SizedBox(width: 10),
+                        SizedBox(width: 12),
                         Flexible(
                           child: Text(
                             'Tip: Stay consistent and hydrated for best results!',
-                            style: TextStyle(fontSize: 15, color: Colors.black87),
+                            style: TextStyle(fontSize: 16, color: Colors.black87),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
+                const SizedBox(height: 20), // Added some space at the bottom
               ],
             ),
           ),
@@ -200,7 +194,12 @@ class ProfileScreen extends StatelessWidget {
         backgroundColor: Colors.blue[700],
         title: const Text('Profile'),
       ),
-      body: const Center(child: Text('This is the Profile Screen')),
+      body: const Center(
+        child: Text(
+          'This is the Profile Screen',
+          style: TextStyle(fontSize: 20),
+        ),
+      ),
     );
   }
 }
@@ -215,7 +214,12 @@ class WorkoutsScreen extends StatelessWidget {
         backgroundColor: Colors.blue[700],
         title: const Text('Workouts'),
       ),
-      body: const Center(child: Text('Track your workouts here!')),
+      body: const Center(
+        child: Text(
+          'Track your workouts here!',
+          style: TextStyle(fontSize: 20),
+        ),
+      ),
     );
   }
 }
@@ -230,7 +234,12 @@ class NutritionScreen extends StatelessWidget {
         backgroundColor: Colors.green,
         title: const Text('Nutrition'),
       ),
-      body: const Center(child: Text('Track your nutrition here!')),
+      body: const Center(
+        child: Text(
+          'Track your nutrition here!',
+          style: TextStyle(fontSize: 20),
+        ),
+      ),
     );
   }
 }
