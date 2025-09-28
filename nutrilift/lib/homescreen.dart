@@ -12,32 +12,61 @@ class HomeScreen extends StatelessWidget {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(22),
       child: Card(
-        elevation: 10, // Slightly more elevation
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        color: color.withOpacity(0.97), // Slightly less transparent
-        child: SizedBox(
-          width: 170, // Slightly wider
-          height: 190, // Slightly taller
+        elevation: 16,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        color: color.withOpacity(0.95),
+        shadowColor: color.withOpacity(0.4),
+        child: Container(
+          width: 180,
+          height: 200,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            gradient: LinearGradient(
+              colors: [color.withOpacity(0.85), Colors.white.withOpacity(0.12)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 60, color: Colors.white), // Larger icon
-              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.18),
+                      blurRadius: 18,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: Icon(icon, size: 64, color: Colors.white),
+              ),
+              const SizedBox(height: 18),
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 24,
+                  fontSize: 26,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  letterSpacing: 1.2,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black26,
+                      blurRadius: 4,
+                      offset: Offset(1, 2),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 10),
               Text(
                 subtitle,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 16,
                   color: Colors.white70,
                 ),
                 textAlign: TextAlign.center,
@@ -52,8 +81,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.blue[800],
+        backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text('NutriLift Fitness'),
         centerTitle: true,
@@ -72,7 +102,7 @@ class HomeScreen extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFB2FEFA), Color(0xFF0ED2F7)],
+            colors: [Color(0xFFB2FEFA), Color(0xFF0ED2F7), Color(0xFF005BEA)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -82,45 +112,55 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(height: 60),
                 Container(
-                  padding: const EdgeInsets.all(22),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [Colors.blue[500]!, Colors.blue[900]!],
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF005BEA), Color(0xFF00C6FB)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.blue.withOpacity(0.30),
-                        blurRadius: 24,
-                        offset: const Offset(0, 12),
+                        color: Colors.blue.withOpacity(0.35),
+                        blurRadius: 32,
+                        offset: const Offset(0, 16),
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.directions_run, size: 100, color: Colors.white),
+                  child: const Icon(Icons.directions_run, size: 110, color: Colors.white),
                 ),
-                const SizedBox(height: 32),
-                const Text(
-                  'Welcome to NutriLift!',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                    letterSpacing: 1.5,
+                const SizedBox(height: 36),
+                ShaderMask(
+                  shaderCallback: (Rect bounds) {
+                    return const LinearGradient(
+                      colors: [Color(0xFF005BEA), Color(0xFF00C6FB)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds);
+                  },
+                  child: const Text(
+                    'Welcome to NutriLift!',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 1.5,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 36),
                   child: Text(
                     'Track workouts, nutrition, and reach your fitness goals with ease.',
-                    style: TextStyle(fontSize: 19, color: Colors.black87),
+                    style: TextStyle(fontSize: 20, color: Colors.black87, fontWeight: FontWeight.w500),
                     textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(height: 44),
+                const SizedBox(height: 48),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -151,11 +191,12 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 44),
+                const SizedBox(height: 48),
                 Card(
                   margin: const EdgeInsets.symmetric(horizontal: 36),
-                  elevation: 6,
+                  elevation: 10,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                  color: Colors.white.withOpacity(0.92),
                   child: Padding(
                     padding: const EdgeInsets.all(22.0),
                     child: Row(
@@ -166,14 +207,47 @@ class HomeScreen extends StatelessWidget {
                         Flexible(
                           child: Text(
                             'Tip: Stay consistent and hydrated for best results!',
-                            style: TextStyle(fontSize: 17, color: Colors.black87),
+                            style: TextStyle(fontSize: 18, color: Colors.black87, fontWeight: FontWeight.w500),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
+                // Add a motivational quote
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 36),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                        colors: [Colors.blue[100]!, Colors.blue[50]!],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.format_quote, color: Colors.blueAccent, size: 28),
+                        SizedBox(width: 10),
+                        Flexible(
+                          child: Text(
+                            '"Success starts with self-discipline."',
+                            style: TextStyle(
+                              fontSize: 17,
+                              color: Colors.blueAccent,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 36),
               ],
             ),
           ),
