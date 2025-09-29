@@ -43,7 +43,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Icon(icon, size: 64, color: Colors.white),
+                child: Icon(icon, size: 64, color: Colors.deepPurpleAccent), // Changed icon color
               ),
               const SizedBox(height: 18),
               Text(
@@ -51,7 +51,7 @@ class HomeScreen extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Colors.deepPurple, // Changed text color
                   letterSpacing: 1.2,
                   shadows: [
                     Shadow(
@@ -67,7 +67,7 @@ class HomeScreen extends StatelessWidget {
                 subtitle,
                 style: const TextStyle(
                   fontSize: 16,
-                  color: Colors.white70,
+                  color: Colors.deepPurpleAccent, // Changed subtitle color
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -83,13 +83,13 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.deepPurple.withOpacity(0.7), // Changed appbar color
         elevation: 0,
         title: const Text('NutriLift Fitness'),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_circle, size: 32),
+            icon: const Icon(Icons.account_circle, size: 32, color: Colors.deepPurpleAccent), // Changed icon color
             onPressed: () {
               Navigator.push(
                 context,
@@ -102,7 +102,7 @@ class HomeScreen extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFB2FEFA), Color(0xFF0ED2F7), Color(0xFF005BEA)],
+            colors: [Color(0xFFE0C3FC), Color(0xFF8EC5FC), Color(0xFF7367F0)], // Changed background gradient
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -118,25 +118,25 @@ class HomeScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF005BEA), Color(0xFF00C6FB)],
+                      colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)], // Changed icon background gradient
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.blue.withOpacity(0.35),
+                        color: Colors.deepPurple.withOpacity(0.35),
                         blurRadius: 32,
                         offset: const Offset(0, 16),
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.directions_run, size: 110, color: Colors.white),
+                  child: const Icon(Icons.directions_run, size: 110, color: Colors.deepPurpleAccent), // Changed icon color
                 ),
                 const SizedBox(height: 36),
                 ShaderMask(
                   shaderCallback: (Rect bounds) {
                     return const LinearGradient(
-                      colors: [Color(0xFF005BEA), Color(0xFF00C6FB)],
+                      colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)], // Changed gradient
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ).createShader(bounds);
@@ -156,7 +156,7 @@ class HomeScreen extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 36),
                   child: Text(
                     'Track workouts, nutrition, and reach your fitness goals with ease.',
-                    style: TextStyle(fontSize: 20, color: Colors.black87, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 20, color: Colors.deepPurple, fontWeight: FontWeight.w500), // Changed text color
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -168,7 +168,7 @@ class HomeScreen extends StatelessWidget {
                       icon: Icons.fitness_center,
                       title: 'Workouts',
                       subtitle: 'Log & view workouts',
-                      color: Colors.blueAccent,
+                      color: Colors.deepPurpleAccent, // Changed card color
                       onTap: () {
                         Navigator.push(
                           context,
@@ -181,7 +181,7 @@ class HomeScreen extends StatelessWidget {
                       icon: Icons.restaurant,
                       title: 'Nutrition',
                       subtitle: 'Track your meals',
-                      color: Colors.green,
+                      color: Colors.purple, // Changed card color
                       onTap: () {
                         Navigator.push(
                           context,
@@ -196,18 +196,18 @@ class HomeScreen extends StatelessWidget {
                   margin: const EdgeInsets.symmetric(horizontal: 36),
                   elevation: 10,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                  color: Colors.white.withOpacity(0.92),
+                  color: Colors.deepPurple[50]!.withOpacity(0.92), // Changed card color
                   child: Padding(
                     padding: const EdgeInsets.all(22.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
-                        Icon(Icons.info_outline, color: Colors.blueAccent),
+                        Icon(Icons.info_outline, color: Colors.deepPurpleAccent), // Changed icon color
                         SizedBox(width: 14),
                         Flexible(
                           child: Text(
                             'Tip: Stay consistent and hydrated for best results!',
-                            style: TextStyle(fontSize: 18, color: Colors.black87, fontWeight: FontWeight.w500),
+                            style: TextStyle(fontSize: 18, color: Colors.deepPurple, fontWeight: FontWeight.w500), // Changed text color
                           ),
                         ),
                       ],
@@ -222,7 +222,7 @@ class HomeScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       gradient: LinearGradient(
-                        colors: [Colors.blue[100]!, Colors.blue[50]!],
+                        colors: [Colors.deepPurple[100]!, Colors.deepPurple[50]!], // Changed gradient
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -231,14 +231,14 @@ class HomeScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
-                        Icon(Icons.format_quote, color: Colors.blueAccent, size: 28),
+                        Icon(Icons.format_quote, color: Colors.deepPurpleAccent, size: 28), // Changed icon color
                         SizedBox(width: 10),
                         Flexible(
                           child: Text(
                             '"Success starts with self-discipline."',
                             style: TextStyle(
                               fontSize: 17,
-                              color: Colors.blueAccent,
+                              color: Colors.deepPurpleAccent, // Changed text color
                               fontStyle: FontStyle.italic,
                             ),
                           ),
@@ -264,13 +264,13 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue[800],
+        backgroundColor: Colors.deepPurple,
         title: const Text('Profile'),
       ),
       body: const Center(
         child: Text(
           'This is the Profile Screen',
-          style: TextStyle(fontSize: 21),
+          style: TextStyle(fontSize: 21, color: Colors.deepPurple), // Changed text color
         ),
       ),
     );
@@ -284,13 +284,13 @@ class WorkoutsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue[800],
+        backgroundColor: Colors.deepPurple,
         title: const Text('Workouts'),
       ),
       body: const Center(
         child: Text(
           'Track your workouts here!',
-          style: TextStyle(fontSize: 21),
+          style: TextStyle(fontSize: 21, color: Colors.deepPurple), // Changed text color
         ),
       ),
     );
@@ -304,13 +304,13 @@ class NutritionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.purple,
         title: const Text('Nutrition'),
       ),
       body: const Center(
         child: Text(
           'Track your nutrition here!',
-          style: TextStyle(fontSize: 21),
+          style: TextStyle(fontSize: 21, color: Colors.purple), // Changed text color
         ),
       ),
     );
