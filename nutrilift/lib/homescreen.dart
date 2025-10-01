@@ -1,7 +1,69 @@
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+  late AnimationController _iconController;
+  late Animation<double> _iconAnimation;
+
+  late AnimationController _welcomeController;
+  late Animation<double> _welcomeAnimation;
+
+  late AnimationController _cardController;
+  late Animation<Offset> _workoutCardOffset;
+  late Animation<Offset> _nutritionCardOffset;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _iconController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _iconAnimation = CurvedAnimation(
+      parent: _iconController,
+      curve: Curves.elasticOut,
+    );
+    _iconController.forward();
+
+    _welcomeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _welcomeAnimation = CurvedAnimation(
+      parent: _welcomeController,
+      curve: Curves.easeOut,
+    );
+    _welcomeController.forward();
+
+    _cardController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _workoutCardOffset = Tween<Offset>(
+      begin: const Offset(-1.2, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _cardController, curve: Curves.easeOut));
+    _nutritionCardOffset = Tween<Offset>(
+      begin: const Offset(1.2, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _cardController, curve: Curves.easeOut));
+    _cardController.forward();
+  }
+
+  @override
+  void dispose() {
+    _iconController.dispose();
+    _welcomeController.dispose();
+    _cardController.dispose();
+    super.dispose();
+  }
 
   Widget _buildCard({
     required IconData icon,
@@ -9,8 +71,10 @@ class HomeScreen extends StatelessWidget {
     required String subtitle,
     required Color color,
     required VoidCallback onTap,
+    Animation<double>? fadeAnimation,
+    Animation<Offset>? slideAnimation,
   }) {
-    return InkWell(
+    Widget card = InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(22),
       child: Card(
@@ -76,6 +140,17 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
+
+    if (fadeAnimation != null && slideAnimation != null) {
+      return FadeTransition(
+        opacity: fadeAnimation,
+        child: SlideTransition(
+          position: slideAnimation,
+          child: card,
+        ),
+      );
+    }
+    return card;
   }
 
   @override
@@ -113,41 +188,47 @@ class HomeScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 60),
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.deepPurple.withOpacity(0.35),
-                        blurRadius: 32,
-                        offset: const Offset(0, 16),
+                ScaleTransition(
+                  scale: _iconAnimation,
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                    ],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.deepPurple.withOpacity(0.35),
+                          blurRadius: 32,
+                          offset: const Offset(0, 16),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.directions_run, size: 110, color: Colors.deepPurpleAccent),
                   ),
-                  child: const Icon(Icons.directions_run, size: 110, color: Colors.deepPurpleAccent),
                 ),
                 const SizedBox(height: 36),
-                ShaderMask(
-                  shaderCallback: (Rect bounds) {
-                    return const LinearGradient(
-                      colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ).createShader(bounds);
-                  },
-                  child: const Text(
-                    'Welcome to NutriLift!',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 1.5,
+                FadeTransition(
+                  opacity: _welcomeAnimation,
+                  child: ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return const LinearGradient(
+                        colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ).createShader(bounds);
+                    },
+                    child: const Text(
+                      'Welcome to NutriLift!',
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 1.5,
+                      ),
                     ),
                   ),
                 ),
@@ -175,6 +256,8 @@ class HomeScreen extends StatelessWidget {
                           MaterialPageRoute(builder: (context) => const WorkoutsScreen()),
                         );
                       },
+                      fadeAnimation: _cardController,
+                      slideAnimation: _workoutCardOffset,
                     ),
                     const SizedBox(width: 32),
                     _buildCard(
@@ -188,6 +271,8 @@ class HomeScreen extends StatelessWidget {
                           MaterialPageRoute(builder: (context) => const NutritionScreen()),
                         );
                       },
+                      fadeAnimation: _cardController,
+                      slideAnimation: _nutritionCardOffset,
                     ),
                   ],
                 ),
@@ -215,7 +300,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                // Motivational quote changed
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 36),
                   child: Container(
@@ -248,24 +332,32 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 36),
-                // Added a new button for Settings
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurpleAccent,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  icon: const Icon(Icons.settings, color: Colors.white),
-                  label: const Text(
-                    'Settings',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                AnimatedBuilder(
+                  animation: _welcomeController,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: 0.9 + 0.1 * _welcomeAnimation.value,
+                      child: child,
                     );
                   },
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurpleAccent,
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: const Icon(Icons.settings, color: Colors.white),
+                    label: const Text(
+                      'Settings',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                      );
+                    },
+                  ),
                 ),
                 const SizedBox(height: 36),
               ],
@@ -337,7 +429,6 @@ class NutritionScreen extends StatelessWidget {
   }
 }
 
-// Added a new SettingsScreen
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
