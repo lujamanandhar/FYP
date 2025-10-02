@@ -76,67 +76,53 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }) {
     Widget card = InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(22),
-      child: Card(
-        elevation: 16,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-        color: color.withOpacity(0.95),
-        shadowColor: color.withOpacity(0.4),
-        child: Container(
-          width: 180,
-          height: 200,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            gradient: LinearGradient(
-              colors: [color.withOpacity(0.85), Colors.white.withOpacity(0.12)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+      borderRadius: BorderRadius.circular(28),
+      child: Container(
+        width: 160,
+        height: 180,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          gradient: LinearGradient(
+            colors: [color.withOpacity(0.85), Colors.white.withOpacity(0.18)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.25),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.18),
-                      blurRadius: 18,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Icon(icon, size: 64, color: Colors.deepPurpleAccent),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 32,
+              backgroundColor: Colors.white,
+              child: Icon(icon, size: 38, color: color),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: color,
+                letterSpacing: 1.1,
               ),
-              const SizedBox(height: 18),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
-                  letterSpacing: 1.2,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black26,
-                      blurRadius: 4,
-                      offset: Offset(1, 2),
-                    ),
-                  ],
-                ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 14,
+                color: color.withOpacity(0.8),
               ),
-              const SizedBox(height: 10),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.deepPurpleAccent,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
@@ -156,11 +142,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFFF6F6FF),
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple.withOpacity(0.7),
+        backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text('NutriLift Fitness'),
+        title: const Text(
+          'NutriLift',
+          style: TextStyle(
+            color: Colors.deepPurple,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            letterSpacing: 1.2,
+          ),
+        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -174,154 +168,169 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ],
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFE0C3FC), Color(0xFF8EC5FC), Color(0xFF7367F0)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -80,
+            left: -60,
+            child: Container(
+              width: 180,
+              height: 180,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [Colors.deepPurpleAccent.withOpacity(0.18), Colors.deepPurple.withOpacity(0.12)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
           ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 60),
-                ScaleTransition(
-                  scale: _iconAnimation,
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.deepPurple.withOpacity(0.35),
-                          blurRadius: 32,
-                          offset: const Offset(0, 16),
+          Positioned(
+            bottom: -60,
+            right: -40,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [Colors.purple.withOpacity(0.15), Colors.deepPurpleAccent.withOpacity(0.10)],
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                ),
+              ),
+            ),
+          ),
+          Center(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 32),
+                  ScaleTransition(
+                    scale: _iconAnimation,
+                    child: Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                      ],
-                    ),
-                    child: const Icon(Icons.directions_run, size: 110, color: Colors.deepPurpleAccent),
-                  ),
-                ),
-                const SizedBox(height: 36),
-                FadeTransition(
-                  opacity: _welcomeAnimation,
-                  child: ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return const LinearGradient(
-                        colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ).createShader(bounds);
-                    },
-                    child: const Text(
-                      'Welcome to NutriLift!',
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 36),
-                  child: Text(
-                    'Track workouts, nutrition, and reach your fitness goals with ease.',
-                    style: TextStyle(fontSize: 20, color: Colors.deepPurple, fontWeight: FontWeight.w500),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 48),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildCard(
-                      icon: Icons.fitness_center,
-                      title: 'Workouts',
-                      subtitle: 'Log & view workouts',
-                      color: Colors.deepPurpleAccent,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const WorkoutsScreen()),
-                        );
-                      },
-                      fadeAnimation: _cardController,
-                      slideAnimation: _workoutCardOffset,
-                    ),
-                    const SizedBox(width: 32),
-                    _buildCard(
-                      icon: Icons.restaurant,
-                      title: 'Nutrition',
-                      subtitle: 'Track your meals',
-                      color: Colors.purple,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const NutritionScreen()),
-                        );
-                      },
-                      fadeAnimation: _cardController,
-                      slideAnimation: _nutritionCardOffset,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 48),
-                Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 36),
-                  elevation: 10,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                  color: Colors.deepPurple[50]!.withOpacity(0.92),
-                  child: Padding(
-                    padding: const EdgeInsets.all(22.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.info_outline, color: Colors.deepPurpleAccent),
-                        SizedBox(width: 14),
-                        Flexible(
-                          child: Text(
-                            'Tip: Stay consistent and hydrated for best results!',
-                            style: TextStyle(fontSize: 18, color: Colors.deepPurple, fontWeight: FontWeight.w500),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.deepPurple.withOpacity(0.18),
+                            blurRadius: 24,
+                            offset: const Offset(0, 12),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      child: const Icon(Icons.directions_run, size: 80, color: Colors.deepPurpleAccent),
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 36),
-                  child: Container(
+                  const SizedBox(height: 18),
+                  FadeTransition(
+                    opacity: _welcomeAnimation,
+                    child: Text(
+                      'Welcome!',
+                      style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple,
+                        letterSpacing: 1.3,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      'Achieve your fitness goals with NutriLift. Track workouts, meals, and progress.',
+                      style: TextStyle(fontSize: 16, color: Colors.deepPurpleAccent),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildCard(
+                        icon: Icons.fitness_center,
+                        title: 'Workouts',
+                        subtitle: 'Log & view workouts',
+                        color: Colors.deepPurpleAccent,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const WorkoutsScreen()),
+                          );
+                        },
+                        fadeAnimation: _cardController,
+                        slideAnimation: _workoutCardOffset,
+                      ),
+                      const SizedBox(width: 24),
+                      _buildCard(
+                        icon: Icons.restaurant,
+                        title: 'Nutrition',
+                        subtitle: 'Track your meals',
+                        color: Colors.purple,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const NutritionScreen()),
+                          );
+                        },
+                        fadeAnimation: _cardController,
+                        slideAnimation: _nutritionCardOffset,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 32),
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    color: Colors.deepPurple[50]!.withOpacity(0.96),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.info_outline, color: Colors.deepPurpleAccent),
+                          SizedBox(width: 10),
+                          Flexible(
+                            child: Text(
+                              'Tip: Consistency is key. Stay hydrated!',
+                              style: TextStyle(fontSize: 16, color: Colors.deepPurple),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 32),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                       gradient: LinearGradient(
                         colors: [Colors.deepPurple[100]!, Colors.deepPurple[50]!],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
-                        Icon(Icons.format_quote, color: Colors.deepPurpleAccent, size: 28),
-                        SizedBox(width: 10),
+                        Icon(Icons.format_quote, color: Colors.deepPurpleAccent, size: 24),
+                        SizedBox(width: 8),
                         Flexible(
                           child: Text(
-                            '"Every step forward is progress."',
+                            '"Progress, not perfection."',
                             style: TextStyle(
-                              fontSize: 17,
+                              fontSize: 15,
                               color: Colors.deepPurpleAccent,
                               fontStyle: FontStyle.italic,
                             ),
@@ -330,40 +339,40 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 36),
-                AnimatedBuilder(
-                  animation: _welcomeController,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: 0.9 + 0.1 * _welcomeAnimation.value,
-                      child: child,
-                    );
-                  },
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurpleAccent,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.settings, color: Colors.white),
-                    label: const Text(
-                      'Settings',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                  const SizedBox(height: 28),
+                  AnimatedBuilder(
+                    animation: _welcomeController,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: 0.95 + 0.05 * _welcomeAnimation.value,
+                        child: child,
                       );
                     },
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurpleAccent,
+                        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      icon: const Icon(Icons.settings, color: Colors.white),
+                      label: const Text(
+                        'Settings',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                        );
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(height: 36),
-              ],
+                  const SizedBox(height: 28),
+                ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
