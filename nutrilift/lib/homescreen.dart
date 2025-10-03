@@ -1,3 +1,6 @@
+// Changes: Animations are now staggered and use different curves for each card and welcome text.
+// The icon uses a bounce effect, welcome text fades in with a delay, and cards slide in with staggered delays.
+
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,8 +18,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> _welcomeAnimation;
 
   late AnimationController _cardController;
-  late Animation<Offset> _workoutCardOffset;
-  late Animation<Offset> _nutritionCardOffset;
+  late Animation<double> _workoutFade;
+  late Animation<Offset> _workoutSlide;
+  late Animation<double> _nutritionFade;
+  late Animation<Offset> _nutritionSlide;
 
   @override
   void initState() {
@@ -24,11 +29,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     _iconController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 900),
     );
     _iconAnimation = CurvedAnimation(
       parent: _iconController,
-      curve: Curves.elasticOut,
+      curve: Curves.bounceOut,
     );
     _iconController.forward();
 
@@ -38,22 +43,46 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
     _welcomeAnimation = CurvedAnimation(
       parent: _welcomeController,
-      curve: Curves.easeOut,
+      curve: Curves.easeIn,
     );
-    _welcomeController.forward();
+    Future.delayed(const Duration(milliseconds: 400), () {
+      _welcomeController.forward();
+    });
 
     _cardController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 1200),
     );
-    _workoutCardOffset = Tween<Offset>(
+    _workoutFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _cardController,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+      ),
+    );
+    _workoutSlide = Tween<Offset>(
       begin: const Offset(-1.2, 0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _cardController, curve: Curves.easeOut));
-    _nutritionCardOffset = Tween<Offset>(
+    ).animate(
+      CurvedAnimation(
+        parent: _cardController,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack),
+      ),
+    );
+    _nutritionFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _cardController,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
+      ),
+    );
+    _nutritionSlide = Tween<Offset>(
       begin: const Offset(1.2, 0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _cardController, curve: Curves.easeOut));
+    ).animate(
+      CurvedAnimation(
+        parent: _cardController,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeOutBack),
+      ),
+    );
     _cardController.forward();
   }
 
@@ -266,8 +295,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             MaterialPageRoute(builder: (context) => const WorkoutsScreen()),
                           );
                         },
-                        fadeAnimation: _cardController,
-                        slideAnimation: _workoutCardOffset,
+                        fadeAnimation: _workoutFade,
+                        slideAnimation: _workoutSlide,
                       ),
                       const SizedBox(width: 24),
                       _buildCard(
@@ -281,8 +310,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             MaterialPageRoute(builder: (context) => const NutritionScreen()),
                           );
                         },
-                        fadeAnimation: _cardController,
-                        slideAnimation: _nutritionCardOffset,
+                        fadeAnimation: _nutritionFade,
+                        slideAnimation: _nutritionSlide,
                       ),
                     ],
                   ),
