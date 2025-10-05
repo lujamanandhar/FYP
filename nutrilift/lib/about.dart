@@ -1,3 +1,6 @@
+// Add these imports if you want to use url_launcher or navigation
+// import 'package:url_launcher/url_launcher.dart';
+
 import 'package:flutter/material.dart';
 
 class AboutPage extends StatefulWidget {
@@ -35,6 +38,18 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  // Example button actions
+  void _contactUs() {
+    // Implement your contact logic here
+    // e.g., launch email or show dialog
+    // launchUrl(Uri.parse('mailto:support@nutrilift.com'));
+  }
+
+  void _visitWebsite() {
+    // Implement your website logic here
+    // launchUrl(Uri.parse('https://nutrilift.com'));
   }
 
   @override
@@ -120,6 +135,37 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                         ],
                       ),
                     ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // New Buttons Section
+                FadeTransition(
+                  opacity: _descFade,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: _contactUs,
+                        icon: const Icon(Icons.email_outlined),
+                        label: const Text('Contact Us'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton.icon(
+                        onPressed: _visitWebsite,
+                        icon: const Icon(Icons.public),
+                        label: const Text('Visit Website'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.secondary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const Spacer(),
