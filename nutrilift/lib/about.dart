@@ -94,6 +94,20 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                // Logo Section
+                FadeTransition(
+                  opacity: _avatarFade,
+                  child: Center(
+                    child: SizedBox(
+                      height: 80,
+                      child: Image.asset(
+                        'assets/logo.png', // Make sure to add your logo image to assets and update pubspec.yaml
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 24),
                 FadeTransition(
                   opacity: _descFade,
