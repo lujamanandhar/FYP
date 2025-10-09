@@ -66,6 +66,14 @@ class WorkoutPage extends StatelessWidget {
                   ),
                 ),
                 trailing: Icon(Icons.arrow_forward_ios, color: Colors.deepPurpleAccent),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Selected: ${workout['name']}'),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                },
               ),
             );
           },
