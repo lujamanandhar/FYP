@@ -25,6 +25,8 @@ class _SplashScreenState extends State<SplashScreen>
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
     _controller.forward();
+
+    Future.delayed(const Duration(seconds: 3), _goToNextPage);
   }
 
   @override
@@ -34,7 +36,6 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _goToNextPage() {
-    // Replace with your next page navigation
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => const NextPage()),
     );
@@ -43,90 +44,122 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900],
-      body: Center(
-        child: FadeTransition(
-          opacity: _fadeIn,
-          child: AnimatedBuilder(
-            animation: _slideUp,
-            builder: (context, child) => Transform.translate(
-              offset: Offset(0, _slideUp.value),
-              child: child,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.orange[700]!, Colors.red[700]!],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.red.withOpacity(0.3),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Animated background gradient
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.orange[700]!.withValues(alpha: 0.8),
+                      Colors.red[700]!.withValues(alpha: 0.8),
+                      Colors.deepPurple[700]!.withValues(alpha: 0.8),
                     ],
-                  ),
-                  padding: const EdgeInsets.all(28),
-                  child: const Icon(
-                    Icons.fitness_center,
-                    size: 90,
-                    color: Colors.white,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
                 ),
-                const SizedBox(height: 36),
-                Text(
-                  'GymPro',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 38,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange[200],
-                    letterSpacing: 2,
-                  ),
+              );
+            },
+          ),
+          // Glow effect behind icon
+          Center(
+            child: FadeTransition(
+              opacity: _fadeIn,
+              child: AnimatedBuilder(
+                animation: _slideUp,
+                builder: (context, child) => Transform.translate(
+                  offset: Offset(0, _slideUp.value),
+                  child: child,
                 ),
-                const SizedBox(height: 14),
-                Text(
-                  'Push Your Limits',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.orange[100],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                const SizedBox(height: 44),
-                CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange[700]!),
-                  strokeWidth: 5,
-                ),
-                const SizedBox(height: 36),
-                ElevatedButton(
-                  onPressed: _goToNextPage,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange[700],
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.orangeAccent.withValues(alpha: 0.5),
+                                blurRadius: 40,
+                                spreadRadius: 10,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.orange[700]!, Colors.red[700]!],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(28),
+                          child: const Icon(
+                            Icons.fitness_center,
+                            size: 90,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  child: const Text(
-                    'Continue',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                      letterSpacing: 1,
+                    const SizedBox(height: 36),
+                    Text(
+                      'GymPro',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 42,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 2,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(2, 2),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 14),
+                    Text(
+                      'Push Your Limits',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.orange[100],
+                        fontStyle: FontStyle.italic,
+                        letterSpacing: 1,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 6,
+                            offset: const Offset(1, 1),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 44),
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.orange[700]!),
+                      strokeWidth: 5,
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
