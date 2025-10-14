@@ -53,6 +53,26 @@ class _MyHomePageState extends State<MyHomePage> {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('About NutriLift'),
+                  content: const Text('NutriLift helps you track your healthy habits!'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Close'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -74,13 +94,13 @@ class _MyHomePageState extends State<MyHomePage> {
             alignment: Alignment.center,
             child: SingleChildScrollView(
               child: Card(
-                elevation: 18,
-                margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(36)),
-                color: Colors.white.withOpacity(0.97),
-                shadowColor: Colors.green.shade200,
+                elevation: 22,
+                margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 28),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+                color: Colors.white.withOpacity(0.98),
+                shadowColor: Colors.green.shade300,
                 child: Padding(
-                  padding: const EdgeInsets.all(40.0),
+                  padding: const EdgeInsets.all(36.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -99,30 +119,30 @@ class _MyHomePageState extends State<MyHomePage> {
                           boxShadow: [
                             BoxShadow(
                               color: Colors.green.shade200,
-                              blurRadius: 16,
-                              offset: const Offset(0, 8),
+                              blurRadius: 18,
+                              offset: const Offset(0, 10),
                             ),
                           ],
                         ),
-                        padding: const EdgeInsets.all(20),
-                        child: Icon(Icons.health_and_safety, color: Colors.white, size: 64),
+                        padding: const EdgeInsets.all(24),
+                        child: Icon(Icons.health_and_safety, color: Colors.white, size: 72),
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 32),
                       Text(
                         'NutriLift Counter',
                         style: theme.textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: theme.colorScheme.primary,
-                          letterSpacing: 1.5,
+                          letterSpacing: 2,
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 20),
                       Text(
                         'You have pushed the button this many times:',
-                        style: theme.textTheme.bodyLarge?.copyWith(fontSize: 18, color: Colors.grey.shade700),
+                        style: theme.textTheme.bodyLarge?.copyWith(fontSize: 19, color: Colors.grey.shade700),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 400),
                         transitionBuilder: (child, animation) =>
@@ -133,29 +153,32 @@ class _MyHomePageState extends State<MyHomePage> {
                           style: theme.textTheme.displayLarge?.copyWith(
                             color: theme.colorScheme.primary,
                             fontWeight: FontWeight.bold,
-                            fontSize: 54,
+                            fontSize: 60,
                             shadows: [
                               Shadow(
                                 color: Colors.green.shade200,
-                                blurRadius: 12,
+                                blurRadius: 14,
                                 offset: const Offset(2, 2),
                               ),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 32),
-                      ElevatedButton.icon(
-                        onPressed: _incrementCounter,
-                        icon: const Icon(Icons.add, size: 28),
-                        label: const Text('Increment'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                          elevation: 8,
-                          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      const SizedBox(height: 36),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _incrementCounter,
+                          icon: const Icon(Icons.add, size: 30),
+                          label: const Text('Increment'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                            elevation: 10,
+                            textStyle: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ],
@@ -166,7 +189,15 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      floatingActionButton: null,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: Colors.white,
+        elevation: 8,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        onPressed: _incrementCounter,
+        child: const Icon(Icons.add),
+        tooltip: 'Increment',
+      ),
     );
   }
 }
