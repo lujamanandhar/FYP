@@ -61,6 +61,34 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     ),
   );
 
+  // New: Background circles animation
+  late final AnimationController _bgCircleController = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 3),
+  );
+  late final Animation<double> _bgCircleScale = Tween<double>(begin: 0.8, end: 1.1).animate(
+    CurvedAnimation(parent: _bgCircleController, curve: Curves.easeInOut),
+  );
+
+  // New: Quote fade-in animation
+  late final AnimationController _quoteController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+  );
+  late final Animation<double> _quoteFade = CurvedAnimation(
+    parent: _quoteController,
+    curve: Curves.easeIn,
+  );
+
+  // New: Tip card shimmer animation
+  late final AnimationController _tipController = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 2),
+  );
+  late final Animation<double> _tipShimmer = Tween<double>(begin: -1, end: 2).animate(
+    CurvedAnimation(parent: _tipController, curve: Curves.linear),
+  );
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +97,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _welcomeController.forward();
     });
     _cardController.forward();
+    _bgCircleController.repeat(reverse: true);
+    _quoteController.forward();
+    _tipController.repeat();
   }
 
   @override
@@ -76,6 +107,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _iconController.dispose();
     _welcomeController.dispose();
     _cardController.dispose();
+    _bgCircleController.dispose();
+    _quoteController.dispose();
+    _tipController.dispose();
     super.dispose();
   }
 
@@ -91,52 +125,60 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     Widget card = InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(28),
-      child: Container(
-        width: 160,
-        height: 180,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          gradient: LinearGradient(
-            colors: [color.withOpacity(0.85), Colors.white.withOpacity(0.18)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      child: AnimatedScale(
+        scale: fadeAnimation?.value ?? 1,
+        duration: const Duration(milliseconds: 400),
+        child: Container(
+          width: 160,
+          height: 180,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28),
+            gradient: LinearGradient(
+              colors: [color.withOpacity(0.85), Colors.white.withOpacity(0.18)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.25),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.25),
-              blurRadius: 18,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 32,
-              backgroundColor: Colors.white,
-              child: Icon(icon, size: 38, color: color),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: color,
-                letterSpacing: 1.1,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedRotation(
+                turns: fadeAnimation?.value ?? 0,
+                duration: const Duration(milliseconds: 600),
+                child: CircleAvatar(
+                  radius: 32,
+                  backgroundColor: Colors.white,
+                  child: Icon(icon, size: 38, color: color),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 14,
-                color: color.withOpacity(0.8),
+              const SizedBox(height: 16),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                  letterSpacing: 1.1,
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: color.withOpacity(0.8),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -184,37 +226,54 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
       body: Stack(
         children: [
-          Positioned(
-            top: -80,
-            left: -60,
-            child: Container(
-              width: 180,
-              height: 180,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [Colors.deepPurpleAccent.withOpacity(0.18), Colors.deepPurple.withOpacity(0.12)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          // Animated background circles
+          AnimatedBuilder(
+            animation: _bgCircleController,
+            builder: (context, child) {
+              return Positioned(
+                top: -80,
+                left: -60,
+                child: Transform.scale(
+                  scale: _bgCircleScale.value,
+                  child: Container(
+                    width: 180,
+                    height: 180,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [Colors.deepPurpleAccent.withOpacity(0.18), Colors.deepPurple.withOpacity(0.12)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
-          Positioned(
-            bottom: -60,
-            right: -40,
-            child: Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [Colors.purple.withOpacity(0.15), Colors.deepPurpleAccent.withOpacity(0.10)],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
+          AnimatedBuilder(
+            animation: _bgCircleController,
+            builder: (context, child) {
+              return Positioned(
+                bottom: -60,
+                right: -40,
+                child: Transform.scale(
+                  scale: 1.2 - (_bgCircleScale.value - 0.8),
+                  child: Container(
+                    width: 140,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [Colors.purple.withOpacity(0.15), Colors.deepPurpleAccent.withOpacity(0.10)],
+                        begin: Alignment.topRight,
+                        end: Alignment.bottomLeft,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
           Center(
             child: SingleChildScrollView(
@@ -223,36 +282,54 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   const SizedBox(height: 32),
                   ScaleTransition(
                     scale: _iconAnimation,
-                    child: Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.deepPurple.withOpacity(0.18),
-                            blurRadius: 24,
-                            offset: const Offset(0, 12),
+                    child: AnimatedBuilder(
+                      animation: _iconController,
+                      builder: (context, child) {
+                        return Transform.rotate(
+                          angle: _iconController.value * 0.2,
+                          child: child,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                        ],
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.deepPurple.withOpacity(0.18),
+                              blurRadius: 24,
+                              offset: const Offset(0, 12),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.directions_run, size: 80, color: Colors.deepPurpleAccent),
                       ),
-                      child: const Icon(Icons.directions_run, size: 80, color: Colors.deepPurpleAccent),
                     ),
                   ),
                   const SizedBox(height: 18),
                   FadeTransition(
                     opacity: _welcomeAnimation,
-                    child: Text(
-                      'Welcome!',
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
-                        letterSpacing: 1.3,
+                    child: AnimatedBuilder(
+                      animation: _welcomeController,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(0, -10 * (1 - _welcomeAnimation.value)),
+                          child: child,
+                        );
+                      },
+                      child: Text(
+                        'Welcome!',
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepPurple,
+                          letterSpacing: 1.3,
+                        ),
                       ),
                     ),
                   ),
@@ -301,56 +378,97 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ],
                   ),
                   const SizedBox(height: 32),
-                  Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 32),
-                    elevation: 6,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    color: Colors.deepPurple[50]!.withOpacity(0.96),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                  // Tip card with shimmer effect
+                  AnimatedBuilder(
+                    animation: _tipController,
+                    builder: (context, child) {
+                      return Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 32),
+                        elevation: 6,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        color: Colors.deepPurple[50]!.withOpacity(0.96),
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: FractionallySizedBox(
+                                widthFactor: 1,
+                                child: ShaderMask(
+                                  shaderCallback: (rect) {
+                                    return LinearGradient(
+                                      colors: [
+                                        Colors.deepPurpleAccent.withOpacity(0.1),
+                                        Colors.deepPurpleAccent.withOpacity(0.3),
+                                        Colors.deepPurpleAccent.withOpacity(0.1),
+                                      ],
+                                      stops: [
+                                        (_tipShimmer.value - 0.2).clamp(0.0, 1.0),
+                                        _tipShimmer.value.clamp(0.0, 1.0),
+                                        (_tipShimmer.value + 0.2).clamp(0.0, 1.0),
+                                      ],
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                    ).createShader(rect);
+                                  },
+                                  blendMode: BlendMode.srcATop,
+                                  child: Container(
+                                    color: Colors.transparent,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(Icons.info_outline, color: Colors.deepPurpleAccent),
+                                  SizedBox(width: 10),
+                                  Flexible(
+                                    child: Text(
+                                      'Tip: Consistency is key. Stay hydrated!',
+                                      style: TextStyle(fontSize: 16, color: Colors.deepPurple),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  // Quote with fade-in animation
+                  FadeTransition(
+                    opacity: _quoteFade,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 32),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        gradient: LinearGradient(
+                          colors: [Colors.deepPurple, Colors.deepPurpleAccent],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Icon(Icons.info_outline, color: Colors.deepPurpleAccent),
-                          SizedBox(width: 10),
+                          Icon(Icons.format_quote, color: Colors.white, size: 24),
+                          SizedBox(width: 8),
                           Flexible(
                             child: Text(
-                              'Tip: Consistency is key. Stay hydrated!',
-                              style: TextStyle(fontSize: 16, color: Colors.deepPurple),
+                              '"Progress, not perfection."',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 32),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      gradient: LinearGradient(
-                        colors: [Colors.deepPurple, Colors.deepPurpleAccent],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.format_quote, color: Colors.white, size: 24),
-                        SizedBox(width: 8),
-                        Flexible(
-                          child: Text(
-                            '"Progress, not perfection."',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.white,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                   const SizedBox(height: 28),
