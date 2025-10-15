@@ -1,6 +1,3 @@
-// Changes: Animations are now staggered and use different curves for each card and welcome text.
-// The icon uses a bounce effect, welcome text fades in with a delay, and cards slide in with staggered delays.
-
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,78 +8,66 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  late AnimationController _iconController;
-  late Animation<double> _iconAnimation;
+  late final AnimationController _iconController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
+  late final Animation<double> _iconAnimation = CurvedAnimation(
+    parent: _iconController,
+    curve: Curves.bounceOut,
+  );
 
-  late AnimationController _welcomeController;
-  late Animation<double> _welcomeAnimation;
+  late final AnimationController _welcomeController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
+  late final Animation<double> _welcomeAnimation = CurvedAnimation(
+    parent: _welcomeController,
+    curve: Curves.easeIn,
+  );
 
-  late AnimationController _cardController;
-  late Animation<double> _workoutFade;
-  late Animation<Offset> _workoutSlide;
-  late Animation<double> _nutritionFade;
-  late Animation<Offset> _nutritionSlide;
+  late final AnimationController _cardController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+  );
+  late final Animation<double> _workoutFade = Tween<double>(begin: 0, end: 1).animate(
+    CurvedAnimation(
+      parent: _cardController,
+      curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+    ),
+  );
+  late final Animation<Offset> _workoutSlide = Tween<Offset>(
+    begin: const Offset(-1.2, 0),
+    end: Offset.zero,
+  ).animate(
+    CurvedAnimation(
+      parent: _cardController,
+      curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack),
+    ),
+  );
+  late final Animation<double> _nutritionFade = Tween<double>(begin: 0, end: 1).animate(
+    CurvedAnimation(
+      parent: _cardController,
+      curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
+    ),
+  );
+  late final Animation<Offset> _nutritionSlide = Tween<Offset>(
+    begin: const Offset(1.2, 0),
+    end: Offset.zero,
+  ).animate(
+    CurvedAnimation(
+      parent: _cardController,
+      curve: const Interval(0.5, 1.0, curve: Curves.easeOutBack),
+    ),
+  );
 
   @override
   void initState() {
     super.initState();
-
-    _iconController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    );
-    _iconAnimation = CurvedAnimation(
-      parent: _iconController,
-      curve: Curves.bounceOut,
-    );
     _iconController.forward();
-
-    _welcomeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    );
-    _welcomeAnimation = CurvedAnimation(
-      parent: _welcomeController,
-      curve: Curves.easeIn,
-    );
     Future.delayed(const Duration(milliseconds: 400), () {
       _welcomeController.forward();
     });
-
-    _cardController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-    _workoutFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _cardController,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
-      ),
-    );
-    _workoutSlide = Tween<Offset>(
-      begin: const Offset(-1.2, 0),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _cardController,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack),
-      ),
-    );
-    _nutritionFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _cardController,
-        curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
-      ),
-    );
-    _nutritionSlide = Tween<Offset>(
-      begin: const Offset(1.2, 0),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _cardController,
-        curve: const Interval(0.5, 1.0, curve: Curves.easeOutBack),
-      ),
-    );
     _cardController.forward();
   }
 
@@ -344,7 +329,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
                       gradient: LinearGradient(
-                        colors: [Colors.deepPurple[100]!, Colors.deepPurple[50]!],
+                        colors: [Colors.deepPurple, Colors.deepPurpleAccent],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -353,14 +338,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
-                        Icon(Icons.format_quote, color: Colors.deepPurpleAccent, size: 24),
+                        Icon(Icons.format_quote, color: Colors.white, size: 24),
                         SizedBox(width: 8),
                         Flexible(
                           child: Text(
                             '"Progress, not perfection."',
                             style: TextStyle(
                               fontSize: 15,
-                              color: Colors.deepPurpleAccent,
+                              color: Colors.white,
                               fontStyle: FontStyle.italic,
                             ),
                           ),
