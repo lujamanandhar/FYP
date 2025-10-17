@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Drop this file in lib/community.dart and add shared_preferences to pubspec.yaml:
 /// shared_preferences: ^2.0.0
 class CommunityAgePage extends StatefulWidget {
-  const CommunityAgePage({Key? key}) : super(key: key);
+  const CommunityAgePage({super.key});
 
   @override
   State<CommunityAgePage> createState() => _CommunityAgePageState();
@@ -206,12 +206,12 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
             Expanded(
               child: _age == null
                   ? Center(
-                      child: Text(
-                        'Set your age to see community posts tailored to your group.',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyText2,
-                      ),
-                    )
+                    child: Text(
+                      'Set your age to see community posts tailored to your group.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  )
                   : filtered.isEmpty
                       ? Center(
                           child: Text(

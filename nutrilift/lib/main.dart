@@ -113,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [primary.withOpacity(0.95), Colors.green.shade700.withOpacity(0.95)],
+              colors: [primary.withAlpha((0.95 * 255).round()), Colors.green.shade700.withAlpha((0.95 * 255).round())],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -158,12 +158,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
+                          color: Colors.white.withAlpha((0.12 * 255).round()),
                           borderRadius: BorderRadius.circular(28),
-                          border: Border.all(color: Colors.white.withOpacity(0.10)),
+                          border: Border.all(color: Colors.white.withAlpha((0.10 * 255).round())),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
+                              color: Colors.black.withAlpha((0.08 * 255).round()),
                               blurRadius: 30,
                               offset: const Offset(0, 10),
                             ),
@@ -180,8 +180,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(colors: [primary, Colors.green.shade300]),
                                 boxShadow: [
-                                  BoxShadow(color: primary.withOpacity(0.35), blurRadius: 24, offset: const Offset(0, 10)),
-                                ],
+                                    BoxShadow(color: primary.withAlpha((0.35 * 255).round()), blurRadius: 24, offset: const Offset(0, 10)),
+                                  ],
                               ),
                               child: CircleAvatar(
                                 backgroundColor: Colors.transparent,
@@ -213,9 +213,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                 key: ValueKey<int>(_counter),
                                 padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
                                 decoration: BoxDecoration(
-                                  gradient: LinearGradient(colors: [Colors.white.withOpacity(0.06), Colors.white.withOpacity(0.03)]),
+                                  gradient: LinearGradient(colors: [Colors.white.withAlpha((0.06 * 255).round()), Colors.white.withAlpha((0.03 * 255).round())]),
                                   borderRadius: BorderRadius.circular(18),
-                                  border: Border.all(color: Colors.white.withOpacity(0.06)),
+                                  border: Border.all(color: Colors.white.withAlpha((0.06 * 255).round())),
                                 ),
                                 child: Column(
                                   children: [
@@ -266,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                   ),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: Colors.white,
-                                    side: BorderSide(color: Colors.white.withOpacity(0.12)),
+                                    side: BorderSide(color: Colors.white.withAlpha((0.12 * 255).round())),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                   ),
                                 ),
@@ -288,12 +288,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _incrementCounter,
+      floatingActionButton: GestureDetector(
         onLongPress: _confirmReset,
-        backgroundColor: primary,
-        label: const Text('Add'),
-        icon: const Icon(Icons.add),
+        child: FloatingActionButton.extended(
+          onPressed: _incrementCounter,
+          backgroundColor: primary,
+          label: const Text('Add'),
+          icon: const Icon(Icons.add),
+        ),
       ),
     );
   }
