@@ -5,6 +5,8 @@ void main() {
   runApp(const MyApp());
 }
 
+class GitHubCopilot {}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -17,7 +19,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      home: const MyHomePage(title: 'NutriLift Home'),
+      home: const MyHomePage(title: 'NutriLift'),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -31,34 +33,33 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
-  int _counter = 0;
-  late final AnimationController _bgController;
+class Habit {
+  String title;
+  String subtitle;
+  bool done;
+  Habit(this.title, this.subtitle, {this.done = false});
+}
 
-  @override
-  void initState() {
-    super.initState();
-    _bgController = AnimationController(vsync: this, duration: const Duration(seconds: 8))
-      ..repeat(reverse: true);
-  }
+class _MyHomePageState extends State<MyHomePage> {
+  int _points = 12;
+  final List<Habit> _habits = [
+    Habit('Drink water', '8 glasses target'),
+    Habit('Walk', '20 minutes'),
+    Habit('Vegetables', 'Include in meal'),
+    Habit('Sleep early', 'Before 11pm'),
+  ];
 
-  @override
-  void dispose() {
-    _bgController.dispose();
-    super.dispose();
-  }
-
-  void _incrementCounter() {
+  void _incrementPoints([int by = 1]) {
     setState(() {
-      _counter++;
+      _points += by;
+      if (_points > 9999) _points = 9999;
     });
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Added +1'),
-        duration: const Duration(milliseconds: 800),
+      const SnackBar(
+        content: Text('Points added'),
+        duration: Duration(milliseconds: 700),
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
     );
   }
@@ -67,8 +68,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     final res = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reset counter?'),
-        content: const Text('This will set the counter back to zero.'),
+        title: const Text('Reset points?'),
+        content: const Text('This will set points back to zero.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
           ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Reset')),
@@ -77,211 +78,185 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     );
     if (res == true) {
       setState(() {
-        _counter = 0;
+        _points = 0;
+        for (var h in _habits) h.done = false;
       });
     }
+  }
+
+  void _toggleHabit(int index) {
+    setState(() {
+      _habits[index].done = !_habits[index].done;
+      _points += _habits[index].done ? 5 : -5;
+      if (_points < 0) _points = 0;
+    });
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(_habits[index].done ? 'Marked done' : 'Marked undone'),
+        duration: const Duration(milliseconds: 700),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
+    final progress = ((_points % 100) / 100).clamp(0.0, 1.0);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        title: Text(widget.title, style: const TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: Text(widget.title, style: const TextStyle(fontWeight: FontWeight.w700, letterSpacing: 1.2)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('About NutriLift'),
-                  content: const Text('NutriLift helps you track your healthy habits!'),
-                  actions: [
-                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [primary.withAlpha((0.95 * 255).round()), Colors.green.shade700.withAlpha((0.95 * 255).round())],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
-          ),
-        ),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(bottom: Radius.circular(24))),
       ),
       body: Stack(
         children: [
-          // Animated subtle gradient background
-          AnimatedBuilder(
-            animation: _bgController,
-            builder: (context, child) {
-              final t = _bgController.value;
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment(-1 + t * 2, -1),
-                    end: Alignment(1 - t * 2, 1),
-                    colors: [
-                      Colors.green.shade50,
-                      Colors.green.shade100,
-                      Colors.green.shade300,
-                      Colors.green.shade600,
-                    ],
-                    stops: const [0.0, 0.35, 0.7, 1.0],
-                  ),
-                ),
-              );
-            },
+          // background gradient
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.green.shade50, Colors.green.shade200, Colors.green.shade600],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
           ),
+          // subtle blur card area
           SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 720),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(28),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withAlpha((0.12 * 255).round()),
-                          borderRadius: BorderRadius.circular(28),
-                          border: Border.all(color: Colors.white.withAlpha((0.10 * 255).round())),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withAlpha((0.08 * 255).round()),
-                              blurRadius: 30,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        padding: const EdgeInsets.all(28),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // top icon/brand
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: LinearGradient(colors: [primary, Colors.green.shade300]),
-                                boxShadow: [
-                                    BoxShadow(color: primary.withAlpha((0.35 * 255).round()), blurRadius: 24, offset: const Offset(0, 10)),
-                                  ],
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: Column(
+                  children: [
+                    // header card with progress ring
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                        child: Container(
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.white.withOpacity(0.08)),
+                          ),
+                          child: Row(
+                            children: [
+                              // circular progress
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 96,
+                                    height: 96,
+                                    child: CircularProgressIndicator(
+                                      value: progress,
+                                      strokeWidth: 8,
+                                      backgroundColor: Colors.white24,
+                                      valueColor: AlwaysStoppedAnimation<Color>(primary),
+                                    ),
+                                  ),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text('${_points % 100}', style: theme.textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
+                                      Text('pts', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70)),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              child: CircleAvatar(
-                                backgroundColor: Colors.transparent,
-                                radius: 44,
-                                child: Icon(Icons.health_and_safety, color: Colors.white, size: 44),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Text(
-                              'NutriLift',
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                color: primary,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.6,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Track healthy habits — small steps daily',
-                              style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white70, fontSize: 15),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 22),
-                            // counter display with gradient text
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 450),
-                              transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
-                              child: Container(
-                                key: ValueKey<int>(_counter),
-                                padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(colors: [Colors.white.withAlpha((0.06 * 255).round()), Colors.white.withAlpha((0.03 * 255).round())]),
-                                  borderRadius: BorderRadius.circular(18),
-                                  border: Border.all(color: Colors.white.withAlpha((0.06 * 255).round())),
-                                ),
+                              const SizedBox(width: 18),
+                              // text info
+                              Expanded(
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      'You pressed',
-                                      style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
-                                    ),
+                                    Text('Daily Progress', style: theme.textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 6),
-                                    ShaderMask(
-                                      blendMode: BlendMode.srcIn,
-                                      shaderCallback: (bounds) => LinearGradient(
-                                        colors: [primary, Colors.green.shade300],
-                                      ).createShader(bounds),
-                                      child: Text(
-                                        '$_counter',
-                                        style: theme.textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800, fontSize: 56),
-                                      ),
+                                    Text('Keep going — small habits add up.', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70)),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        ElevatedButton.icon(
+                                          onPressed: () => _incrementPoints(1),
+                                          icon: const Icon(Icons.add),
+                                          label: const Text('Add 1'),
+                                          style: ElevatedButton.styleFrom(backgroundColor: primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        OutlinedButton(
+                                          onPressed: _confirmReset,
+                                          child: const Text('Reset'),
+                                          style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 24),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: ElevatedButton.icon(
-                                    onPressed: _incrementCounter,
-                                    icon: const Icon(Icons.add),
-                                    label: const Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 14),
-                                      child: Text('Increment', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: primary,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                      elevation: 8,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                OutlinedButton.icon(
-                                  onPressed: _confirmReset,
-                                  icon: const Icon(Icons.refresh),
-                                  label: const Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 14),
-                                    child: Text('Reset', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                                  ),
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    side: BorderSide(color: Colors.white.withAlpha((0.12 * 255).round())),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Tip: long-press the floating button to reset.',
-                              style: theme.textTheme.bodySmall?.copyWith(color: Colors.white60),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 18),
+                    // categories chips
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _CategoryChip(label: 'Hydration', color: Colors.blue.shade300),
+                          const SizedBox(width: 8),
+                          _CategoryChip(label: 'Exercise', color: Colors.orange.shade300),
+                          const SizedBox(width: 8),
+                          _CategoryChip(label: 'Nutrition', color: Colors.green.shade300),
+                          const SizedBox(width: 8),
+                          _CategoryChip(label: 'Sleep', color: Colors.purple.shade300),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    // habits list
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        color: Colors.white.withOpacity(0.04),
+                        child: ListView.separated(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: _habits.length,
+                          separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.white12),
+                          itemBuilder: (context, index) {
+                            final h = _habits[index];
+                            return ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              leading: CircleAvatar(
+                                backgroundColor: h.done ? primary : Colors.white24,
+                                child: Icon(h.done ? Icons.check : Icons.health_and_safety, color: Colors.white),
+                              ),
+                              title: Text(h.title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                              subtitle: Text(h.subtitle, style: TextStyle(color: Colors.white70)),
+                              trailing: Switch(
+                                value: h.done,
+                                onChanged: (_) => _toggleHabit(index),
+                                activeColor: primary,
+                              ),
+                              onTap: () => _toggleHabit(index),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text('Tip: toggle habits to add/remove points', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white60)),
+                    const SizedBox(height: 80),
+                  ],
                 ),
               ),
             ),
@@ -291,12 +266,28 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       floatingActionButton: GestureDetector(
         onLongPress: _confirmReset,
         child: FloatingActionButton.extended(
-          onPressed: _incrementCounter,
+          onPressed: () => _incrementPoints(1),
           backgroundColor: primary,
-          label: const Text('Add'),
           icon: const Icon(Icons.add),
+          label: const Text('Add Point'),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+}
+
+class _CategoryChip extends StatelessWidget {
+  final String label;
+  final Color color;
+  const _CategoryChip({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      label: Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+      backgroundColor: color.withOpacity(0.9),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 }
