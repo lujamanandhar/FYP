@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Community age screen for a fitness app.
-/// Drop this file in lib/community.dart and add shared_preferences to pubspec.yaml:
-/// shared_preferences: ^2.0.0
+/// This version keeps the age in memory only; to persist across launches,
+/// add `shared_preferences` to pubspec.yaml and restore persistent code.
 class CommunityAgePage extends StatefulWidget {
   const CommunityAgePage({super.key});
 
@@ -66,19 +65,16 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
   }
 
   Future<void> _loadSavedAge() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedAge = prefs.getInt('user_age');
-    if (savedAge != null) {
-      setState(() {
-        _age = savedAge;
-        _ageController.text = savedAge.toString();
-      });
+    // No persistent storage available in this build; default to no saved age.
+    // If you add shared_preferences, restore loading logic here.
+    if (_age != null) {
+      _ageController.text = _age.toString();
     }
   }
 
   Future<void> _saveAge(int age) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('user_age', age);
+    // No persistent storage in this build; store in memory only.
+    // If you add shared_preferences, persist the value here.
     setState(() {
       _age = age;
       _ageController.text = age.toString();
@@ -87,7 +83,7 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
 
   String _ageGroupLabel(int age) {
     if (age >= 13 && age <= 19) return 'Teens (13-19)';
-    if (age >= 20 && age <= 35) return 'Young Adults (20-35)';
+    if (age >= 20 && age <= 35) return 'Young adults (20-35)';
     if (age >= 36 && age <= 55) return 'Adults (36-55)';
     if (age >= 56) return 'Seniors (56+)';
     return 'Unknown';
@@ -104,13 +100,13 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
 
   void _incrementAge() {
     final current = int.tryParse(_ageController.text) ?? (_age ?? 25);
-    final next = (current + 1).clamp(13, 120);
+    final next = ((current + 1).clamp(13, 120)).toInt();
     _ageController.text = next.toString();
   }
 
   void _decrementAge() {
     final current = int.tryParse(_ageController.text) ?? (_age ?? 25);
-    final next = (current - 1).clamp(13, 120);
+    final next = ((current - 1).clamp(13, 120)).toInt();
     _ageController.text = next.toString();
   }
 
@@ -206,12 +202,12 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
             Expanded(
               child: _age == null
                   ? Center(
-                    child: Text(
-                      'Set your age to see community posts tailored to your group.',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  )
+                      child: Text(
+                        'Set your age to see community posts tailored to your group.',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    )
                   : filtered.isEmpty
                       ? Center(
                           child: Text(
