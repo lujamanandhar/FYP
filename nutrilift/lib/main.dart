@@ -12,13 +12,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final base = ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+      useMaterial3: true,
+      fontFamily: 'Roboto',
+    );
+
+    // slightly enhanced text theme for a more modern look
+    final textTheme = base.textTheme.copyWith(
+      titleLarge: base.textTheme.titleLarge?.copyWith(fontSize: 20, fontWeight: FontWeight.w900),
+      headlineSmall: base.textTheme.headlineSmall?.copyWith(fontSize: 26, fontWeight: FontWeight.w900),
+      bodyMedium: base.textTheme.bodyMedium?.copyWith(fontSize: 14),
+      bodySmall: base.textTheme.bodySmall?.copyWith(fontSize: 12),
+    );
+
     return MaterialApp(
       title: 'NutriLift',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-        fontFamily: 'Roboto',
-      ),
+      theme: base.copyWith(textTheme: textTheme),
       home: const MyHomePage(title: 'NutriLift'),
       debugShowCheckedModeBanner: false,
     );
@@ -164,7 +174,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
+    // keep progress as percent of 100 for the circular indicator, but show level separately
     final progress = ((_points % 100) / 100).clamp(0.0, 1.0);
+    final level = (_points ~/ 100).clamp(0, 99);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -179,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       ),
       body: Stack(
         children: [
-          // beautiful layered gradient background
+          // animated layered gradient background
           AnimatedBuilder(
             animation: _animController,
             builder: (context, child) {
@@ -187,10 +199,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               return Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment(-0.8 + t * 0.4, -1),
+                    begin: Alignment(-0.9 + t * 0.5, -1),
                     end: Alignment(1, 1),
                     colors: [
-                      Colors.teal.shade800,
+                      Colors.teal.shade900,
                       Colors.teal.shade600.withOpacity(0.9),
                       Colors.green.shade400.withOpacity(0.9),
                     ],
@@ -199,33 +211,51 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               );
             },
           ),
-          // subtle frosted card layout
+          // frosted content
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 900),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // header card
+                    // improved header card with stronger glass effect, subtle elevation & rounded shape
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(20),
                       child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                         child: Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(18),
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.white.withOpacity(0.06),
+                                Colors.white.withOpacity(0.03),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: Colors.white24),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withOpacity(0.25), blurRadius: 18, offset: const Offset(0, 8)),
+                            ],
                           ),
                           child: Row(
                             children: [
-                              // animated circular progress
-                              SizedBox(
-                                width: 110,
-                                height: 110,
+                              // circular progress with nicer ring and shadow
+                              Container(
+                                width: 120,
+                                height: 120,
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: RadialGradient(
+                                    colors: [primary.withOpacity(0.3), Colors.transparent],
+                                  ),
+                                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 6))],
+                                ),
                                 child: TweenAnimationBuilder<double>(
                                   tween: Tween<double>(begin: 0, end: progress),
                                   duration: const Duration(milliseconds: 800),
@@ -233,12 +263,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                     alignment: Alignment.center,
                                     children: [
                                       SizedBox(
-                                        width: 110,
-                                        height: 110,
+                                        width: 108,
+                                        height: 108,
                                         child: CircularProgressIndicator(
                                           value: value,
                                           strokeWidth: 10,
-                                          backgroundColor: Colors.white24,
+                                          backgroundColor: Colors.white12,
                                           valueColor: AlwaysStoppedAnimation<Color>(primary),
                                         ),
                                       ),
@@ -282,6 +312,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: primary,
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                            elevation: 6,
+                                            shadowColor: primary.withOpacity(0.6),
                                           ),
                                         ),
                                         const SizedBox(width: 10),
@@ -295,6 +327,23 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                           ),
                                         ),
+                                        const Spacer(),
+                                        // small level/streak chip
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.06),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.rocket_launch, color: Colors.white70, size: 14),
+                                              const SizedBox(width: 6),
+                                              Text('Lv. $level', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70, fontWeight: FontWeight.w700)),
+                                            ],
+                                          ),
+                                        )
                                       ],
                                     ),
                                   ],
@@ -306,115 +355,192 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       ),
                     ),
                     const SizedBox(height: 18),
-                    // filter/search row
+                    // search + filter row with translucent input
                     Row(
                       children: [
                         Expanded(
-                          child: TextField(
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white.withOpacity(0.04),
-                              prefixIcon: const Icon(Icons.search, color: Colors.white70),
-                              hintText: 'Search habits',
-                              hintStyle: const TextStyle(color: Colors.white54),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.04),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white10),
                             ),
-                            onChanged: (val) {
-                              // simple no-op for now; placeholder for future filter
-                            },
+                            child: TextField(
+                              style: const TextStyle(color: Colors.white),
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(Icons.search, color: Colors.white70),
+                                hintText: 'Search habits',
+                                hintStyle: const TextStyle(color: Colors.white54),
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                              ),
+                              onChanged: (val) {
+                                // no-op placeholder
+                              },
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Chip(
-                          label: const Text('Today', style: TextStyle(color: Colors.white)),
-                          backgroundColor: Colors.white.withOpacity(0.06),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        InkWell(
+                          onTap: () {},
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.06),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.calendar_today, size: 16, color: Colors.white70),
+                                const SizedBox(width: 8),
+                                Text('Today', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white)),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    // habits list
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        color: Colors.white.withOpacity(0.03),
-                        child: ListView.separated(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: _habits.length,
-                          separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.white10),
-                          itemBuilder: (context, index) {
-                            final h = _habits[index];
-                            return Dismissible(
-                              key: ValueKey(h.title + h.subtitle + index.toString()),
-                              background: Container(
-                                alignment: Alignment.centerLeft,
-                                padding: const EdgeInsets.only(left: 18),
-                                color: Colors.green.shade600,
-                                child: const Icon(Icons.check, color: Colors.white),
-                              ),
-                              secondaryBackground: Container(
-                                alignment: Alignment.centerRight,
-                                padding: const EdgeInsets.only(right: 18),
-                                color: Colors.red.shade600,
-                                child: const Icon(Icons.delete, color: Colors.white),
-                              ),
-                              confirmDismiss: (dir) async {
-                                if (dir == DismissDirection.startToEnd) {
-                                  // swipe right: toggle done
-                                  _toggleHabit(index);
-                                  return false; // do not remove
-                                } else {
-                                  // swipe left: delete
-                                  final confirm = await showDialog<bool>(
-                                    context: context,
-                                    builder: (c) => AlertDialog(
-                                      title: const Text('Delete habit?'),
-                                      content: Text('Delete "${h.title}"?'),
-                                      actions: [
-                                        TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
-                                        ElevatedButton(onPressed: () => Navigator.pop(c, true), child: const Text('Delete')),
-                                      ],
-                                    ),
-                                  );
-                                  return confirm == true;
-                                }
-                              },
-                              onDismissed: (_) => _deleteHabit(index),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 350),
-                                color: h.done ? Colors.white.withOpacity(0.02) : Colors.transparent,
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  leading: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: h.done
-                                          ? LinearGradient(colors: [primary.withOpacity(0.9), primary.withOpacity(0.6)])
-                                          : null,
-                                      color: h.done ? null : Colors.white24,
-                                    ),
-                                    width: 46,
-                                    height: 46,
-                                    child: Icon(h.done ? Icons.check : Icons.water_drop, color: Colors.white),
+                    // improved habits list: each item as elevated card with subtle animation
+                    Column(
+                      children: List.generate(_habits.length, (index) {
+                        final h = _habits[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Dismissible(
+                            key: ValueKey(h.title + h.subtitle + index.toString()),
+                            background: Container(
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.only(left: 18),
+                              color: Colors.green.shade600,
+                              child: const Icon(Icons.check, color: Colors.white),
+                            ),
+                            secondaryBackground: Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 18),
+                              color: Colors.red.shade600,
+                              child: const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            confirmDismiss: (dir) async {
+                              if (dir == DismissDirection.startToEnd) {
+                                _toggleHabit(index);
+                                return false;
+                              } else {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (c) => AlertDialog(
+                                    title: const Text('Delete habit?'),
+                                    content: Text('Delete "${h.title}"?'),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+                                      ElevatedButton(onPressed: () => Navigator.pop(c, true), child: const Text('Delete')),
+                                    ],
                                   ),
-                                  title: Text(h.title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
-                                  subtitle: Text(h.subtitle, style: TextStyle(color: Colors.white70)),
-                                  trailing: Switch.adaptive(
-                                    value: h.done,
-                                    onChanged: (_) => _toggleHabit(index),
-                                    activeColor: primary,
+                                );
+                                return confirm == true;
+                              }
+                            },
+                            onDismissed: (_) => _deleteHabit(index),
+                            child: Material(
+                              color: h.done ? Colors.white.withOpacity(0.03) : Colors.white.withOpacity(0.02),
+                              elevation: 6,
+                              shadowColor: Colors.black.withOpacity(0.25),
+                              borderRadius: BorderRadius.circular(14),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(14),
+                                onTap: () => _toggleHabit(index),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                  child: Row(
+                                    children: [
+                                      AnimatedContainer(
+                                        duration: const Duration(milliseconds: 300),
+                                        width: 52,
+                                        height: 52,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          gradient: h.done
+                                              ? LinearGradient(colors: [primary.withOpacity(0.95), primary.withOpacity(0.6)])
+                                              : null,
+                                          color: h.done ? null : Colors.white12,
+                                          border: Border.all(color: Colors.white10),
+                                        ),
+                                        child: Icon(h.done ? Icons.check : Icons.water_drop, color: Colors.white),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(h.title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+                                            const SizedBox(height: 4),
+                                            Text(h.subtitle, style: TextStyle(color: Colors.white70)),
+                                          ],
+                                        ),
+                                      ),
+                                      Column(
+                                        children: [
+                                          Switch.adaptive(
+                                            value: h.done,
+                                            onChanged: (_) => _toggleHabit(index),
+                                            activeColor: primary,
+                                          ),
+                                          PopupMenuButton<String>(
+                                            color: Colors.grey.shade900,
+                                            onSelected: (v) {
+                                              if (v == 'edit') {
+                                                // quick edit dialog
+                                                final titleCtrl = TextEditingController(text: h.title);
+                                                final subCtrl = TextEditingController(text: h.subtitle);
+                                                showDialog<bool>(
+                                                  context: context,
+                                                  builder: (c) => AlertDialog(
+                                                    title: const Text('Edit Habit'),
+                                                    content: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Title')),
+                                                        TextField(controller: subCtrl, decoration: const InputDecoration(labelText: 'Subtitle')),
+                                                      ],
+                                                    ),
+                                                    actions: [
+                                                      TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(c, true);
+                                                        },
+                                                        child: const Text('Save'),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ).then((ok) {
+                                                  if (ok == true) {
+                                                    setState(() {
+                                                      h.title = titleCtrl.text.trim();
+                                                      h.subtitle = subCtrl.text.trim();
+                                                    });
+                                                  }
+                                                });
+                                              } else if (v == 'delete') {
+                                                _deleteHabit(index);
+                                              }
+                                            },
+                                            itemBuilder: (context) => [
+                                              const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                                              const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                            ],
+                                          )
+                                        ],
+                                      )
+                                    ],
                                   ),
-                                  onTap: () => _toggleHabit(index),
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ),
+                            ),
+                          ),
+                        );
+                      }),
                     ),
                     const SizedBox(height: 18),
                     Row(
