@@ -37,6 +37,13 @@ class _WorkoutPageState extends State<WorkoutPage> {
       'icon': Icons.sports_handball,
       'completed': false,
     },
+    {
+      'name': 'Burpees',
+      'reps': '3 x 12',
+      'desc': 'Full body strength and cardio exercise.',
+      'icon': Icons.whatshot,
+      'completed': false,
+    },
   ];
 
   int? expandedIndex;
