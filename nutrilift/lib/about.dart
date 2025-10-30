@@ -12,15 +12,39 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
   late final AnimationController _controller;
   late final Animation<double> _fadeIn;
   late final Animation<double> _logoScale;
+  late final Animation<double> _logoRotation;
   late final Animation<Offset> _slideUp;
+  late final List<Animation<double>> _featureFade;
+  late final List<Animation<Offset>> _featureSlide;
+  late final Animation<double> _actionScale;
+  late final Animation<double> _footerFade;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
-    _logoScale = Tween<double>(begin: 0.9, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+    _logoScale = Tween<double>(begin: 0.9, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.28, curve: Curves.easeOutBack)));
+    _logoRotation = Tween<double>(begin: -0.06, end: 0.0).animate(CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.35, curve: Curves.easeOut)));
     _slideUp = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero).animate(CurvedAnimation(parent: _controller, curve: Curves.decelerate));
+
+    // Staggered animations for the 3 feature tiles
+    _featureFade = List.generate(3, (i) {
+      final start = 0.32 + i * 0.08;
+      final end = start + 0.28;
+      return CurvedAnimation(parent: _controller, curve: Interval(start, end, curve: Curves.easeOut));
+    });
+
+    _featureSlide = List.generate(3, (i) {
+      final start = 0.32 + i * 0.08;
+      final end = start + 0.28;
+      return Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
+          .animate(CurvedAnimation(parent: _controller, curve: Interval(start, end, curve: Curves.easeOut)));
+    });
+
+    _actionScale = CurvedAnimation(parent: _controller, curve: const Interval(0.7, 0.95, curve: Curves.elasticOut));
+    _footerFade = CurvedAnimation(parent: _controller, curve: const Interval(0.85, 1.0, curve: Curves.easeIn));
+
     _controller.forward();
   }
 
@@ -125,6 +149,12 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
+    final features = [
+      _featureTile(Icons.restaurant_menu, 'Personalized meal tracking and analysis.', primary),
+      _featureTile(Icons.show_chart, 'Progress monitoring with clear visualizations.', Colors.orange),
+      _featureTile(Icons.track_changes, 'Goal planning and adaptive recommendations.', Colors.teal),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('About NutriLift'),
@@ -145,65 +175,81 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Large header
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [primary.withOpacity(0.12), theme.colorScheme.surface], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8, offset: const Offset(0, 4))],
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          ScaleTransition(
-                            scale: _logoScale,
-                            child: Container(
-                              width: 90,
-                              height: 90,
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.surface,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Image.asset('assets/logo.png', fit: BoxFit.contain),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('NutriLift', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 6),
-                                Text('Version 1.0.0 • Stable', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey[700])),
-                                const SizedBox(height: 12),
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 6,
-                                  children: [
-                                    Chip(avatar: const Icon(Icons.person, size: 16), label: const Text('Personalized'), backgroundColor: primary.withOpacity(0.08)),
-                                    Chip(avatar: const Icon(Icons.science, size: 16), label: const Text('Evidence-based'), backgroundColor: Colors.teal.withOpacity(0.08)),
-                                    Chip(avatar: const Icon(Icons.security, size: 16), label: const Text('Privacy-first'), backgroundColor: Colors.indigo.withOpacity(0.06)),
-                                  ],
+                    // Large header with scale + subtle rotation animation
+                    AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) {
+                        return Transform.scale(
+                          scale: _logoScale.value,
+                          child: child,
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(colors: [primary.withOpacity(0.12), theme.colorScheme.surface], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [BoxShadow(color: Colors.black12.withOpacity(0.8), blurRadius: 8 * _logoScale.value, offset: const Offset(0, 4))],
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            // logo with rotation + scale
+                            ScaleTransition(
+                              scale: _logoScale,
+                              child: AnimatedBuilder(
+                                animation: _controller,
+                                builder: (context, child) {
+                                  return Transform.rotate(angle: _logoRotation.value, child: child);
+                                },
+                                child: Container(
+                                  width: 90,
+                                  height: 90,
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.surface,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Image.asset('assets/logo.png', fit: BoxFit.contain),
+                                  ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                          Column(
-                            children: [
-                              IconButton(onPressed: _showWebsiteDialog, icon: Icon(Icons.open_in_new, color: primary), tooltip: 'Website'),
-                              const SizedBox(height: 6),
-                              IconButton(onPressed: _showContactSheet, icon: Icon(Icons.email_outlined, color: theme.colorScheme.onSurface), tooltip: 'Contact'),
-                            ],
-                          )
-                        ],
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('NutriLift', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 6),
+                                  Text('Version 1.0.0 • Stable', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey[700])),
+                                  const SizedBox(height: 12),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 6,
+                                    children: [
+                                      Chip(avatar: const Icon(Icons.person, size: 16), label: const Text('Personalized'), backgroundColor: primary.withOpacity(0.08)),
+                                      Chip(avatar: const Icon(Icons.science, size: 16), label: const Text('Evidence-based'), backgroundColor: Colors.teal.withOpacity(0.08)),
+                                      Chip(avatar: const Icon(Icons.security, size: 16), label: const Text('Privacy-first'), backgroundColor: Colors.indigo.withOpacity(0.06)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              children: [
+                                IconButton(onPressed: _showWebsiteDialog, icon: Icon(Icons.open_in_new, color: primary), tooltip: 'Website'),
+                                const SizedBox(height: 6),
+                                IconButton(onPressed: _showContactSheet, icon: Icon(Icons.email_outlined, color: theme.colorScheme.onSurface), tooltip: 'Contact'),
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 18),
 
-                    // Features grid
+                    // Features grid with staggered animations
                     Card(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 2,
@@ -214,15 +260,20 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                           children: [
                             Text('Key Features', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
                             const SizedBox(height: 12),
-                            GridView(
+                            GridView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
+                              itemCount: features.length,
                               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 1, mainAxisExtent: 56, childAspectRatio: 6),
-                              children: [
-                                _featureTile(Icons.restaurant_menu, 'Personalized meal tracking and analysis.', primary),
-                                _featureTile(Icons.show_chart, 'Progress monitoring with clear visualizations.', Colors.orange),
-                                _featureTile(Icons.track_changes, 'Goal planning and adaptive recommendations.', Colors.teal),
-                              ],
+                              itemBuilder: (context, index) {
+                                return FadeTransition(
+                                  opacity: _featureFade[index],
+                                  child: SlideTransition(
+                                    position: _featureSlide[index],
+                                    child: features[index],
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -259,30 +310,36 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                     ),
                     const SizedBox(height: 12),
 
-                    // Footer actions
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: _showContactSheet,
-                          icon: const Icon(Icons.email_outlined),
-                          label: const Text('Contact'),
-                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
-                        ),
-                        const SizedBox(width: 12),
-                        OutlinedButton.icon(
-                          onPressed: _showWebsiteDialog,
-                          icon: const Icon(Icons.public),
-                          label: const Text('Website'),
-                          style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
-                        ),
-                      ],
+                    // Footer actions animated
+                    ScaleTransition(
+                      scale: _actionScale,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: _showContactSheet,
+                            icon: const Icon(Icons.email_outlined),
+                            label: const Text('Contact'),
+                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
+                          ),
+                          const SizedBox(width: 12),
+                          OutlinedButton.icon(
+                            onPressed: _showWebsiteDialog,
+                            icon: const Icon(Icons.public),
+                            label: const Text('Website'),
+                            style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 12),
 
-                    // Bottom bar
-                    Center(
-                      child: Text('© ${DateTime.now().year} NutriLift • Built with care', style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+                    // Bottom bar (fade in)
+                    FadeTransition(
+                      opacity: _footerFade,
+                      child: Center(
+                        child: Text('© ${DateTime.now().year} NutriLift • Built with care', style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+                      ),
                     ),
                     const SizedBox(height: 8),
                   ],
