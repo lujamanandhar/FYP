@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Community age screen for a fitness app with improved UI, live preview,
-/// plus search, filters, likes, bookmarks and create-post flow.
+/// search, filters, likes/bookmarks, pull-to-refresh and bottom-sheet create-post.
 class CommunityAgePage extends StatefulWidget {
   const CommunityAgePage({super.key});
 
@@ -13,11 +13,8 @@ class CommunityAgePage extends StatefulWidget {
 class _CommunityAgePageState extends State<CommunityAgePage> {
   int? _age;
   final TextEditingController _ageController = TextEditingController();
-
-  // Search controller
   final TextEditingController _searchController = TextEditingController();
 
-  // Example community posts with target age ranges
   final List<Map<String, dynamic>> _posts = [
     {
       'id': 1,
@@ -66,17 +63,11 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
     },
   ];
 
-  // Likes and bookmarks (local in-memory)
   final Map<int, int> _likes = {};
   final Set<int> _bookmarked = {};
-
-  // Simple group join tracking (local)
   final Set<String> _joinedGroups = {};
-
-  // UI controls
-  String _sortBy = 'newest'; // 'newest' | 'ageRange' | 'popularity'
-  final Set<String> _activeGroupFilters = {}; // e.g. 'Teens (13-19)'
-
+  final Set<String> _activeGroupFilters = {};
+  String _sortBy = 'newest';
   int _nextId = 6;
 
   @override
@@ -86,9 +77,7 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
     _searchController.addListener(() => setState(() {}));
   }
 
-  void _onAgeTextChanged() {
-    setState(() {}); // live preview rebuild
-  }
+  void _onAgeTextChanged() => setState(() {});
 
   @override
   void dispose() {
@@ -120,7 +109,6 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
     return Colors.grey.shade300;
   }
 
-  // Combined filtering: by age (if set), by search text, by active group filters.
   List<Map<String, dynamic>> _filteredPostsFor(int? age) {
     final query = _searchController.text.trim().toLowerCase();
     final filteredByAge = age == null
@@ -151,7 +139,6 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
             return _activeGroupFilters.contains(label);
           }).toList();
 
-    // Sorting
     filteredByGroupFilters.sort((a, b) {
       if (_sortBy == 'newest') {
         final da = a['createdAt'] as DateTime;
@@ -228,25 +215,40 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
     });
   }
 
-  void _createPostDialog() {
+  Future<void> _refresh() async {
+    // placeholder for network refresh - small delay for UX
+    await Future.delayed(const Duration(milliseconds: 600));
+    setState(() {});
+  }
+
+  void _openCreatePostSheet() {
     final titleCtrl = TextEditingController();
     final contentCtrl = TextEditingController();
     final authorCtrl = TextEditingController(text: 'You');
     final minCtrl = TextEditingController(text: '18');
     final maxCtrl = TextEditingController(text: '35');
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Create post'),
-        content: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(controller: authorCtrl, decoration: const InputDecoration(labelText: 'Author')),
-              TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Title')),
-              TextField(controller: contentCtrl, decoration: const InputDecoration(labelText: 'Content'), maxLines: 3),
-              Row(
-                children: [
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 16, right: 16, top: 16),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(height: 4, width: 36, margin: const EdgeInsets.only(bottom: 8), decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4))),
+                Text('Create Post', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 12),
+                TextField(controller: authorCtrl, decoration: const InputDecoration(labelText: 'Author')),
+                const SizedBox(height: 8),
+                TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Title')),
+                const SizedBox(height: 8),
+                TextField(controller: contentCtrl, decoration: const InputDecoration(labelText: 'Content'), maxLines: 4),
+                const SizedBox(height: 8),
+                Row(children: [
                   Expanded(
                     child: TextField(
                       controller: minCtrl,
@@ -263,61 +265,69 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
-                  )
-                ],
-              )
-            ],
+                  ),
+                ]),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          final title = titleCtrl.text.trim();
+                          final content = contentCtrl.text.trim();
+                          final author = authorCtrl.text.trim().isEmpty ? 'Anonymous' : authorCtrl.text.trim();
+                          final min = int.tryParse(minCtrl.text) ?? 13;
+                          final max = int.tryParse(maxCtrl.text) ?? 120;
+                          if (title.isEmpty || content.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title and content required')));
+                            return;
+                          }
+                          setState(() {
+                            final newPost = {
+                              'id': _nextId++,
+                              'author': author,
+                              'minAge': min,
+                              'maxAge': max,
+                              'title': title,
+                              'content': content,
+                              'createdAt': DateTime.now(),
+                            };
+                            _posts.insert(0, newPost);
+                          });
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post created')));
+                        },
+                        child: const Text('Post'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              final title = titleCtrl.text.trim();
-              final content = contentCtrl.text.trim();
-              final author = authorCtrl.text.trim().isEmpty ? 'Anonymous' : authorCtrl.text.trim();
-              final min = int.tryParse(minCtrl.text) ?? 13;
-              final max = int.tryParse(maxCtrl.text) ?? 120;
-              if (title.isEmpty || content.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title and content required')));
-                return;
-              }
-              setState(() {
-                final newPost = {
-                  'id': _nextId++,
-                  'author': author,
-                  'minAge': min,
-                  'maxAge': max,
-                  'title': title,
-                  'content': content,
-                  'createdAt': DateTime.now(),
-                };
-                _posts.insert(0, newPost);
-              });
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post created')));
-            },
-            child: const Text('Post'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildGroupFilterChips() {
-    final groups = [
-      'Teens (13-19)',
-      'Young adults (20-35)',
-      'Adults (36-55)',
-      'Seniors (56+)'
-    ];
+    final groups = ['Teens (13-19)', 'Young adults (20-35)', 'Adults (36-55)', 'Seniors (56+)'];
     return Wrap(
-      spacing: 6,
+      spacing: 8,
       children: groups.map((g) {
         final isActive = _activeGroupFilters.contains(g);
-        return FilterChip(
+        return ChoiceChip(
           label: Text(g.split(' ').first),
           selected: isActive,
+          selectedColor: Colors.blue.shade100,
           onSelected: (sel) {
             setState(() {
               if (sel) {
@@ -332,330 +342,271 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
     );
   }
 
+  String _timeAgo(DateTime d) {
+    final diff = DateTime.now().difference(d);
+    if (diff.inSeconds < 60) return '${diff.inSeconds}s';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}h';
+    if (diff.inDays < 30) return '${diff.inDays}d';
+    return '${(diff.inDays / 30).floor()}mo';
+  }
+
   @override
   Widget build(BuildContext context) {
     final previewAge = _previewAge;
     final filtered = _filteredPostsFor(previewAge);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Community — Age')),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _createPostDialog,
-        icon: const Icon(Icons.add),
-        label: const Text('New Post'),
+      appBar: AppBar(
+        title: const Text('Community'),
+        centerTitle: true,
+        actions: [
+          IconButton(onPressed: () => setState(() => _searchController.clear()), icon: const Icon(Icons.clear)),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _openCreatePostSheet,
+        icon: const Icon(Icons.add),
+        label: const Text('New'),
+      ),
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
           children: [
-            // Top card: Age input and live preview
-            Card(
+            // Age card
+            Material(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              borderRadius: BorderRadius.circular(12),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
                 child: Row(
                   children: [
-                    // Left: age input
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Your age', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              IconButton(
-                                tooltip: 'Decrease age',
-                                onPressed: _decrementAge,
-                                icon: const Icon(Icons.remove_circle_outline),
-                              ),
-                              SizedBox(
-                                width: 96,
-                                child: TextField(
-                                  controller: _ageController,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                    LengthLimitingTextInputFormatter(3),
-                                  ],
-                                  decoration: InputDecoration(
-                                    isDense: true,
-                                    hintText: 'e.g. 25',
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                tooltip: 'Increase age',
-                                onPressed: _incrementAge,
-                                icon: const Icon(Icons.add_circle_outline),
-                              ),
-                              const SizedBox(width: 12),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  final value = int.tryParse(_ageController.text);
-                                  if (value == null || value < 13) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Enter a valid age (13+)')),
-                                    );
-                                    return;
-                                  }
-                                  _saveAge(value);
-                                },
-                                icon: const Icon(Icons.save),
-                                label: const Text('Save'),
-                                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12)),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Right: live group preview (shows even if not saved)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text('Group', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        const Text('Your age', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                         const SizedBox(height: 8),
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 250),
-                          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
-                          child: previewAge == null
-                              ? Chip(
-                                  key: const ValueKey('unknown'),
-                                  label: const Text('Unset'),
-                                  backgroundColor: Colors.grey.shade200,
-                                )
-                              : Chip(
-                                  key: ValueKey('group_$previewAge'),
-                                  label: Text(_ageGroupLabel(previewAge)),
-                                  backgroundColor: _ageGroupColor(previewAge).withAlpha((0.25 * 255).round()),
-                                  avatar: CircleAvatar(
-                                    backgroundColor: _ageGroupColor(previewAge),
-                                    child: Text(
-                                      _ageGroupLabel(previewAge).split(' ').first[0],
-                                      style: const TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                        ),
-                        if (_age != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              'Saved: $_age',
-                              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                        Row(children: [
+                          IconButton(onPressed: _decrementAge, icon: const Icon(Icons.remove_circle_outline)),
+                          SizedBox(
+                            width: 92,
+                            child: TextField(
+                              controller: _ageController,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(3)],
+                              decoration: InputDecoration(
+                                isDense: true,
+                                hintText: 'e.g. 25',
+                                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
                             ),
                           ),
-                      ],
+                          IconButton(onPressed: _incrementAge, icon: const Icon(Icons.add_circle_outline)),
+                          const SizedBox(width: 12),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              final value = int.tryParse(_ageController.text);
+                              if (value == null || value < 13) {
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter a valid age (13+)')));
+                                return;
+                              }
+                              _saveAge(value);
+                            },
+                            icon: const Icon(Icons.save),
+                            label: const Text('Save'),
+                          ),
+                        ])
+                      ]),
                     ),
+                    const SizedBox(width: 10),
+                    Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                      const Text('Group', style: TextStyle(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 8),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 250),
+                        transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+                        child: previewAge == null
+                            ? Chip(key: const ValueKey('u'), label: const Text('Unset'), backgroundColor: Colors.grey.shade200)
+                            : Chip(
+                                key: ValueKey(previewAge),
+                                label: Text(_ageGroupLabel(previewAge)),
+                                avatar: CircleAvatar(backgroundColor: _ageGroupColor(previewAge), child: Text(_ageGroupLabel(previewAge).split(' ').first[0], style: const TextStyle(color: Colors.white))),
+                                backgroundColor: _ageGroupColor(previewAge).withOpacity(0.15),
+                              ),
+                      ),
+                      if (_age != null) Padding(padding: const EdgeInsets.only(top: 8.0), child: Text('Saved: $_age', style: TextStyle(color: Colors.grey.shade700, fontSize: 12))),
+                    ]),
                   ],
                 ),
               ),
             ),
-
             const SizedBox(height: 12),
 
-            // Search and filter row
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search),
-                      hintText: 'Search posts, authors, content',
-                      isDense: true,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
+            // Search & sort
+            Row(children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: 'Search posts, authors, content',
+                    isDense: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
-                const SizedBox(width: 8),
-                DropdownButton<String>(
-                  value: _sortBy,
-                  items: const [
-                    DropdownMenuItem(value: 'newest', child: Text('Newest')),
-                    DropdownMenuItem(value: 'popularity', child: Text('Popular')),
-                    DropdownMenuItem(value: 'ageRange', child: Text('Age range')),
-                  ],
-                  onChanged: (v) => setState(() => _sortBy = v ?? 'newest'),
-                )
-              ],
-            ),
+              ),
+              const SizedBox(width: 10),
+              DropdownButton<String>(
+                value: _sortBy,
+                items: const [
+                  DropdownMenuItem(value: 'newest', child: Text('Newest')),
+                  DropdownMenuItem(value: 'popularity', child: Text('Popular')),
+                  DropdownMenuItem(value: 'ageRange', child: Text('Age')),
+                ],
+                onChanged: (v) => setState(() => _sortBy = v ?? 'newest'),
+              ),
+            ]),
+            const SizedBox(height: 10),
 
+            // Filter chips
+            _buildGroupFilterChips(),
+            const SizedBox(height: 12),
+
+            // Header / info
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Expanded(
+                child: Text(
+                  previewAge == null ? 'Set your age to see tailored posts.' : 'Showing ${filtered.length} post${filtered.length == 1 ? '' : 's'} for ${_ageGroupLabel(previewAge)}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              if (previewAge != null)
+                TextButton.icon(onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Explore general channels'))), icon: const Icon(Icons.explore_outlined), label: const Text('Explore')),
+            ]),
             const SizedBox(height: 8),
 
-            // Group filter chips
-            Align(alignment: Alignment.centerLeft, child: _buildGroupFilterChips()),
+            // Posts area
+            Builder(builder: (context) {
+              if (previewAge == null) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 36),
+                  child: Center(child: Text('Set your age to see community posts tailored to your group.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium)),
+                );
+              }
 
-            const SizedBox(height: 12),
+              if (filtered.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 36),
+                  child: Center(child: Text('No posts found for your age group. Try exploring or create one!', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium)),
+                );
+              }
 
-            // Header: matched posts count
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      previewAge == null
-                          ? 'Set your age to see tailored community posts.'
-                          : 'Showing ${filtered.length} post${filtered.length == 1 ? '' : 's'} for ${_ageGroupLabel(previewAge)}',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                  if (previewAge != null)
-                    TextButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Explore general channels')),
-                        );
-                      },
-                      icon: const Icon(Icons.explore_outlined),
-                      label: const Text('Explore'),
-                    )
-                ],
-              ),
-            ),
+              return Column(
+                children: filtered.map((post) {
+                  final id = post['id'] as int;
+                  final author = post['author'] as String;
+                  final initials = author.isNotEmpty ? author[0].toUpperCase() : '?';
+                  final min = post['minAge'] as int;
+                  final max = post['maxAge'] as int;
+                  final createdAt = post['createdAt'] as DateTime;
+                  final likedCount = _likes[id] ?? 0;
+                  final isBookmarked = _bookmarked.contains(id);
+                  final groupLabel = _rangeToLabel(min, max);
 
-            const SizedBox(height: 6),
-
-            // Posts area with animated switch between states
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: previewAge == null
-                    ? Center(
-                        key: const ValueKey('unset'),
-                        child: Text(
-                          'Set your age to see community posts tailored to your group.',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      )
-                    : filtered.isEmpty
-                        ? Center(
-                            key: const ValueKey('empty'),
-                            child: Text(
-                              'No community posts found for your age group.\nTry exploring general channels or create one!',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          )
-                        : ListView.separated(
-                            key: const ValueKey('list'),
-                            itemCount: filtered.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 8),
-                            itemBuilder: (context, index) {
-                              final post = filtered[index];
-                              final id = post['id'] as int;
-                              final author = post['author'] as String;
-                              final initials = author.isNotEmpty ? author[0].toUpperCase() : '?';
-                              final min = post['minAge'] as int;
-                              final max = post['maxAge'] as int;
-                              final createdAt = post['createdAt'] as DateTime;
-
-                              return Card(
-                                elevation: 1,
-                                margin: EdgeInsets.zero,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  leading: CircleAvatar(
-                                    backgroundColor: Colors.primaries[index % Colors.primaries.length].shade300,
-                                    child: Text(initials, style: const TextStyle(color: Colors.white)),
-                                  ),
-                                  title: Row(
-                                    children: [
-                                      Expanded(child: Text(post['title'] as String, style: const TextStyle(fontWeight: FontWeight.w600))),
-                                      const SizedBox(width: 8),
-                                      Text('${_likes[id] ?? 0} ❤', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                                    ],
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(height: 4),
-                                      Text(post['content'] as String, maxLines: 2, overflow: TextOverflow.ellipsis),
-                                      const SizedBox(height: 8),
-                                      Wrap(
-                                        spacing: 6,
-                                        runSpacing: 4,
-                                        children: [
-                                          Chip(
-                                            label: Text('$min–$max yrs'),
-                                            backgroundColor: Colors.grey.shade100,
-                                            visualDensity: VisualDensity.compact,
-                                          ),
-                                          Chip(
-                                            avatar: const Icon(Icons.person, size: 16),
-                                            label: Text(author),
-                                            backgroundColor: Colors.grey.shade100,
-                                            visualDensity: VisualDensity.compact,
-                                          ),
-                                          ActionChip(
-                                            label: Text(_joinedGroups.contains(_rangeToLabel(min, max)) ? 'Joined' : 'Join'),
-                                            onPressed: () => _toggleJoinGroupLabel(_rangeToLabel(min, max)),
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                  trailing: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.favorite, color: Colors.red.shade300),
-                                        tooltip: 'Like',
-                                        onPressed: () => _toggleLike(id),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(_bookmarked.contains(id) ? Icons.bookmark : Icons.bookmark_outline),
-                                        tooltip: 'Bookmark',
-                                        onPressed: () => _toggleBookmark(id),
-                                      ),
-                                    ],
-                                  ),
-                                  onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (_) => AlertDialog(
-                                        title: Text(post['title'] as String),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(post['content'] as String),
-                                            const SizedBox(height: 12),
-                                            Text('Author: $author'),
-                                            Text('Target: $min–$max yrs'),
-                                            Text('Posted: ${createdAt.toLocal()}'),
-                                          ],
-                                        ),
-                                        actions: [
-                                          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
-                                          TextButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                _bookmarked.add(id);
-                                              });
-                                              Navigator.of(context).pop();
-                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bookmarked')));
-                                            },
-                                            child: const Text('Bookmark'),
-                                          )
-                                        ],
-                                      ),
-                                    );
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Material(
+                      elevation: 1,
+                      borderRadius: BorderRadius.circular(12),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text(post['title'] as String),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(post['content'] as String),
+                                  const SizedBox(height: 12),
+                                  Text('Author: $author'),
+                                  Text('Target: $min–$max yrs'),
+                                  Text('Posted: ${createdAt.toLocal()}'),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() => _bookmarked.add(id));
+                                    Navigator.of(context).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bookmarked')));
                                   },
+                                  child: const Text('Bookmark'),
+                                )
+                              ],
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 26,
+                                backgroundColor: Colors.primaries[(id + 3) % Colors.primaries.length].shade300,
+                                child: Text(initials, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                  Row(children: [
+                                    Expanded(child: Text(post['title'] as String, style: const TextStyle(fontWeight: FontWeight.w700))),
+                                    const SizedBox(width: 8),
+                                    Text(_timeAgo(createdAt), style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                                  ]),
+                                  const SizedBox(height: 6),
+                                  Text(post['content'] as String, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.black87)),
+                                  const SizedBox(height: 8),
+                                  Wrap(spacing: 8, runSpacing: 6, children: [
+                                    Chip(label: Text('$min–$max yrs'), backgroundColor: Colors.grey.shade100, visualDensity: VisualDensity.compact),
+                                    ActionChip(
+                                      label: Text(groupLabel),
+                                      onPressed: () => _toggleJoinGroupLabel(groupLabel),
+                                      avatar: Icon(_joinedGroups.contains(groupLabel) ? Icons.check_circle : Icons.group, size: 18),
+                                    ),
+                                    Chip(avatar: const Icon(Icons.person, size: 16), label: Text(author), backgroundColor: Colors.grey.shade100),
+                                  ])
+                                ]),
+                              ),
+                              const SizedBox(width: 6),
+                              Column(mainAxisSize: MainAxisSize.min, children: [
+                                IconButton(
+                                  onPressed: () => _toggleLike(id),
+                                  icon: Row(mainAxisSize: MainAxisSize.min, children: [
+                                    const Icon(Icons.favorite_border, size: 18, color: Colors.redAccent),
+                                    const SizedBox(width: 6),
+                                    Text('$likedCount', style: const TextStyle(fontSize: 14)),
+                                  ]),
                                 ),
-                              );
-                            },
+                                IconButton(
+                                  onPressed: () => _toggleBookmark(id),
+                                  icon: Icon(isBookmarked ? Icons.bookmark : Icons.bookmark_outline),
+                                ),
+                              ]),
+                            ],
                           ),
-              ),
-            ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            }),
+            const SizedBox(height: 80), // spacing for FAB
           ],
         ),
       ),
