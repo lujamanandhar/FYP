@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// Community age screen for a fitness app with improved UI, live preview,
-/// search, filters, likes/bookmarks, pull-to-refresh and bottom-sheet create-post.
+/// Community age screen with improved UI/UX:
+/// - cleaner cards and spacing
+/// - integrated search bar
+/// - toggle likes (with decrement) and bookmarks
+/// - clearer group chips and filters
+/// - improved create-post bottom sheet with basic validation
 class CommunityAgePage extends StatefulWidget {
   const CommunityAgePage({super.key});
 
@@ -63,7 +67,9 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
     },
   ];
 
+  // like counts and toggled liked set
   final Map<int, int> _likes = {};
+  final Set<int> _liked = {};
   final Set<int> _bookmarked = {};
   final Set<String> _joinedGroups = {};
   final Set<String> _activeGroupFilters = {};
@@ -75,6 +81,10 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
     super.initState();
     _ageController.addListener(_onAgeTextChanged);
     _searchController.addListener(() => setState(() {}));
+    // seed likes for demo
+    for (var p in _posts) {
+      _likes[p['id'] as int] = (p['id'] as int) % 3; // small demo counts
+    }
   }
 
   void _onAgeTextChanged() => setState(() {});
@@ -191,7 +201,15 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
 
   void _toggleLike(int id) {
     setState(() {
-      _likes[id] = (_likes[id] ?? 0) + 1;
+      if (_liked.contains(id)) {
+        // unlike
+        _liked.remove(id);
+        _likes[id] = (_likes[id] ?? 1) - 1;
+        if (_likes[id]! < 0) _likes[id] = 0;
+      } else {
+        _liked.add(id);
+        _likes[id] = (_likes[id] ?? 0) + 1;
+      }
     });
   }
 
@@ -216,7 +234,6 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
   }
 
   Future<void> _refresh() async {
-    // placeholder for network refresh - small delay for UX
     await Future.delayed(const Duration(milliseconds: 600));
     setState(() {});
   }
@@ -234,19 +251,22 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (context) {
         return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 16, right: 16, top: 16),
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 16, right: 16, top: 12),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(height: 4, width: 36, margin: const EdgeInsets.only(bottom: 8), decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4))),
-                Text('Create Post', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 12),
-                TextField(controller: authorCtrl, decoration: const InputDecoration(labelText: 'Author')),
+                Container(height: 4, width: 36, margin: const EdgeInsets.only(bottom: 12), decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4))),
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  Text('Create Post', style: Theme.of(context).textTheme.titleLarge),
+                  IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.close)),
+                ]),
                 const SizedBox(height: 8),
-                TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Title')),
+                TextField(controller: authorCtrl, decoration: const InputDecoration(labelText: 'Author', prefixIcon: Icon(Icons.person))),
                 const SizedBox(height: 8),
-                TextField(controller: contentCtrl, decoration: const InputDecoration(labelText: 'Content'), maxLines: 4),
+                TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Title', prefixIcon: Icon(Icons.title))),
+                const SizedBox(height: 8),
+                TextField(controller: contentCtrl, decoration: const InputDecoration(labelText: 'Content', prefixIcon: Icon(Icons.message)), maxLines: 4),
                 const SizedBox(height: 8),
                 Row(children: [
                   Expanded(
@@ -267,48 +287,48 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
                     ),
                   ),
                 ]),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
-                      ),
+                const SizedBox(height: 14),
+                Row(children: [
+                  Expanded(
+                    child: OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final title = titleCtrl.text.trim();
+                        final content = contentCtrl.text.trim();
+                        final author = authorCtrl.text.trim().isEmpty ? 'Anonymous' : authorCtrl.text.trim();
+                        final min = int.tryParse(minCtrl.text) ?? 13;
+                        final max = int.tryParse(maxCtrl.text) ?? 120;
+                        if (title.isEmpty || content.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title and content required')));
+                          return;
+                        }
+                        if (min < 13) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Min age must be >= 13')));
+                          return;
+                        }
+                        setState(() {
+                          final newPost = {
+                            'id': _nextId++,
+                            'author': author,
+                            'minAge': min,
+                            'maxAge': max,
+                            'title': title,
+                            'content': content,
+                            'createdAt': DateTime.now(),
+                          };
+                          _posts.insert(0, newPost);
+                          _likes[newPost['id'] as int] = 0;
+                        });
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post created')));
+                      },
+                      child: const Text('Post'),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final title = titleCtrl.text.trim();
-                          final content = contentCtrl.text.trim();
-                          final author = authorCtrl.text.trim().isEmpty ? 'Anonymous' : authorCtrl.text.trim();
-                          final min = int.tryParse(minCtrl.text) ?? 13;
-                          final max = int.tryParse(maxCtrl.text) ?? 120;
-                          if (title.isEmpty || content.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title and content required')));
-                            return;
-                          }
-                          setState(() {
-                            final newPost = {
-                              'id': _nextId++,
-                              'author': author,
-                              'minAge': min,
-                              'maxAge': max,
-                              'title': title,
-                              'content': content,
-                              'createdAt': DateTime.now(),
-                            };
-                            _posts.insert(0, newPost);
-                          });
-                          Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post created')));
-                        },
-                        child: const Text('Post'),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ]),
                 const SizedBox(height: 16),
               ],
             ),
@@ -324,10 +344,13 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
       spacing: 8,
       children: groups.map((g) {
         final isActive = _activeGroupFilters.contains(g);
-        return ChoiceChip(
-          label: Text(g.split(' ').first),
+        final isJoined = _joinedGroups.contains(g);
+        return FilterChip(
+          label: Text(g, style: const TextStyle(fontSize: 12)),
           selected: isActive,
-          selectedColor: Colors.blue.shade100,
+          avatar: isJoined ? const Icon(Icons.check_circle, size: 18, color: Colors.white) : null,
+          backgroundColor: Colors.grey.shade100,
+          selectedColor: Colors.blue.shade50,
           onSelected: (sel) {
             setState(() {
               if (sel) {
@@ -355,19 +378,60 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
   Widget build(BuildContext context) {
     final previewAge = _previewAge;
     final filtered = _filteredPostsFor(previewAge);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Community'),
         centerTitle: true,
+        elevation: 2,
         actions: [
-          IconButton(onPressed: () => setState(() => _searchController.clear()), icon: const Icon(Icons.clear)),
+          IconButton(
+            tooltip: 'New post',
+            onPressed: _openCreatePostSheet,
+            icon: const Icon(Icons.edit),
+          ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(68),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Material(
+                    elevation: 1,
+                    borderRadius: BorderRadius.circular(12),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search),
+                        hintText: 'Search posts, authors, content',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                PopupMenuButton<String>(
+                  tooltip: 'Sort',
+                  icon: const Icon(Icons.sort),
+                  onSelected: (v) => setState(() => _sortBy = v),
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(value: 'newest', child: Text('Newest')),
+                    PopupMenuItem(value: 'popularity', child: Text('Popular')),
+                    PopupMenuItem(value: 'ageRange', child: Text('Age range')),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: _openCreatePostSheet,
-        icon: const Icon(Icons.add),
-        label: const Text('New'),
+        child: const Icon(Icons.add),
       ),
       body: RefreshIndicator(
         onRefresh: _refresh,
@@ -375,9 +439,9 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
           padding: const EdgeInsets.all(16),
           children: [
             // Age card
-            Material(
+            Card(
               elevation: 2,
-              borderRadius: BorderRadius.circular(12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
                 child: Row(
@@ -431,8 +495,11 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
                             : Chip(
                                 key: ValueKey(previewAge),
                                 label: Text(_ageGroupLabel(previewAge)),
-                                avatar: CircleAvatar(backgroundColor: _ageGroupColor(previewAge), child: Text(_ageGroupLabel(previewAge).split(' ').first[0], style: const TextStyle(color: Colors.white))),
-                                backgroundColor: _ageGroupColor(previewAge).withOpacity(0.15),
+                                avatar: CircleAvatar(
+                                  backgroundColor: _ageGroupColor(previewAge),
+                                  child: Text(_ageGroupLabel(previewAge).split(' ').first[0], style: const TextStyle(color: Colors.white)),
+                                ),
+                                backgroundColor: _ageGroupColor(previewAge).withOpacity(0.12),
                               ),
                       ),
                       if (_age != null) Padding(padding: const EdgeInsets.only(top: 8.0), child: Text('Saved: $_age', style: TextStyle(color: Colors.grey.shade700, fontSize: 12))),
@@ -443,29 +510,27 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
             ),
             const SizedBox(height: 12),
 
-            // Search & sort
-            Row(children: [
+            // Filters summary
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Expanded(
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search),
-                    hintText: 'Search posts, authors, content',
-                    isDense: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
+                child: Text(
+                  previewAge == null ? 'Set your age to see tailored posts.' : 'Showing ${filtered.length} post${filtered.length == 1 ? '' : 's'} for ${previewAge != null ? _ageGroupLabel(previewAge) : ''}',
+                  style: theme.textTheme.bodyMedium,
                 ),
               ),
-              const SizedBox(width: 10),
-              DropdownButton<String>(
-                value: _sortBy,
-                items: const [
-                  DropdownMenuItem(value: 'newest', child: Text('Newest')),
-                  DropdownMenuItem(value: 'popularity', child: Text('Popular')),
-                  DropdownMenuItem(value: 'ageRange', child: Text('Age')),
-                ],
-                onChanged: (v) => setState(() => _sortBy = v ?? 'newest'),
-              ),
+              TextButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _activeGroupFilters.clear();
+                    _joinedGroups.clear();
+                    _searchController.clear();
+                    _sortBy = 'newest';
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filters reset')));
+                },
+                icon: const Icon(Icons.restart_alt, size: 18),
+                label: const Text('Reset'),
+              )
             ]),
             const SizedBox(height: 10),
 
@@ -473,32 +538,19 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
             _buildGroupFilterChips(),
             const SizedBox(height: 12),
 
-            // Header / info
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Expanded(
-                child: Text(
-                  previewAge == null ? 'Set your age to see tailored posts.' : 'Showing ${filtered.length} post${filtered.length == 1 ? '' : 's'} for ${_ageGroupLabel(previewAge)}',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ),
-              if (previewAge != null)
-                TextButton.icon(onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Explore general channels'))), icon: const Icon(Icons.explore_outlined), label: const Text('Explore')),
-            ]),
-            const SizedBox(height: 8),
-
-            // Posts area
+            // Posts
             Builder(builder: (context) {
               if (previewAge == null) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 36),
-                  child: Center(child: Text('Set your age to see community posts tailored to your group.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium)),
+                  child: Center(child: Text('Set your age to see community posts tailored to your group.', textAlign: TextAlign.center, style: theme.textTheme.bodyMedium)),
                 );
               }
 
               if (filtered.isEmpty) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 36),
-                  child: Center(child: Text('No posts found for your age group. Try exploring or create one!', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium)),
+                  child: Center(child: Text('No posts found for your age group. Try exploring or create one!', textAlign: TextAlign.center, style: theme.textTheme.bodyMedium)),
                 );
               }
 
@@ -512,13 +564,14 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
                   final createdAt = post['createdAt'] as DateTime;
                   final likedCount = _likes[id] ?? 0;
                   final isBookmarked = _bookmarked.contains(id);
+                  final isLiked = _liked.contains(id);
                   final groupLabel = _rangeToLabel(min, max);
 
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Material(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 1,
-                      borderRadius: BorderRadius.circular(12),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
                         onTap: () {
@@ -582,16 +635,20 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
                                   ])
                                 ]),
                               ),
-                              const SizedBox(width: 6),
+                              const SizedBox(width: 8),
                               Column(mainAxisSize: MainAxisSize.min, children: [
                                 IconButton(
                                   onPressed: () => _toggleLike(id),
-                                  icon: Row(mainAxisSize: MainAxisSize.min, children: [
-                                    const Icon(Icons.favorite_border, size: 18, color: Colors.redAccent),
-                                    const SizedBox(width: 6),
-                                    Text('$likedCount', style: const TextStyle(fontSize: 14)),
-                                  ]),
+                                  icon: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 220),
+                                    transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+                                    child: isLiked
+                                        ? const Icon(Icons.favorite, key: ValueKey('fav'), color: Colors.redAccent)
+                                        : const Icon(Icons.favorite_border, key: ValueKey('fav_outline'), color: Colors.redAccent),
+                                  ),
                                 ),
+                                Text(likedCount.toString(), style: const TextStyle(fontSize: 13)),
+                                const SizedBox(height: 6),
                                 IconButton(
                                   onPressed: () => _toggleBookmark(id),
                                   icon: Icon(isBookmarked ? Icons.bookmark : Icons.bookmark_outline),
@@ -606,7 +663,7 @@ class _CommunityAgePageState extends State<CommunityAgePage> {
                 }).toList(),
               );
             }),
-            const SizedBox(height: 80), // spacing for FAB
+            const SizedBox(height: 80),
           ],
         ),
       ),
