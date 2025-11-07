@@ -71,15 +71,15 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(height: 4, width: 40, margin: const EdgeInsets.only(bottom: 12), decoration: BoxDecoration(color: theme.dividerColor, borderRadius: BorderRadius.circular(4))),
+                Container(height: 4, width: 40, margin: const EdgeInsets.only(bottom: 12), decoration: BoxDecoration(color: Colors.red.shade100, borderRadius: BorderRadius.circular(4))),
                 ListTile(
-                  leading: const Icon(Icons.email_outlined),
+                  leading: const Icon(Icons.email_outlined, color: Colors.red),
                   title: const Text('support@nutrilift.com'),
                   subtitle: const Text('Tap to copy'),
                   onTap: () => _copyToClipboard('support@nutrilift.com', 'Email'),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.phone_outlined),
+                  leading: const Icon(Icons.phone_outlined, color: Colors.red),
                   title: const Text('+1 (555) 123-4567'),
                   subtitle: const Text('Tap to copy'),
                   onTap: () => _copyToClipboard('+1 (555) 123-4567', 'Phone'),
@@ -113,7 +113,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
       builder: (context) {
         return AlertDialog(
           title: const Text('Website'),
-          content: SelectableText('https://www.nutrilift.com', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary)),
+          content: SelectableText('https://www.nutrilift.com', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.red.shade700)),
           actions: [
             TextButton(onPressed: () => _copyToClipboard('https://www.nutrilift.com', 'Website'), child: const Text('Copy')),
             TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
@@ -148,20 +148,30 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
+
+    // Red & white themed palette
+    final Color primary = Colors.red.shade700;
+    final Color primaryLight = Colors.red.shade400;
+    final Color surface = Colors.white;
+    final Color onSurface = Colors.black87;
+    final Color cardBg = Colors.white;
+    final Color subtleDivider = Colors.red.shade50;
+
     final features = [
       _featureTile(Icons.restaurant_menu, 'Personalized meal tracking and analysis.', primary),
-      _featureTile(Icons.show_chart, 'Progress monitoring with clear visualizations.', Colors.orange),
-      _featureTile(Icons.track_changes, 'Goal planning and adaptive recommendations.', Colors.teal),
+      _featureTile(Icons.show_chart, 'Progress monitoring with clear visualizations.', primaryLight),
+      _featureTile(Icons.track_changes, 'Goal planning and adaptive recommendations.', Colors.red.shade200),
     ];
 
     return Scaffold(
+      backgroundColor: surface,
       appBar: AppBar(
         title: const Text('About NutriLift'),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: theme.colorScheme.surface,
-        foregroundColor: theme.colorScheme.onSurface,
+        backgroundColor: surface,
+        foregroundColor: onSurface,
+        iconTheme: IconThemeData(color: primary),
       ),
       body: FadeTransition(
         opacity: _fadeIn,
@@ -186,9 +196,10 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [primary.withOpacity(0.12), theme.colorScheme.surface], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                          gradient: LinearGradient(colors: [primary.withOpacity(0.12), surface], begin: Alignment.topLeft, end: Alignment.bottomRight),
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [BoxShadow(color: Colors.black12.withOpacity(0.8), blurRadius: 8 * _logoScale.value, offset: const Offset(0, 4))],
+                          border: Border.all(color: subtleDivider),
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Row(
@@ -205,8 +216,9 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                   width: 90,
                                   height: 90,
                                   decoration: BoxDecoration(
-                                    color: theme.colorScheme.surface,
+                                    color: surface,
                                     borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [BoxShadow(color: primary.withOpacity(0.08), blurRadius: 8, offset: const Offset(0, 2))],
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(12),
@@ -220,7 +232,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('NutriLift', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                                  Text('NutriLift', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: onSurface)),
                                   const SizedBox(height: 6),
                                   Text('Version 1.0.0 • Stable', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey[700])),
                                   const SizedBox(height: 12),
@@ -228,9 +240,9 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                     spacing: 8,
                                     runSpacing: 6,
                                     children: [
-                                      Chip(avatar: const Icon(Icons.person, size: 16), label: const Text('Personalized'), backgroundColor: primary.withOpacity(0.08)),
-                                      Chip(avatar: const Icon(Icons.science, size: 16), label: const Text('Evidence-based'), backgroundColor: Colors.teal.withOpacity(0.08)),
-                                      Chip(avatar: const Icon(Icons.security, size: 16), label: const Text('Privacy-first'), backgroundColor: Colors.indigo.withOpacity(0.06)),
+                                      Chip(avatar: const Icon(Icons.person, size: 16, color: Colors.white), label: const Text('Personalized'), backgroundColor: primary.withOpacity(0.9)),
+                                      Chip(avatar: const Icon(Icons.science, size: 16, color: Colors.white), label: const Text('Evidence-based'), backgroundColor: primaryLight.withOpacity(0.95)),
+                                      Chip(avatar: const Icon(Icons.security, size: 16, color: Colors.white), label: const Text('Privacy-first'), backgroundColor: Colors.red.shade300.withOpacity(0.95)),
                                     ],
                                   ),
                                 ],
@@ -240,7 +252,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                               children: [
                                 IconButton(onPressed: _showWebsiteDialog, icon: Icon(Icons.open_in_new, color: primary), tooltip: 'Website'),
                                 const SizedBox(height: 6),
-                                IconButton(onPressed: _showContactSheet, icon: Icon(Icons.email_outlined, color: theme.colorScheme.onSurface), tooltip: 'Contact'),
+                                IconButton(onPressed: _showContactSheet, icon: Icon(Icons.email_outlined, color: onSurface), tooltip: 'Contact'),
                               ],
                             )
                           ],
@@ -251,6 +263,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
 
                     // Features grid with staggered animations
                     Card(
+                      color: cardBg,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 2,
                       child: Padding(
@@ -258,7 +271,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Key Features', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                            Text('Key Features', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: onSurface)),
                             const SizedBox(height: 12),
                             GridView.builder(
                               shrinkWrap: true,
@@ -283,6 +296,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
 
                     // Overview / Mission / Privacy
                     Card(
+                      color: cardBg,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 1,
                       child: Padding(
@@ -290,20 +304,20 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Overview', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                            Text('Overview', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: onSurface)),
                             const SizedBox(height: 8),
                             Text(
                               'NutriLift is a comprehensive nutrition and fitness application designed to help individuals achieve sustainable health outcomes. We provide tools and guidance grounded in evidence.',
-                              style: theme.textTheme.bodyLarge,
+                              style: theme.textTheme.bodyLarge?.copyWith(color: onSurface),
                             ),
                             const SizedBox(height: 12),
-                            Text('Mission', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                            Text('Mission', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: onSurface)),
                             const SizedBox(height: 8),
-                            Text('To empower users with clear, actionable insights that make healthy living accessible, measurable, and maintainable.', style: theme.textTheme.bodyLarge),
+                            Text('To empower users with clear, actionable insights that make healthy living accessible, measurable, and maintainable.', style: theme.textTheme.bodyLarge?.copyWith(color: onSurface)),
                             const SizedBox(height: 12),
-                            Text('Privacy & Data', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                            Text('Privacy & Data', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: onSurface)),
                             const SizedBox(height: 8),
-                            Text('We treat user data with care. Personal information is processed only to provide and improve our services. Visit our website for the full Privacy Policy.', style: theme.textTheme.bodyLarge),
+                            Text('We treat user data with care. Personal information is processed only to provide and improve our services. Visit our website for the full Privacy Policy.', style: theme.textTheme.bodyLarge?.copyWith(color: onSurface)),
                           ],
                         ),
                       ),
@@ -320,14 +334,22 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                             onPressed: _showContactSheet,
                             icon: const Icon(Icons.email_outlined),
                             label: const Text('Contact'),
-                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              backgroundColor: primary,
+                              foregroundColor: Colors.white,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           OutlinedButton.icon(
                             onPressed: _showWebsiteDialog,
-                            icon: const Icon(Icons.public),
+                            icon: Icon(Icons.public, color: primary),
                             label: const Text('Website'),
-                            style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              side: BorderSide(color: primary.withOpacity(0.14)),
+                              foregroundColor: primary,
+                            ),
                           ),
                         ],
                       ),
@@ -338,7 +360,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                     FadeTransition(
                       opacity: _footerFade,
                       child: Center(
-                        child: Text('© ${DateTime.now().year} NutriLift • Built with care', style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+                        child: Text('© ${DateTime.now().year} NutriLift • Built with care', style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[700])),
                       ),
                     ),
                     const SizedBox(height: 8),
