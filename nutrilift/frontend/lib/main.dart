@@ -641,7 +641,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         onPressed: _addHabitDialog,
         backgroundColor: primary,
         icon: const Icon(Icons.add),
-        label: const Text('New Habit'),
+        label: const Text('Old Habit'),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
