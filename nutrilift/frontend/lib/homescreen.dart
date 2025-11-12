@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         height: cardHeight,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [color.withOpacity(0.96), Colors.white.withOpacity(0.14)],
+            colors: [color.withOpacity(0.98), Colors.white.withOpacity(0.12)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -220,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 child: Icon(icon, size: cardWidth * 0.26, color: color),
               ),
             ),
-            SizedBox(height: cardHeight * 0.08),
+            SizedBox(height: cardHeight * 0.06),
             Text(
               title,
               style: TextStyle(
@@ -230,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 letterSpacing: 0.6,
               ),
             ),
-            SizedBox(height: cardHeight * 0.04),
+            SizedBox(height: cardHeight * 0.03),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text(
@@ -277,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         );
 
     Widget cardContent = Material(
-      elevation: 8,
+      elevation: 10,
       borderRadius: BorderRadius.circular(borderRadius),
       color: Colors.transparent,
       child: InkWell(
@@ -342,35 +342,67 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 6,
-        shadowColor: Colors.deepPurple.withOpacity(0.12),
-        title: const Text(
-          'NutriLift',
-          style: TextStyle(
-            color: Colors.deepPurple,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            letterSpacing: 1.2,
-          ),
-        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         centerTitle: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.account_circle, size: 32, color: Colors.deepPurpleAccent),
-            onPressed: () {
-              Navigator.push(context, _createRoute(const ProfileScreen()));
-            },
+        toolbarHeight: 88,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.deepPurple.shade700, Colors.deepPurpleAccent.shade200],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(14)),
+            boxShadow: [BoxShadow(color: Colors.deepPurple.withOpacity(0.12), blurRadius: 12, offset: const Offset(0, 6))],
           ),
-        ],
+          padding: const EdgeInsets.only(top: 18),
+          child: SafeArea(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(width: 12),
+                Hero(
+                  tag: 'appIcon',
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.12),
+                    ),
+                    child: const Icon(Icons.directions_run, size: 38, color: Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'NutriLift',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 22,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.account_circle, size: 32, color: Colors.white),
+                  onPressed: () {
+                    Navigator.push(context, _createRoute(const ProfileScreen()));
+                  },
+                ),
+                const SizedBox(width: 8),
+              ],
+            ),
+          ),
+        ),
       ),
       floatingActionButton: ScaleTransition(
         scale: _fabController,
         child: FloatingActionButton.extended(
-          backgroundColor: Colors.deepPurpleAccent,
+          heroTag: 'quickLog',
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.deepPurpleAccent,
+          elevation: 8,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           label: const Text('Quick Log'),
           icon: const Icon(Icons.add),
@@ -385,7 +417,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [const Color(0xFFF6F6FF), Colors.purple.shade50.withOpacity(0.8)],
+              colors: [const Color(0xFFF7F6FF), Colors.purple.shade50.withOpacity(0.9)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -397,17 +429,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 animation: _bgCircleController,
                 builder: (context, child) {
                   return Positioned(
-                    top: -100,
-                    left: -70,
+                    top: -120,
+                    left: -80,
                     child: Transform.scale(
                       scale: _bgCircleScale.value,
                       child: Container(
-                        width: 240,
-                        height: 240,
+                        width: 260,
+                        height: 260,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
-                            colors: [Colors.deepPurpleAccent.withOpacity(0.16), Colors.deepPurple.withOpacity(0.08)],
+                            colors: [Colors.deepPurpleAccent.withOpacity(0.14), Colors.deepPurple.withOpacity(0.06)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -421,17 +453,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 animation: _bgCircleController,
                 builder: (context, child) {
                   return Positioned(
-                    bottom: -70,
-                    right: -50,
+                    bottom: -80,
+                    right: -60,
                     child: Transform.scale(
                       scale: 1.18 - (_bgCircleScale.value - 0.8),
                       child: Container(
-                        width: 160,
-                        height: 160,
+                        width: 180,
+                        height: 180,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
-                            colors: [Colors.purple.withOpacity(0.12), Colors.deepPurpleAccent.withOpacity(0.08)],
+                            colors: [Colors.purple.withOpacity(0.10), Colors.deepPurpleAccent.withOpacity(0.06)],
                             begin: Alignment.topRight,
                             end: Alignment.bottomLeft,
                           ),
@@ -452,298 +484,332 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
               SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 100),
                 child: Column(
                   children: [
-                    const SizedBox(height: 24),
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          children: [
-                            ScaleTransition(
-                              scale: _iconAnimation,
-                              child: AnimatedBuilder(
-                                animation: _iconController,
-                                builder: (context, child) {
-                                  return Transform.rotate(
-                                    angle: _iconController.value * 0.14,
-                                    child: child,
-                                  );
-                                },
-                                child: Hero(
-                                  tag: 'appIcon',
-                                  child: Container(
-                                    padding: const EdgeInsets.all(18),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: const LinearGradient(
-                                        colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.deepPurple.withOpacity(0.14),
-                                          blurRadius: 20,
-                                          offset: const Offset(0, 10),
-                                        ),
-                                      ],
-                                    ),
-                                    child: const Icon(Icons.directions_run, size: 84, color: Colors.deepPurpleAccent),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 14),
-                            FadeTransition(
-                              opacity: _welcomeAnimation,
-                              child: AnimatedBuilder(
-                                animation: _welcomeController,
-                                builder: (context, child) {
-                                  return Transform.translate(
-                                    offset: Offset(0, -8 * (1 - _welcomeAnimation.value)),
-                                    child: child,
-                                  );
-                                },
-                                child: Text(
-                                  'Welcome!',
-                                  style: TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.deepPurple.shade800,
-                                    letterSpacing: 1.1,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 18),
-                              child: Text(
-                                'Achieve your fitness goals with NutriLift. Track workouts, meals, and progress.',
-                                style: TextStyle(fontSize: 15.5, color: Colors.deepPurpleAccent),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            const SizedBox(height: 28),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                _buildCard(
-                                  icon: Icons.fitness_center,
-                                  title: 'Workouts',
-                                  subtitle: 'Log & view workouts',
-                                  color: Colors.deepPurpleAccent,
-                                  onTap: () {
-                                    Navigator.push(context, _createRoute(const WorkoutsScreen()));
-                                  },
-                                  fadeAnimation: _workoutFade,
-                                  slideAnimation: _workoutSlide,
-                                  flipAnimation: _flipWorkoutAnimation,
-                                  onLongPress: () {
-                                    if (_flipWorkoutController.isCompleted) {
-                                      _flipWorkoutController.reverse();
-                                    } else {
-                                      _flipWorkoutController.forward();
-                                    }
-                                  },
-                                  backChild: Container(
-                                    width: cardWidth,
-                                    height: cardWidth * 1.12,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(24),
-                                      color: Colors.deepPurpleAccent.withOpacity(0.06),
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.show_chart, color: Colors.deepPurpleAccent, size: cardWidth * 0.16),
-                                        const SizedBox(height: 8),
-                                        Text('Weekly summary', style: TextStyle(fontWeight: FontWeight.bold, fontSize: max(13, cardWidth * 0.09))),
-                                        const SizedBox(height: 6),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                                          child: Text('Long press toggles this card', textAlign: TextAlign.center, style: TextStyle(fontSize: max(11, cardWidth * 0.07))),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  cardWidth: cardWidth,
-                                ),
-                                SizedBox(width: width > 420 ? 28 : 14),
-                                _buildCard(
-                                  icon: Icons.restaurant,
-                                  title: 'Nutrition',
-                                  subtitle: 'Track your meals',
-                                  color: Colors.purple,
-                                  onTap: () {
-                                    Navigator.push(context, _createRoute(const NutritionScreen()));
-                                  },
-                                  fadeAnimation: _nutritionFade,
-                                  slideAnimation: _nutritionSlide,
-                                  flipAnimation: _flipNutritionAnimation,
-                                  onLongPress: () {
-                                    if (_flipNutritionController.isCompleted) {
-                                      _flipNutritionController.reverse();
-                                    } else {
-                                      _flipNutritionController.forward();
-                                    }
-                                  },
-                                  backChild: Container(
-                                    width: cardWidth,
-                                    height: cardWidth * 1.12,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(24),
-                                      color: Colors.purple.withOpacity(0.06),
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.local_dining, color: Colors.purple, size: cardWidth * 0.16),
-                                        const SizedBox(height: 8),
-                                        Text('Meal tips', style: TextStyle(fontWeight: FontWeight.bold, fontSize: max(13, cardWidth * 0.09))),
-                                        const SizedBox(height: 6),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                                          child: Text('Long press toggles this card', textAlign: TextAlign.center, style: TextStyle(fontSize: max(11, cardWidth * 0.07))),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  cardWidth: cardWidth,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 28),
-                            // Tip card with shimmer effect and staggered fade
-                            FadeTransition(
-                              opacity: _tipFade,
-                              child: AnimatedBuilder(
-                                animation: _tipController,
-                                builder: (context, child) {
-                                  return Card(
-                                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                                    elevation: 6,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                    color: Colors.white.withOpacity(0.06),
-                                    child: Stack(
-                                      children: [
-                                        Positioned.fill(
-                                          child: FractionallySizedBox(
-                                            widthFactor: 1,
-                                            child: ShaderMask(
-                                              shaderCallback: (rect) {
-                                                return LinearGradient(
-                                                  colors: [
-                                                    Colors.white.withOpacity(0.0),
-                                                    Colors.white.withOpacity(0.18),
-                                                    Colors.white.withOpacity(0.0),
-                                                  ],
-                                                  stops: [
-                                                    (_tipShimmer.value - 0.2).clamp(0.0, 1.0),
-                                                    _tipShimmer.value.clamp(0.0, 1.0),
-                                                    (_tipShimmer.value + 0.2).clamp(0.0, 1.0),
-                                                  ],
-                                                  begin: Alignment.centerLeft,
-                                                  end: Alignment.centerRight,
-                                                ).createShader(rect);
-                                              },
-                                              blendMode: BlendMode.srcATop,
-                                              child: Container(
-                                                color: Colors.transparent,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(14.0),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: const [
-                                              Icon(Icons.lightbulb_outline, color: Colors.deepPurpleAccent),
-                                              SizedBox(width: 12),
-                                              Flexible(
-                                                child: Text(
-                                                  'Tip: Consistency is key. Stay hydrated!',
-                                                  style: TextStyle(fontSize: 15.5, color: Colors.deepPurple),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            // Quote with fade-in animation
-                            FadeTransition(
-                              opacity: _quoteFade,
+                    const SizedBox(height: 18),
+                    // Greeting + search
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        children: [
+                          ScaleTransition(
+                            scale: _iconAnimation,
+                            child: AnimatedBuilder(
+                              animation: _iconController,
+                              builder: (context, child) {
+                                return Transform.rotate(
+                                  angle: _iconController.value * 0.1,
+                                  child: child,
+                                );
+                              },
                               child: Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 12),
+                                padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  gradient: LinearGradient(
-                                    colors: [Colors.deepPurple.shade700, Colors.deepPurpleAccent],
+                                  shape: BoxShape.circle,
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
-                                ),
-                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(Icons.format_quote, color: Colors.white, size: 22),
-                                    SizedBox(width: 8),
-                                    Flexible(
-                                      child: Text(
-                                        '"Progress, not perfection."',
-                                        style: TextStyle(
-                                          fontSize: 14.5,
-                                          color: Colors.white,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.deepPurple.withOpacity(0.12),
+                                      blurRadius: 18,
+                                      offset: const Offset(0, 10),
                                     ),
                                   ],
                                 ),
+                                child: const Icon(Icons.self_improvement, size: 64, color: Colors.deepPurpleAccent),
                               ),
                             ),
-                            const SizedBox(height: 22),
-                            FadeTransition(
-                              opacity: _settingsFade,
-                              child: AnimatedBuilder(
-                                animation: _welcomeController,
-                                builder: (context, child) {
-                                  return Transform.scale(
-                                    scale: 0.96 + 0.04 * _welcomeAnimation.value,
-                                    child: child,
-                                  );
-                                },
-                                child: ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.deepPurpleAccent,
-                                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                  ),
-                                  icon: const Icon(Icons.settings, color: Colors.white),
-                                  label: const Text(
-                                    'Settings',
-                                    style: TextStyle(fontSize: 16, color: Colors.white),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.push(context, _createRoute(const SettingsScreen()));
-                                  },
+                          ),
+                          const SizedBox(height: 12),
+                          FadeTransition(
+                            opacity: _welcomeAnimation,
+                            child: AnimatedBuilder(
+                              animation: _welcomeController,
+                              builder: (context, child) {
+                                return Transform.translate(
+                                  offset: Offset(0, -8 * (1 - _welcomeAnimation.value)),
+                                  child: child,
+                                );
+                              },
+                              child: Text(
+                                'Welcome back!',
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.deepPurple.shade800,
+                                  letterSpacing: 0.6,
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 28),
+                          ),
+                          const SizedBox(height: 8),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              'Small habits → big results. Track meals, workouts and stay consistent.',
+                              style: TextStyle(fontSize: 14.5, color: Colors.deepPurpleAccent),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          // Search bar
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8)],
+                            ),
+                            child: TextField(
+                              decoration: InputDecoration(
+                                icon: const Icon(Icons.search, color: Colors.deepPurple),
+                                hintText: 'Search workouts, recipes, tips...',
+                                border: InputBorder.none,
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.mic, color: Colors.deepPurpleAccent),
+                                  onPressed: () {},
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    // Cards row
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: min(28.0, width * 0.06)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildCard(
+                            icon: Icons.fitness_center,
+                            title: 'Workouts',
+                            subtitle: 'Log & view workouts',
+                            color: Colors.deepPurpleAccent,
+                            onTap: () {
+                              Navigator.push(context, _createRoute(const WorkoutsScreen()));
+                            },
+                            fadeAnimation: _workoutFade,
+                            slideAnimation: _workoutSlide,
+                            flipAnimation: _flipWorkoutAnimation,
+                            onLongPress: () {
+                              if (_flipWorkoutController.isCompleted) {
+                                _flipWorkoutController.reverse();
+                              } else {
+                                _flipWorkoutController.forward();
+                              }
+                            },
+                            backChild: Container(
+                              width: cardWidth,
+                              height: cardWidth * 1.12,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(24),
+                                color: Colors.deepPurpleAccent.withOpacity(0.06),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.show_chart, color: Colors.deepPurpleAccent, size: cardWidth * 0.16),
+                                  const SizedBox(height: 8),
+                                  Text('Weekly summary', style: TextStyle(fontWeight: FontWeight.bold, fontSize: max(13, cardWidth * 0.09))),
+                                  const SizedBox(height: 6),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    child: Text('Long press toggles this card', textAlign: TextAlign.center, style: TextStyle(fontSize: max(11, cardWidth * 0.07))),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            cardWidth: cardWidth,
+                          ),
+                          SizedBox(width: width > 420 ? 26 : 12),
+                          _buildCard(
+                            icon: Icons.restaurant,
+                            title: 'Nutrition',
+                            subtitle: 'Track your meals',
+                            color: Colors.purple,
+                            onTap: () {
+                              Navigator.push(context, _createRoute(const NutritionScreen()));
+                            },
+                            fadeAnimation: _nutritionFade,
+                            slideAnimation: _nutritionSlide,
+                            flipAnimation: _flipNutritionAnimation,
+                            onLongPress: () {
+                              if (_flipNutritionController.isCompleted) {
+                                _flipNutritionController.reverse();
+                              } else {
+                                _flipNutritionController.forward();
+                              }
+                            },
+                            backChild: Container(
+                              width: cardWidth,
+                              height: cardWidth * 1.12,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(24),
+                                color: Colors.purple.withOpacity(0.06),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.local_dining, color: Colors.purple, size: cardWidth * 0.16),
+                                  const SizedBox(height: 8),
+                                  Text('Meal tips', style: TextStyle(fontWeight: FontWeight.bold, fontSize: max(13, cardWidth * 0.09))),
+                                  const SizedBox(height: 6),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    child: Text('Long press toggles this card', textAlign: TextAlign.center, style: TextStyle(fontSize: max(11, cardWidth * 0.07))),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            cardWidth: cardWidth,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    // Tip card with shimmer effect and staggered fade
+                    FadeTransition(
+                      opacity: _tipFade,
+                      child: AnimatedBuilder(
+                        animation: _tipController,
+                        builder: (context, child) {
+                          return Card(
+                            margin: const EdgeInsets.symmetric(horizontal: 20),
+                            elevation: 10,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            color: Colors.white,
+                            child: Stack(
+                              children: [
+                                // subtle shimmering accent
+                                Positioned.fill(
+                                  child: FractionallySizedBox(
+                                    widthFactor: 1,
+                                    child: ShaderMask(
+                                      shaderCallback: (rect) {
+                                        return LinearGradient(
+                                          colors: [
+                                            Colors.white.withOpacity(0.0),
+                                            Colors.deepPurple.withOpacity(0.06),
+                                            Colors.white.withOpacity(0.0),
+                                          ],
+                                          stops: [
+                                            (_tipShimmer.value - 0.2).clamp(0.0, 1.0),
+                                            _tipShimmer.value.clamp(0.0, 1.0),
+                                            (_tipShimmer.value + 0.2).clamp(0.0, 1.0),
+                                          ],
+                                          begin: Alignment.centerLeft,
+                                          end: Alignment.centerRight,
+                                        ).createShader(rect);
+                                      },
+                                      blendMode: BlendMode.srcATop,
+                                      child: Container(color: Colors.transparent),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(14.0),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Colors.deepPurple.withOpacity(0.08),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: const Icon(Icons.lightbulb_outline, color: Colors.deepPurpleAccent),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      const Expanded(
+                                        child: Text(
+                                          'Tip: Consistency is key. Try a 10-minute routine daily and hydrate regularly.',
+                                          style: TextStyle(fontSize: 15.5, color: Colors.black87),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {},
+                                        child: const Text('Learn', style: TextStyle(color: Colors.deepPurpleAccent)),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    // Quote with fade-in animation
+                    FadeTransition(
+                      opacity: _quoteFade,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: LinearGradient(
+                            colors: [Colors.deepPurple.shade700, Colors.deepPurpleAccent],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.format_quote, color: Colors.white, size: 22),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                '"Progress, not perfection."',
+                                style: TextStyle(
+                                  fontSize: 14.5,
+                                  color: Colors.white,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ),
+                    const SizedBox(height: 18),
+                    FadeTransition(
+                      opacity: _settingsFade,
+                      child: AnimatedBuilder(
+                        animation: _welcomeController,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: 0.96 + 0.04 * _welcomeAnimation.value,
+                            child: child,
+                          );
+                        },
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepPurpleAccent,
+                            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 8,
+                          ),
+                          icon: const Icon(Icons.settings, color: Colors.white),
+                          label: const Text(
+                            'Settings',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                          onPressed: () {
+                            Navigator.push(context, _createRoute(const SettingsScreen()));
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
                   ],
                 ),
               ),
