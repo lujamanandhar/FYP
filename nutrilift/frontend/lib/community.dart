@@ -773,14 +773,30 @@ class _CommunityAgePageState extends State<CommunityAgePage> with SingleTickerPr
             if (previewAge == null) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 36),
-                child: Center(child: Text('Set your age to see community posts tailored to your group.', textAlign: TextAlign.center, style: theme.textTheme.bodyMedium)),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Text('Set your age to see community posts tailored to your group.', textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
+                      const SizedBox(height: 12),
+                      ElevatedButton.icon(onPressed: () => _ageController.text = '25', icon: const Icon(Icons.person), label: const Text('Quick set to 25')),
+                    ],
+                  ),
+                ),
               );
             }
 
             if (filtered.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 36),
-                child: Center(child: Text('No posts found for your age group. Try exploring or create one!', textAlign: TextAlign.center, style: theme.textTheme.bodyMedium)),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Text('No posts found for your age group. Try exploring or create one!', textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
+                      const SizedBox(height: 12),
+                      ElevatedButton.icon(onPressed: _openCreatePostSheet, icon: const Icon(Icons.add), label: const Text('Create a post')),
+                    ],
+                  ),
+                ),
               );
             }
 
@@ -802,7 +818,7 @@ class _CommunityAgePageState extends State<CommunityAgePage> with SingleTickerPr
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Card(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 1,
+                    elevation: 3,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
                       onTap: () {
@@ -927,7 +943,18 @@ class _CommunityAgePageState extends State<CommunityAgePage> with SingleTickerPr
         ]),
         const SizedBox(height: 12),
         if (filteredResults.isEmpty)
-          Padding(padding: const EdgeInsets.symmetric(vertical: 36), child: Center(child: Text('No results yet. Be the first to post!', style: theme.textTheme.bodyMedium)))
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 36),
+            child: Center(
+              child: Column(
+                children: [
+                  Text('No results yet. Be the first to post!', style: theme.textTheme.bodyMedium),
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(onPressed: () => _openCreateResultSheet(), icon: const Icon(Icons.add), label: const Text('Post result')),
+                ],
+              ),
+            ),
+          )
         else
           Column(
             children: filteredResults.map((r) {
@@ -943,11 +970,12 @@ class _CommunityAgePageState extends State<CommunityAgePage> with SingleTickerPr
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Card(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 3,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Row(children: [
-                        CircleAvatar(backgroundColor: Colors.primaries[id % Colors.primaries.length].shade300, child: Text(author.isNotEmpty ? author[0].toUpperCase() : '?')),
+                        CircleAvatar(backgroundColor: Colors.primaries[id % Colors.primaries.length].shade300, child: Text(author.isNotEmpty ? author[0].toUpperCase() : '?')) ,
                         const SizedBox(width: 10),
                         Expanded(child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold))),
                         Text(_timeAgo(createdAt), style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
@@ -956,7 +984,6 @@ class _CommunityAgePageState extends State<CommunityAgePage> with SingleTickerPr
                       Text(status),
                       if (img != null) ...[
                         const SizedBox(height: 8),
-                        // For demo use NetworkImage if valid URL; else ignored
                         SizedBox(height: 160, child: Center(child: Text('Image preview (URL): $img', style: const TextStyle(fontSize: 12)))),
                       ],
                       const SizedBox(height: 10),
@@ -992,7 +1019,18 @@ class _CommunityAgePageState extends State<CommunityAgePage> with SingleTickerPr
         ]),
         const SizedBox(height: 12),
         if (filtered.isEmpty)
-          Padding(padding: const EdgeInsets.symmetric(vertical: 36), child: Center(child: Text('No challenges yet. Create one!', style: theme.textTheme.bodyMedium)))
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 36),
+            child: Center(
+              child: Column(
+                children: [
+                  Text('No challenges yet. Create one!', style: theme.textTheme.bodyMedium),
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(onPressed: _openCreateChallengeSheet, icon: const Icon(Icons.post_add), label: const Text('Create challenge')),
+                ],
+              ),
+            ),
+          )
         else
           Column(
             children: filtered.map((c) {
@@ -1008,6 +1046,7 @@ class _CommunityAgePageState extends State<CommunityAgePage> with SingleTickerPr
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Card(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 3,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1058,9 +1097,23 @@ class _CommunityAgePageState extends State<CommunityAgePage> with SingleTickerPr
     final filtered = _filteredPostsFor(previewAge);
     final theme = Theme.of(context);
 
+    // contextual FAB label/icon
+    final fabLabel = _tabController.index == 0
+        ? 'New Post'
+        : _tabController.index == 1
+            ? 'New Result'
+            : 'New Challenge';
+    final fabIcon = _tabController.index == 0 ? Icons.forum : _tabController.index == 1 ? Icons.self_improvement : Icons.emoji_events;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Community'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text('Community'),
+            if (_age != null) Text('Saved age: $_age', style: const TextStyle(fontSize: 12, color: Colors.white70)),
+          ],
+        ),
         centerTitle: true,
         elevation: 2,
         actions: [
@@ -1098,11 +1151,17 @@ class _CommunityAgePageState extends State<CommunityAgePage> with SingleTickerPr
                       borderRadius: BorderRadius.circular(12),
                       child: TextField(
                         controller: _searchController,
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.search),
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.search),
                           hintText: 'Search posts, results, challenges',
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                          suffixIcon: _searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () => setState(() => _searchController.clear()),
+                                )
+                              : null,
                         ),
                       ),
                     ),
@@ -1134,14 +1193,15 @@ class _CommunityAgePageState extends State<CommunityAgePage> with SingleTickerPr
           ]),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           // context aware create
           if (_tabController.index == 0) _openCreatePostSheet();
           if (_tabController.index == 1) _openCreateResultSheet();
           if (_tabController.index == 2) _openCreateChallengeSheet();
         },
-        child: const Icon(Icons.add),
+        icon: Icon(fabIcon),
+        label: Text(fabLabel),
       ),
       body: TabBarView(
         controller: _tabController,
