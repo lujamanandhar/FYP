@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
       useMaterial3: true,
       fontFamily: 'Roboto',
     );
@@ -217,9 +217,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     begin: Alignment(-0.9 + t * 0.5, -1),
                     end: Alignment(1, 1),
                     colors: [
-                      Colors.teal.shade900,
-                      Colors.teal.shade600.withOpacity(0.95),
-                      Colors.green.shade400.withOpacity(0.9),
+                      Colors.red.shade900,
+                      Colors.red.shade600.withOpacity(0.95),
+                      Colors.red.shade400.withOpacity(0.9),
                     ],
                   ),
                 ),
@@ -439,7 +439,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                 alignment: Alignment.centerLeft,
                                 padding: const EdgeInsets.only(left: 18),
                                 decoration: BoxDecoration(
-                                  color: Colors.green.shade600,
+                                  color: Colors.red.shade600,
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: Row(
@@ -454,7 +454,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                 alignment: Alignment.centerRight,
                                 padding: const EdgeInsets.only(right: 18),
                                 decoration: BoxDecoration(
-                                  color: Colors.red.shade600,
+                                  color: Colors.red.shade800,
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: Row(
