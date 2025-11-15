@@ -349,12 +349,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.deepPurple.shade700, Colors.deepPurpleAccent.shade200],
+              colors: [Colors.red.shade700, Colors.redAccent.shade200],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: const BorderRadius.vertical(bottom: Radius.circular(14)),
-            boxShadow: [BoxShadow(color: Colors.deepPurple.withOpacity(0.12), blurRadius: 12, offset: const Offset(0, 6))],
+            boxShadow: [BoxShadow(color: Colors.red.withOpacity(0.12), blurRadius: 12, offset: const Offset(0, 6))],
           ),
           padding: const EdgeInsets.only(top: 18),
           child: SafeArea(
@@ -401,7 +401,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: FloatingActionButton.extended(
           heroTag: 'quickLog',
           backgroundColor: Colors.white,
-          foregroundColor: Colors.deepPurpleAccent,
+          foregroundColor: Colors.redAccent,
           elevation: 8,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           label: const Text('Quick Log'),
@@ -417,7 +417,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [const Color(0xFFF7F6FF), Colors.purple.shade50.withOpacity(0.9)],
+              colors: [const Color(0xFFFFF5F5), Colors.red.shade50.withOpacity(0.9)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -439,7 +439,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
-                            colors: [Colors.deepPurpleAccent.withOpacity(0.14), Colors.deepPurple.withOpacity(0.06)],
+                            colors: [Colors.redAccent.withOpacity(0.14), Colors.red.withOpacity(0.06)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -463,7 +463,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
-                            colors: [Colors.purple.withOpacity(0.10), Colors.deepPurpleAccent.withOpacity(0.06)],
+                            colors: [Colors.red.withOpacity(0.10), Colors.redAccent.withOpacity(0.06)],
                             begin: Alignment.topRight,
                             end: Alignment.bottomLeft,
                           ),
@@ -508,19 +508,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   gradient: const LinearGradient(
-                                    colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
+                                    colors: [Color(0xFFEF5350), Color(0xFFFFCDD2)],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.deepPurple.withOpacity(0.12),
+                                      color: Colors.red.withOpacity(0.12),
                                       blurRadius: 18,
                                       offset: const Offset(0, 10),
                                     ),
                                   ],
                                 ),
-                                child: const Icon(Icons.self_improvement, size: 64, color: Colors.deepPurpleAccent),
+                                child: const Icon(Icons.self_improvement, size: 64, color: Colors.redAccent),
                               ),
                             ),
                           ),
@@ -540,7 +540,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.w800,
-                                  color: Colors.deepPurple.shade800,
+                                  color: Colors.red.shade800,
                                   letterSpacing: 0.6,
                                 ),
                               ),
@@ -551,7 +551,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             padding: EdgeInsets.symmetric(horizontal: 8),
                             child: Text(
                               'Small habits → big results. Track meals, workouts and stay consistent.',
-                              style: TextStyle(fontSize: 14.5, color: Colors.deepPurpleAccent),
+                              style: TextStyle(fontSize: 14.5, color: Colors.redAccent),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -567,11 +567,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             ),
                             child: TextField(
                               decoration: InputDecoration(
-                                icon: const Icon(Icons.search, color: Colors.deepPurple),
+                                icon: const Icon(Icons.search, color: Colors.red),
                                 hintText: 'Search workouts, recipes, tips...',
                                 border: InputBorder.none,
                                 suffixIcon: IconButton(
-                                  icon: const Icon(Icons.mic, color: Colors.deepPurpleAccent),
+                                  icon: const Icon(Icons.mic, color: Colors.redAccent),
                                   onPressed: () {},
                                 ),
                               ),
@@ -592,7 +592,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             icon: Icons.fitness_center,
                             title: 'Workouts',
                             subtitle: 'Log & view workouts',
-                            color: Colors.deepPurpleAccent,
+                            color: Colors.redAccent,
                             onTap: () {
                               Navigator.push(context, _createRoute(const WorkoutsScreen()));
                             },
@@ -611,12 +611,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               height: cardWidth * 1.12,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(24),
-                                color: Colors.deepPurpleAccent.withOpacity(0.06),
+                                color: Colors.redAccent.withOpacity(0.06),
                               ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.show_chart, color: Colors.deepPurpleAccent, size: cardWidth * 0.16),
+                                  Icon(Icons.show_chart, color: Colors.redAccent, size: cardWidth * 0.16),
                                   const SizedBox(height: 8),
                                   Text('Weekly summary', style: TextStyle(fontWeight: FontWeight.bold, fontSize: max(13, cardWidth * 0.09))),
                                   const SizedBox(height: 6),
@@ -634,7 +634,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             icon: Icons.restaurant,
                             title: 'Nutrition',
                             subtitle: 'Track your meals',
-                            color: Colors.purple,
+                            color: Colors.red,
                             onTap: () {
                               Navigator.push(context, _createRoute(const NutritionScreen()));
                             },
@@ -653,12 +653,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               height: cardWidth * 1.12,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(24),
-                                color: Colors.purple.withOpacity(0.06),
+                                color: Colors.red.withOpacity(0.06),
                               ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.local_dining, color: Colors.purple, size: cardWidth * 0.16),
+                                  Icon(Icons.local_dining, color: Colors.red, size: cardWidth * 0.16),
                                   const SizedBox(height: 8),
                                   Text('Meal tips', style: TextStyle(fontWeight: FontWeight.bold, fontSize: max(13, cardWidth * 0.09))),
                                   const SizedBox(height: 6),
@@ -697,7 +697,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                         return LinearGradient(
                                           colors: [
                                             Colors.white.withOpacity(0.0),
-                                            Colors.deepPurple.withOpacity(0.06),
+                                            Colors.redAccent.withOpacity(0.06),
                                             Colors.white.withOpacity(0.0),
                                           ],
                                           stops: [
@@ -721,10 +721,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                       Container(
                                         padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
-                                          color: Colors.deepPurple.withOpacity(0.08),
+                                          color: Colors.red.withOpacity(0.08),
                                           borderRadius: BorderRadius.circular(10),
                                         ),
-                                        child: const Icon(Icons.lightbulb_outline, color: Colors.deepPurpleAccent),
+                                        child: const Icon(Icons.lightbulb_outline, color: Colors.redAccent),
                                       ),
                                       const SizedBox(width: 12),
                                       const Expanded(
@@ -735,7 +735,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                       ),
                                       TextButton(
                                         onPressed: () {},
-                                        child: const Text('Learn', style: TextStyle(color: Colors.deepPurpleAccent)),
+                                        child: const Text('Learn', style: TextStyle(color: Colors.redAccent)),
                                       )
                                     ],
                                   ),
@@ -755,7 +755,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           gradient: LinearGradient(
-                            colors: [Colors.deepPurple.shade700, Colors.deepPurpleAccent],
+                            colors: [Colors.red.shade700, Colors.redAccent],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -793,7 +793,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         },
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurpleAccent,
+                            backgroundColor: Colors.redAccent,
                             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             elevation: 8,
@@ -828,7 +828,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.red,
         title: const Text('Profile'),
       ),
       body: Center(
@@ -842,18 +842,18 @@ class ProfileScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF7367F0), Color(0xFFE0C3FC)],
+                    colors: [Color(0xFFEF5350), Color(0xFFFFCDD2)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: const Icon(Icons.directions_run, size: 96, color: Colors.deepPurpleAccent),
+                child: const Icon(Icons.directions_run, size: 96, color: Colors.redAccent),
               ),
             ),
             const SizedBox(height: 24),
             const Text(
               'This is the Profile Screen',
-              style: TextStyle(fontSize: 21, color: Colors.deepPurple),
+              style: TextStyle(fontSize: 21, color: Colors.red),
             ),
           ],
         ),
@@ -869,13 +869,13 @@ class WorkoutsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.red,
         title: const Text('Workouts'),
       ),
       body: const Center(
         child: Text(
           'Track your workouts here!',
-          style: TextStyle(fontSize: 21, color: Colors.deepPurple),
+          style: TextStyle(fontSize: 21, color: Colors.red),
         ),
       ),
     );
@@ -889,13 +889,13 @@ class NutritionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.redAccent,
         title: const Text('Nutrition'),
       ),
       body: const Center(
         child: Text(
           'Track your nutrition here!',
-          style: TextStyle(fontSize: 21, color: Colors.purple),
+          style: TextStyle(fontSize: 21, color: Colors.redAccent),
         ),
       ),
     );
@@ -909,13 +909,13 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurpleAccent,
+        backgroundColor: Colors.redAccent,
         title: const Text('Settings'),
       ),
       body: const Center(
         child: Text(
           'Settings will be available soon!',
-          style: TextStyle(fontSize: 21, color: Colors.deepPurpleAccent),
+          style: TextStyle(fontSize: 21, color: Colors.redAccent),
         ),
       ),
     );
