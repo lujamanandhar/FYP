@@ -15,6 +15,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
       'desc': 'Great for chest, shoulders, and triceps.',
       'icon': Icons.fitness_center,
       'completed': false,
+      'category': 'Upper Body',
+    },
+    {
+      'name': 'Pull Ups',
+      'reps': '3 x 8',
+      'desc': 'Back and biceps focus.',
+      'icon': Icons.back_hand,
+      'completed': false,
+      'category': 'Upper Body',
     },
     {
       'name': 'Squats',
@@ -22,6 +31,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
       'desc': 'Strengthens legs and glutes.',
       'icon': Icons.directions_run,
       'completed': false,
+      'category': 'Lower Body',
+    },
+    {
+      'name': 'Lunges',
+      'reps': '3 x 12 each leg',
+      'desc': 'Works quads and glutes.',
+      'icon': Icons.trending_down,
+      'completed': false,
+      'category': 'Lower Body',
     },
     {
       'name': 'Plank',
@@ -29,6 +47,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
       'desc': 'Core stability exercise.',
       'icon': Icons.accessibility_new,
       'completed': false,
+      'category': 'Core',
     },
     {
       'name': 'Jumping Jacks',
@@ -36,6 +55,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
       'desc': 'Full body cardio move.',
       'icon': Icons.sports_handball,
       'completed': false,
+      'category': 'Cardio',
     },
     {
       'name': 'Burpees',
@@ -43,6 +63,23 @@ class _WorkoutPageState extends State<WorkoutPage> {
       'desc': 'Full body strength and cardio exercise.',
       'icon': Icons.whatshot,
       'completed': false,
+      'category': 'Cardio',
+    },
+    {
+      'name': 'Downward Dog',
+      'reps': 'Hold 1 min',
+      'desc': 'Yoga pose for shoulders and hamstrings.',
+      'icon': Icons.self_improvement,
+      'completed': false,
+      'category': 'Yoga',
+    },
+    {
+      'name': 'Child Pose',
+      'reps': 'Hold 1-2 min',
+      'desc': 'Relaxing yoga stretch.',
+      'icon': Icons.airline_seat_recline_normal,
+      'completed': false,
+      'category': 'Yoga',
     },
   ];
 
@@ -60,7 +97,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
 
   void showDetailsSheet(int index) {
     final workout = workouts[index];
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -70,106 +107,86 @@ class _WorkoutPageState extends State<WorkoutPage> {
           minChildSize: 0.28,
           maxChildSize: 0.85,
           builder: (_, controller) {
-            // simple fade+slide-in for sheet content
-            return TweenAnimationBuilder<double>(
-              tween: Tween(begin: 20.0, end: 0.0),
-              duration: kAnimDuration,
-              curve: kAnimCurve,
-              builder: (context, value, child) {
-                final opacity = (20 - value) / 20;
-                return Transform.translate(
-                  offset: Offset(0, value),
-                  child: Opacity(
-                    opacity: opacity.clamp(0.0, 1.0),
-                    child: child,
-                  ),
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 12,
-                      offset: const Offset(0, -4),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-                child: ListView(
-                  controller: controller,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: (workout['completed'] as bool)
-                                  ? [Colors.green.shade700, Colors.green.shade400]
-                                  : [Colors.green.shade300, Colors.green.shade100],
-                            ),
-                          ),
-                          padding: const EdgeInsets.all(12),
-                          child: Icon(
-                            workout['icon'] as IconData,
-                            color: Colors.white,
-                            size: 28,
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, -4)),
+                ],
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+              child: ListView(
+                controller: controller,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: (workout['completed'] as bool)
+                                ? [Colors.green.shade700, Colors.green.shade400]
+                                : [Colors.green.shade300, Colors.green.shade100],
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                workout['name'] as String,
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                workout['reps'] as String,
-                                style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
+                        padding: const EdgeInsets.all(12),
+                        child: Icon(
+                          workout['icon'] as IconData,
+                          color: Colors.white,
+                          size: 28,
                         ),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            toggleCompleted(index);
-                          },
-                          icon: Icon(
-                            (workout['completed'] as bool) ? Icons.check_circle : Icons.radio_button_unchecked,
-                            color: (workout['completed'] as bool) ? Colors.green.shade700 : Colors.grey,
-                            size: 28,
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      workout['desc'] as String,
-                      style: const TextStyle(fontSize: 16, height: 1.4),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        toggleCompleted(index);
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.check),
-                      label: Text((workout['completed'] as bool) ? 'Mark as not done' : 'Mark as completed'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade700,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              workout['name'] as String,
+                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              workout['reps'] as String,
+                              style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          toggleCompleted(index);
+                        },
+                        icon: Icon(
+                          (workout['completed'] as bool) ? Icons.check_circle : Icons.radio_button_unchecked,
+                          color: (workout['completed'] as bool) ? Colors.green.shade700 : Colors.grey,
+                          size: 28,
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    workout['desc'] as String,
+                    style: const TextStyle(fontSize: 16, height: 1.4),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      toggleCompleted(index);
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.check),
+                    label: Text((workout['completed'] as bool) ? 'Mark as not done' : 'Mark as completed'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade700,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
           },
@@ -180,8 +197,152 @@ class _WorkoutPageState extends State<WorkoutPage> {
 
   @override
   Widget build(BuildContext context) {
-    int completedCount = workouts.where((w) => w['completed'] as bool).length;
-    final progress = workouts.isEmpty ? 0.0 : completedCount / workouts.length;
+    final int completedCount = workouts.where((w) => w['completed'] as bool).length;
+    final double progress = workouts.isEmpty ? 0.0 : completedCount / workouts.length;
+
+    // build ordered unique categories
+    final List<String> categories = <String>[];
+    for (var w in workouts) {
+      final c = w['category'] as String? ?? 'General';
+      if (!categories.contains(c)) categories.add(c);
+    }
+
+    Widget buildCategoryHeader(String category, int done, int total) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 2),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                category,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Text(
+              '$done/$total',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      );
+    }
+
+    List<Widget> buildItemsForCategory(String category) {
+      final List<Widget> items = [];
+      final indices = <int>[];
+      for (var i = 0; i < workouts.length; i++) {
+        if ((workouts[i]['category'] as String? ?? 'General') == category) {
+          indices.add(i);
+        }
+      }
+
+      final int catDone = indices.where((i) => workouts[i]['completed'] as bool).length;
+      items.add(buildCategoryHeader(category, catDone, indices.length));
+
+      for (final idx in indices) {
+        final workout = workouts[idx];
+        final completed = workout['completed'] as bool;
+        final isExpanded = expandedIndex == idx;
+
+        items.add(
+          Card(
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () {
+                setState(() {
+                  expandedIndex = isExpanded ? null : idx;
+                });
+              },
+              onLongPress: () => showDetailsSheet(idx),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 26,
+                      backgroundColor: completed ? Colors.green.shade700 : Colors.green.shade50,
+                      child: Icon(
+                        workout['icon'] as IconData,
+                        color: completed ? Colors.white : Colors.green.shade700,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            workout['name'] as String,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: completed ? Colors.grey.shade600 : Colors.black,
+                              decoration: completed ? TextDecoration.lineThrough : TextDecoration.none,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            workout['reps'] as String,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: completed ? Colors.grey : Colors.green.shade700,
+                            ),
+                          ),
+                          if (isExpanded) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              workout['desc'] as String,
+                              style: TextStyle(fontSize: 13, color: Colors.black54),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () => toggleCompleted(idx),
+                                  icon: Icon(completed ? Icons.undo : Icons.check, size: 16),
+                                  label: Text(completed ? 'Undo' : 'Complete'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: completed ? Colors.white : Colors.green.shade700,
+                                    foregroundColor: completed ? Colors.green.shade700 : Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                OutlinedButton.icon(
+                                  onPressed: () => showDetailsSheet(idx),
+                                  icon: const Icon(Icons.info_outline, size: 16),
+                                  label: const Text('Details'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => toggleCompleted(idx),
+                      icon: Icon(
+                        completed ? Icons.check_circle : Icons.radio_button_unchecked,
+                        color: completed ? Colors.green.shade700 : Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
+      return items;
+    }
+
+    final List<Widget> children = <Widget>[];
+    for (final category in categories) {
+      children.addAll(buildItemsForCategory(category));
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -247,199 +408,11 @@ class _WorkoutPageState extends State<WorkoutPage> {
               ),
             ),
 
-            // Animated list
+            // List of grouped items
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemCount: workouts.length,
-                itemBuilder: (context, index) {
-                  final workout = workouts[index];
-                  final completed = workout['completed'] as bool;
-                  final isExpanded = expandedIndex == index;
-
-                  return AnimatedContainer(
-                    duration: kAnimDuration,
-                    curve: kAnimCurve,
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      gradient: completed
-                          ? LinearGradient(colors: [Colors.green.shade700, Colors.green.shade400])
-                          : LinearGradient(colors: [Colors.white, Colors.white]),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 10,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () {
-                          setState(() {
-                            expandedIndex = isExpanded ? null : index;
-                          });
-                        },
-                        onLongPress: () => showDetailsSheet(index),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
-                          child: AnimatedSize(
-                            duration: kAnimDuration,
-                            curve: kAnimCurve,
-                            child: Row(
-                              children: [
-                                AnimatedContainer(
-                                  duration: kAnimDuration,
-                                  width: 58,
-                                  height: 58,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: completed
-                                        ? LinearGradient(colors: [Colors.white.withOpacity(0.15), Colors.white24])
-                                        : LinearGradient(colors: [Colors.green.shade100, Colors.green.shade50]),
-                                  ),
-                                  child: AnimatedScale(
-                                    duration: const Duration(milliseconds: 300),
-                                    scale: completed ? 1.06 : 1.0,
-                                    child: CircleAvatar(
-                                      radius: 28,
-                                      backgroundColor: Colors.transparent,
-                                      child: Icon(
-                                        workout['icon'] as IconData,
-                                        color: completed ? Colors.white : Colors.green.shade700,
-                                        size: 26,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      AnimatedDefaultTextStyle(
-                                        duration: const Duration(milliseconds: 300),
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.bold,
-                                          color: completed ? Colors.white : Colors.black,
-                                          decoration: completed ? TextDecoration.lineThrough : TextDecoration.none,
-                                        ),
-                                        child: Text(workout['name'] as String),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            workout['reps'] as String,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: completed ? Colors.white70 : Colors.green.shade700,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: AnimatedOpacity(
-                                              duration: const Duration(milliseconds: 300),
-                                              opacity: isExpanded ? (completed ? 0.95 : 0.95) : (completed ? 0.9 : 0.9),
-                                              child: Text(
-                                                workout['desc'] as String,
-                                                maxLines: isExpanded ? 3 : 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  color: completed ? Colors.white70 : Colors.black54,
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                      // Expanded extra actions (AnimatedSwitcher + AnimatedSize for smooth height change)
-                                      AnimatedSwitcher(
-                                        duration: kAnimDuration,
-                                        switchInCurve: kAnimCurve,
-                                        switchOutCurve: kAnimCurve,
-                                        child: isExpanded
-                                            ? Padding(
-                                                key: const ValueKey('actions'),
-                                                padding: const EdgeInsets.only(top: 10),
-                                                child: Row(
-                                                  children: [
-                                                    ElevatedButton.icon(
-                                                      onPressed: () => toggleCompleted(index),
-                                                      icon: Icon(
-                                                        completed ? Icons.undo : Icons.check,
-                                                        size: 18,
-                                                      ),
-                                                      label: Text(completed ? 'Undo' : 'Complete'),
-                                                      style: ElevatedButton.styleFrom(
-                                                        backgroundColor: completed ? Colors.white : Colors.green.shade700,
-                                                        foregroundColor: completed ? Colors.green.shade700 : Colors.white,
-                                                        elevation: 0,
-                                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 10),
-                                                    OutlinedButton.icon(
-                                                      onPressed: () => showDetailsSheet(index),
-                                                      icon: const Icon(Icons.info_outline, size: 18),
-                                                      label: const Text('Details'),
-                                                      style: OutlinedButton.styleFrom(
-                                                        foregroundColor: completed ? Colors.white : Colors.green.shade700,
-                                                        side: BorderSide(color: completed ? Colors.white24 : Colors.green.shade200),
-                                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              )
-                                            : const SizedBox(
-                                                key: ValueKey('empty'),
-                                                height: 0,
-                                              ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // animated checkbox icon
-                                AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 300),
-                                  transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
-                                  child: IconButton(
-                                    key: ValueKey<bool>(completed),
-                                    onPressed: () => toggleCompleted(index),
-                                    icon: Icon(
-                                      completed ? Icons.check_circle : Icons.radio_button_unchecked,
-                                      color: completed ? Colors.white : Colors.green.shade700,
-                                      size: 26,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                // rotate arrow nicely
-                                AnimatedRotation(
-                                  turns: isExpanded ? 0.5 : 0.0,
-                                  duration: kAnimDuration,
-                                  curve: kAnimCurve,
-                                  child: Icon(
-                                    isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_right,
-                                    color: completed ? Colors.white70 : Colors.green.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+              child: ListView(
+                padding: const EdgeInsets.only(bottom: 24),
+                children: children,
               ),
             ),
           ],
