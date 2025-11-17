@@ -13,7 +13,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+      // switched to a green seed to better reflect "NutriLift"
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
       useMaterial3: true,
       fontFamily: 'Roboto',
     );
@@ -34,19 +35,20 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class Habit {
+  String id;
+  String title;
+  String subtitle;
+  bool done;
+  Habit(this.title, this.subtitle, {this.done = false, String? id}) : id = id ?? DateTime.now().microsecondsSinceEpoch.toString();
+}
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class Habit {
-  String title;
-  String subtitle;
-  bool done;
-  Habit(this.title, this.subtitle, {this.done = false});
 }
 
 class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
@@ -197,6 +199,19 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12.0, top: 6.0),
+          child: CircleAvatar(
+            backgroundColor: Colors.white.withOpacity(0.12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Lv', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70, fontSize: 10)),
+                Text('$level', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12)),
+              ],
+            ),
+          ),
+        ),
         title: Text(widget.title, style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5)),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -217,9 +232,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     begin: Alignment(-0.9 + t * 0.5, -1),
                     end: Alignment(1, 1),
                     colors: [
-                      Colors.red.shade900,
-                      Colors.red.shade600.withOpacity(0.95),
-                      Colors.red.shade400.withOpacity(0.9),
+                      Colors.green.shade900,
+                      Colors.green.shade600.withOpacity(0.95),
+                      Colors.green.shade400.withOpacity(0.9),
                     ],
                   ),
                 ),
@@ -377,6 +392,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                               controller: _searchController,
                               style: const TextStyle(color: Colors.white),
                               decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white.withOpacity(0.02),
                                 prefixIcon: const Icon(Icons.search, color: Colors.white70),
                                 hintText: 'Search habits',
                                 hintStyle: const TextStyle(color: Colors.white54),
@@ -418,208 +435,232 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     ),
                     const SizedBox(height: 16),
                     Column(
-                      children: List.generate(visible.length, (vIndex) {
-                        final h = visible[vIndex];
-                        final origIndex = _habits.indexOf(h);
-                        return TweenAnimationBuilder<double>(
-                          tween: Tween<double>(begin: 0, end: 1),
-                          duration: Duration(milliseconds: 350 + (vIndex * 40)),
-                          curve: Curves.easeOut,
-                          builder: (context, val, child) {
-                            return Opacity(
-                              opacity: val,
-                              child: Transform.translate(offset: Offset(0, (1 - val) * 8), child: child),
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Dismissible(
-                              key: ValueKey(h.title + h.subtitle + origIndex.toString()),
-                              background: Container(
-                                alignment: Alignment.centerLeft,
-                                padding: const EdgeInsets.only(left: 18),
+                      children: visible.isEmpty
+                          ? [
+                              const SizedBox(height: 24),
+                              Container(
+                                height: 160,
                                 decoration: BoxDecoration(
-                                  color: Colors.red.shade600,
+                                  color: Colors.white.withOpacity(0.02),
                                   borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(color: Colors.white10),
                                 ),
-                                child: Row(
-                                  children: const [
-                                    Icon(Icons.check, color: Colors.white),
-                                    SizedBox(width: 8),
-                                    Text('Toggle done', style: TextStyle(color: Colors.white)),
-                                  ],
-                                ),
-                              ),
-                              secondaryBackground: Container(
-                                alignment: Alignment.centerRight,
-                                padding: const EdgeInsets.only(right: 18),
-                                decoration: BoxDecoration(
-                                  color: Colors.red.shade800,
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: const [
-                                    Icon(Icons.delete, color: Colors.white),
-                                    SizedBox(width: 8),
-                                    Text('Delete', style: TextStyle(color: Colors.white)),
-                                  ],
-                                ),
-                              ),
-                              confirmDismiss: (dir) async {
-                                if (dir == DismissDirection.startToEnd) {
-                                  _toggleHabit(origIndex);
-                                  return false;
-                                } else {
-                                  final confirm = await showDialog<bool>(
-                                    context: context,
-                                    builder: (c) => AlertDialog(
-                                      title: const Text('Delete habit?'),
-                                      content: Text('Delete "${h.title}"?'),
-                                      actions: [
-                                        TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
-                                        ElevatedButton(onPressed: () => Navigator.pop(c, true), child: const Text('Delete')),
-                                      ],
-                                    ),
-                                  );
-                                  return confirm == true;
-                                }
-                              },
-                              onDismissed: (_) => _deleteHabit(origIndex),
-                              child: Material(
-                                color: h.done ? Colors.white.withOpacity(0.04) : Colors.white.withOpacity(0.02),
-                                elevation: 6,
-                                shadowColor: Colors.black.withOpacity(0.25),
-                                borderRadius: BorderRadius.circular(14),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(14),
-                                  onTap: () => _toggleHabit(origIndex),
-                                  onLongPress: () {
-                                    // quick edit on long press
-                                    final titleCtrl = TextEditingController(text: h.title);
-                                    final subCtrl = TextEditingController(text: h.subtitle);
-                                    showDialog<bool>(
-                                      context: context,
-                                      builder: (c) => AlertDialog(
-                                        title: const Text('Edit Habit'),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Title')),
-                                            TextField(controller: subCtrl, decoration: const InputDecoration(labelText: 'Subtitle')),
-                                          ],
-                                        ),
-                                        actions: [
-                                          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pop(c, true);
-                                            },
-                                            child: const Text('Save'),
-                                          ),
-                                        ],
-                                      ),
-                                    ).then((ok) {
-                                      if (ok == true) {
-                                        setState(() {
-                                          h.title = titleCtrl.text.trim();
-                                          h.subtitle = subCtrl.text.trim();
-                                        });
-                                      }
-                                    });
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                    child: Row(
-                                      children: [
-                                        AnimatedContainer(
-                                          duration: const Duration(milliseconds: 300),
-                                          width: 56,
-                                          height: 56,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            gradient: h.done
-                                                ? LinearGradient(colors: [primary.withOpacity(0.95), primary.withOpacity(0.6)])
-                                                : null,
-                                            color: h.done ? null : Colors.white12,
-                                            border: Border.all(color: Colors.white10),
-                                          ),
-                                          child: Icon(h.done ? Icons.check : Icons.water_drop, color: Colors.white),
-                                        ),
-                                        const SizedBox(width: 14),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(h.title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
-                                              const SizedBox(height: 4),
-                                              Text(h.subtitle, style: TextStyle(color: Colors.white70, fontSize: 13)),
-                                            ],
-                                          ),
-                                        ),
-                                        Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Switch.adaptive(
-                                              value: h.done,
-                                              onChanged: (_) => _toggleHabit(origIndex),
-                                              activeColor: primary,
-                                            ),
-                                            PopupMenuButton<String>(
-                                              color: Colors.grey.shade900,
-                                              onSelected: (v) {
-                                                if (v == 'edit') {
-                                                  final titleCtrl = TextEditingController(text: h.title);
-                                                  final subCtrl = TextEditingController(text: h.subtitle);
-                                                  showDialog<bool>(
-                                                    context: context,
-                                                    builder: (c) => AlertDialog(
-                                                      title: const Text('Edit Habit'),
-                                                      content: Column(
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        children: [
-                                                          TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Title')),
-                                                          TextField(controller: subCtrl, decoration: const InputDecoration(labelText: 'Subtitle')),
-                                                        ],
-                                                      ),
-                                                      actions: [
-                                                        TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
-                                                        ElevatedButton(
-                                                          onPressed: () {
-                                                            Navigator.pop(c, true);
-                                                          },
-                                                          child: const Text('Save'),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ).then((ok) {
-                                                    if (ok == true) {
-                                                      setState(() {
-                                                        h.title = titleCtrl.text.trim();
-                                                        h.subtitle = subCtrl.text.trim();
-                                                      });
-                                                    }
-                                                  });
-                                                } else if (v == 'delete') {
-                                                  _deleteHabit(origIndex);
-                                                }
-                                              },
-                                              itemBuilder: (context) => [
-                                                const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                                const PopupMenuItem(value: 'delete', child: Text('Delete')),
-                                              ],
-                                            )
-                                          ],
-                                        )
-                                      ],
-                                    ),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.self_improvement, size: 40, color: Colors.white54),
+                                      const SizedBox(height: 12),
+                                      Text('No habits found', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70)),
+                                      const SizedBox(height: 10),
+                                      ElevatedButton(onPressed: _addHabitDialog, child: const Text('Add your first habit'))
+                                    ],
                                   ),
                                 ),
                               ),
-                            ),
-                          ),
-                        );
-                      }),
+                            ]
+                          : List.generate(visible.length, (vIndex) {
+                              final h = visible[vIndex];
+                              final origIndex = _habits.indexOf(h);
+                              return TweenAnimationBuilder<double>(
+                                tween: Tween<double>(begin: 0, end: 1),
+                                duration: Duration(milliseconds: 350 + (vIndex * 40)),
+                                curve: Curves.easeOut,
+                                builder: (context, val, child) {
+                                  return Opacity(
+                                    opacity: val,
+                                    child: Transform.translate(offset: Offset(0, (1 - val) * 8), child: child),
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  child: Dismissible(
+                                    key: ValueKey(h.id),
+                                    background: Container(
+                                      alignment: Alignment.centerLeft,
+                                      padding: const EdgeInsets.only(left: 18),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade600,
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      child: Row(
+                                        children: const [
+                                          Icon(Icons.check, color: Colors.white),
+                                          SizedBox(width: 8),
+                                          Text('Toggle done', style: TextStyle(color: Colors.white)),
+                                        ],
+                                      ),
+                                    ),
+                                    secondaryBackground: Container(
+                                      alignment: Alignment.centerRight,
+                                      padding: const EdgeInsets.only(right: 18),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade800,
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: const [
+                                          Icon(Icons.delete, color: Colors.white),
+                                          SizedBox(width: 8),
+                                          Text('Delete', style: TextStyle(color: Colors.white)),
+                                        ],
+                                      ),
+                                    ),
+                                    confirmDismiss: (dir) async {
+                                      if (dir == DismissDirection.startToEnd) {
+                                        _toggleHabit(origIndex);
+                                        return false;
+                                      } else {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (c) => AlertDialog(
+                                            title: const Text('Delete habit?'),
+                                            content: Text('Delete "${h.title}"?'),
+                                            actions: [
+                                              TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+                                              ElevatedButton(onPressed: () => Navigator.pop(c, true), child: const Text('Delete')),
+                                            ],
+                                          ),
+                                        );
+                                        return confirm == true;
+                                      }
+                                    },
+                                    onDismissed: (_) => _deleteHabit(origIndex),
+                                    child: Material(
+                                      color: h.done ? Colors.white.withOpacity(0.04) : Colors.white.withOpacity(0.02),
+                                      elevation: 6,
+                                      shadowColor: Colors.black.withOpacity(0.25),
+                                      borderRadius: BorderRadius.circular(14),
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(14),
+                                        onTap: () => _toggleHabit(origIndex),
+                                        onLongPress: () {
+                                          // quick edit on long press
+                                          final titleCtrl = TextEditingController(text: h.title);
+                                          final subCtrl = TextEditingController(text: h.subtitle);
+                                          showDialog<bool>(
+                                            context: context,
+                                            builder: (c) => AlertDialog(
+                                              title: const Text('Edit Habit'),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Title')),
+                                                  TextField(controller: subCtrl, decoration: const InputDecoration(labelText: 'Subtitle')),
+                                                ],
+                                              ),
+                                              actions: [
+                                                TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(c, true);
+                                                  },
+                                                  child: const Text('Save'),
+                                                ),
+                                              ],
+                                            ),
+                                          ).then((ok) {
+                                            if (ok == true) {
+                                              setState(() {
+                                                h.title = titleCtrl.text.trim();
+                                                h.subtitle = subCtrl.text.trim();
+                                              });
+                                            }
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                          child: Row(
+                                            children: [
+                                              AnimatedContainer(
+                                                duration: const Duration(milliseconds: 300),
+                                                width: 56,
+                                                height: 56,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  gradient: h.done
+                                                      ? LinearGradient(colors: [primary.withOpacity(0.95), primary.withOpacity(0.6)])
+                                                      : null,
+                                                  color: h.done ? null : Colors.white12,
+                                                  border: Border.all(color: Colors.white10),
+                                                ),
+                                                child: Icon(h.done ? Icons.check : Icons.self_improvement, color: Colors.white),
+                                              ),
+                                              const SizedBox(width: 14),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(h.title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+                                                    const SizedBox(height: 4),
+                                                    Text(h.subtitle, style: TextStyle(color: Colors.white70, fontSize: 13)),
+                                                  ],
+                                                ),
+                                              ),
+                                              Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Switch.adaptive(
+                                                    value: h.done,
+                                                    onChanged: (_) => _toggleHabit(origIndex),
+                                                    activeColor: primary,
+                                                  ),
+                                                  PopupMenuButton<String>(
+                                                    color: Colors.grey.shade900,
+                                                    onSelected: (v) {
+                                                      if (v == 'edit') {
+                                                        final titleCtrl = TextEditingController(text: h.title);
+                                                        final subCtrl = TextEditingController(text: h.subtitle);
+                                                        showDialog<bool>(
+                                                          context: context,
+                                                          builder: (c) => AlertDialog(
+                                                            title: const Text('Edit Habit'),
+                                                            content: Column(
+                                                              mainAxisSize: MainAxisSize.min,
+                                                              children: [
+                                                                TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Title')),
+                                                                TextField(controller: subCtrl, decoration: const InputDecoration(labelText: 'Subtitle')),
+                                                              ],
+                                                            ),
+                                                            actions: [
+                                                              TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+                                                              ElevatedButton(
+                                                                onPressed: () {
+                                                                  Navigator.pop(c, true);
+                                                                },
+                                                                child: const Text('Save'),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ).then((ok) {
+                                                          if (ok == true) {
+                                                            setState(() {
+                                                              h.title = titleCtrl.text.trim();
+                                                              h.subtitle = subCtrl.text.trim();
+                                                            });
+                                                          }
+                                                        });
+                                                      } else if (v == 'delete') {
+                                                        _deleteHabit(origIndex);
+                                                      }
+                                                    },
+                                                    itemBuilder: (context) => [
+                                                      const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                                                      const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                                    ],
+                                                  )
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
                     ),
                     const SizedBox(height: 18),
                     Row(
@@ -641,7 +682,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         onPressed: _addHabitDialog,
         backgroundColor: primary,
         icon: const Icon(Icons.add),
-        label: const Text('Old Habit'),
+        label: const Text('Add Habit'),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
