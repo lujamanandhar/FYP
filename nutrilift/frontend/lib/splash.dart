@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -9,8 +10,9 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-  late final AnimationController _bgController; // for background cycling
-  late final AnimationController _introController; // for logo/text entrance
+  late final AnimationController _bgController; // background cycling
+  late final AnimationController _introController; // logo/text entrance
+  late final AnimationController _titleShimmer; // title shimmer
 
   late final Animation<double> _logoScale;
   late final Animation<double> _logoFade;
@@ -21,33 +23,31 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
 
     _bgController = AnimationController(
-      duration: const Duration(seconds: 6),
+      duration: const Duration(seconds: 8),
       vsync: this,
-    )..repeat(reverse: true);
+    )..repeat();
 
     _introController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1400),
       vsync: this,
     );
 
-    _logoScale = Tween<double>(begin: 0.82, end: 1.0).animate(
-      CurvedAnimation(
-          parent: _introController,
-          curve: const Interval(0.0, 0.7, curve: Curves.elasticOut)),
+    _titleShimmer = AnimationController(
+      duration: const Duration(milliseconds: 1600),
+      vsync: this,
+    )..repeat(reverse: false);
+
+    _logoScale = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _introController, curve: Curves.elasticOut),
     );
     _logoFade = CurvedAnimation(
-        parent: _introController,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeIn));
-    _slideUp = Tween<double>(begin: 32, end: 0).animate(
-      CurvedAnimation(
-          parent: _introController,
-          curve: const Interval(0.2, 1.0, curve: Curves.easeOut)),
+        parent: _introController, curve: const Interval(0.0, 0.7, curve: Curves.easeIn));
+    _slideUp = Tween<double>(begin: 28, end: 0).animate(
+      CurvedAnimation(parent: _introController, curve: Curves.easeOut),
     );
 
-    // start entrance animation
     _introController.forward();
 
-    // navigate after a short pause (adjust as needed)
     Future.delayed(const Duration(milliseconds: 2800), _goToNextPage);
   }
 
@@ -55,6 +55,7 @@ class _SplashScreenState extends State<SplashScreen>
   void dispose() {
     _bgController.dispose();
     _introController.dispose();
+    _titleShimmer.dispose();
     super.dispose();
   }
 
@@ -65,67 +66,97 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  // Helper to produce a smoothly interpolated 3-color gradient that cycles
-  List<Color> _animatedGradientColors(double t) {
-    // Two palettes to lerp between
-    final paletteA = [
-      const Color(0xFFFB8C00),
-      const Color(0xFFFF7043),
-      const Color(0xFF7C4DFF)
+  // Two palettes to smoothly mix
+  List<Color> _interpolatedColors(double t) {
+    final a = [
+      const Color(0xFF0F172A),
+      const Color(0xFF042A2B),
+      const Color(0xFF0B3A2A),
     ];
-    final paletteB = [
-      const Color(0xFFEF5350),
-      const Color(0xFFFFA726),
-      const Color(0xFF5E35B1)
+    final b = [
+      const Color(0xFF1E3A8A),
+      const Color(0xFF8B5CF6),
+      const Color(0xFF06B6D4),
     ];
-
-    return List<Color>.generate(
-        3, (i) => Color.lerp(paletteA[i], paletteB[i], t)!);
+    return List<Color>.generate(3, (i) => Color.lerp(a[i], b[i], (sin(2 * pi * t + i) * 0.5 + 0.5))!);
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final double logoOuter = size.width * 0.34;
+    final double logoInner = size.width * 0.24;
 
     return Scaffold(
       body: AnimatedBuilder(
         animation: _bgController,
         builder: (context, _) {
           final t = _bgController.value;
-          final colors = _animatedGradientColors(t);
-          // animate gradient direction subtly
-          final begin = Alignment.lerp(
-              Alignment.topLeft, Alignment(-0.8 + 0.6 * t, -1.0 + 0.6 * t), t)!;
-          final end = Alignment.lerp(
-              Alignment.bottomRight, Alignment(1.0 - 0.6 * t, 0.8 - 0.6 * t), t)!;
+          final colors = _interpolatedColors(t);
+          final begin = Alignment(-0.9 + 1.8 * t, -1.0 + 1.6 * t);
+          final end = Alignment(0.9 - 1.6 * t, 1.0 - 1.8 * t);
 
           return Container(
             width: double.infinity,
             height: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: colors,
                 begin: begin,
                 end: end,
+                colors: colors,
               ),
             ),
             child: SafeArea(
               child: Stack(
                 children: [
-                  // Top-right skip button
+                  // Soft animated shaped overlay for depth
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: Opacity(
+                        opacity: 0.08,
+                        child: Transform.rotate(
+                          angle: sin(2 * pi * t) * 0.06,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: RadialGradient(
+                                center: Alignment(-0.4 + 0.8 * t, -0.6 + 1.2 * t),
+                                radius: 1.1,
+                                colors: [
+                                  Colors.white,
+                                  Colors.transparent,
+                                ],
+                                stops: const [0.0, 1.0],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Skip button (subtle)
                   Positioned(
                     top: 12,
                     right: 12,
                     child: FadeTransition(
                       opacity: _logoFade,
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.white.withOpacity(0.95),
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: GestureDetector(
+                        onTap: _goToNextPage,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.22),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.skip_next, color: Colors.white.withOpacity(0.9), size: 18),
+                              const SizedBox(width: 6),
+                              Text('Skip', style: TextStyle(color: Colors.white.withOpacity(0.92))),
+                            ],
+                          ),
                         ),
-                        onPressed: _goToNextPage,
-                        child: const Text('Skip'),
                       ),
                     ),
                   ),
@@ -138,141 +169,179 @@ class _SplashScreenState extends State<SplashScreen>
                         animation: _introController,
                         builder: (context, child) => Transform.translate(
                           offset: Offset(0, _slideUp.value),
-                          child: Transform.scale(
-                            scale: _logoScale.value,
-                            child: child,
-                          ),
+                          child: Transform.scale(scale: _logoScale.value, child: child),
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // Glowing circular logo with subtle radial gradient + hero
-                            Hero(
-                              tag: 'app-logo',
-                              child: Container(
-                                width: size.width * 0.36,
-                                height: size.width * 0.36,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: RadialGradient(
-                                    colors: [
-                                      Colors.white.withOpacity(0.14),
-                                      Colors.white.withOpacity(0.05),
-                                      Colors.transparent,
-                                    ],
-                                    stops: const [0.0, 0.34, 1.0],
-                                    center: const Alignment(-0.2, -0.2),
+                            // Layered circular logo with glass card behind
+                            Container(
+                              width: logoOuter + 36,
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.06),
+                                borderRadius: BorderRadius.circular((logoOuter + 36) / 2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.28),
+                                    blurRadius: 30,
+                                    offset: const Offset(0, 14),
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.26),
-                                      blurRadius: 34,
-                                      spreadRadius: 4,
-                                      offset: const Offset(0, 10),
-                                    ),
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.06),
-                                      blurRadius: 6,
-                                      spreadRadius: 0,
-                                      offset: const Offset(-2, -2),
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
+                                ],
+                                border: Border.all(color: Colors.white.withOpacity(0.06)),
+                              ),
+                              child: Center(
+                                child: Hero(
+                                  tag: 'app-logo',
                                   child: Container(
-                                    width: size.width * 0.26,
-                                    height: size.width * 0.26,
+                                    width: logoOuter,
+                                    height: logoOuter,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      gradient: const LinearGradient(
-                                        colors: [
-                                          Color(0xFFFF8A65),
-                                          Color(0xFFFF5252)
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
+                                      gradient: LinearGradient(
+                                        colors: [Colors.white.withOpacity(0.06), Colors.white.withOpacity(0.02)],
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color:
-                                              Colors.orangeAccent.withOpacity(
-                                                  0.36),
-                                          blurRadius: 30,
-                                          spreadRadius: 6,
+                                          color: Colors.black.withOpacity(0.2),
+                                          blurRadius: 18,
+                                          offset: const Offset(0, 8),
                                         ),
                                       ],
                                     ),
                                     child: Center(
-                                      child: Icon(
-                                        Icons.fitness_center,
-                                        size: 66,
-                                        color: Colors.white,
+                                      child: Container(
+                                        width: logoInner,
+                                        height: logoInner,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          gradient: const LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [Color(0xFFFF8A65), Color(0xFFFF5252)],
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.orangeAccent.withOpacity(0.32),
+                                              blurRadius: 26,
+                                              spreadRadius: 4,
+                                            ),
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.14),
+                                              blurRadius: 10,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Center(
+                                          child: Transform.rotate(
+                                            angle: sin(pi * _introController.value) * 0.05,
+                                            child: Icon(Icons.fitness_center, size: 62, color: Colors.white),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 24),
-                            // App title with subtle gradient text effect using ShaderMask
-                            Text(
-                              'NutriLift',
-                              style: TextStyle(
-                                foreground: Paint()
-                                  ..shader = LinearGradient(
-                                    colors: [
-                                      Colors.white.withOpacity(0.98),
-                                      Colors.white.withOpacity(0.92)
-                                    ],
-                                  ).createShader(
-                                    const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
+
+                            const SizedBox(height: 22),
+
+                            // App title with moving shimmer
+                            AnimatedBuilder(
+                              animation: _titleShimmer,
+                              builder: (context, _) {
+                                final shimmerPos = _titleShimmer.value;
+                                return ShaderMask(
+                                  shaderCallback: (rect) {
+                                    return LinearGradient(
+                                      begin: Alignment(-1.0 + 2.0 * shimmerPos, -0.2),
+                                      end: Alignment(-0.2 + 2.0 * shimmerPos, 0.2),
+                                      colors: [
+                                        Colors.white.withOpacity(0.98),
+                                        Colors.white.withOpacity(0.6),
+                                        Colors.white.withOpacity(0.98),
+                                      ],
+                                      stops: const [0.0, 0.5, 1.0],
+                                    ).createShader(Rect.fromLTWH(0, 0, rect.width, rect.height));
+                                  },
+                                  blendMode: BlendMode.srcIn,
+                                  child: Text(
+                                    'NutriLift',
+                                    style: const TextStyle(
+                                      fontSize: 42,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 1.2,
+                                    ),
                                   ),
-                                fontSize: 40,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.4,
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.black.withOpacity(0.24),
-                                    blurRadius: 8,
-                                    offset: const Offset(2, 2),
-                                  ),
-                                ],
-                              ),
+                                );
+                              },
                             ),
+
                             const SizedBox(height: 6),
-                            // Tagline more concise
+
+                            // Description / tagline with subtle emphasis
                             Text(
-                              'Train smarter. Eat better.',
+                              'Train smarter • Eat better • Live stronger',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.92),
-                                fontSize: 15,
-                                fontStyle: FontStyle.italic,
-                                letterSpacing: 0.6,
+                                color: Colors.white.withOpacity(0.88),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
+                              textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 20),
-                            // Animated determinate progress indicator + micro caption
-                            Column(
+
+                            const SizedBox(height: 18),
+
+                            // Progress row with dots + message
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 SizedBox(
-                                  width: 62,
-                                  height: 62,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 5,
-                                    value: (_introController.value).clamp(0.0, 1.0),
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white),
-                                    backgroundColor:
-                                        Colors.white.withOpacity(0.12),
+                                  width: 76,
+                                  height: 76,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      CircularProgressIndicator(
+                                        strokeWidth: 4.5,
+                                        value: (_introController.value).clamp(0.0, 1.0),
+                                        valueColor: AlwaysStoppedAnimation(Colors.white),
+                                        backgroundColor: Colors.white.withOpacity(0.12),
+                                      ),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: List.generate(3, (i) {
+                                          final active = (_introController.value * 3).floor() == i;
+                                          return AnimatedContainer(
+                                            duration: const Duration(milliseconds: 300),
+                                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                                            width: active ? 8 : 6,
+                                            height: active ? 8 : 6,
+                                            decoration: BoxDecoration(
+                                              color: active ? Colors.white : Colors.white.withOpacity(0.6),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          );
+                                        }),
+                                      )
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  'Preparing your personalized plan...',
-                                  style: TextStyle(
-                                    color: Colors.white.withOpacity(0.86),
-                                    fontSize: 13,
-                                  ),
+                                const SizedBox(width: 14),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Preparing your plan',
+                                      style: TextStyle(color: Colors.white.withOpacity(0.94), fontWeight: FontWeight.w600),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Personalized tips are loading...',
+                                      style: TextStyle(color: Colors.white.withOpacity(0.78), fontSize: 12),
+                                    ),
+                                  ],
                                 )
                               ],
                             ),
@@ -282,19 +351,35 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
 
-                  // Bottom small credit / subtle hint
+                  // Bottom credit and small CTA
                   Positioned(
-                    bottom: 18,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Text(
-                        'Made with ❤️ by NutriLift',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.75),
-                          fontSize: 12,
+                    bottom: 20,
+                    left: 20,
+                    right: 20,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Made with ❤️ by NutriLift',
+                          style: TextStyle(color: Colors.white.withOpacity(0.72), fontSize: 12),
                         ),
-                      ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white.withOpacity(0.12),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          ),
+                          onPressed: _goToNextPage,
+                          child: Row(
+                            children: const [
+                              Icon(Icons.arrow_forward_ios, size: 14, color: Colors.white),
+                              SizedBox(width: 6),
+                              Text('Get Started', style: TextStyle(color: Colors.white)),
+                            ],
+                          ),
+                        )
+                      ],
                     ),
                   ),
                 ],
@@ -307,15 +392,33 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// Dummy next page for navigation example
+// Simple NextPage to demonstrate Hero transition
 class NextPage extends StatelessWidget {
   const NextPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Next')),
-      body: Center(child: Hero(tag: 'app-logo', child: Icon(Icons.fitness_center, size: 88))),
+      backgroundColor: const Color(0xFF0B1220),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: const Text('Welcome'),
+      ),
+      body: Center(
+        child: Hero(
+          tag: 'app-logo',
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(colors: [Color(0xFFFF8A65), Color(0xFFFF5252)]),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 30, offset: Offset(0, 12))],
+            ),
+            padding: const EdgeInsets.all(28),
+            child: const Icon(Icons.fitness_center, size: 88, color: Colors.white),
+          ),
+        ),
+      ),
     );
   }
 }
