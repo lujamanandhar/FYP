@@ -24,11 +24,10 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
     super.initState();
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
-    _logoScale = Tween<double>(begin: 0.9, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.28, curve: Curves.easeOutBack)));
-    _logoRotation = Tween<double>(begin: -0.06, end: 0.0).animate(CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.35, curve: Curves.easeOut)));
+    _logoScale = Tween<double>(begin: 0.92, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.28, curve: Curves.easeOutBack)));
+    _logoRotation = Tween<double>(begin: -0.05, end: 0.0).animate(CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.35, curve: Curves.easeOut)));
     _slideUp = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero).animate(CurvedAnimation(parent: _controller, curve: Curves.decelerate));
 
-    // Staggered animations for the 3 feature tiles
     _featureFade = List.generate(3, (i) {
       final start = 0.32 + i * 0.08;
       final end = start + 0.28;
@@ -124,23 +123,30 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
   }
 
   Widget _featureTile(IconData icon, String title, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
+    return Material(
+      color: color.withOpacity(0.02),
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.08)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(color: color.withOpacity(0.14), shape: BoxShape.circle),
-            padding: const EdgeInsets.all(8),
-            child: Icon(icon, color: color, size: 18),
+        onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$title — Feature tapped'))),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: color.withOpacity(0.06)),
           ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(title, style: const TextStyle(fontSize: 14))),
-        ],
+          child: Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(color: color.withOpacity(0.16), shape: BoxShape.circle),
+                padding: const EdgeInsets.all(8),
+                child: Icon(icon, color: color, size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: Text(title, style: const TextStyle(fontSize: 14))),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -181,7 +187,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 800),
+                constraints: const BoxConstraints(maxWidth: 900),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -213,8 +219,8 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                   return Transform.rotate(angle: _logoRotation.value, child: child);
                                 },
                                 child: Container(
-                                  width: 90,
-                                  height: 90,
+                                  width: 88,
+                                  height: 88,
                                   decoration: BoxDecoration(
                                     color: surface,
                                     borderRadius: BorderRadius.circular(12),
@@ -222,7 +228,11 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(12),
-                                    child: Image.asset('assets/logo.png', fit: BoxFit.contain),
+                                    child: Image.asset(
+                                      'assets/logo.png',
+                                      fit: BoxFit.contain,
+                                      errorBuilder: (context, error, stackTrace) => Icon(Icons.local_florist, color: primary, size: 40),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -261,7 +271,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                     ),
                     const SizedBox(height: 18),
 
-                    // Features grid with staggered animations
+                    // Features card with responsive grid and staggered animations
                     Card(
                       color: cardBg,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -273,21 +283,30 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                           children: [
                             Text('Key Features', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: onSurface)),
                             const SizedBox(height: 12),
-                            GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: features.length,
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 1, mainAxisExtent: 56, childAspectRatio: 6),
-                              itemBuilder: (context, index) {
-                                return FadeTransition(
-                                  opacity: _featureFade[index],
-                                  child: SlideTransition(
-                                    position: _featureSlide[index],
-                                    child: features[index],
-                                  ),
-                                );
-                              },
-                            ),
+                            LayoutBuilder(builder: (context, constraints) {
+                              final crossAxisCount = constraints.maxWidth > 700 ? 2 : 1;
+                              // keep mainAxisExtent so tiles stay compact
+                              return GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: features.length,
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: crossAxisCount,
+                                  mainAxisExtent: 66,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 8,
+                                ),
+                                itemBuilder: (context, index) {
+                                  return FadeTransition(
+                                    opacity: _featureFade[index],
+                                    child: SlideTransition(
+                                      position: _featureSlide[index],
+                                      child: features[index],
+                                    ),
+                                  );
+                                },
+                              );
+                            }),
                           ],
                         ),
                       ),
@@ -324,7 +343,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                     ),
                     const SizedBox(height: 12),
 
-                    // Footer actions animated
+                    // Footer actions animated with slight layout improvements
                     ScaleTransition(
                       scale: _actionScale,
                       child: Row(
@@ -338,6 +357,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                               backgroundColor: primary,
                               foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -349,6 +369,19 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                               side: BorderSide(color: primary.withOpacity(0.14)),
                               foregroundColor: primary,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          OutlinedButton.icon(
+                            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Thanks for considering a rating!'))),
+                            icon: Icon(Icons.star_border, color: primary),
+                            label: const Text('Rate'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              side: BorderSide(color: primary.withOpacity(0.08)),
+                              foregroundColor: primary,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
                         ],
