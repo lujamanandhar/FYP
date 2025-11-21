@@ -74,14 +74,24 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                 ListTile(
                   leading: const Icon(Icons.email_outlined, color: Colors.red),
                   title: const Text('support@nutrilift.com'),
-                  subtitle: const Text('Tap to copy'),
+                  subtitle: const Text('Tap or use copy button'),
                   onTap: () => _copyToClipboard('support@nutrilift.com', 'Email'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.copy, color: Colors.red),
+                    onPressed: () => _copyToClipboard('support@nutrilift.com', 'Email'),
+                    tooltip: 'Copy email',
+                  ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.phone_outlined, color: Colors.red),
                   title: const Text('+1 (555) 123-4567'),
-                  subtitle: const Text('Tap to copy'),
+                  subtitle: const Text('Tap or use copy button'),
                   onTap: () => _copyToClipboard('+1 (555) 123-4567', 'Phone'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.copy, color: Colors.red),
+                    onPressed: () => _copyToClipboard('+1 (555) 123-4567', 'Phone'),
+                    tooltip: 'Copy phone',
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -114,7 +124,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
           title: const Text('Website'),
           content: SelectableText('https://www.nutrilift.com', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.red.shade700)),
           actions: [
-            TextButton(onPressed: () => _copyToClipboard('https://www.nutrilift.com', 'Website'), child: const Text('Copy')),
+            TextButton(onPressed: () { _copyToClipboard('https://www.nutrilift.com', 'Website'); Navigator.of(context).pop(); }, child: const Text('Copy')),
             TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
           ],
         );
@@ -122,7 +132,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _featureTile(IconData icon, String title, Color color) {
+  Widget _featureTile(IconData icon, String title, String subtitle, Color color) {
     return Material(
       color: color.withOpacity(0.02),
       borderRadius: BorderRadius.circular(10),
@@ -143,7 +153,21 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                 child: Icon(icon, color: color, size: 18),
               ),
               const SizedBox(width: 12),
-              Expanded(child: Text(title, style: const TextStyle(fontSize: 14))),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(Icons.chevron_right, color: color.withOpacity(0.6)),
             ],
           ),
         ),
@@ -156,7 +180,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
     final theme = Theme.of(context);
 
     // Red & white themed palette
-    final Color primary = Colors.red.shade700;
+    final Color primary = Colors.red.shade600;
     final Color primaryLight = Colors.red.shade400;
     final Color surface = Colors.white;
     final Color onSurface = Colors.black87;
@@ -164,9 +188,9 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
     final Color subtleDivider = Colors.red.shade50;
 
     final features = [
-      _featureTile(Icons.restaurant_menu, 'Personalized meal tracking and analysis.', primary),
-      _featureTile(Icons.show_chart, 'Progress monitoring with clear visualizations.', primaryLight),
-      _featureTile(Icons.track_changes, 'Goal planning and adaptive recommendations.', Colors.red.shade200),
+      _featureTile(Icons.restaurant_menu, 'Personalized meal tracking', 'Track meals, calories & macros', primary),
+      _featureTile(Icons.show_chart, 'Progress monitoring', 'Charts & trends to visualize growth', primaryLight),
+      _featureTile(Icons.track_changes, 'Adaptive recommendations', 'Smart suggestions based on progress', Colors.red.shade200),
     ];
 
     return Scaffold(
@@ -174,7 +198,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
       appBar: AppBar(
         title: const Text('About NutriLift'),
         centerTitle: true,
-        elevation: 0,
+        elevation: 1,
         backgroundColor: surface,
         foregroundColor: onSurface,
         iconTheme: IconThemeData(color: primary),
@@ -210,7 +234,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                         padding: const EdgeInsets.all(16),
                         child: Row(
                           children: [
-                            // logo with rotation + scale
+                            // logo with rotation + scale (increased size slightly)
                             ScaleTransition(
                               scale: _logoScale,
                               child: AnimatedBuilder(
@@ -219,8 +243,8 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                   return Transform.rotate(angle: _logoRotation.value, child: child);
                                 },
                                 child: Container(
-                                  width: 88,
-                                  height: 88,
+                                  width: 96,
+                                  height: 96,
                                   decoration: BoxDecoration(
                                     color: surface,
                                     borderRadius: BorderRadius.circular(12),
@@ -231,7 +255,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                     child: Image.asset(
                                       'assets/logo.png',
                                       fit: BoxFit.contain,
-                                      errorBuilder: (context, error, stackTrace) => Icon(Icons.local_florist, color: primary, size: 40),
+                                      errorBuilder: (context, error, stackTrace) => Icon(Icons.local_florist, color: primary, size: 44),
                                     ),
                                   ),
                                 ),
@@ -269,6 +293,8 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                         ),
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    const Divider(height: 1),
                     const SizedBox(height: 18),
 
                     // Features card with responsive grid and staggered animations
@@ -292,7 +318,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                 itemCount: features.length,
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: crossAxisCount,
-                                  mainAxisExtent: 66,
+                                  mainAxisExtent: 82,
                                   crossAxisSpacing: 12,
                                   mainAxisSpacing: 8,
                                 ),
@@ -393,7 +419,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                     FadeTransition(
                       opacity: _footerFade,
                       child: Center(
-                        child: Text('© ${DateTime.now().year} NutriLift • Built with care', style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[700])),
+                        child: Text('© ${DateTime.now().year} NutriLift • Built with care • v1.0.0', style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[700])),
                       ),
                     ),
                     const SizedBox(height: 8),
