@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'success_screen.dart';
 
-class WeightScreen extends StatelessWidget {
+class WeightScreen extends StatefulWidget {
   const WeightScreen({super.key});
+
+  @override
+  State<WeightScreen> createState() => _WeightScreenState();
+}
+
+class _WeightScreenState extends State<WeightScreen> {
+  double _selectedWeight = 70; // in kg
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +24,10 @@ class WeightScreen extends StatelessWidget {
               Image.asset('assets/nutrilift_logo.png', height: 60),
               const SizedBox(height: 30),
               const Text(
-                'What is your weight level?',
+                'What is your weight?',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 40),
-              // Mock weight slider
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -30,17 +36,32 @@ class WeightScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    const Text('Drag to set your weight:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    Slider(
-                      value: 42,
-                      min: 40,
-                      max: 45,
-                      divisions: 5,
-                      label: '42 kg',
-                      onChanged: (double value) {},
+                    Text(
+                      '${_selectedWeight.toInt()} kg',
+                      style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.red),
                     ),
-                    const Text('42 kg', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 20),
+                    Slider(
+                      value: _selectedWeight,
+                      min: 30,
+                      max: 200,
+                      divisions: 170,
+                      activeColor: Colors.red,
+                      inactiveColor: Colors.grey[300],
+                      onChanged: (double value) {
+                        setState(() {
+                          _selectedWeight = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text('30 kg', style: TextStyle(color: Colors.grey)),
+                        Text('200 kg', style: TextStyle(color: Colors.grey)),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -54,6 +75,7 @@ class WeightScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 child: const Text('Next'),

@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'height_screen.dart';
 
-class LevelScreen extends StatelessWidget {
+class LevelScreen extends StatefulWidget {
   const LevelScreen({super.key});
+
+  @override
+  State<LevelScreen> createState() => _LevelScreenState();
+}
+
+class _LevelScreenState extends State<LevelScreen> {
+  String? _selectedLevel;
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +30,11 @@ class LevelScreen extends StatelessWidget {
               const SizedBox(height: 40),
               Column(
                 children: [
-                  _buildLevelButton(context, 'Beginner'),
+                  _buildLevelButton('Beginner'),
                   const SizedBox(height: 15),
-                  _buildLevelButton(context, 'Intermediate'),
+                  _buildLevelButton('Intermediate'),
                   const SizedBox(height: 15),
-                  _buildLevelButton(context, 'Advance'),
+                  _buildLevelButton('Advance'),
                 ],
               ),
               const SizedBox(height: 50),
@@ -40,6 +47,7 @@ class LevelScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 child: const Text('Next'),
@@ -51,15 +59,23 @@ class LevelScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLevelButton(BuildContext context, String label) {
-    return ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey[200],
-        foregroundColor: Colors.black,
-        padding: const EdgeInsets.symmetric(vertical: 20),
+  Widget _buildLevelButton(String label) {
+    final isSelected = _selectedLevel == label;
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          setState(() {
+            _selectedLevel = label;
+          });
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isSelected ? Colors.red : Colors.grey[200],
+          foregroundColor: isSelected ? Colors.white : Colors.black,
+          padding: const EdgeInsets.symmetric(vertical: 20),
+        ),
+        child: Text(label),
       ),
-      child: Text(label),
     );
   }
 }

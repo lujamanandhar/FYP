@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'level_screen.dart';
 
-class AgeGroupScreen extends StatelessWidget {
+class AgeGroupScreen extends StatefulWidget {
   const AgeGroupScreen({super.key});
+
+  @override
+  State<AgeGroupScreen> createState() => _AgeGroupScreenState();
+}
+
+class _AgeGroupScreenState extends State<AgeGroupScreen> {
+  String? _selectedAge;
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +30,11 @@ class AgeGroupScreen extends StatelessWidget {
               const SizedBox(height: 40),
               Column(
                 children: [
-                  _buildAgeButton(context, 'Adult', Icons.person),
+                  _buildAgeButton('Adult', Icons.person),
                   const SizedBox(height: 15),
-                  _buildAgeButton(context, 'Mid-Age Adult', Icons.person_outline),
+                  _buildAgeButton('Mid-Age Adult', Icons.person_outline),
                   const SizedBox(height: 15),
-                  _buildAgeButton(context, 'Older Adult', Icons.person_outline_sharp),
+                  _buildAgeButton('Older Adult', Icons.person_outline_sharp),
                 ],
               ),
               const SizedBox(height: 50),
@@ -40,6 +47,7 @@ class AgeGroupScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 child: const Text('Next'),
@@ -51,17 +59,25 @@ class AgeGroupScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAgeButton(BuildContext context, String label, IconData icon) {
-    return ElevatedButton.icon(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey[200],
-        foregroundColor: Colors.black,
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-        alignment: Alignment.centerLeft,
+  Widget _buildAgeButton(String label, IconData icon) {
+    final isSelected = _selectedAge == label;
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          setState(() {
+            _selectedAge = label;
+          });
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isSelected ? Colors.red : Colors.grey[200],
+          foregroundColor: isSelected ? Colors.white : Colors.black,
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          alignment: Alignment.centerLeft,
+        ),
+        icon: Icon(icon),
+        label: Text(label),
       ),
-      icon: Icon(icon),
-      label: Text(label),
     );
   }
 }

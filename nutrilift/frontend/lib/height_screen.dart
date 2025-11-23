@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'weight_screen.dart';
 
-class HeightScreen extends StatelessWidget {
+class HeightScreen extends StatefulWidget {
   const HeightScreen({super.key});
+
+  @override
+  State<HeightScreen> createState() => _HeightScreenState();
+}
+
+class _HeightScreenState extends State<HeightScreen> {
+  double _selectedHeight = 170; // in cm
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +24,10 @@ class HeightScreen extends StatelessWidget {
               Image.asset('assets/nutrilift_logo.png', height: 60),
               const SizedBox(height: 30),
               const Text(
-                'What is your height level?',
+                'What is your height?',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 40),
-              // Simple mock-up of height selector
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -30,23 +36,30 @@ class HeightScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    const Text('Select your height:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildHeightOption('5\' 0"'),
-                        _buildHeightOption('5\' 2"'),
-                        _buildHeightOption('5\' 4"'),
-                      ],
+                    Text(
+                      '${_selectedHeight.toInt()} cm',
+                      style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                    const SizedBox(height: 20),
+                    Slider(
+                      value: _selectedHeight,
+                      min: 120,
+                      max: 220,
+                      divisions: 100,
+                      activeColor: Colors.red,
+                      inactiveColor: Colors.grey[300],
+                      onChanged: (double value) {
+                        setState(() {
+                          _selectedHeight = value;
+                        });
+                      },
                     ),
                     const SizedBox(height: 10),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildHeightOption('5\' 6"'),
-                        _buildHeightOption('5\' 8"'),
-                        _buildHeightOption('6\' 0"'),
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text('120 cm', style: TextStyle(color: Colors.grey)),
+                        Text('220 cm', style: TextStyle(color: Colors.grey)),
                       ],
                     ),
                   ],
@@ -62,6 +75,7 @@ class HeightScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 child: const Text('Next'),
@@ -70,18 +84,6 @@ class HeightScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildHeightOption(String label) {
-    return ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey[200],
-        foregroundColor: Colors.black,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      ),
-      child: Text(label),
     );
   }
 }

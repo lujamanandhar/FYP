@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'age_group_screen.dart';
 
-class GenderScreen extends StatelessWidget {
+class GenderScreen extends StatefulWidget {
   const GenderScreen({super.key});
+
+  @override
+  State<GenderScreen> createState() => _GenderScreenState();
+}
+
+class _GenderScreenState extends State<GenderScreen> {
+  String? _selectedGender;
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +33,14 @@ class GenderScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          _selectedGender = 'Male';
+                        });
+                      },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[200],
-                        foregroundColor: Colors.black,
+                        backgroundColor: _selectedGender == 'Male' ? Colors.red : Colors.grey[200],
+                        foregroundColor: _selectedGender == 'Male' ? Colors.white : Colors.black,
                         padding: const EdgeInsets.symmetric(vertical: 20),
                       ),
                       child: const Text('Male'),
@@ -38,10 +49,14 @@ class GenderScreen extends StatelessWidget {
                   const SizedBox(width: 20),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          _selectedGender = 'Female';
+                        });
+                      },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[200],
-                        foregroundColor: Colors.black,
+                        backgroundColor: _selectedGender == 'Female' ? Colors.red : Colors.grey[200],
+                        foregroundColor: _selectedGender == 'Female' ? Colors.white : Colors.black,
                         padding: const EdgeInsets.symmetric(vertical: 20),
                       ),
                       child: const Text('Female'),
@@ -59,6 +74,7 @@ class GenderScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 child: const Text('Next'),

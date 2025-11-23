@@ -35,6 +35,7 @@ class SuccessScreen extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 50),
                   ),
                   child: const Text('Continue'),
