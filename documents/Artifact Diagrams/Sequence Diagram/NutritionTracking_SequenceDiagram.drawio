@@ -1,0 +1,218 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.1">
+  <diagram name="Page-1" id="eogIADiJZdxzJ1Dngso5">
+    <mxGraphModel dx="3473" dy="1930" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="9_zOHQivajyqEiHKhX8L-528" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;fontFamily=Times New Roman;" value="" vertex="1">
+          <mxGeometry height="1680" width="1680" x="650" y="1030" as="geometry" />
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-495" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};participant=umlActor;verticalAlign=bottom;labelPosition=center;verticalLabelPosition=top;align=center;size=65;fontFamily=Times New Roman;" value="User" vertex="1">
+          <mxGeometry height="1607" width="35" x="830" y="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-496" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;fontFamily=Times New Roman;" value="Mobile App" vertex="1">
+          <mxGeometry height="1607" width="150" x="1170" y="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-497" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;fontFamily=Times New Roman;" value="Backend API" vertex="1">
+          <mxGeometry height="1607" width="150" x="1525" y="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-498" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;fontFamily=Times New Roman;" value="Food DB/AI Service" vertex="1">
+          <mxGeometry height="1607" width="156" x="1740" y="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-499" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;fontFamily=Times New Roman;" value="Database" vertex="1">
+          <mxGeometry height="1607" width="150" x="1946" y="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-500" parent="1" style="shape=umlFrame;dashed=1;pointerEvents=0;dropTarget=0;strokeColor=#B3B3B3;height=20;width=30;fontFamily=Times New Roman;" value="alt" vertex="1">
+          <mxGeometry height="897" width="1138" x="894" y="1307" as="geometry" />
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-501" parent="9_zOHQivajyqEiHKhX8L-500" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;" value="[Quick Log]" vertex="1">
+          <mxGeometry height="20" width="1108" x="30" as="geometry" />
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-502" parent="9_zOHQivajyqEiHKhX8L-500" style="shape=line;dashed=1;whiteSpace=wrap;verticalAlign=top;labelPosition=center;verticalLabelPosition=middle;align=center;strokeColor=#B3B3B3;fontFamily=Times New Roman;" value="[Search Food Database]" vertex="1">
+          <mxGeometry height="3" width="1138" y="376" as="geometry" />
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-503" parent="9_zOHQivajyqEiHKhX8L-500" style="shape=line;dashed=1;whiteSpace=wrap;verticalAlign=top;labelPosition=center;verticalLabelPosition=middle;align=center;strokeColor=#B3B3B3;fontFamily=Times New Roman;" value="[Scan Food Image]" vertex="1">
+          <mxGeometry height="3" width="1138" y="639" as="geometry" />
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-504" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-495" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-496" value="Open Nutrition Module">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1084" y="1179" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-505" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-528" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-495" value="Show daily summary">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-506" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-495" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-496" value="Add Meal">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1084" y="1287" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-507" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-495" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-496" value="Select Quick Log Meal">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1084" y="1388" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-508" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-496" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-497" value="Get frequent meals (userId)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1431" y="1442" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-509" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-497" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-499" value="Query frequent meals">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1819" y="1496" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-510" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-499" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-497" value="Meals list">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1822" y="1550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-511" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-497" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-496" value="Meals list">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1434" y="1604" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-512" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-495" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-496" value="Choose meal + adjust portion">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1084" y="1658" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-513" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-495" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-496" value="Search food by name">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1084" y="1759" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-514" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-496" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-498" value="Search(foodName)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1540" y="1813" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-515" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-498" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-496" value="Matching food items">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1543" y="1867" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-516" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-495" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-496" value="Select item + enter portion size">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1084" y="1921" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-517" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-495" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-496" value="Capture / upload food image">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1084" y="2022" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-518" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-496" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-498" value="Analyze image">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1540" y="2076" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-519" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-498" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-496" value="Suggested food + portion hint">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1543" y="2130" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-520" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-495" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-496" value="Confirm / edit food + portion">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1084" y="2184" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-521" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-496" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-497" value="Calculate nutrients(food, portion, userId)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1431" y="2248" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-522" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-497" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-498" value="Lookup nutrient data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1718" y="2302" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-523" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-498" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-497" value="Nutrient info">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1721" y="2356" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-524" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-497" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-499" value="Save meal entry">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1819" y="2410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-525" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-499" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-497" value="Save success">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1822" y="2464" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-526" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-497" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-496" value="Meal saved + updated totals">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1434" y="2518" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-527" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-496" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-495" value="Show updated daily calories &amp; macros">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1087" y="2572" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-529" edge="1" parent="1" source="9_zOHQivajyqEiHKhX8L-496" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;fontSize=12;startSize=8;endSize=8;fontFamily=Times New Roman;" target="9_zOHQivajyqEiHKhX8L-528" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1087" y="1233" />
+            </Array>
+            <mxPoint x="1245" y="1233" as="sourcePoint" />
+            <mxPoint x="845" y="1233" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9_zOHQivajyqEiHKhX8L-530" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=40;fontFamily=Times New Roman;" value="Nutrilift" vertex="1">
+          <mxGeometry height="30" width="60" x="1490" y="960" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
