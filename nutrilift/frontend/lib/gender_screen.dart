@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'age_group_screen.dart';
+import 'widgets/onboarding_header.dart';
 
 class GenderScreen extends StatefulWidget {
   const GenderScreen({super.key});
@@ -16,12 +17,16 @@ class _GenderScreenState extends State<GenderScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/nutrilift_logo.png', height: 60),
+        child: Column(
+          children: [
+            const OnboardingHeader(currentStep: 1, totalSteps: 5),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('assets/nutrilift_logo.png', height: 60),
               const SizedBox(height: 30),
               const Text(
                 'What is your gender?',
@@ -79,8 +84,11 @@ class _GenderScreenState extends State<GenderScreen> {
                 ),
                 child: const Text('Next'),
               ),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

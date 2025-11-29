@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'success_screen.dart';
+import 'widgets/onboarding_header.dart';
 
 class WeightScreen extends StatefulWidget {
   const WeightScreen({super.key});
@@ -16,12 +17,16 @@ class _WeightScreenState extends State<WeightScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/nutrilift_logo.png', height: 60),
+        child: Column(
+          children: [
+            const OnboardingHeader(currentStep: 5, totalSteps: 5),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('assets/nutrilift_logo.png', height: 60),
               const SizedBox(height: 30),
               const Text(
                 'What is your weight?',
@@ -80,8 +85,11 @@ class _WeightScreenState extends State<WeightScreen> {
                 ),
                 child: const Text('Next'),
               ),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

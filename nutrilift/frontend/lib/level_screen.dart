@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'height_screen.dart';
+import 'widgets/onboarding_header.dart';
 
 class LevelScreen extends StatefulWidget {
   const LevelScreen({super.key});
@@ -16,12 +17,16 @@ class _LevelScreenState extends State<LevelScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/nutrilift_logo.png', height: 60),
+        child: Column(
+          children: [
+            const OnboardingHeader(currentStep: 3, totalSteps: 5),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('assets/nutrilift_logo.png', height: 60),
               const SizedBox(height: 30),
               const Text(
                 'What is your fitness level?',
@@ -52,8 +57,11 @@ class _LevelScreenState extends State<LevelScreen> {
                 ),
                 child: const Text('Next'),
               ),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

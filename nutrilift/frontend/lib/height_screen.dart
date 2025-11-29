@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'weight_screen.dart';
+import 'widgets/onboarding_header.dart';
 
 class HeightScreen extends StatefulWidget {
   const HeightScreen({super.key});
@@ -16,12 +17,16 @@ class _HeightScreenState extends State<HeightScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/nutrilift_logo.png', height: 60),
+        child: Column(
+          children: [
+            const OnboardingHeader(currentStep: 4, totalSteps: 5),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('assets/nutrilift_logo.png', height: 60),
               const SizedBox(height: 30),
               const Text(
                 'What is your height?',
@@ -80,8 +85,11 @@ class _HeightScreenState extends State<HeightScreen> {
                 ),
                 child: const Text('Next'),
               ),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

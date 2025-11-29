@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'level_screen.dart';
+import 'widgets/onboarding_header.dart';
 
 class AgeGroupScreen extends StatefulWidget {
   const AgeGroupScreen({super.key});
@@ -16,12 +17,16 @@ class _AgeGroupScreenState extends State<AgeGroupScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/nutrilift_logo.png', height: 60),
+        child: Column(
+          children: [
+            const OnboardingHeader(currentStep: 2, totalSteps: 5),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('assets/nutrilift_logo.png', height: 60),
               const SizedBox(height: 30),
               const Text(
                 'What is your age group?',
@@ -52,8 +57,11 @@ class _AgeGroupScreenState extends State<AgeGroupScreen> {
                 ),
                 child: const Text('Next'),
               ),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
