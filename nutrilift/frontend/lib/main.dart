@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'NutriLift',
       theme: ThemeData(
         primarySwatch: Colors.red,
-        fontFamily: 'Roboto',
+        fontFamily: 'Times New Roman',
       ),
       home: const LoginScreen(),
       debugShowCheckedModeBanner: false,
