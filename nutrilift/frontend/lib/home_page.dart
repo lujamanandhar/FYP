@@ -14,7 +14,7 @@ class HomePage extends StatelessWidget {
               height: 300,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.green[700]!, Colors.green[400]!],
+                  colors: [Colors.red[700]!, Colors.red[400]!],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -61,7 +61,7 @@ class HomePage extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[700],
+                  backgroundColor: Colors.red[700],
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
                 child: Text('Get Started', style: TextStyle(fontSize: 18)),
@@ -77,9 +77,9 @@ class HomePage extends StatelessWidget {
     return Card(
       elevation: 4,
       child: ListTile(
-        leading: Icon(icon, color: Colors.green[700], size: 30),
+        leading: Icon(icon, color: Colors.red[700], size: 30),
         title: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-        trailing: Icon(Icons.arrow_forward, color: Colors.green[700]),
+        trailing: Icon(Icons.arrow_forward, color: Colors.red[700]),
       ),
     );
   }
