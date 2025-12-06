@@ -1,0 +1,144 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.1">
+  <diagram name="Page-1" id="2TbLF5TiSBTn3jZt9xrc">
+    <mxGraphModel dx="2420" dy="-93" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-561" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};participant=umlActor;verticalAlign=bottom;labelPosition=center;verticalLabelPosition=top;align=center;size=65;" value="User" vertex="1">
+          <mxGeometry height="888" width="35" x="20" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-562" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" value="Nutrition UI" vertex="1">
+          <mxGeometry height="888" width="150" x="233" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-563" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" value="NutritionController" vertex="1">
+          <mxGeometry height="888" width="155" x="520" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-564" parent="LoNWRGzLY7O8HzG8r_JX-563" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="270" width="10" x="72" y="159" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-565" parent="LoNWRGzLY7O8HzG8r_JX-563" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="270" width="10" x="72" y="523" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-566" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" value="NutritionService" vertex="1">
+          <mxGeometry height="888" width="150" x="863" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-567" parent="LoNWRGzLY7O8HzG8r_JX-566" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="156" width="10" x="70" y="211" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-568" parent="LoNWRGzLY7O8HzG8r_JX-566" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="156" width="10" x="70" y="575" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-569" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" value="QuickLogRepository" vertex="1">
+          <mxGeometry height="888" width="162" x="1063" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-570" parent="LoNWRGzLY7O8HzG8r_JX-569" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="42" width="10" x="76" y="263" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-571" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" value="MealLogRepository" vertex="1">
+          <mxGeometry height="888" width="156" x="1275" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-572" parent="LoNWRGzLY7O8HzG8r_JX-571" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="42" width="10" x="73" y="627" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-573" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-561" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-562" value="open Quick Log list">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="210" y="1237" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-574" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-562" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-564" value="getQuickLogMeals(userId)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="461" y="1289" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-575" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-564" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-567" value="getQuickLogMeals(userId)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="778" y="1341" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-576" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-567" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-570" value="findByUser(userId)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1052" y="1393" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-577" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-569" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-567" value="quickLogMeals">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1053" y="1445" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-578" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-567" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-564" value="quickLogMeals">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="779" y="1497" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-579" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-564" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-562" value="display quickLogMeals">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="462" y="1549" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-580" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-561" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-562" value="select frequent meal">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="210" y="1601" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-581" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-562" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-565" value="logQuickMeal(mealTemplateId)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="461" y="1653" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-582" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-565" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-568" value="logQuickMeal(userId, mealTemplateId)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="778" y="1705" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-583" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-568" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-572" value="save meal log from template">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1156" y="1757" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-584" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-571" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-568" value="mealLogSaved">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1157" y="1809" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-585" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-568" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-565" value="logQuickMealSuccess">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="779" y="1861" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-586" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-565" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="LoNWRGzLY7O8HzG8r_JX-562" value="show updated daily totals">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="462" y="1913" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

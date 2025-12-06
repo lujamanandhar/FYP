@@ -1,0 +1,91 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.1">
+  <diagram name="Page-1" id="2TbLF5TiSBTn3jZt9xrc">
+    <mxGraphModel dx="1815" dy="755" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-510" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="850" width="450" x="130" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-512" parent="1" style="ellipse;aspect=2;whiteSpace=wrap;" value="Log meal" vertex="1">
+          <mxGeometry height="55" width="75" x="269.5" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-513" parent="1" style="ellipse;aspect=2;whiteSpace=wrap;" value="Edit meal log" vertex="1">
+          <mxGeometry height="65" width="110" x="252" y="660" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-514" parent="1" style="ellipse;aspect=2;whiteSpace=wrap;" value="Delete meal log" vertex="1">
+          <mxGeometry height="62" width="128" x="243" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-515" parent="1" style="ellipse;aspect=2;whiteSpace=wrap;" value="View daily nutrition summary" vertex="1">
+          <mxGeometry height="77" width="215" x="210" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-516" parent="1" style="ellipse;aspect=2;whiteSpace=wrap;" value="Log hydration" vertex="1">
+          <mxGeometry height="60" width="113" x="269.5" y="980" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-517" parent="1" style="ellipse;aspect=2;whiteSpace=wrap;" value="View hydration history" vertex="1">
+          <mxGeometry height="76" width="176" x="245" y="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-518" parent="1" style="ellipse;aspect=2;whiteSpace=wrap;" value="Quick log frequent meal" vertex="1">
+          <mxGeometry height="74" width="164.5" x="261" y="1170" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-519" parent="1" style="ellipse;aspect=2;whiteSpace=wrap;" value="Search food database" vertex="1">
+          <mxGeometry height="84" width="169" x="261" y="1280" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-530" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="User" vertex="1">
+          <mxGeometry height="60" width="30" y="897" as="geometry" />
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-533" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-530" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="LoNWRGzLY7O8HzG8r_JX-512" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="50" y="920" as="sourcePoint" />
+            <mxPoint x="100" y="870" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-534" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-530" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="LoNWRGzLY7O8HzG8r_JX-513" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="40" y="927" as="sourcePoint" />
+            <mxPoint x="280" y="618" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-535" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-530" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="LoNWRGzLY7O8HzG8r_JX-514" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="40" y="927" as="sourcePoint" />
+            <mxPoint x="285" y="729" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-536" edge="1" parent="1" source="LoNWRGzLY7O8HzG8r_JX-530" style="endArrow=classic;html=1;rounded=0;entryX=0.012;entryY=0.444;entryDx=0;entryDy=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryPerimeter=0;" target="LoNWRGzLY7O8HzG8r_JX-515" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="30" y="910" as="sourcePoint" />
+            <mxPoint x="269" y="831" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-537" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;entryX=0.034;entryY=0.366;entryDx=0;entryDy=0;entryPerimeter=0;" target="LoNWRGzLY7O8HzG8r_JX-516" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="30" y="920" as="sourcePoint" />
+            <mxPoint x="223" y="924" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-538" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;entryX=0.038;entryY=0.316;entryDx=0;entryDy=0;entryPerimeter=0;" target="LoNWRGzLY7O8HzG8r_JX-517" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="30" y="920" as="sourcePoint" />
+            <mxPoint x="283" y="1012" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-539" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;entryX=0.03;entryY=0.387;entryDx=0;entryDy=0;entryPerimeter=0;" target="LoNWRGzLY7O8HzG8r_JX-518" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="30" y="920" as="sourcePoint" />
+            <mxPoint x="262" y="1104" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-540" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;entryX=0.017;entryY=0.44;entryDx=0;entryDy=0;entryPerimeter=0;" target="LoNWRGzLY7O8HzG8r_JX-519" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="30" y="920" as="sourcePoint" />
+            <mxPoint x="272" y="1114" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LoNWRGzLY7O8HzG8r_JX-541" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Nutrition Tracking Subsystem" vertex="1">
+          <mxGeometry height="30" width="170" x="269.5" y="510" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
