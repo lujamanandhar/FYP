@@ -20,7 +20,8 @@ class _NutritionTrackingPageState extends State<NutritionTrackingPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Nutrition Tracking'),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.green.shade600,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -29,9 +30,10 @@ class _NutritionTrackingPageState extends State<NutritionTrackingPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildCalorieCard(),
-              SizedBox(height: 24),
-              Text('Macronutrients', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 12),
+              SizedBox(height: 32),
+              Text('Macronutrients', 
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
               _buildMacroItem('Protein', protein, proteinGoal, Colors.blue),
               _buildMacroItem('Carbs', carbs, carbsGoal, Colors.orange),
               _buildMacroItem('Fat', fat, fatGoal, Colors.red),
@@ -44,32 +46,42 @@ class _NutritionTrackingPageState extends State<NutritionTrackingPage> {
 
   Widget _buildCalorieCard() {
     double progress = calories / calorieGoal;
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.green.shade400, Colors.green.shade600],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 10)],
+      ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(24),
         child: Column(
           children: [
-            Text('Daily Calories', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            SizedBox(height: 12),
+            Text('Daily Calories', 
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+            SizedBox(height: 20),
             Stack(
               alignment: Alignment.center,
               children: [
                 SizedBox(
-                  width: 150,
-                  height: 150,
+                  width: 160,
+                  height: 160,
                   child: CircularProgressIndicator(
                     value: progress > 1 ? 1 : progress,
-                    strokeWidth: 8,
-                    backgroundColor: Colors.grey[300],
-                    valueColor: AlwaysStoppedAnimation(Colors.green),
+                    strokeWidth: 10,
+                    backgroundColor: Colors.white.withOpacity(0.3),
+                    valueColor: AlwaysStoppedAnimation(Colors.white),
                   ),
                 ),
                 Column(
                   children: [
                     Text('${calories.toStringAsFixed(0)}',
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                      style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white)),
                     Text('/ ${calorieGoal.toStringAsFixed(0)} kcal',
-                        style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      style: TextStyle(fontSize: 14, color: Colors.white70)),
                   ],
                 ),
               ],
@@ -82,26 +94,34 @@ class _NutritionTrackingPageState extends State<NutritionTrackingPage> {
 
   Widget _buildMacroItem(String label, double value, double goal, Color color) {
     double progress = value / goal;
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
+    return Container(
+      margin: EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border(
+          left: BorderSide(color: color, width: 4),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               Text('${value.toStringAsFixed(1)}g / ${goal.toStringAsFixed(1)}g',
-                  style: TextStyle(fontSize: 12, color: Colors.grey)),
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
             ],
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: progress > 1 ? 1 : progress,
-              minHeight: 8,
-              backgroundColor: Colors.grey[300],
+              minHeight: 10,
+              backgroundColor: Colors.grey.shade300,
               valueColor: AlwaysStoppedAnimation(color),
             ),
           ),
