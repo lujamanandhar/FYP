@@ -1,0 +1,128 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.6">
+  <diagram name="Page-1" id="L0np0MtUVeo8Y99sJpE-">
+    <mxGraphModel dx="1733" dy="863" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1207" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="User" vertex="1">
+          <mxGeometry height="54" width="92" x="20" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1208" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Flutter App" vertex="1">
+          <mxGeometry height="54" width="141" x="349" y="1172" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1209" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Workout API" vertex="1">
+          <mxGeometry height="54" width="146" x="1137" y="1141" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1210" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Database" vertex="1">
+          <mxGeometry height="54" width="126" x="1538" y="1088" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1211" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Exercise Library" vertex="1">
+          <mxGeometry height="54" width="174" x="752" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1212" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Calculator" vertex="1">
+          <mxGeometry height="54" width="134" x="1534" y="1193" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1213" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1207" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.16;entryX=0.08;entryY=0;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1208" value="1: Create custom workout">
+          <mxGeometry relative="1" x="0.0873" y="-44" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="230" y="1112" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1214" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1208" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.15;entryX=0;entryY=0.28;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1211" value="2: Browse exercise library">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="614" y="1146" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1215" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1211" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.63;entryX=1;entryY=0.47;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1208" value="3: Return exercise list">
+          <mxGeometry relative="1" x="0.0184" y="15" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="614" y="1195" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1216" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1208" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.58;entryX=1;entryY=0.68;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1207" value="4: Select exercises">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="230" y="1211" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1217" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1207" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0;entryX=0.14;entryY=0;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1209" value="5: POST /api/workouts/custom">
+          <mxGeometry relative="1" x="-0.0046" y="20" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="230" y="1080" />
+              <mxPoint x="1038" y="1080" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1218" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1209" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.71;entryX=1;entryY=0.65;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1211" value="6: Validate exercises">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1038" y="1195" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1219" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1211" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.15;entryX=0;entryY=0.23;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1209" value="7: Exercises valid">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1038" y="1134" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1220" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1209" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.14;entryX=0;entryY=0.5;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1210" value="8: Save custom workout">
+          <mxGeometry relative="1" x="-0.0319" y="17" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1409" y="1115" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1221" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1210" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.78;entryX=1;entryY=0.45;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1209" value="9: Workout saved">
+          <mxGeometry relative="1" x="0.0254" y="7" as="geometry">
+            <mxPoint x="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="1409" y="1161" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1222" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1209" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.85;entryX=0;entryY=0.49;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1212" value="10: Calculate estimated duration">
+          <mxGeometry relative="1" x="-0.0288" y="28" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1409" y="1219" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1223" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1212" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.85;entryX=0.85;entryY=1;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1209" value="11: Duration calculated">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1409" y="1275" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1224" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1209" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.17;exitY=1;entryX=1;entryY=0.93;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1208" value="12: Custom workout created">
+          <mxGeometry relative="1" x="0.0039" y="-13" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1038" y="1263" />
+              <mxPoint x="614" y="1263" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1225" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1208" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.89;entryX=1;entryY=0.9;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1207" value="13: Show success message">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="230" y="1255" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

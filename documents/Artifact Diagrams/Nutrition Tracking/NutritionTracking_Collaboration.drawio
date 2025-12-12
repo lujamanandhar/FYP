@@ -1,0 +1,98 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.6">
+  <diagram name="Page-1" id="L0np0MtUVeo8Y99sJpE-">
+    <mxGraphModel dx="1277" dy="636" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-805" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="User" vertex="1">
+          <mxGeometry height="54" width="92" x="20" y="404" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-806" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Flutter App" vertex="1">
+          <mxGeometry height="54" width="141" x="343" y="404" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-807" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Nutrition API" vertex="1">
+          <mxGeometry height="54" width="151" x="733" y="404" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-808" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Database" vertex="1">
+          <mxGeometry height="54" width="126" x="1167" y="404" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-809" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Calculator Service" vertex="1">
+          <mxGeometry height="54" width="190" x="1134" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-810" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Goals Service" vertex="1">
+          <mxGeometry height="54" width="156" x="1152" y="508" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-811" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-805" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.38;entryX=0;entryY=0.35;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-806" value="1: Log meal with foods">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="227" y="409" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-812" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-806" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.31;entryX=0;entryY=0.3;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-807" value="2: POST /api/nutrition/meals">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="608" y="403" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-813" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-807" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.79;exitY=0;entryX=0;entryY=0.32;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-809" value="3: Calculate nutrition totals">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1009" y="305" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-814" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-809" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.74;entryX=0.99;entryY=0;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-807" value="4: Return calculated values">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1009" y="357" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-815" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-807" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.29;entryX=0;entryY=0.34;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-808" value="5: Save meal log">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1009" y="401" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-816" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-808" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.66;entryX=1;entryY=0.71;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-807" value="6: Meal saved">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1009" y="461" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-817" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-807" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.99;exitY=1;entryX=0;entryY=0.3;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-810" value="7: Check daily goals">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1009" y="505" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-818" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-810" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.64;entryX=0.79;entryY=1;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-807" value="8: Goal progress">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1009" y="557" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-819" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-807" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.7;entryX=1;entryY=0.69;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-806" value="9: Meal logged + progress">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="608" y="459" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-820" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-806" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.65;entryX=1;entryY=0.62;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-805" value="10: Update UI with totals">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="227" y="453" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

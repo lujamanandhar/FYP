@@ -1,0 +1,119 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.6">
+  <diagram name="Page-1" id="L0np0MtUVeo8Y99sJpE-">
+    <mxGraphModel dx="899" dy="447" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1806" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="User" vertex="1">
+          <mxGeometry height="54" width="92" x="20" y="1194" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1807" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Flutter App" vertex="1">
+          <mxGeometry height="54" width="141" x="311" y="1194" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1808" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Camera Controller" vertex="1">
+          <mxGeometry height="54" width="192" x="648" y="1090" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1809" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Pose Detection" vertex="1">
+          <mxGeometry height="54" width="167" x="1018" y="1090" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1810" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Rep Counter" vertex="1">
+          <mxGeometry height="54" width="148" x="1363" y="1173" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1811" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Analytics" vertex="1">
+          <mxGeometry height="54" width="125" x="682" y="1194" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1812" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="1561" y="1182" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1813" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="1765" y="1200" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1814" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1806" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.37;entryX=0;entryY=0.33;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1807" value="1: Start rep counting">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="211" y="1199" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1815" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1807" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.81;exitY=0;entryX=0;entryY=0.5;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1808" value="2: Initialize camera">
+          <mxGeometry relative="1" x="-0.0228" y="13" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="550" y="1117" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1816" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1808" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1809" value="3: Camera frames">
+          <mxGeometry relative="1" x="0.0112" y="17" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1817" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1809" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0.14;entryY=0;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1810" value="4: Pose landmarks">
+          <mxGeometry relative="1" x="0.0572" y="12" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1274" y="1117" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1818" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1810" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=none;exitX=1;exitY=0.26;entryX=Infinity;entryY=Infinity;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1812" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1536" y="1182" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1819" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1812" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=none;exitX=Infinity;exitY=Infinity;rounded=0;" value="5: Movement analysis">
+          <mxGeometry relative="1" x="-0.1243" y="12" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1663" y="1182" />
+            </Array>
+            <mxPoint x="1680" y="1210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1820" edge="1" parent="1" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;entryX=1;entryY=0.74;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1810" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1663" y="1218" />
+              <mxPoint x="1536" y="1218" />
+            </Array>
+            <mxPoint x="1680" y="1210" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1821" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1810" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.17;exitY=1;entryX=0.97;entryY=1;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1807" value="6: Rep detected">
+          <mxGeometry relative="1" x="0.004" y="20" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1274" y="1290" />
+              <mxPoint x="550" y="1290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1822" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1807" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.67;entryX=1;entryY=0.63;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1806" value="7: Visual feedback">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="211" y="1243" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1823" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1807" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.27;entryX=0;entryY=0.32;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1811" value="8: Save session data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="550" y="1191" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-1824" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-1811" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.63;entryX=1;entryY=0.67;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-1807" value="9: Analytics updated">
+          <mxGeometry relative="1" x="-0.0179" y="9" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="550" y="1243" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

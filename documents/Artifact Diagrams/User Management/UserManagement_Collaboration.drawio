@@ -1,0 +1,112 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.6">
+  <diagram name="Page-1" id="L0np0MtUVeo8Y99sJpE-">
+    <mxGraphModel dx="1277" dy="636" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-143" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="User" vertex="1">
+          <mxGeometry height="54" width="92" x="20" y="165" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-144" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Flutter App" vertex="1">
+          <mxGeometry height="54" width="141" x="342" y="165" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-145" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Auth API" vertex="1">
+          <mxGeometry height="54" width="120" x="716" y="99" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-146" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Database" vertex="1">
+          <mxGeometry height="54" width="126" x="1066" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-147" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Session Store" vertex="1">
+          <mxGeometry height="54" width="154" x="1052" y="134" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-148" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="776" y="243" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-149" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="1129" y="261" as="geometry" />
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-150" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-143" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.37;entryX=0;entryY=0.34;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-144" value="1: Login credentials">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="227" y="170" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-151" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-144" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.9;exitY=-0.01;entryX=0;entryY=0.35;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-145" value="2: POST /api/auth/login">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="599" y="104" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-152" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-145" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0;entryX=0;entryY=0.47;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-146" value="3: Verify credentials">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="944" y="52" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-153" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-146" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.74;entryX=1;entryY=0.29;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-145" value="4: User data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="944" y="96" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-154" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-145" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.69;entryX=0;entryY=0.46;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-147" value="5: Create JWT token">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="944" y="156" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-155" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-147" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.8;entryX=1;entryY=0.98;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-145" value="6: Token created">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="944" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-156" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-145" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.71;entryX=0.99;entryY=0.28;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-144" value="7: Login response + token">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="599" y="161" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-157" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-144" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=none;exitX=0.99;exitY=0.85;entryX=-Infinity;entryY=Infinity;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-148" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="599" y="244" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-158" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-148" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=none;exitX=-Infinity;exitY=Infinity;rounded=0;" value="8: Store token securely">
+          <mxGeometry relative="1" x="-0.0185" y="50" as="geometry">
+            <mxPoint x="25" y="-43" as="offset" />
+            <Array as="points">
+              <mxPoint x="810" y="260" />
+            </Array>
+            <mxPoint x="776" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-159" edge="1" parent="1" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;entryX=0.91;entryY=0.99;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-144" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="780" y="279" />
+              <mxPoint x="599" y="279" />
+            </Array>
+            <mxPoint x="770" y="280" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d9YhAHa8fT6qyr2SLMei-160" edge="1" parent="1" source="d9YhAHa8fT6qyr2SLMei-144" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0;exitY=0.65;entryX=1;entryY=0.61;rounded=0;" target="d9YhAHa8fT6qyr2SLMei-143" value="9: Navigate to dashboard">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="227" y="214" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
