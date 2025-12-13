@@ -1,0 +1,486 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.7">
+  <diagram name="Page-1" id="8wei1G3g4P1NQp0ohNbn">
+    <mxGraphModel dx="1516" dy="755" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-411" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" value="User" vertex="1">
+          <mxGeometry height="3101" width="150" x="20" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-412" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" value="GamificationScreen" vertex="1">
+          <mxGeometry height="3101" width="156" x="378" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-413" parent="Ph2NlPqDDtSIAVFIp5sC-412" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="270" width="10" x="73" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-414" parent="Ph2NlPqDDtSIAVFIp5sC-412" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="478" width="10" x="73" y="468" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-415" parent="Ph2NlPqDDtSIAVFIp5sC-412" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="1136" width="10" x="73" y="1037" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-416" parent="Ph2NlPqDDtSIAVFIp5sC-412" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="742" width="10" x="73" y="2264" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-417" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" value="ChallengeAPI" vertex="1">
+          <mxGeometry height="3101" width="150" x="688" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-418" parent="Ph2NlPqDDtSIAVFIp5sC-417" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="156" width="10" x="70" y="208" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-419" parent="Ph2NlPqDDtSIAVFIp5sC-417" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="364" width="10" x="70" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-420" parent="Ph2NlPqDDtSIAVFIp5sC-417" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="628" width="10" x="70" y="2316" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-421" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" value="GamificationAPI" vertex="1">
+          <mxGeometry height="3101" width="150" x="948" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-422" parent="Ph2NlPqDDtSIAVFIp5sC-421" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="146" width="10" x="70" y="676" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-423" parent="Ph2NlPqDDtSIAVFIp5sC-421" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="1022" width="10" x="70" y="1089" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-424" parent="Ph2NlPqDDtSIAVFIp5sC-421" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="146" width="10" x="70" y="2622" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-425" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" value="BadgeService" vertex="1">
+          <mxGeometry height="3101" width="150" x="1178" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-426" parent="Ph2NlPqDDtSIAVFIp5sC-425" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="410" width="10" x="70" y="1535" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-427" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" value="Database" vertex="1">
+          <mxGeometry height="3101" width="150" x="1426" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-428" parent="Ph2NlPqDDtSIAVFIp5sC-427" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="42" width="10" x="70" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-429" parent="Ph2NlPqDDtSIAVFIp5sC-427" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="42" width="10" x="70" y="572" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-430" parent="Ph2NlPqDDtSIAVFIp5sC-427" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="32" width="10" x="70" y="728" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-431" parent="Ph2NlPqDDtSIAVFIp5sC-427" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="42" width="10" x="70" y="1141" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-432" parent="Ph2NlPqDDtSIAVFIp5sC-427" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="42" width="10" x="70" y="1245" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-433" parent="Ph2NlPqDDtSIAVFIp5sC-427" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="42" width="10" x="70" y="1431" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-434" parent="Ph2NlPqDDtSIAVFIp5sC-427" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="32" width="10" x="70" y="1587" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-435" parent="Ph2NlPqDDtSIAVFIp5sC-427" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="32" width="10" x="70" y="1737" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-436" parent="Ph2NlPqDDtSIAVFIp5sC-427" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="42" width="10" x="70" y="2007" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-437" parent="Ph2NlPqDDtSIAVFIp5sC-427" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="42" width="10" x="70" y="2368" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-438" parent="Ph2NlPqDDtSIAVFIp5sC-427" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="42" width="10" x="70" y="2518" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-439" parent="Ph2NlPqDDtSIAVFIp5sC-427" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="32" width="10" x="70" y="2674" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-440" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" value="NotificationService" vertex="1">
+          <mxGeometry height="3101" width="153" x="1626" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-441" parent="Ph2NlPqDDtSIAVFIp5sC-440" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="32" width="10" x="72" y="1841" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-442" parent="Ph2NlPqDDtSIAVFIp5sC-440" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" value="" vertex="1">
+          <mxGeometry height="42" width="10" x="72" y="2830" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-443" parent="1" style="shape=umlFrame;dashed=1;pointerEvents=0;dropTarget=0;strokeColor=#B3B3B3;height=20;width=30" value="alt" vertex="1">
+          <mxGeometry height="254" width="480" x="1238" y="2419" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-444" parent="Ph2NlPqDDtSIAVFIp5sC-443" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;" value="[Badge Earned]" vertex="1">
+          <mxGeometry height="20" width="450" x="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-445" parent="1" style="shape=umlFrame;dashed=1;pointerEvents=0;dropTarget=0;strokeColor=#B3B3B3;height=20;width=30" value="alt" vertex="1">
+          <mxGeometry height="462" width="1008" x="710" y="3200" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-446" parent="Ph2NlPqDDtSIAVFIp5sC-445" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;" value="[Challenge Completed]" vertex="1">
+          <mxGeometry height="20" width="976.8247422680413" x="31.175257731958762" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-447" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-411" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-413" value="Browse challenges">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="284" y="916" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-448" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-413" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-418" value="GET /api/challenges">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="968" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-449" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-418" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-428" value="Query active challenges">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1143" y="1020" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-450" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-427" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-418" value="Challenge list">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1144" y="1072" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-451" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-418" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-413" value="Available challenges">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="621" y="1124" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-452" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-413" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-411" value="Display challenges">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="285" y="1176" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-453" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-411" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-414" value="Join challenge">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="284" y="1228" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-454" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-414" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-419" value="POST /api/challenges/{id}/join">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="1280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-455" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-419" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-429" value="Create participation record">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1143" y="1332" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-456" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-427" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-419" value="Participation created">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1144" y="1384" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-457" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-419" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-422" value="Award join points">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="904" y="1436" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-458" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-422" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-430" value="Update user points">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1273" y="1488" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-459" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-427" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-422" value="Points updated">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1274" y="1540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-460" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-421" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-419" value="Points awarded">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="905" y="1592" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-461" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-419" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-414" value="Join successful">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="621" y="1644" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-462" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-414" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-411" value="Show success message">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="285" y="1696" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-463" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-411" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-415" value="Complete workout (triggers gamification)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="284" y="1797" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-464" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-415" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-423" value="POST /api/gamification/activity">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="750" y="1849" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-465" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-423" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-431" value="Update challenge progress">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1273" y="1901" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-466" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-427" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-423" value="Progress updated">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1274" y="1953" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-467" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-423" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-432" value="Update user streak">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1273" y="2005" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-468" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-427" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-423" value="Streak updated">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1274" y="2057" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-469" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-423" style="curved=1;endArrow=block;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-423" value="Award activity points">
+          <mxGeometry relative="1" x="-0.0615" y="62" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1078" y="2109" />
+              <mxPoint x="1078" y="2139" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-470" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-423" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-433" value="Update user points">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1273" y="2191" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-471" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-427" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-423" value="Points updated">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1274" y="2243" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-472" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-423" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-426" value="Check badge eligibility">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1149" y="2295" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-473" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-426" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-434" value="Query user achievements">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1388" y="2347" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-474" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-427" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-426" value="Achievement data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1389" y="2399" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-475" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-426" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-435" value="Award new badge">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1388" y="2497" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-476" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-427" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-426" value="Badge awarded">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1389" y="2549" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-477" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-426" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-441" value="Send badge notification">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1488" y="2601" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-478" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-440" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-426" value="Notification sent">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1489" y="2653" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-479" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-425" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-423" value="Badge check complete">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1150" y="2715" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-480" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-423" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-436" value="Update leaderboard">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1273" y="2767" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-481" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-427" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-423" value="Leaderboard updated">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1274" y="2819" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-482" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-423" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-415" value="Gamification update complete">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="751" y="2871" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-483" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-415" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-411" value="Show progress &amp; rewards">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="285" y="2923" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-484" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-411" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-416" value="Check challenge progress">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="284" y="3024" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-485" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-416" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-420" value="GET /api/challenges/{id}/progress">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="3076" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-486" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-420" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-437" value="Query user progress">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1143" y="3128" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-487" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-427" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-420" value="Progress data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1144" y="3180" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-488" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-420" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-438" value="Mark challenge completed">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1143" y="3278" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-489" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-427" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-420" value="Challenge marked complete">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1144" y="3330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-490" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-420" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-424" value="Award completion rewards">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="904" y="3382" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-491" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-424" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-439" value="Award completion points &amp; badges">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1273" y="3434" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-492" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-427" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-424" value="Rewards awarded">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1274" y="3486" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-493" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-421" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-420" value="Rewards processed">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="905" y="3538" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-494" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-420" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-442" value="Send completion notification">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1243" y="3590" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-495" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-440" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-420" value="Notification sent">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1244" y="3642" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-496" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-420" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-416" value="Progress data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="621" y="3704" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-497" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-416" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" target="Ph2NlPqDDtSIAVFIp5sC-411" value="Display progress &amp; achievements">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="285" y="3756" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-498" parent="1" style="fillColor=#ffff88;strokeColor=#9E916F;" value="Challenge Participation Flow" vertex="1">
+          <mxGeometry height="49" width="1658" x="70" y="835" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-499" parent="1" style="fillColor=#ffff88;strokeColor=#9E916F;" value="Activity Completion &amp; Gamification" vertex="1">
+          <mxGeometry height="49" width="1658" x="70" y="1716" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-500" parent="1" style="fillColor=#ffff88;strokeColor=#9E916F;" value="Challenge Completion" vertex="1">
+          <mxGeometry height="49" width="1658" x="70" y="2943" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

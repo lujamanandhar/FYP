@@ -1,0 +1,111 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.7">
+  <diagram name="Page-1" id="8wei1G3g4P1NQp0ohNbn">
+    <mxGraphModel dx="1155" dy="575" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-973" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="User" vertex="1">
+          <mxGeometry height="54" width="92" x="570" y="1060" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-974" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Community Screen" vertex="1">
+          <mxGeometry height="54" width="194" x="506" y="1218" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-975" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Community API" vertex="1">
+          <mxGeometry height="54" width="168" x="550" y="1380" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-976" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Notification Service" vertex="1">
+          <mxGeometry height="54" width="201" x="830" y="1481" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-977" parent="1" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;strokeWidth=2;whiteSpace=wrap;" value="Database" vertex="1">
+          <mxGeometry height="68" width="81" x="500" y="1550" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-978" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-973" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.89;entryX=0.31;entryY=0;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-974" value="1: View feed">
+          <mxGeometry relative="1" x="0.1858" y="-19" as="geometry">
+            <mxPoint x="-4" y="-26" as="offset" />
+            <Array as="points">
+              <mxPoint x="516" y="1181" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-979" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-974" style="curved=1;startArrow=none;endArrow=block;exitX=0.29;exitY=1;entryX=0.21;entryY=0;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-975" value="2: Get posts">
+          <mxGeometry relative="1" x="-0.1405" y="-8" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="506" y="1309" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-980" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-975" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.99;entryX=0;entryY=0.16;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-977" value="3: Query posts">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="1437" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-981" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-977" style="curved=1;startArrow=none;endArrow=block;exitX=0.99;exitY=0.21;entryX=0.66;entryY=1;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-975" value="4: Return posts">
+          <mxGeometry relative="1" x="0.4682" y="-38" as="geometry">
+            <mxPoint x="-1" as="offset" />
+            <Array as="points">
+              <mxPoint x="687" y="1437" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-982" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-975" style="curved=1;startArrow=none;endArrow=block;exitX=0.86;exitY=0;entryX=0.85;entryY=1;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-974" value="5: Post data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="765" y="1309" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-983" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-974" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.05;entryX=1;entryY=0.77;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-973" value="6: Display feed">
+          <mxGeometry relative="1" x="-0.2975" y="-22" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="760" y="1180" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-984" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-973" style="curved=1;startArrow=none;endArrow=block;exitX=0.35;exitY=1;entryX=0.54;entryY=0;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-974" value="7: Like post">
+          <mxGeometry relative="1" x="0.2857" y="39" as="geometry">
+            <mxPoint y="-24" as="offset" />
+            <Array as="points">
+              <mxPoint x="623" y="1181" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-985" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-974" style="curved=1;startArrow=none;endArrow=block;exitX=0.54;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-975" value="8: Like request">
+          <mxGeometry relative="1" x="0.0294" y="45" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="623" y="1309" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-986" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-975" style="curved=1;startArrow=none;endArrow=block;exitX=0.29;exitY=1;entryX=0.48;entryY=0;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-977" value="9: Record like">
+          <mxGeometry relative="1" x="-0.8762" y="35" as="geometry">
+            <mxPoint y="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="541" y="1437" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-987" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-975" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.97;entryX=0.32;entryY=0;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-976" value="10: Send notification">
+          <mxGeometry relative="1" x="0.17" y="7" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="836" y="1437" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-988" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-976" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=0;entryX=1;entryY=0.7;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-973" value="11: Notify post author">
+          <mxGeometry relative="1" x="0.1142" y="27" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="931" y="1181" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

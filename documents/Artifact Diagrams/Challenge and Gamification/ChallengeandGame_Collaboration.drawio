@@ -1,0 +1,122 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.7">
+  <diagram name="Page-1" id="8wei1G3g4P1NQp0ohNbn">
+    <mxGraphModel dx="1733" dy="863" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-501" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="User" vertex="1">
+          <mxGeometry height="54" width="92" x="693.5" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-502" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Challenge Screen" vertex="1">
+          <mxGeometry height="54" width="183" x="646" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-503" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Challenge API" vertex="1">
+          <mxGeometry height="54" width="157" x="661" y="966" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-504" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Gamification API" vertex="1">
+          <mxGeometry height="54" width="179" x="650" y="1094" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-505" parent="1" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;strokeWidth=2;whiteSpace=wrap;" value="Database" vertex="1">
+          <mxGeometry height="68" width="81" x="699" y="1280" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-506" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-501" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.84;entryX=0.13;entryY=0;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-502" value="1: Browse challenges">
+          <mxGeometry relative="1" x="0.1448" y="-41" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="620" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-507" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-502" style="curved=1;startArrow=none;endArrow=block;exitX=0.19;exitY=1;entryX=0.13;entryY=0;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-503" value="2: Get challenges">
+          <mxGeometry relative="1" x="0.133" y="-22" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="603" y="929" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-508" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-503" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.75;entryX=0;entryY=0.39;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-505" value="3: Query challenges">
+          <mxGeometry relative="1" x="-0.0717" y="-70" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="360" y="1057" />
+              <mxPoint x="360" y="1185" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-509" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-505" style="curved=1;startArrow=none;endArrow=block;exitX=0.99;exitY=0.3;entryX=1;entryY=0.95;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-503" value="4: Return challenge list">
+          <mxGeometry relative="1" x="0.15" y="-63" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="947" y="1185" />
+              <mxPoint x="947" y="1057" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-510" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-503" style="curved=1;startArrow=none;endArrow=block;exitX=0.87;exitY=0;entryX=0.82;entryY=1;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-502" value="5: Challenge data">
+          <mxGeometry relative="1" x="-0.1463" y="-23" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="876" y="929" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-511" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-502" style="curved=1;startArrow=none;endArrow=block;exitX=0.85;exitY=0;entryX=1;entryY=0.86;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-501" value="6: Display challenges">
+          <mxGeometry relative="1" x="-0.18" y="-48" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="830" y="710" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-512" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-501" style="curved=1;startArrow=none;endArrow=block;exitX=0.48;exitY=1;entryX=0.49;entryY=0;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-502" value="7: Join challenge">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="735" y="801" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-513" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-502" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-503" value="8: Join request">
+          <mxGeometry relative="1" x="0.0788" y="41" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="739" y="929" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-514" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-503" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.95;entryX=0;entryY=0.3;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-505" value="9: Create participation">
+          <mxGeometry relative="1" x="-0.1942" y="-63" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="533" y="1057" />
+              <mxPoint x="533" y="1185" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-515" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-505" style="curved=1;startArrow=none;endArrow=block;exitX=0.99;exitY=0.39;entryX=1;entryY=0.75;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-503" value="10: Confirm join">
+          <mxGeometry relative="1" x="-0.0035" y="-31" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1109" y="1185" />
+              <mxPoint x="1109" y="1057" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-516" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-503" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-504" value="11: Award points">
+          <mxGeometry relative="1" x="0.0811" y="50" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-517" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-504" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="Ph2NlPqDDtSIAVFIp5sC-505" value="12: Update points">
+          <mxGeometry relative="1" x="-0.0565" y="51" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="739" y="1185" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

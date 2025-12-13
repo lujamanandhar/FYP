@@ -1,0 +1,91 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.7">
+  <diagram name="Page-1" id="8wei1G3g4P1NQp0ohNbn">
+    <mxGraphModel dx="1733" dy="-237" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1234" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="" vertex="1">
+          <mxGeometry height="730" width="730" x="650" y="1340" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1236" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="View Nutrition Progress" vertex="1">
+          <mxGeometry height="54" width="227" x="911.5" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1237" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="View Workout Progress" vertex="1">
+          <mxGeometry height="54" width="222" x="916.5" y="1440" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1238" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="View Wellness Score" vertex="1">
+          <mxGeometry height="54" width="205" x="925" y="1520" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1239" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Generate Progress Reports" vertex="1">
+          <mxGeometry height="54" width="249" x="915.5" y="1598" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1240" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Export Progress Data" vertex="1">
+          <mxGeometry height="54" width="208" x="930.5" y="1680" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1241" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Set Progress Goals" vertex="1">
+          <mxGeometry height="54" width="190" x="939.5" y="1760" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1242" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="View Trend Analysis" vertex="1">
+          <mxGeometry height="54" width="200" x="930.5" y="1840" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1243" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Compare with Previous Periods" vertex="1">
+          <mxGeometry height="78" width="260" x="910" y="1910" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1244" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" value="User" vertex="1">
+          <mxGeometry height="60" width="30" x="550" y="1610" as="geometry" />
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1245" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-1244" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.017;entryY=0.63;entryDx=0;entryDy=0;entryPerimeter=0;" target="Ph2NlPqDDtSIAVFIp5sC-1236" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="620" y="1610" as="sourcePoint" />
+            <mxPoint x="670" y="1560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1246" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-1244" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="Ph2NlPqDDtSIAVFIp5sC-1237" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="590" y="1640" as="sourcePoint" />
+            <mxPoint x="925" y="1404" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1247" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-1244" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="Ph2NlPqDDtSIAVFIp5sC-1238" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="590" y="1640" as="sourcePoint" />
+            <mxPoint x="926" y="1477" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1248" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-1244" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="Ph2NlPqDDtSIAVFIp5sC-1239" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="590" y="1640" as="sourcePoint" />
+            <mxPoint x="935" y="1557" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1249" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-1244" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="Ph2NlPqDDtSIAVFIp5sC-1240" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="590" y="1640" as="sourcePoint" />
+            <mxPoint x="925" y="1635" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1250" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-1244" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="Ph2NlPqDDtSIAVFIp5sC-1241" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="590" y="1640" as="sourcePoint" />
+            <mxPoint x="940" y="1717" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1251" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-1244" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.028;entryY=0.315;entryDx=0;entryDy=0;entryPerimeter=0;" target="Ph2NlPqDDtSIAVFIp5sC-1242" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="590" y="1640" as="sourcePoint" />
+            <mxPoint x="950" y="1797" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1252" edge="1" parent="1" source="Ph2NlPqDDtSIAVFIp5sC-1244" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.037;entryY=0.375;entryDx=0;entryDy=0;entryPerimeter=0;" target="Ph2NlPqDDtSIAVFIp5sC-1243" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="590" y="1640" as="sourcePoint" />
+            <mxPoint x="946" y="1867" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ph2NlPqDDtSIAVFIp5sC-1253" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Progress Report: Use Case Diagram&lt;div&gt;NutriLift&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="230" x="925" y="2020" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
