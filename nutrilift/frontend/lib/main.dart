@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'Hompage/home_page.dart';
+import 'NutritionTracking/nutrition_tracking.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.red,
         fontFamily: 'Roboto',
       ),
-      home: const HomePage(),
+      home: const NutritionTracking(),
       debugShowCheckedModeBanner: false,
     );
   }
