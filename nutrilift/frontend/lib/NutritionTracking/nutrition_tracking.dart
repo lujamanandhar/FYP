@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// This is the main widget that main.dart will import and use
 class NutritionTracking extends StatelessWidget {
   const NutritionTracking({Key? key}) : super(key: key);
 
