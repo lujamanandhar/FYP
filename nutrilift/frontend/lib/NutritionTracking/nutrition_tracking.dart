@@ -33,39 +33,39 @@ class _NutritionTrackerHomeState extends State<NutritionTrackerHome> {
     ]);
   }
 
-  Widget _buildHomeScreen() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // Date Selector
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left),
-                  onPressed: () {
-                    setState(() {
-                      selectedDate = selectedDate.subtract(const Duration(days: 1));
-                    });
-                  },
-                ),
-                Text(
-                  '${_getMonthName(selectedDate.month)} ${selectedDate.day}, ${selectedDate.year}',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right),
-                  onPressed: () {
-                    setState(() {
-                      selectedDate = selectedDate.add(const Duration(days: 1));
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
+  // Widget _buildHomeScreen() {
+  //   return SingleChildScrollView(
+  //     child: Column(
+  //       children: [
+  //         // Date Selector
+  //         Container(
+  //           padding: const EdgeInsets.symmetric(vertical: 16),
+  //           child: Row(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             children: [
+  //               IconButton(
+  //                 icon: const Icon(Icons.chevron_left),
+  //                 onPressed: () {
+  //                   setState(() {
+  //                     selectedDate = selectedDate.subtract(const Duration(days: 1));
+  //                   });
+  //                 },
+  //               ),
+  //               Text(
+  //                 '${_getMonthName(selectedDate.month)} ${selectedDate.day}, ${selectedDate.year}',
+  //                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+  //               ),
+  //               IconButton(
+  //                 icon: const Icon(Icons.chevron_right),
+  //                 onPressed: () {
+  //                   setState(() {
+  //                     selectedDate = selectedDate.add(const Duration(days: 1));
+  //                   });
+  //                 },
+  //               ),
+  //             ],
+  //           ),
+  //         ),
 
           // Macro Cards
           Padding(
