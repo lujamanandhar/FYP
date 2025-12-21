@@ -21,6 +21,7 @@ class _NutritionTrackerHomeState extends State<NutritionTrackerHome> {
   DateTime selectedDate = DateTime.now();
   bool _showAddMealScreen = false;
   bool _isInMealSection = true; // Always true since all date views are meal section
+  String? _selectedMacro; // Track which macro was clicked
 
   Widget _getCurrentScreen() {
     if (_showAddMealScreen) {
@@ -131,15 +132,24 @@ class _NutritionTrackerHomeState extends State<NutritionTrackerHome> {
       child: Row(
         children: [
           Expanded(
-            child: _buildMacroCard('Protein', protein, '/300g'),
+            child: GestureDetector(
+              onTap: () => _showMacroOverview('Protein'),
+              child: _buildMacroCard('Protein', protein, '/300g'),
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildMacroCard('Carbs', carbs, '/200g'),
+            child: GestureDetector(
+              onTap: () => _showMacroOverview('Carbs'),
+              child: _buildMacroCard('Carbs', carbs, '/200g'),
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildMacroCard('Fats', fats, '/70g'),
+            child: GestureDetector(
+              onTap: () => _showMacroOverview('Fats'),
+              child: _buildMacroCard('Fats', fats, '/70g'),
+            ),
           ),
         ],
       ),
@@ -149,7 +159,7 @@ class _NutritionTrackerHomeState extends State<NutritionTrackerHome> {
   List<Widget> _buildPastMeals() {
     return [
       _buildMealSection('Breakfast', 450, [
-        {'name': 'Pokhak Satu', 'calories': '170g, 300 cal'},
+        {'name': 'Poshak Satu', 'calories': '170g, 300 cal'},
         {'name': 'Banana', 'calories': '100g, 150 cal'},
       ], false),
       _buildMealSection('Lunch', 500, [
@@ -166,7 +176,7 @@ class _NutritionTrackerHomeState extends State<NutritionTrackerHome> {
   List<Widget> _buildTodayMeals() {
     return [
       _buildMealSection('Breakfast', 450, [
-        {'name': 'Pokhak Satu', 'calories': '170g, 300 cal'},
+        {'name': 'Poshak Satu', 'calories': '170g, 300 cal'},
         {'name': 'Banana', 'calories': '100g, 150 cal'},
       ], false),
       _buildMealSection('Lunch', 500, [
@@ -328,6 +338,18 @@ class _NutritionTrackerHomeState extends State<NutritionTrackerHome> {
     return months[month - 1];
   }
 
+  void _showMacroOverview(String macro) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => MacroOverviewSheet(
+        macro: macro,
+        onClose: () => Navigator.pop(context),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -370,6 +392,373 @@ class _NutritionTrackerHomeState extends State<NutritionTrackerHome> {
       ),
     );
   }
+}
+
+class MacroOverviewSheet extends StatefulWidget {
+  final String macro;
+  final VoidCallback onClose;
+
+  const MacroOverviewSheet({
+    Key? key,
+    required this.macro,
+    required this.onClose,
+  }) : super(key: key);
+
+  @override
+  State<MacroOverviewSheet> createState() => _MacroOverviewSheetState();
+}
+
+class _MacroOverviewSheetState extends State<MacroOverviewSheet> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  double _targetValue = 120.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.75,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${widget.macro} Overview',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1976D2),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: widget.onClose,
+                ),
+              ],
+            ),
+          ),
+          TabBar(
+            controller: _tabController,
+            labelColor: const Color(0xFFE53935),
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: const Color(0xFFE53935),
+            tabs: const [
+              Tab(text: 'Adjust'),
+              Tab(text: 'Overview'),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildAdjustTab(),
+                _buildOverviewTab(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdjustTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Protein Sources',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          const Text('Current Intake', style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 8),
+          const Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '65g',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(width: 8),
+              Padding(
+                padding: EdgeInsets.only(bottom: 6),
+                child: Text(
+                  'Of 120g',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          const Text('Adjust Target', style: TextStyle(fontWeight: FontWeight.w500)),
+          const SizedBox(height: 16),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: const Color(0xFFE53935),
+              inactiveTrackColor: Colors.grey[300],
+              thumbColor: const Color(0xFFE53935),
+              overlayColor: const Color(0xFFE53935).withOpacity(0.2),
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+            ),
+            child: Slider(
+              value: _targetValue,
+              min: 0,
+              max: 200,
+              onChanged: (value) {
+                setState(() {
+                  _targetValue = value;
+                });
+              },
+            ),
+          ),
+          Center(
+            child: Text(
+              '${_targetValue.round()}',
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const Center(
+            child: Text(
+              'Recommended: 100-145g',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: widget.onClose,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: const BorderSide(color: Color(0xFFE53935)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Color(0xFFE53935)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: widget.onClose,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    backgroundColor: const Color(0xFFE53935),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOverviewTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Protein Sources',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Center(
+            child: SizedBox(
+              width: 200,
+              height: 200,
+              child: Stack(
+                children: [
+                  CustomPaint(
+                    size: const Size(200, 200),
+                    painter: DonutChartPainter(),
+                  ),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '65g',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Total Protein',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildFoodSourceItem(
+            'Poshak Satu',
+            '25g',
+            '38% of daily intake',
+            const Color(0xFFE53935),
+          ),
+          const SizedBox(height: 12),
+          _buildFoodSourceItem(
+            'Banana',
+            '40g',
+            '100% of daily intake',
+            const Color(0xFFFFA726),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFoodSourceItem(String name, String amount, String percentage, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.fastfood, size: 28),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '83.3 g Protein',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                amount,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+              Text(
+                percentage,
+                style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DonutChartPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 30
+      ..strokeCap = StrokeCap.round;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width - 30) / 2;
+
+    // Red arc (38%)
+    paint.color = const Color(0xFFE53935);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -1.57, // Start at top (-90 degrees in radians)
+      2.37, // 38% of circle (0.38 * 2π)
+      false,
+      paint,
+    );
+
+    // Orange arc (62%)
+    paint.color = const Color(0xFFFFA726);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      0.80, // Continue from red
+      3.87, // 62% of circle
+      false,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
 class AddMealScreen extends StatefulWidget {
