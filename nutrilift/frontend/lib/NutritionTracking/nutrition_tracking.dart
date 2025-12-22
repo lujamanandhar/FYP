@@ -38,7 +38,7 @@ class _NutritionTrackerHomeState extends State<NutritionTrackerHome> {
       case 1:
         return const Center(child: Text('Workout Screen'));
       case 2:
-        return _buildHomeScreen(); // Meal section shows home screen
+        return _buildHomeScreen(); 
       case 3:
         return const Center(child: Text('Profile Screen'));
       default:
