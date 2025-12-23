@@ -17,11 +17,11 @@ class NutritionTrackerHome extends StatefulWidget {
 }
 
 class _NutritionTrackerHomeState extends State<NutritionTrackerHome> {
-  int _selectedIndex = 0; // Default to home, but will show meal icon as active
+  int _selectedIndex = 0; 
   DateTime selectedDate = DateTime.now();
   bool _showAddMealScreen = false;
-  bool _isInMealSection = true; // Always true since all date views are meal section
-  String? _selectedMacro; // Track which macro was clicked
+  bool _isInMealSection = true; 
+  String? _selectedMacro; 
 
   Widget _getCurrentScreen() {
     if (_showAddMealScreen) {
