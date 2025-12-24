@@ -367,29 +367,6 @@ class _NutritionTrackerHomeState extends State<NutritionTrackerHome> {
         ],
       ),
       body: _getCurrentScreen(),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _isInMealSection ? 2 : _selectedIndex, // Always show meal icon as active
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-            if (index == 2) {
-              _isInMealSection = true;
-              _showAddMealScreen = false;
-            } else {
-              _isInMealSection = false;
-            }
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFFE53935),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.restaurant), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
-      ),
     );
   }
 }

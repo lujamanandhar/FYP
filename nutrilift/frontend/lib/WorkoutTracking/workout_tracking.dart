@@ -104,23 +104,6 @@ class _WorkoutHomeState extends State<WorkoutHome> {
         ],
       ),
       body: _buildWorkoutScreen(),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFFE53935),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.restaurant), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
-      ),
     );
   }
 
@@ -532,18 +515,6 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
             ),
           ],
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: 1,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: const Color(0xFFE53935),
-          unselectedItemColor: Colors.grey,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-            BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: ''),
-            BottomNavigationBarItem(icon: Icon(Icons.restaurant), label: ''),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-          ],
-        ),
       );
     }
 
@@ -693,18 +664,6 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               ],
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFFE53935),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.restaurant), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
         ],
       ),
     );

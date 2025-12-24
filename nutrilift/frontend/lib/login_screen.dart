@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'signup_screen.dart';
-import 'gender_screen.dart';
+import 'main_navigation.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const GenderScreen()),
+                    MaterialPageRoute(builder: (context) => const MainNavigation()),
                   );
                 },
                 style: ElevatedButton.styleFrom(

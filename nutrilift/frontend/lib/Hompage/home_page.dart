@@ -1,26 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'NUTRILIFT',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.red,
-        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
-      ),
-      home: const HomePage(),
-    );
-  }
-}
-
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -90,7 +69,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            // Main Content
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -375,26 +353,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-
-            // Bottom Navigation
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade200),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavItem(Icons.home, true),
-                  _buildNavItem(Icons.fitness_center, false),
-                  _buildNavItem(Icons.restaurant, false),
-                  _buildNavItem(Icons.people, false),
-                ],
-              ),
-            ),
           ],
         ),
       ),
@@ -618,14 +576,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, bool isActive) {
-    return Icon(
-      icon,
-      color: isActive ? Colors.red : const Color(0xFF999999),
-      size: 28,
     );
   }
 }
