@@ -18,7 +18,6 @@ class WorkoutHome extends StatefulWidget {
 }
 
 class _WorkoutHomeState extends State<WorkoutHome> {
-  int _selectedIndex = 1; // Workout tab
   String _selectedCategory = 'All';
 
   final List<Map<String, dynamic>> workouts = [
