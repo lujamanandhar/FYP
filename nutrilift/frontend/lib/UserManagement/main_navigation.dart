@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../Hompage/home_page.dart';
 import '../NutritionTracking/nutrition_tracking.dart';
 import '../WorkoutTracking/workout_tracking.dart';
+import '../Challenge_Community/community_feed_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({Key? key}) : super(key: key);
@@ -17,7 +18,7 @@ class _MainNavigationState extends State<MainNavigation> {
     const HomePage(),
     const WorkoutTracking(),
     const NutritionTracking(),
-    const Center(child: Text('Profile Screen')), // Placeholder for profile
+    const CommunityFeedScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -50,8 +51,8 @@ class _MainNavigationState extends State<MainNavigation> {
             label: 'Nutrition',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+            icon: Icon(Icons.people_outline),
+            label: 'Community',
           ),
         ],
       ),
