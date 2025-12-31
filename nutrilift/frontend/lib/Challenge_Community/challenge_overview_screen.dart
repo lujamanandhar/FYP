@@ -247,7 +247,7 @@ class _ChallengeCard extends StatelessWidget {
 }
 
 class ChallengeHeaderTabs extends StatelessWidget {
-  final int selected; // 0 = Challenges, 1 = Community
+  final int selected; 
   const ChallengeHeaderTabs({super.key, required this.selected});
 
   @override
