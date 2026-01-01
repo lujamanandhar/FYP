@@ -138,7 +138,6 @@ class ChallengeCompleteScreen extends StatelessWidget {
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () {
-                      // TODO: Navigate to profile/achievements page
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Feature coming soon!'),
