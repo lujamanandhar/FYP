@@ -37,9 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'corsheaders',
+    'authentications',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -124,4 +128,65 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# REST Framework Configuration
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'authentications.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
+}
+
+# JWT Configuration
+JWT_SECRET_KEY = config('JWT_SECRET_KEY', default=SECRET_KEY)
+JWT_ALGORITHM = 'HS256'
+JWT_EXPIRATION_DELTA = 24 * 60 * 60  # 24 hours in seconds
+
+# CORS Configuration for Flutter frontend
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Flutter web development
+    "http://127.0.0.1:3000",
+    "http://localhost:8080",  # Alternative Flutter web port
+    "http://127.0.0.1:8080",
+]
+
+# Allow all origins during development (can be restricted in production)
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+
+# CORS headers to allow
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# CORS methods to allow
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+# Allow credentials to be included in CORS requests
+CORS_ALLOW_CREDENTIALS = True
+
+# Custom User Model (will be uncommented after creating the User model)
+# AUTH_USER_MODEL = 'authentications.User'
 
