@@ -187,6 +187,6 @@ CORS_ALLOW_METHODS = [
 # Allow credentials to be included in CORS requests
 CORS_ALLOW_CREDENTIALS = True
 
-# Custom User Model (will be uncommented after creating the User model)
-# AUTH_USER_MODEL = 'authentications.User'
+# Custom User Model
+AUTH_USER_MODEL = 'authentications.User'
 
