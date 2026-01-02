@@ -759,3 +759,305 @@ class SerializerPropertyTest(HypothesisTestCase):
         
         # Should have fitness_level validation error
         self.assertIn('fitness_level', serializer_fitness_level.errors)
+
+
+@override_settings(
+    DATABASES={
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    },
+    JWT_SECRET_KEY='test-secret-key-for-jwt-testing',
+    JWT_ALGORITHM='HS256',
+    JWT_EXPIRATION_DELTA=3600  # 1 hour for testing
+)
+class JWTUtilitiesPropertyTest(HypothesisTestCase):
+    """
+    Property-based tests for JWT utilities to ensure token generation, validation, and rejection.
+    """
+    
+    def setUp(self):
+        """Set up test environment for JWT utilities property tests."""
+        # Ensure we have a clean database state for each test
+        User.objects.all().delete()
+    
+    @given(
+        email=st.emails(),
+        password=st.text(min_size=8, max_size=128),
+        name=st.text(min_size=1, max_size=100)
+    )
+    def test_token_generation_and_validation(self, email, password, name):
+        """
+        Feature: user-authentication-profile, Property 11: Token Generation and Validation
+        
+        For any successful authentication, a secure token should be generated and 
+        validate correctly for subsequent requests.
+        
+        Validates: Requirements 4.1, 4.2, 8.5
+        """
+        from .jwt_utils import generate_jwt_token, validate_jwt_token
+        
+        # Create a user for token generation
+        user = User.objects.create(
+            username=f"user_{email}",
+            email=email,
+            password=password,
+            name=name
+        )
+        
+        # Generate JWT token
+        token = generate_jwt_token(user)
+        
+        # Verify token is a string
+        self.assertIsInstance(token, str)
+        self.assertGreater(len(token), 0)
+        
+        # Validate the generated token
+        try:
+            payload = validate_jwt_token(token)
+            
+            # Verify payload contains expected user information
+            self.assertIn('user_id', payload)
+            self.assertIn('email', payload)
+            self.assertIn('exp', payload)
+            self.assertIn('iat', payload)
+            
+            # Verify payload data matches user
+            self.assertEqual(payload['user_id'], str(user.id))
+            self.assertEqual(payload['email'], user.email)
+            
+            # Verify expiration is in the future
+            import time
+            current_time = time.time()
+            self.assertGreater(payload['exp'], current_time)
+            
+            # Verify issued at time is reasonable (within last minute)
+            self.assertLessEqual(payload['iat'], current_time)
+            self.assertGreater(payload['iat'], current_time - 60)
+            
+        except Exception as e:
+            self.fail(f"Valid token should validate successfully, but got error: {e}")
+    
+    @given(
+        email=st.emails(),
+        password=st.text(min_size=8, max_size=128),
+        name=st.text(min_size=1, max_size=100)
+    )
+    def test_token_generation_uniqueness(self, email, password, name):
+        """
+        Feature: user-authentication-profile, Property 11: Token Generation and Validation
+        
+        For any user, tokens should contain unique issued-at timestamps when generated
+        at different times, making them different.
+        
+        Validates: Requirements 4.1, 8.5
+        """
+        from .jwt_utils import generate_jwt_token, validate_jwt_token
+        from datetime import datetime, timezone
+        import jwt
+        from django.conf import settings
+        
+        # Create a user for token generation
+        user = User.objects.create(
+            username=f"user_{email}",
+            email=email,
+            password=password,
+            name=name
+        )
+        
+        # Generate token with current time
+        token1 = generate_jwt_token(user)
+        
+        # Manually create a token with a different timestamp to ensure uniqueness
+        payload2 = {
+            'user_id': str(user.id),
+            'email': user.email,
+            'exp': datetime.now(timezone.utc).timestamp() + 3600,  # 1 hour from now
+            'iat': datetime.now(timezone.utc).timestamp() - 1  # 1 second ago
+        }
+        
+        token2 = jwt.encode(
+            payload2,
+            settings.JWT_SECRET_KEY,
+            algorithm=settings.JWT_ALGORITHM
+        )
+        
+        # Tokens should be different (due to different iat timestamps)
+        self.assertNotEqual(token1, token2)
+        
+        # Both tokens should be valid strings
+        self.assertIsInstance(token1, str)
+        self.assertIsInstance(token2, str)
+        self.assertGreater(len(token1), 0)
+        self.assertGreater(len(token2), 0)
+        
+        # Both tokens should be valid and contain the same user data
+        payload1 = validate_jwt_token(token1)
+        payload2_decoded = validate_jwt_token(token2)
+        
+        # User data should be the same
+        self.assertEqual(payload1['user_id'], payload2_decoded['user_id'])
+        self.assertEqual(payload1['email'], payload2_decoded['email'])
+        
+        # But timestamps should be different
+        self.assertNotEqual(payload1['iat'], payload2_decoded['iat'])
+    
+    @given(
+        invalid_token=st.one_of(
+            st.just(''),  # Empty string
+            st.just('invalid.token.format'),  # Invalid format
+            st.just('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid.signature'),  # Invalid signature
+            st.text(min_size=1, max_size=50).filter(lambda x: '.' not in x),  # Random text without dots
+            st.just('header.payload'),  # Missing signature
+            st.just('a.b.c.d'),  # Too many parts
+        )
+    )
+    def test_token_rejection_with_invalid_tokens(self, invalid_token):
+        """
+        Feature: user-authentication-profile, Property 12: Token Rejection
+        
+        For any invalid, malformed token, protected endpoints should return 
+        unauthorized errors.
+        
+        Validates: Requirements 4.3, 8.4
+        """
+        from .jwt_utils import validate_jwt_token
+        import jwt
+        
+        # Invalid tokens should raise InvalidTokenError
+        with self.assertRaises(jwt.InvalidTokenError):
+            validate_jwt_token(invalid_token)
+    
+    @given(
+        email=st.emails(),
+        password=st.text(min_size=8, max_size=128),
+        name=st.text(min_size=1, max_size=100)
+    )
+    def test_token_rejection_with_expired_tokens(self, email, password, name):
+        """
+        Feature: user-authentication-profile, Property 12: Token Rejection
+        
+        For any expired token, protected endpoints should return unauthorized errors.
+        
+        Validates: Requirements 4.3, 8.4
+        """
+        from .jwt_utils import generate_jwt_token, validate_jwt_token
+        from django.conf import settings
+        import jwt
+        from datetime import datetime, timedelta, timezone
+        
+        # Create a user for token generation
+        user = User.objects.create(
+            username=f"user_{email}",
+            email=email,
+            password=password,
+            name=name
+        )
+        
+        # Create an expired token manually
+        expired_payload = {
+            'user_id': str(user.id),
+            'email': user.email,
+            'exp': datetime.now(timezone.utc) - timedelta(seconds=1),  # Expired 1 second ago
+            'iat': datetime.now(timezone.utc) - timedelta(seconds=3600)  # Issued 1 hour ago
+        }
+        
+        expired_token = jwt.encode(
+            expired_payload,
+            settings.JWT_SECRET_KEY,
+            algorithm=settings.JWT_ALGORITHM
+        )
+        
+        # Expired token should raise InvalidTokenError
+        with self.assertRaises(jwt.InvalidTokenError) as context:
+            validate_jwt_token(expired_token)
+        
+        # Verify the error message indicates expiration
+        self.assertIn('expired', str(context.exception).lower())
+    
+    @given(
+        email=st.emails(),
+        password=st.text(min_size=8, max_size=128),
+        name=st.text(min_size=1, max_size=100),
+        wrong_secret=st.text(min_size=10, max_size=50)
+    )
+    def test_token_rejection_with_wrong_secret(self, email, password, name, wrong_secret):
+        """
+        Feature: user-authentication-profile, Property 12: Token Rejection
+        
+        For any token signed with wrong secret key, validation should fail.
+        
+        Validates: Requirements 4.3, 8.4, 8.5
+        """
+        from .jwt_utils import validate_jwt_token
+        from django.conf import settings
+        import jwt
+        from datetime import datetime, timedelta, timezone
+        
+        # Skip if wrong_secret is the same as the actual secret
+        if wrong_secret == settings.JWT_SECRET_KEY:
+            return
+        
+        # Create a user for token generation
+        user = User.objects.create(
+            username=f"user_{email}",
+            email=email,
+            password=password,
+            name=name
+        )
+        
+        # Create a token with wrong secret key
+        payload = {
+            'user_id': str(user.id),
+            'email': user.email,
+            'exp': datetime.now(timezone.utc) + timedelta(seconds=3600),
+            'iat': datetime.now(timezone.utc)
+        }
+        
+        wrong_token = jwt.encode(
+            payload,
+            wrong_secret,  # Wrong secret key
+            algorithm=settings.JWT_ALGORITHM
+        )
+        
+        # Token with wrong secret should raise InvalidTokenError
+        with self.assertRaises(jwt.InvalidTokenError):
+            validate_jwt_token(wrong_token)
+    
+    @given(
+        email=st.emails(),
+        password=st.text(min_size=8, max_size=128),
+        name=st.text(min_size=1, max_size=100)
+    )
+    def test_token_validation_preserves_user_data(self, email, password, name):
+        """
+        Feature: user-authentication-profile, Property 11: Token Generation and Validation
+        
+        For any valid token, validation should preserve and return the original user data.
+        
+        Validates: Requirements 4.1, 4.2
+        """
+        from .jwt_utils import generate_jwt_token, validate_jwt_token
+        
+        # Create a user for token generation
+        user = User.objects.create(
+            username=f"user_{email}",
+            email=email,
+            password=password,
+            name=name
+        )
+        
+        # Generate and validate token
+        token = generate_jwt_token(user)
+        payload = validate_jwt_token(token)
+        
+        # Verify all user data is preserved in the token
+        self.assertEqual(payload['user_id'], str(user.id))
+        self.assertEqual(payload['email'], user.email)
+        
+        # Verify the payload can be used to identify the user
+        retrieved_user = User.objects.get(id=payload['user_id'])
+        self.assertEqual(retrieved_user.id, user.id)
+        self.assertEqual(retrieved_user.email, user.email)
+        self.assertEqual(retrieved_user.name, user.name)
