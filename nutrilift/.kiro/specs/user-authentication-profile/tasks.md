@@ -37,21 +37,22 @@ This implementation plan converts the feature design into a series of coding tas
     - **Property 16: Timestamp Tracking**
     - **Validates: Requirements 6.1, 6.2, 6.4**
 
-- [ ] 3. Implement authentication serializers
-  - [ ] 3.1 Create UserRegistrationSerializer
+- [x] 3. Implement authentication serializers
+  - [x] 3.1 Create UserRegistrationSerializer
     - Implement serializer with email, password, name fields
     - Add password validation (minimum length, complexity)
     - Include password hashing in create method
     - _Requirements: 1.2, 1.3, 1.6_
 
-  - [ ] 3.2 Create UserProfileSerializer and ProfileUpdateSerializer
+  - [x] 3.2 Create UserProfileSerializer and ProfileUpdateSerializer
     - Implement read serializer for user profile data
     - Implement update serializer for profile fields
     - Add validation for numeric fields (age, height, weight)
     - Add validation for enum fields (gender, fitness_level)
     - _Requirements: 3.3, 3.4, 3.5_
 
-  - [ ]* 3.3 Write property tests for serializers
+  - [x] 3.3 Write property tests for serializers
+
     - **Property 2: Email Validation**
     - **Property 3: Password Length Validation**
     - **Property 9: Numeric Field Validation**
