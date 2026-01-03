@@ -4,10 +4,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from .models import User
 from .serializers import UserRegistrationSerializer, UserProfileSerializer, ProfileUpdateSerializer
 from .jwt_utils import generate_jwt_token
+from .exceptions import handle_authentication_error, handle_validation_error
 import logging
 
 logger = logging.getLogger(__name__)
@@ -28,11 +29,19 @@ def register(request):
         serializer = UserRegistrationSerializer(data=request.data)
         
         if not serializer.is_valid():
+            return handle_validation_error(
+                errors=serializer.errors,
+                message='Registration validation failed'
+            )
+        
+        # Check for existing email before attempting to create user
+        email = serializer.validated_data.get('email', '').lower().strip()
+        if User.objects.filter(email=email).exists():
             return Response({
                 'success': False,
-                'message': 'Validation failed',
-                'errors': serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
+                'message': 'Email already exists',
+                'errors': {'email': ['A user with this email already exists.']}
+            }, status=status.HTTP_409_CONFLICT)
         
         # Create user with atomic transaction to ensure data consistency
         with transaction.atomic():
@@ -54,12 +63,21 @@ def register(request):
                 }
             }, status=status.HTTP_201_CREATED)
             
+    except IntegrityError as e:
+        # Handle database integrity errors (e.g., duplicate email)
+        logger.warning(f"Registration integrity error: {str(e)}")
+        return Response({
+            'success': False,
+            'message': 'Email already exists',
+            'errors': {'email': ['A user with this email already exists.']}
+        }, status=status.HTTP_409_CONFLICT)
+        
     except Exception as e:
-        logger.error(f"Registration error: {str(e)}")
+        logger.error(f"Registration error: {str(e)}", exc_info=True)
         return Response({
             'success': False,
             'message': 'Registration failed due to server error',
-            'errors': {'detail': 'Internal server error'}
+            'errors': {'detail': 'Internal server error occurred. Please try again later.'}
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -80,52 +98,41 @@ def login(request):
         
         # Check for required fields
         if not email or not password:
-            return Response({
-                'success': False,
-                'message': 'Email and password are required',
-                'errors': {
-                    'email': ['This field is required.'] if not email else [],
-                    'password': ['This field is required.'] if not password else []
-                }
-            }, status=status.HTTP_400_BAD_REQUEST)
+            errors = {}
+            if not email:
+                errors['email'] = ['This field is required.']
+            if not password:
+                errors['password'] = ['This field is required.']
+            
+            return handle_validation_error(
+                errors=errors,
+                message='Email and password are required'
+            )
         
         # Normalize email to lowercase for consistency
         email = email.lower().strip()
         
         # Validate email format (basic validation)
         if '@' not in email or '.' not in email.split('@')[-1]:
-            return Response({
-                'success': False,
-                'message': 'Invalid email format',
-                'errors': {'email': ['Enter a valid email address.']}
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return handle_validation_error(
+                errors={'email': ['Enter a valid email address.']},
+                message='Invalid email format'
+            )
         
         # Find user by email
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             # Return generic error to prevent email enumeration
-            return Response({
-                'success': False,
-                'message': 'Invalid credentials',
-                'errors': {'detail': 'Invalid email or password'}
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            return handle_authentication_error('Invalid email or password')
         
         # Check if user account is active
         if not user.is_active:
-            return Response({
-                'success': False,
-                'message': 'Account is disabled',
-                'errors': {'detail': 'User account is disabled'}
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            return handle_authentication_error('User account is disabled')
         
         # Verify password securely using Django's check_password
         if not check_password(password, user.password):
-            return Response({
-                'success': False,
-                'message': 'Invalid credentials',
-                'errors': {'detail': 'Invalid email or password'}
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            return handle_authentication_error('Invalid email or password')
         
         # Generate JWT token for successful login
         token = generate_jwt_token(user)
@@ -143,11 +150,11 @@ def login(request):
         }, status=status.HTTP_200_OK)
         
     except Exception as e:
-        logger.error(f"Login error: {str(e)}")
+        logger.error(f"Login error: {str(e)}", exc_info=True)
         return Response({
             'success': False,
             'message': 'Login failed due to server error',
-            'errors': {'detail': 'Internal server error'}
+            'errors': {'detail': 'Internal server error occurred. Please try again later.'}
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -177,11 +184,11 @@ def get_profile(request):
         }, status=status.HTTP_200_OK)
         
     except Exception as e:
-        logger.error(f"Profile retrieval error: {str(e)}")
+        logger.error(f"Profile retrieval error: {str(e)}", exc_info=True)
         return Response({
             'success': False,
             'message': 'Failed to retrieve profile',
-            'errors': {'detail': 'Internal server error'}
+            'errors': {'detail': 'Internal server error occurred. Please try again later.'}
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -203,11 +210,10 @@ def update_profile(request):
         serializer = ProfileUpdateSerializer(user, data=request.data, partial=True)
         
         if not serializer.is_valid():
-            return Response({
-                'success': False,
-                'message': 'Validation failed',
-                'errors': serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return handle_validation_error(
+                errors=serializer.errors,
+                message='Profile validation failed'
+            )
         
         # Update user record with new profile information
         with transaction.atomic():
@@ -225,9 +231,9 @@ def update_profile(request):
             }, status=status.HTTP_200_OK)
             
     except Exception as e:
-        logger.error(f"Profile update error: {str(e)}")
+        logger.error(f"Profile update error: {str(e)}", exc_info=True)
         return Response({
             'success': False,
             'message': 'Failed to update profile',
-            'errors': {'detail': 'Internal server error'}
+            'errors': {'detail': 'Internal server error occurred. Please try again later.'}
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

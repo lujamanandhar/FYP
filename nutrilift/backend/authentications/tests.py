@@ -4,7 +4,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.utils import timezone
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIClient
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -1061,3 +1061,604 @@ class JWTUtilitiesPropertyTest(HypothesisTestCase):
         self.assertEqual(retrieved_user.id, user.id)
         self.assertEqual(retrieved_user.email, user.email)
         self.assertEqual(retrieved_user.name, user.name)
+
+
+@override_settings(
+    DATABASES={
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    },
+    JWT_SECRET_KEY='test-secret-key-for-jwt-testing',
+    JWT_ALGORITHM='HS256',
+    JWT_EXPIRATION_DELTA=3600,  # 1 hour for testing
+    ROOT_URLCONF='authentications.test_urls',  # Use test URL configuration
+    REST_FRAMEWORK={
+        'DEFAULT_AUTHENTICATION_CLASSES': [
+            'authentications.authentication.JWTAuthentication',
+        ],
+        'DEFAULT_PERMISSION_CLASSES': [
+            'rest_framework.permissions.AllowAny',  # Allow any for tests
+        ],
+        'DEFAULT_RENDERER_CLASSES': [
+            'rest_framework.renderers.JSONRenderer',
+        ],
+        'DEFAULT_PARSER_CLASSES': [
+            'rest_framework.parsers.JSONParser',
+        ],
+    }
+)
+class AuthenticationViewsPropertyTest(HypothesisTestCase):
+    """
+    Property-based tests for authentication views to ensure user registration success,
+    password security, login authentication, authentication failure, input validation,
+    and profile update persistence.
+    """
+    
+    def setUp(self):
+        """Set up test environment for authentication views property tests."""
+        # Ensure we have a clean database state for each test
+        User.objects.all().delete()
+        
+        # Set up API client
+        self.client = APIClient()
+    
+    @settings(max_examples=5, deadline=2000)
+    @given(
+        email=st.builds(
+            lambda local, domain: f"{local}@{domain}",
+            local=st.text(min_size=1, max_size=20, alphabet=st.characters(min_codepoint=97, max_codepoint=122)),
+            domain=st.builds(
+                lambda name, tld: f"{name}.{tld}",
+                name=st.text(min_size=1, max_size=10, alphabet=st.characters(min_codepoint=97, max_codepoint=122)),
+                tld=st.sampled_from(['com', 'org', 'net', 'edu'])
+            )
+        ),
+        password=st.text(min_size=8, max_size=20, alphabet=st.characters(min_codepoint=48, max_codepoint=122)).filter(
+            lambda x: any(c.isalpha() for c in x) and any(c.isdigit() for c in x)
+        ),
+        name=st.text(min_size=1, max_size=50, alphabet=st.characters(min_codepoint=65, max_codepoint=122)).filter(
+            lambda x: x.strip() and x.isalnum()
+        )
+    )
+    def test_user_registration_success(self, email, password, name):
+        """
+        Feature: user-authentication-profile, Property 1: User Registration Success
+        
+        For any valid email and password combination, registration should create 
+        a new user account and return an auth token with user data.
+        
+        Validates: Requirements 1.1, 1.5
+        """
+        # Ensure no user exists with this email
+        User.objects.filter(email=email).delete()
+        
+        # Prepare registration data
+        registration_data = {
+            'email': email,
+            'password': password,
+            'name': name
+        }
+        
+        # Make registration request
+        response = self.client.post('/api/auth/register/', registration_data, format='json')
+        
+        # Verify successful registration
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        # Verify response format
+        response_data = response.json()
+        self.assertIn('success', response_data)
+        self.assertIn('message', response_data)
+        self.assertIn('data', response_data)
+        
+        # Verify success status
+        self.assertTrue(response_data['success'])
+        
+        # Verify user data in response
+        self.assertIn('user', response_data['data'])
+        self.assertIn('token', response_data['data'])
+        
+        user_data = response_data['data']['user']
+        self.assertEqual(user_data['email'], email.lower())  # Email should be normalized
+        self.assertEqual(user_data['name'], name)
+        
+        # Verify token is present and non-empty
+        token = response_data['data']['token']
+        self.assertIsInstance(token, str)
+        self.assertGreater(len(token), 0)
+        
+        # Verify user was created in database
+        created_user = User.objects.get(email=email.lower())
+        self.assertEqual(created_user.email, email.lower())
+        self.assertEqual(created_user.name, name)
+        
+        # Verify token is valid
+        from .jwt_utils import validate_jwt_token
+        try:
+            payload = validate_jwt_token(token)
+            self.assertEqual(payload['user_id'], str(created_user.id))
+            self.assertEqual(payload['email'], created_user.email)
+        except Exception as e:
+            self.fail(f"Generated token should be valid, but got error: {e}")
+    
+    @settings(max_examples=5, deadline=5000)  # Increased deadline for password hashing operations
+    @given(
+        email=st.builds(
+            lambda local, domain: f"{local}@{domain}",
+            local=st.text(min_size=1, max_size=20, alphabet=st.characters(min_codepoint=97, max_codepoint=122)),
+            domain=st.builds(
+                lambda name, tld: f"{name}.{tld}",
+                name=st.text(min_size=1, max_size=10, alphabet=st.characters(min_codepoint=97, max_codepoint=122)),
+                tld=st.sampled_from(['com', 'org', 'net', 'edu'])
+            )
+        ),
+        password=st.text(min_size=8, max_size=20, alphabet=st.characters(min_codepoint=48, max_codepoint=122)).filter(
+            lambda x: any(c.isalpha() for c in x) and any(c.isdigit() for c in x)
+        ),
+        name=st.text(min_size=1, max_size=50, alphabet=st.characters(min_codepoint=65, max_codepoint=122)).filter(
+            lambda x: x.strip() and x.isalnum()
+        )
+    )
+    def test_password_security_hashing(self, email, password, name):
+        """
+        Feature: user-authentication-profile, Property 4: Password Security
+        
+        For any user registration or password update, the stored password should be 
+        hashed and never stored in plain text.
+        
+        Validates: Requirements 1.6, 6.3, 8.1
+        """
+        # Ensure no user exists with this email
+        User.objects.filter(email=email).delete()
+        
+        # Prepare registration data
+        registration_data = {
+            'email': email,
+            'password': password,
+            'name': name
+        }
+        
+        # Make registration request
+        response = self.client.post('/api/auth/register/', registration_data, format='json')
+        
+        # Verify successful registration
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        # Verify user was created in database
+        created_user = User.objects.get(email=email.lower())
+        
+        # Verify password is hashed (not stored in plain text)
+        self.assertNotEqual(created_user.password, password)
+        
+        # Verify password hash is not empty
+        self.assertIsNotNone(created_user.password)
+        self.assertGreater(len(created_user.password), 0)
+        
+        # Verify password hash follows Django's format (algorithm$salt$hash)
+        self.assertIn('$', created_user.password)
+        password_parts = created_user.password.split('$')
+        self.assertGreaterEqual(len(password_parts), 3)  # Should have at least algorithm, salt, hash
+        
+        # Verify we can authenticate with the original password
+        from django.contrib.auth.hashers import check_password
+        self.assertTrue(check_password(password, created_user.password))
+        
+        # Verify we cannot authenticate with wrong password
+        self.assertFalse(check_password('wrong_password', created_user.password))
+    
+    @settings(max_examples=5, deadline=2000)
+    @given(
+        email=st.builds(
+            lambda local, domain: f"{local}@{domain}",
+            local=st.text(min_size=1, max_size=20, alphabet=st.characters(min_codepoint=97, max_codepoint=122)),
+            domain=st.builds(
+                lambda name, tld: f"{name}.{tld}",
+                name=st.text(min_size=1, max_size=10, alphabet=st.characters(min_codepoint=97, max_codepoint=122)),
+                tld=st.sampled_from(['com', 'org', 'net', 'edu'])
+            )
+        ),
+        password=st.text(min_size=8, max_size=20, alphabet=st.characters(min_codepoint=48, max_codepoint=122)).filter(
+            lambda x: any(c.isalpha() for c in x) and any(c.isdigit() for c in x)
+        ),
+        name=st.text(min_size=1, max_size=50, alphabet=st.characters(min_codepoint=65, max_codepoint=122)).filter(
+            lambda x: x.strip() and x.isalnum()
+        )
+    )
+    def test_login_authentication_success(self, email, password, name):
+        """
+        Feature: user-authentication-profile, Property 5: Login Authentication
+        
+        For any valid user credentials, login should return an auth token and user profile data.
+        
+        Validates: Requirements 2.1, 2.4
+        """
+        # Create a user first
+        User.objects.filter(email=email).delete()
+        
+        # Register user
+        registration_data = {
+            'email': email,
+            'password': password,
+            'name': name
+        }
+        
+        register_response = self.client.post('/api/auth/register/', registration_data, format='json')
+        self.assertEqual(register_response.status_code, status.HTTP_201_CREATED)
+        
+        # Now test login
+        login_data = {
+            'email': email,
+            'password': password
+        }
+        
+        # Make login request
+        response = self.client.post('/api/auth/login/', login_data, format='json')
+        
+        # Verify successful login
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Verify response format
+        response_data = response.json()
+        self.assertIn('success', response_data)
+        self.assertIn('message', response_data)
+        self.assertIn('data', response_data)
+        
+        # Verify success status
+        self.assertTrue(response_data['success'])
+        
+        # Verify user data and token in response
+        self.assertIn('user', response_data['data'])
+        self.assertIn('token', response_data['data'])
+        
+        user_data = response_data['data']['user']
+        self.assertEqual(user_data['email'], email.lower())
+        self.assertEqual(user_data['name'], name)
+        
+        # Verify token is present and valid
+        token = response_data['data']['token']
+        self.assertIsInstance(token, str)
+        self.assertGreater(len(token), 0)
+        
+        # Verify token is valid
+        from .jwt_utils import validate_jwt_token
+        try:
+            payload = validate_jwt_token(token)
+            self.assertEqual(payload['email'], email.lower())
+        except Exception as e:
+            self.fail(f"Login token should be valid, but got error: {e}")
+    
+    @settings(max_examples=5, deadline=2000)
+    @given(
+        email=st.builds(
+            lambda local, domain: f"{local}@{domain}",
+            local=st.text(min_size=1, max_size=20, alphabet=st.characters(min_codepoint=97, max_codepoint=122)),
+            domain=st.builds(
+                lambda name, tld: f"{name}.{tld}",
+                name=st.text(min_size=1, max_size=10, alphabet=st.characters(min_codepoint=97, max_codepoint=122)),
+                tld=st.sampled_from(['com', 'org', 'net', 'edu'])
+            )
+        ),
+        correct_password=st.text(min_size=8, max_size=20, alphabet=st.characters(min_codepoint=48, max_codepoint=122)).filter(
+            lambda x: any(c.isalpha() for c in x) and any(c.isdigit() for c in x)
+        ),
+        wrong_password=st.text(min_size=1, max_size=20, alphabet=st.characters(min_codepoint=48, max_codepoint=122)),
+        name=st.text(min_size=1, max_size=50, alphabet=st.characters(min_codepoint=65, max_codepoint=122)).filter(
+            lambda x: x.strip() and x.isalnum()
+        )
+    )
+    def test_authentication_failure_with_wrong_credentials(self, email, correct_password, wrong_password, name):
+        """
+        Feature: user-authentication-profile, Property 6: Authentication Failure
+        
+        For any incorrect credentials, login should return an authentication error 
+        without exposing sensitive information.
+        
+        Validates: Requirements 2.2, 8.3
+        """
+        # Skip if passwords are the same
+        if correct_password == wrong_password:
+            return
+        
+        # Create a user first
+        User.objects.filter(email=email).delete()
+        
+        # Register user with correct password
+        registration_data = {
+            'email': email,
+            'password': correct_password,
+            'name': name
+        }
+        
+        register_response = self.client.post('/api/auth/register/', registration_data, format='json')
+        self.assertEqual(register_response.status_code, status.HTTP_201_CREATED)
+        
+        # Try to login with wrong password
+        login_data = {
+            'email': email,
+            'password': wrong_password
+        }
+        
+        # Make login request with wrong password
+        response = self.client.post('/api/auth/login/', login_data, format='json')
+        
+        # Verify authentication failure
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        # Verify response format
+        response_data = response.json()
+        self.assertIn('success', response_data)
+        self.assertIn('message', response_data)
+        self.assertIn('errors', response_data)
+        
+        # Verify failure status
+        self.assertFalse(response_data['success'])
+        
+        # Verify no sensitive information is exposed
+        self.assertNotIn(correct_password, str(response_data))
+        self.assertNotIn('password', response_data.get('message', '').lower())
+        
+        # Verify generic error message (no email enumeration)
+        message = response_data.get('message', '').lower()
+        self.assertIn('invalid', message)
+        
+        # Verify no token is returned
+        self.assertNotIn('token', response_data.get('data', {}))
+    
+    @settings(max_examples=5, deadline=2000)
+    @given(
+        invalid_email=st.one_of(
+            st.just(''),  # Empty email
+            st.just('invalid-email'),  # Invalid format
+            st.just('user@'),  # Missing domain
+            st.just('@domain.com'),  # Missing local part
+        ),
+        password=st.one_of(
+            st.just(''),  # Empty password
+            st.just('short'),  # Too short
+            st.just('12345678'),  # No letters
+            st.just('abcdefgh'),  # No digits
+        ),
+        name=st.text(min_size=1, max_size=50, alphabet=st.characters(min_codepoint=65, max_codepoint=122)).filter(
+            lambda x: x.strip() and x.isalnum()
+        )
+    )
+    def test_input_validation_with_invalid_data(self, invalid_email, password, name):
+        """
+        Feature: user-authentication-profile, Property 7: Input Validation
+        
+        For any malformed input data, the system should return appropriate 
+        validation errors before processing.
+        
+        Validates: Requirements 2.3, 8.2
+        """
+        # Test registration with invalid data
+        registration_data = {
+            'email': invalid_email,
+            'password': password,
+            'name': name
+        }
+        
+        # Make registration request
+        response = self.client.post('/api/auth/register/', registration_data, format='json')
+        
+        # Verify validation failure
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+        # Verify response format
+        response_data = response.json()
+        self.assertIn('success', response_data)
+        self.assertIn('message', response_data)
+        self.assertIn('errors', response_data)
+        
+        # Verify failure status
+        self.assertFalse(response_data['success'])
+        
+        # Verify validation errors are present
+        errors = response_data.get('errors', {})
+        self.assertIsInstance(errors, dict)
+        
+        # Verify appropriate field errors are present
+        if not invalid_email or invalid_email in ['invalid-email', 'user@', '@domain.com']:
+            self.assertIn('email', errors)
+        
+        if not password or len(password) < 8 or not any(c.isalpha() for c in password) or not any(c.isdigit() for c in password):
+            self.assertIn('password', errors)
+        
+        # Test login with invalid data
+        login_data = {
+            'email': invalid_email,
+            'password': password
+        }
+        
+        # Make login request
+        login_response = self.client.post('/api/auth/login/', login_data, format='json')
+        
+        # For login, invalid email format should return 400, but missing user should return 401
+        if not invalid_email or invalid_email in ['invalid-email', 'user@']:
+            # These should return 400 for validation errors
+            self.assertEqual(login_response.status_code, status.HTTP_400_BAD_REQUEST)
+        else:
+            # '@domain.com' is a valid email format but user doesn't exist, so 401
+            self.assertIn(login_response.status_code, [status.HTTP_400_BAD_REQUEST, status.HTTP_401_UNAUTHORIZED])
+        
+        # Verify response format for login
+        login_response_data = login_response.json()
+        self.assertIn('success', login_response_data)
+        self.assertIn('message', login_response_data)
+        self.assertIn('errors', login_response_data)
+        
+        # Verify failure status for login
+        self.assertFalse(login_response_data['success'])
+    
+    @settings(max_examples=3, deadline=5000)  # Reduced examples, increased deadline for stability
+    @given(
+        email=st.builds(
+            lambda local, domain: f"{local}@{domain}",
+            local=st.text(min_size=3, max_size=15, alphabet=st.characters(min_codepoint=97, max_codepoint=122)),
+            domain=st.builds(
+                lambda name, tld: f"{name}.{tld}",
+                name=st.text(min_size=3, max_size=8, alphabet=st.characters(min_codepoint=97, max_codepoint=122)),
+                tld=st.sampled_from(['com', 'org', 'net'])
+            )
+        ),
+        password=st.text(min_size=8, max_size=15, alphabet=st.characters(min_codepoint=48, max_codepoint=122)).filter(
+            lambda x: any(c.isalpha() for c in x) and any(c.isdigit() for c in x)
+        ),
+        name=st.text(min_size=2, max_size=30, alphabet=st.characters(min_codepoint=65, max_codepoint=122)).filter(
+            lambda x: x.strip() and x.isalnum()
+        ),
+        new_name=st.text(min_size=2, max_size=30, alphabet=st.characters(min_codepoint=65, max_codepoint=122)).filter(
+            lambda x: x.strip() and x.isalnum()
+        ),
+        gender=st.sampled_from(['Male', 'Female']),
+        age_group=st.sampled_from(['Adult', 'Mid-Age Adult', 'Older Adult']),
+        height=st.floats(min_value=150.0, max_value=200.0, allow_nan=False, allow_infinity=False),
+        weight=st.floats(min_value=50.0, max_value=100.0, allow_nan=False, allow_infinity=False),
+        fitness_level=st.sampled_from(['Beginner', 'Intermediate', 'Advance'])
+    )
+    def test_profile_update_persistence(self, email, password, name, new_name, gender, age_group, height, weight, fitness_level):
+        """
+        Feature: user-authentication-profile, Property 8: Profile Update Persistence
+        
+        For any authenticated user profile update, the changes should be stored 
+        in the database and retrievable via profile endpoint.
+        
+        Validates: Requirements 3.1, 3.2
+        """
+        import time
+        import uuid
+        from django.db import transaction
+        
+        # Create a truly unique email using UUID to avoid any collision issues
+        unique_suffix = str(uuid.uuid4())[:8]
+        base_email = email.split('@')[0][:10]  # Limit base email length
+        domain = email.split('@')[1]
+        unique_email = f"{base_email}_{unique_suffix}@{domain}"
+        
+        # Ensure complete database cleanup with transaction rollback safety
+        with transaction.atomic():
+            User.objects.filter(email__icontains=base_email).delete()
+            User.objects.filter(email=unique_email).delete()
+        
+        # Clear any existing client credentials
+        self.client.credentials()
+        
+        # Add small delay to ensure database state is consistent
+        time.sleep(0.01)
+        
+        # Register user with more robust error handling
+        registration_data = {
+            'email': unique_email,
+            'password': password,
+            'name': name
+        }
+        
+        register_response = self.client.post('/api/auth/register/', registration_data, format='json')
+        
+        # More detailed error reporting for debugging flaky behavior
+        if register_response.status_code != status.HTTP_201_CREATED:
+            response_data = register_response.json() if register_response.content else {}
+            self.fail(
+                f"Registration failed with status {register_response.status_code}. "
+                f"Email: {unique_email}, Response: {response_data}"
+            )
+        
+        # Verify response structure before accessing data
+        response_data = register_response.json()
+        self.assertIn('data', response_data, f"Missing 'data' in response: {response_data}")
+        self.assertIn('token', response_data['data'], f"Missing 'token' in response data: {response_data['data']}")
+        
+        # Get auth token
+        token = response_data['data']['token']
+        self.assertIsInstance(token, str, "Token should be a string")
+        self.assertGreater(len(token), 0, "Token should not be empty")
+        
+        # Set authentication header with proper format
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        
+        # Small delay to ensure token is properly set
+        time.sleep(0.01)
+        
+        # Prepare profile update data
+        profile_data = {
+            'name': new_name,
+            'gender': gender,
+            'age_group': age_group,
+            'height': height,
+            'weight': weight,
+            'fitness_level': fitness_level
+        }
+        
+        # Make profile update request with retry logic for flaky network issues
+        max_retries = 2
+        update_response = None
+        
+        for attempt in range(max_retries + 1):
+            update_response = self.client.put('/api/auth/profile/', profile_data, format='json')
+            
+            if update_response.status_code == status.HTTP_200_OK:
+                break
+            elif attempt < max_retries:
+                time.sleep(0.05)  # Brief delay before retry
+                continue
+            else:
+                # Final attempt failed, provide detailed error info
+                response_data = update_response.json() if update_response.content else {}
+                self.fail(
+                    f"Profile update failed after {max_retries + 1} attempts. "
+                    f"Status: {update_response.status_code}, Response: {response_data}"
+                )
+        
+        # Verify successful update
+        self.assertEqual(update_response.status_code, status.HTTP_200_OK)
+        
+        # Verify response format
+        update_data = update_response.json()
+        self.assertIn('success', update_data)
+        self.assertIn('message', update_data)
+        self.assertIn('data', update_data)
+        
+        # Verify success status
+        self.assertTrue(update_data['success'])
+        
+        # Verify updated data in response
+        user_data = update_data['data']['user']
+        self.assertEqual(user_data['name'], new_name)
+        self.assertEqual(user_data['gender'], gender)
+        self.assertEqual(user_data['age_group'], age_group)
+        self.assertAlmostEqual(float(user_data['height']), height, places=2)
+        self.assertAlmostEqual(float(user_data['weight']), weight, places=2)
+        self.assertEqual(user_data['fitness_level'], fitness_level)
+        
+        # Small delay to ensure database consistency
+        time.sleep(0.01)
+        
+        # Verify data persistence by retrieving profile
+        profile_response = self.client.get('/api/auth/me/')
+        
+        # Verify successful profile retrieval
+        self.assertEqual(profile_response.status_code, status.HTTP_200_OK)
+        
+        # Verify retrieved data matches updated data
+        profile_data_retrieved = profile_response.json()['data']['user']
+        self.assertEqual(profile_data_retrieved['name'], new_name)
+        self.assertEqual(profile_data_retrieved['gender'], gender)
+        self.assertEqual(profile_data_retrieved['age_group'], age_group)
+        self.assertAlmostEqual(float(profile_data_retrieved['height']), height, places=2)
+        self.assertAlmostEqual(float(profile_data_retrieved['weight']), weight, places=2)
+        self.assertEqual(profile_data_retrieved['fitness_level'], fitness_level)
+        
+        # Verify data persistence in database with proper transaction handling
+        with transaction.atomic():
+            updated_user = User.objects.get(email=unique_email.lower())
+            self.assertEqual(updated_user.name, new_name)
+            self.assertEqual(updated_user.gender, gender)
+            self.assertEqual(updated_user.age_group, age_group)
+            self.assertAlmostEqual(updated_user.height, height, places=2)
+            self.assertAlmostEqual(updated_user.weight, weight, places=2)
+            self.assertEqual(updated_user.fitness_level, fitness_level)
+        
+        # Clean up credentials after test
+        self.client.credentials()

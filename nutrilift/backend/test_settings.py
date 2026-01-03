@@ -8,6 +8,9 @@ DATABASES = {
     }
 }
 
+# Allow testserver for testing
+ALLOWED_HOSTS = ['testserver', 'localhost', '127.0.0.1']
+
 # Disable migrations for faster testing
 class DisableMigrations:
     def __contains__(self, item):
@@ -36,6 +39,8 @@ if not hasattr(globals(), 'REST_FRAMEWORK'):
         'DEFAULT_PARSER_CLASSES': [
             'rest_framework.parsers.JSONParser',
         ],
+        # Custom exception handler for consistent error responses
+        'EXCEPTION_HANDLER': 'authentications.exceptions.custom_exception_handler',
     }
 
 # CORS Configuration (should be inherited from main settings)

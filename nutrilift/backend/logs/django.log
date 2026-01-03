@@ -1,0 +1,55 @@
+ERROR 2026-01-03 16:21:13,213 views 29652 3060 Login error: Unsupported media type "multipart/form-data; boundary=BoUnDaRyStRiNg; charset=utf-8" in request.
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py", line 96, in login
+    email = request.data.get('email')
+            ^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\request.py", line 220, in data
+    self._load_data_and_files()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\request.py", line 283, in _load_data_and_files
+    self._data, self._files = self._parse()
+                              ~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\request.py", line 355, in _parse
+    raise exceptions.UnsupportedMediaType(media_type)
+rest_framework.exceptions.UnsupportedMediaType: Unsupported media type "multipart/form-data; boundary=BoUnDaRyStRiNg; charset=utf-8" in request.
+ERROR 2026-01-03 16:21:13,232 log 29652 3060 Internal Server Error: /api/auth/login/
+WARNING 2026-01-03 16:21:13,236 log 29652 3060 Unauthorized: /api/auth/me/
+ERROR 2026-01-03 16:21:13,238 views 29652 3060 Registration error: Unsupported media type "multipart/form-data; boundary=BoUnDaRyStRiNg; charset=utf-8" in request.
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py", line 29, in register
+    serializer = UserRegistrationSerializer(data=request.data)
+                                                 ^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\request.py", line 220, in data
+    self._load_data_and_files()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\request.py", line 283, in _load_data_and_files
+    self._data, self._files = self._parse()
+                              ~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\request.py", line 355, in _parse
+    raise exceptions.UnsupportedMediaType(media_type)
+rest_framework.exceptions.UnsupportedMediaType: Unsupported media type "multipart/form-data; boundary=BoUnDaRyStRiNg; charset=utf-8" in request.
+ERROR 2026-01-03 16:21:13,239 log 29652 3060 Internal Server Error: /api/auth/register/
+WARNING 2026-01-03 16:22:22,824 log 33344 18776 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:22:23,306 log 33344 18776 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:22:23,308 log 33344 18776 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:22:23,311 log 33344 18776 Bad Request: /api/auth/register/
+ERROR 2026-01-03 16:22:38,128 log 26364 32124 Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+WARNING 2026-01-03 16:23:17,524 log 12876 32948 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:23:17,990 log 12876 32948 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:23:17,993 log 12876 32948 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:23:17,995 log 12876 32948 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:23:49,923 log 19324 18644 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:24:49,853 log 23364 12324 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:24:50,331 log 23364 12324 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:24:50,333 log 23364 12324 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:24:50,335 log 23364 12324 Bad Request: /api/auth/register/

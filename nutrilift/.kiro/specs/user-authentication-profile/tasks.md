@@ -108,7 +108,8 @@ This implementation plan converts the feature design into a series of coding tas
     - Return updated profile data
     - _Requirements: 3.1, 3.3, 3.4, 3.5, 8.4_
 
-  - [ ]* 5.5 Write property tests for authentication views
+  - [x] 5.5 Write property tests for authentication views
+
     - **Property 1: User Registration Success**
     - **Property 4: Password Security**
     - **Property 5: Login Authentication**
@@ -117,14 +118,14 @@ This implementation plan converts the feature design into a series of coding tas
     - **Property 8: Profile Update Persistence**
     - **Validates: Requirements 1.1, 1.5, 1.6, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2, 8.2, 8.3**
 
-- [ ] 6. Configure URL routing and error handling
-  - [ ] 6.1 Create API URL patterns
+- [x] 6. Configure URL routing and error handling
+  - [x] 6.1 Create API URL patterns
     - Configure URL routing for all authentication endpoints
     - Set up API versioning structure (/api/auth/)
     - Add proper URL naming for reverse lookups
     - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-  - [ ] 6.2 Implement global error handling
+  - [x] 6.2 Implement global error handling
     - Create custom exception handler for consistent error responses
     - Handle validation errors with field-specific messages
     - Handle authentication errors with appropriate status codes
