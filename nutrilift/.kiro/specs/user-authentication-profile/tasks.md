@@ -232,19 +232,20 @@ This implementation plan converts the feature design into a series of coding tas
     - Handle errors and allow retry
     - _Requirements: 3.1, 5.3_
 
-  - [ ]* 11.4 Write property tests for onboarding flow
+  - [x] 11.4 Write property tests for onboarding flow
+
     - **Property 8: Profile Update Persistence**
     - **Validates: Requirements 3.1, 5.3**
 
-- [ ] 12. Update HomePage to display user profile
-  - [ ] 12.1 Integrate profile data fetching
+- [x] 12. Update HomePage to display user profile
+  - [x] 12.1 Integrate profile data fetching
     - Call AuthService.getProfile on HomePage initialization
     - Display user name and profile information
     - Handle loading states while fetching data
     - Add pull-to-refresh functionality
     - _Requirements: 3.2, 5.4_
 
-  - [ ] 12.2 Add profile editing capability
+  - [x] 12.2 Add profile editing capability
     - Add navigation to profile edit screen
     - Implement profile update functionality
     - Refresh displayed data after updates
