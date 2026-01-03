@@ -1,4 +1,5 @@
 import 'api_client.dart';
+import 'token_service.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -6,15 +7,26 @@ class AuthService {
   AuthService._internal();
 
   final ApiClient _apiClient = ApiClient();
+  final TokenService _tokenService = TokenService();
+
+  // Initialize the service with stored token
+  Future<void> initialize() async {
+    await _apiClient.initializeWithStoredToken();
+  }
+
+  // Set authentication failure callback
+  void setAuthenticationFailureCallback(Function() callback) {
+    _apiClient.onAuthenticationFailed = callback;
+  }
 
   // Register a new user
   Future<AuthResponse> register(RegisterRequest request) async {
     try {
-      final response = await _apiClient.post('/auth/register', body: request.toJson());
+      final response = await _apiClient.post('/auth/register', body: request.toJson(), requiresAuth: false);
       
       final authResponse = AuthResponse.fromJson(response.getData<Map<String, dynamic>>() ?? {});
       
-      // Set the auth token for future requests
+      // Set the auth token for future requests and save to storage
       if (authResponse.token != null) {
         _apiClient.setAuthToken(authResponse.token);
       }
@@ -30,11 +42,11 @@ class AuthService {
   // Login with email and password
   Future<AuthResponse> login(LoginRequest request) async {
     try {
-      final response = await _apiClient.post('/auth/login', body: request.toJson());
+      final response = await _apiClient.post('/auth/login', body: request.toJson(), requiresAuth: false);
       
       final authResponse = AuthResponse.fromJson(response.getData<Map<String, dynamic>>() ?? {});
       
-      // Set the auth token for future requests
+      // Set the auth token for future requests and save to storage
       if (authResponse.token != null) {
         _apiClient.setAuthToken(authResponse.token);
       }
@@ -86,6 +98,22 @@ class AuthService {
   // Set authentication token (for when token is loaded from storage)
   void setAuthToken(String? token) {
     _apiClient.setAuthToken(token);
+  }
+
+  // Clear authentication token and logout
+  Future<void> logout() async {
+    _apiClient.setAuthToken(null);
+    await _tokenService.clearTokens();
+  }
+
+  // Check if user is currently authenticated
+  Future<bool> isAuthenticated() async {
+    return await _tokenService.isTokenValid();
+  }
+
+  // Get stored token
+  Future<String?> getStoredToken() async {
+    return await _tokenService.getToken();
   }
 
   // Clear authentication token

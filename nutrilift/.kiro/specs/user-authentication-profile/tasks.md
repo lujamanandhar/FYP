@@ -167,21 +167,21 @@ This implementation plan converts the feature design into a series of coding tas
     - **Property 14: Network Error Handling**
     - **Validates: Requirements 5.5**
 
-- [ ] 9. Implement Flutter token management
-  - [ ] 9.1 Create TokenService for secure storage
+- [x] 9. Implement Flutter token management
+  - [x] 9.1 Create TokenService for secure storage
     - Implement token storage using shared_preferences
     - Add methods for save, retrieve, and clear token
     - Implement token validation and expiry checking
     - Add automatic token refresh logic
     - _Requirements: 4.4_
 
-  - [ ] 9.2 Create authentication interceptor
+  - [x] 9.2 Create authentication interceptor
     - Implement HTTP interceptor to add Authorization header
     - Handle token expiry and automatic logout
     - Redirect to login screen on authentication failure
     - _Requirements: 4.3, 4.4_
 
-  - [ ]* 9.3 Write property tests for token management
+  - [x]* 9.3 Write property tests for token management
     - **Property 13: Token Storage Round-trip**
     - **Validates: Requirements 4.4**
 
