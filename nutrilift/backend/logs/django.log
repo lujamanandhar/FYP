@@ -98,3 +98,502 @@ WARNING 2026-01-03 16:33:19,715 log 5812 24948 Unauthorized: /api/auth/profile/
 WARNING 2026-01-03 16:33:20,148 log 5812 24948 Unauthorized: /api/auth/me/
 WARNING 2026-01-03 16:33:20,149 log 5812 24948 Unauthorized: /api/auth/me/
 WARNING 2026-01-03 16:33:20,150 log 5812 24948 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:35:03,182 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:04,358 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:05,259 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:06,227 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:07,267 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:08,236 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:09,144 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:10,259 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:11,186 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:12,190 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:13,399 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:14,294 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:15,246 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:16,127 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:17,036 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:17,939 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:18,841 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:19,760 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:20,717 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:21,613 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:22,506 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:23,406 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:24,337 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:25,236 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:26,251 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:27,153 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:28,050 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:28,971 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:29,867 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:30,766 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:31,658 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:32,548 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:33,444 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:34,353 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:35,248 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:36,141 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:37,035 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:37,964 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:38,911 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:39,816 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:40,703 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:41,582 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:42,473 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:43,355 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:44,230 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:45,202 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:46,191 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:47,093 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:47,988 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:48,895 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:49,937 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:50,853 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:51,754 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:52,683 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:53,616 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:54,559 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:55,452 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:56,337 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:57,235 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:58,231 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:35:59,527 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:00,540 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:01,443 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:02,336 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:03,424 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:04,299 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:05,206 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:06,098 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:06,995 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:07,880 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:08,761 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:09,655 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:10,661 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:11,558 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:12,502 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:13,403 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:14,305 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:15,243 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:16,136 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:17,023 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:17,904 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:18,780 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:19,893 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:20,789 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:21,688 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:22,570 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:23,478 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:24,366 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:25,250 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:26,144 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:27,026 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:27,907 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:28,788 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:29,670 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:30,557 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:31,450 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:32,334 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:33,229 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:34,117 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:35,002 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:35,893 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:36,786 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:37,690 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:38,576 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:39,472 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:40,375 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:41,262 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:42,263 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:43,155 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:44,048 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:44,947 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:45,828 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:46,732 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:47,627 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:48,527 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:49,423 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:50,311 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:51,209 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:52,099 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:53,027 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:53,938 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:54,830 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:55,718 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:56,619 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:57,514 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:58,424 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:36:59,311 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:00,201 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:01,092 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:01,983 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:02,864 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:03,753 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:04,641 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:05,528 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:06,417 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:07,296 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:08,186 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:09,064 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:09,953 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:10,833 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:11,726 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:12,626 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:13,504 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:14,425 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:15,331 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:16,201 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:17,082 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:17,977 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:19,018 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:19,923 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:20,814 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:21,713 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:22,650 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:23,577 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:24,469 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:25,362 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:26,264 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:27,148 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:28,034 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:28,922 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:29,843 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:30,736 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:31,618 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:32,503 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:33,405 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:34,282 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:35,153 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:36,035 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:36,907 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:37,803 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:38,692 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:39,573 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:40,461 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:41,359 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:42,247 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:43,142 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:44,027 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:44,923 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:45,825 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:46,714 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:47,613 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:48,506 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:49,412 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:50,308 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:51,198 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:52,096 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:52,996 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:53,887 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:54,770 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:55,659 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:56,550 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:57,443 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:58,345 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:37:59,415 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:00,311 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:01,220 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:02,108 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:03,000 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:03,898 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:04,801 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:05,691 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:06,592 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:07,465 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:08,393 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:09,285 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:10,174 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:11,075 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:12,010 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:12,938 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:13,845 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:14,816 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:15,710 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:16,592 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:17,482 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:18,370 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:19,255 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:20,145 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:21,041 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:21,931 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:22,830 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:23,736 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:24,624 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:25,498 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:26,398 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:27,293 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:28,179 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:29,073 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:29,969 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:30,857 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:31,743 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:32,634 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:33,533 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:34,424 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:35,340 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:36,226 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:37,113 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:38,016 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:38,900 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:39,786 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:40,692 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:41,576 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:42,458 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:43,535 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:44,436 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:45,342 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:46,238 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:47,132 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:48,035 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:48,928 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:49,807 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:50,689 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:51,582 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:52,487 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:53,399 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:54,289 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:55,178 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:56,056 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:56,945 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:57,827 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:58,760 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:38:59,649 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:00,545 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:01,439 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:02,319 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:03,213 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:04,109 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:05,001 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:05,897 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:06,793 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:07,683 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:08,577 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:09,470 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:10,358 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:11,249 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:12,128 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:13,034 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:13,924 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:14,861 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:15,773 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:16,656 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:17,537 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:18,383 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:19,275 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:20,172 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:21,066 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:21,975 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:22,878 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:23,771 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:24,665 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:25,556 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:26,445 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:27,325 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:28,221 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:29,111 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:30,017 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:31,145 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:32,033 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:32,931 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:33,812 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:34,706 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:35,607 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:36,503 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:37,393 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:38,290 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:39,195 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:40,073 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:40,960 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:41,861 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:42,754 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:43,644 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:44,537 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:45,437 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:46,322 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:47,220 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:48,114 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:49,005 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:49,897 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:50,789 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:51,689 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:52,597 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:53,493 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:54,397 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:55,286 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:56,181 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:57,080 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:57,971 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:58,885 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:39:59,762 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:40:00,675 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:40:01,563 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:40:02,457 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:40:03,356 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:40:04,236 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:40:05,128 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:40:05,141 log 9264 17616 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:40:05,142 log 9264 17616 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:40:05,147 log 9264 17616 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:40:05,148 log 9264 17616 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:40:05,152 log 9264 17616 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:40:05,154 log 9264 17616 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:40:05,157 log 9264 17616 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:40:05,158 log 9264 17616 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:40:05,162 log 9264 17616 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:40:05,163 log 9264 17616 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:40:21,355 log 9264 17616 Conflict: /api/auth/register/
+WARNING 2026-01-03 16:40:22,234 log 9264 17616 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:40:22,669 log 9264 17616 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:40:22,671 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:40:22,673 log 9264 17616 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:40:23,564 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:40:24,455 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:40:24,888 log 9264 17616 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:40:24,889 log 9264 17616 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:40:25,336 log 9264 17616 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:40:25,338 log 9264 17616 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:40:25,771 log 9264 17616 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:40:25,773 log 9264 17616 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:40:25,774 log 9264 17616 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:40:26,208 log 9264 17616 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:40:27,081 log 9264 17616 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:40:27,084 log 9264 17616 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:40:27,087 log 9264 17616 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:40:27,089 log 9264 17616 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:40:27,539 log 9264 17616 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:40:27,540 log 9264 17616 Unauthorized: /api/auth/profile/
+WARNING 2026-01-03 16:40:27,976 log 9264 17616 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:40:27,977 log 9264 17616 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:40:27,978 log 9264 17616 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:42:39,539 log 15608 21536 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:42:40,420 log 15608 21536 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:42:41,289 log 15608 21536 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:42:42,159 log 15608 21536 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:42:43,030 log 15608 21536 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:42:43,037 log 15608 21536 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:42:43,038 log 15608 21536 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:42:43,041 log 15608 21536 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:42:43,042 log 15608 21536 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:42:43,048 log 15608 21536 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:42:43,049 log 15608 21536 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:42:43,053 log 15608 21536 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:42:43,054 log 15608 21536 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:42:43,057 log 15608 21536 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:42:43,058 log 15608 21536 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:43:00,013 log 15608 21536 Conflict: /api/auth/register/
+WARNING 2026-01-03 16:43:00,878 log 15608 21536 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:43:01,315 log 15608 21536 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:43:01,317 log 15608 21536 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:43:01,319 log 15608 21536 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:43:02,168 log 15608 21536 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:43:03,047 log 15608 21536 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:43:03,487 log 15608 21536 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:43:03,488 log 15608 21536 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:43:03,923 log 15608 21536 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:43:03,925 log 15608 21536 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:43:04,359 log 15608 21536 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:43:04,361 log 15608 21536 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:43:04,361 log 15608 21536 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:43:04,799 log 15608 21536 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:43:05,677 log 15608 21536 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:43:05,679 log 15608 21536 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:43:05,680 log 15608 21536 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:43:05,682 log 15608 21536 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:43:06,120 log 15608 21536 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:43:06,121 log 15608 21536 Unauthorized: /api/auth/profile/
+WARNING 2026-01-03 16:43:06,564 log 15608 21536 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:43:06,565 log 15608 21536 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:43:06,565 log 15608 21536 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:46:44,766 log 3688 19728 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:46:45,654 log 3688 19728 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:46:46,525 log 3688 19728 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:46:47,386 log 3688 19728 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:46:48,248 log 3688 19728 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:46:48,255 log 3688 19728 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:46:48,256 log 3688 19728 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:46:48,259 log 3688 19728 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:46:48,260 log 3688 19728 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:46:48,263 log 3688 19728 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:46:48,265 log 3688 19728 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:46:48,269 log 3688 19728 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:46:48,270 log 3688 19728 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:46:48,275 log 3688 19728 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:46:48,276 log 3688 19728 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:47:04,143 log 3688 19728 Conflict: /api/auth/register/
+WARNING 2026-01-03 16:47:05,016 log 3688 19728 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:47:05,456 log 3688 19728 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:47:05,458 log 3688 19728 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:47:05,459 log 3688 19728 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:47:06,327 log 3688 19728 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:47:07,198 log 3688 19728 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:47:07,641 log 3688 19728 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:47:07,642 log 3688 19728 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:47:08,080 log 3688 19728 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:47:08,081 log 3688 19728 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:47:08,511 log 3688 19728 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:47:08,513 log 3688 19728 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:47:08,514 log 3688 19728 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:47:08,967 log 3688 19728 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:47:09,837 log 3688 19728 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:47:09,839 log 3688 19728 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:47:09,840 log 3688 19728 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:47:09,843 log 3688 19728 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:47:10,287 log 3688 19728 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:47:10,288 log 3688 19728 Unauthorized: /api/auth/profile/
+WARNING 2026-01-03 16:47:10,725 log 3688 19728 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:47:10,726 log 3688 19728 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:47:10,727 log 3688 19728 Unauthorized: /api/auth/me/
+INFO 2026-01-03 16:49:43,408 autoreload 4080 23352 Watching for file changes with StatReloader
+WARNING 2026-01-03 17:06:05,818 log 18348 30036 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 17:06:06,699 log 18348 30036 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 17:06:07,582 log 18348 30036 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 17:06:08,466 log 18348 30036 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 17:06:09,367 log 18348 30036 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 17:06:09,373 log 18348 30036 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:06:09,374 log 18348 30036 Bad Request: /api/auth/login/
+WARNING 2026-01-03 17:06:09,378 log 18348 30036 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:06:09,379 log 18348 30036 Bad Request: /api/auth/login/
+WARNING 2026-01-03 17:06:09,382 log 18348 30036 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:06:09,383 log 18348 30036 Bad Request: /api/auth/login/
+WARNING 2026-01-03 17:06:09,386 log 18348 30036 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:06:09,388 log 18348 30036 Bad Request: /api/auth/login/
+WARNING 2026-01-03 17:06:09,392 log 18348 30036 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:06:09,393 log 18348 30036 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 17:06:25,308 log 18348 30036 Conflict: /api/auth/register/
+WARNING 2026-01-03 17:06:26,182 log 18348 30036 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:06:26,635 log 18348 30036 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:06:26,636 log 18348 30036 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 17:06:26,638 log 18348 30036 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:06:27,510 log 18348 30036 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 17:06:28,389 log 18348 30036 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 17:06:28,820 log 18348 30036 Bad Request: /api/auth/login/
+WARNING 2026-01-03 17:06:28,820 log 18348 30036 Bad Request: /api/auth/login/
+WARNING 2026-01-03 17:06:29,264 log 18348 30036 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:06:29,266 log 18348 30036 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:06:29,710 log 18348 30036 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:06:29,712 log 18348 30036 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:06:29,713 log 18348 30036 Bad Request: /api/auth/login/
+WARNING 2026-01-03 17:06:30,145 log 18348 30036 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 17:06:31,012 log 18348 30036 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 17:06:31,014 log 18348 30036 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 17:06:31,016 log 18348 30036 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 17:06:31,017 log 18348 30036 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 17:06:31,463 log 18348 30036 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 17:06:31,464 log 18348 30036 Unauthorized: /api/auth/profile/
+WARNING 2026-01-03 17:06:31,898 log 18348 30036 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 17:06:31,898 log 18348 30036 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 17:06:31,899 log 18348 30036 Unauthorized: /api/auth/me/
+INFO 2026-01-03 17:07:32,127 autoreload 18036 4804 Watching for file changes with StatReloader
+INFO 2026-01-03 17:08:45,944 autoreload 1100 10360 Watching for file changes with StatReloader
+INFO 2026-01-03 17:09:22,883 basehttp 1100 24188 "POST /api/auth/register/ HTTP/1.1" 201 522
+INFO 2026-01-03 17:10:38,684 basehttp 1100 24188 "POST /api/auth/login/ HTTP/1.1" 200 510
+INFO 2026-01-03 17:10:54,663 basehttp 1100 24188 "POST /api/auth/login/ HTTP/1.1" 200 510
+INFO 2026-01-03 17:11:18,109 basehttp 1100 24188 "GET /api/auth/me/ HTTP/1.1" 200 284
+INFO 2026-01-03 17:11:47,424 basehttp 1100 24188 "PUT /api/auth/profile/ HTTP/1.1" 200 304
+WARNING 2026-01-03 17:12:00,896 log 1100 24188 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 17:12:00,897 basehttp 1100 24188 "POST /api/auth/login/ HTTP/1.1" 401 103
+WARNING 2026-01-03 17:12:35,580 log 1100 24188 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 17:12:35,581 basehttp 1100 24188 "GET /api/auth/me/ HTTP/1.1" 401 121
+WARNING 2026-01-03 17:13:00,734 log 1100 24188 Bad Request: /api/auth/register/
+WARNING 2026-01-03 17:13:00,735 basehttp 1100 24188 "POST /api/auth/register/ HTTP/1.1" 400 120

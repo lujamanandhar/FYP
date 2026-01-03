@@ -140,21 +140,21 @@ This implementation plan converts the feature design into a series of coding tas
     - Test malformed input validation errors
     - _Requirements: 1.4, 2.2, 4.3, 8.3, 8.4_
 
-- [-] 7. Checkpoint - Backend API Testing
+- [x] 7. Checkpoint - Backend API Testing
   - Ensure all backend tests pass
   - Test API endpoints manually with Postman or curl
   - Verify database operations and constraints
   - Ask the user if questions arise
 
-- [ ] 8. Implement Flutter API service layer
-  - [ ] 8.1 Create HTTP client and base API service
+- [x] 8. Implement Flutter API service layer
+  - [x] 8.1 Create HTTP client and base API service
     - Set up HTTP client with base URL configuration
     - Implement request/response interceptors
     - Add error handling for network issues
     - Configure timeout and retry logic
     - _Requirements: 5.5_
 
-  - [ ] 8.2 Create authentication API service
+  - [x] 8.2 Create authentication API service
     - Implement AuthService class with register method
     - Implement login method with credential validation
     - Implement getProfile method with authentication
