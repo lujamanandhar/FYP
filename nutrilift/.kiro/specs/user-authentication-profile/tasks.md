@@ -132,14 +132,15 @@ This implementation plan converts the feature design into a series of coding tas
     - Ensure no sensitive information leaks in error messages
     - _Requirements: 7.5, 7.6, 8.3_
 
-  - [ ]* 6.3 Write unit tests for error handling
+  - [x] 6.3 Write unit tests for error handling
+
     - Test duplicate email registration error
     - Test invalid credentials login error
     - Test unauthorized access to protected endpoints
     - Test malformed input validation errors
     - _Requirements: 1.4, 2.2, 4.3, 8.3, 8.4_
 
-- [ ] 7. Checkpoint - Backend API Testing
+- [-] 7. Checkpoint - Backend API Testing
   - Ensure all backend tests pass
   - Test API endpoints manually with Postman or curl
   - Verify database operations and constraints

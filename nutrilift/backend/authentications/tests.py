@@ -1662,3 +1662,561 @@ class AuthenticationViewsPropertyTest(HypothesisTestCase):
         
         # Clean up credentials after test
         self.client.credentials()
+
+
+@override_settings(
+    DATABASES={
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    },
+    JWT_SECRET_KEY='test-secret-key-for-jwt-testing',
+    JWT_ALGORITHM='HS256',
+    JWT_EXPIRATION_DELTA=3600,  # 1 hour for testing
+    ROOT_URLCONF='authentications.test_urls',  # Use test URL configuration
+    REST_FRAMEWORK={
+        'DEFAULT_AUTHENTICATION_CLASSES': [
+            'authentications.authentication.JWTAuthentication',
+        ],
+        'DEFAULT_PERMISSION_CLASSES': [
+            'rest_framework.permissions.AllowAny',  # Allow any for tests
+        ],
+        'DEFAULT_RENDERER_CLASSES': [
+            'rest_framework.renderers.JSONRenderer',
+        ],
+        'DEFAULT_PARSER_CLASSES': [
+            'rest_framework.parsers.JSONParser',
+        ],
+    }
+)
+class ErrorHandlingUnitTest(TestCase):
+    """
+    Unit tests for error handling scenarios.
+    
+    Task 6.3: Write unit tests for error handling
+    - Test duplicate email registration error
+    - Test invalid credentials login error  
+    - Test unauthorized access to protected endpoints
+    - Test malformed input validation errors
+    
+    Requirements: 1.4, 2.2, 4.3, 8.3, 8.4
+    """
+    
+    def setUp(self):
+        """Set up test environment for error handling unit tests."""
+        # Ensure we have a clean database state for each test
+        User.objects.all().delete()
+        
+        # Set up API client
+        self.client = APIClient()
+        
+        # Create a test user for login tests
+        self.test_email = 'testuser@example.com'
+        self.test_password = 'TestPassword123'
+        self.test_name = 'Test User'
+        
+        self.test_user = User.objects.create(
+            username=f"testuser_{self.test_email}",
+            email=self.test_email,
+            password=self.test_password,  # This will be hashed by the model
+            name=self.test_name
+        )
+        # Hash the password properly
+        self.test_user.set_password(self.test_password)
+        self.test_user.save()
+    
+    def test_duplicate_email_registration_error(self):
+        """
+        Test duplicate email registration error
+        
+        Requirements: 1.4 - WHEN a user attempts to register with an existing email, 
+        THE Authentication_System SHALL return a duplicate email error
+        """
+        # First registration should succeed
+        registration_data = {
+            'email': 'duplicate@example.com',
+            'password': 'ValidPassword123',
+            'name': 'First User'
+        }
+        
+        response1 = self.client.post('/api/auth/register/', registration_data, format='json')
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        
+        # Second registration with same email should fail
+        registration_data2 = {
+            'email': 'duplicate@example.com',  # Same email
+            'password': 'AnotherPassword456',
+            'name': 'Second User'
+        }
+        
+        response2 = self.client.post('/api/auth/register/', registration_data2, format='json')
+        
+        # Verify duplicate email error (could be 400 or 409 depending on implementation)
+        self.assertIn(response2.status_code, [status.HTTP_400_BAD_REQUEST, status.HTTP_409_CONFLICT])
+        
+        # Verify response format
+        response_data = response2.json()
+        self.assertIn('success', response_data)
+        self.assertIn('message', response_data)
+        self.assertIn('errors', response_data)
+        
+        # Verify error details
+        self.assertFalse(response_data['success'])
+        self.assertIn('email', response_data['errors'])
+        self.assertIn('already exists', response_data['errors']['email'][0].lower())
+    
+    def test_duplicate_email_case_insensitive(self):
+        """
+        Test duplicate email registration error with different case
+        
+        Requirements: 1.4 - Email uniqueness should be case-insensitive
+        """
+        # First registration with lowercase email
+        registration_data1 = {
+            'email': 'case@example.com',
+            'password': 'ValidPassword123',
+            'name': 'First User'
+        }
+        
+        response1 = self.client.post('/api/auth/register/', registration_data1, format='json')
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        
+        # Second registration with uppercase email should fail
+        registration_data2 = {
+            'email': 'CASE@EXAMPLE.COM',  # Same email, different case
+            'password': 'AnotherPassword456',
+            'name': 'Second User'
+        }
+        
+        response2 = self.client.post('/api/auth/register/', registration_data2, format='json')
+        
+        # Verify duplicate email error (could be 400 or 409 depending on implementation)
+        self.assertIn(response2.status_code, [status.HTTP_400_BAD_REQUEST, status.HTTP_409_CONFLICT])
+        self.assertFalse(response2.json()['success'])
+        self.assertIn('email', response2.json()['errors'])
+    
+    def test_invalid_credentials_login_error(self):
+        """
+        Test invalid credentials login error
+        
+        Requirements: 2.2 - WHEN a user provides incorrect credentials, 
+        THE Authentication_System SHALL return an authentication error
+        """
+        # Test with wrong password
+        login_data_wrong_password = {
+            'email': self.test_email,
+            'password': 'WrongPassword123'
+        }
+        
+        response = self.client.post('/api/auth/login/', login_data_wrong_password, format='json')
+        
+        # Verify authentication error
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        # Verify response format
+        response_data = response.json()
+        self.assertIn('success', response_data)
+        self.assertIn('message', response_data)
+        self.assertIn('errors', response_data)
+        
+        # Verify error details
+        self.assertFalse(response_data['success'])
+        self.assertIn('Invalid email or password', response_data['message'])
+        self.assertIn('detail', response_data['errors'])
+        
+        # Verify no sensitive information is exposed
+        self.assertNotIn(self.test_password, str(response_data))
+        # Note: The message "Invalid email or password" contains the word "password" 
+        # but this is acceptable as it's a generic error message
+    
+    def test_nonexistent_user_login_error(self):
+        """
+        Test login error for non-existent user
+        
+        Requirements: 2.2 - Should return generic error to prevent email enumeration
+        """
+        login_data = {
+            'email': 'nonexistent@example.com',
+            'password': 'SomePassword123'
+        }
+        
+        response = self.client.post('/api/auth/login/', login_data, format='json')
+        
+        # Verify authentication error
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        # Verify generic error message (no email enumeration)
+        response_data = response.json()
+        self.assertFalse(response_data['success'])
+        self.assertIn('Invalid email or password', response_data['message'])
+        
+        # Should not indicate whether email exists or not
+        self.assertNotIn('not found', response_data['message'].lower())
+        self.assertNotIn('does not exist', response_data['message'].lower())
+    
+    def test_inactive_user_login_error(self):
+        """
+        Test login error for inactive user account
+        
+        Requirements: 2.2 - Should handle inactive user accounts appropriately
+        """
+        # Create inactive user
+        inactive_user = User.objects.create(
+            username='inactive_user',
+            email='inactive@example.com',
+            name='Inactive User',
+            is_active=False
+        )
+        inactive_user.set_password('ValidPassword123')
+        inactive_user.save()
+        
+        login_data = {
+            'email': 'inactive@example.com',
+            'password': 'ValidPassword123'
+        }
+        
+        response = self.client.post('/api/auth/login/', login_data, format='json')
+        
+        # Verify authentication error
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        # Verify appropriate error message
+        response_data = response.json()
+        self.assertFalse(response_data['success'])
+        self.assertIn('disabled', response_data['message'].lower())
+    
+    def test_unauthorized_access_to_protected_endpoints(self):
+        """
+        Test unauthorized access to protected endpoints
+        
+        Requirements: 4.3, 8.4 - WHEN an invalid or expired token is provided, 
+        THE Authentication_System SHALL return an unauthorized error
+        """
+        # Test accessing profile endpoint without token
+        response = self.client.get('/api/auth/me/')
+        
+        # Verify unauthorized error
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        # Verify response format (DRF default format or custom format)
+        response_data = response.json()
+        
+        # Check if it's our custom format or DRF default format
+        if 'success' in response_data:
+            # Custom format
+            self.assertIn('message', response_data)
+            self.assertIn('errors', response_data)
+            self.assertFalse(response_data['success'])
+            self.assertIn('Authentication', response_data['message'])
+        else:
+            # DRF default format
+            self.assertIn('detail', response_data)
+            self.assertIn('Authentication', response_data['detail'])
+        
+        # Test accessing profile update endpoint without token
+        profile_data = {
+            'name': 'Updated Name',
+            'gender': 'Male'
+        }
+        
+        response2 = self.client.put('/api/auth/profile/', profile_data, format='json')
+        
+        # Verify unauthorized error
+        self.assertEqual(response2.status_code, status.HTTP_401_UNAUTHORIZED)
+        response_data2 = response2.json()
+        
+        # Check format consistency
+        if 'success' in response_data2:
+            self.assertFalse(response_data2['success'])
+        else:
+            self.assertIn('detail', response_data2)
+    
+    def test_unauthorized_access_with_invalid_token(self):
+        """
+        Test unauthorized access with invalid token
+        
+        Requirements: 4.3, 8.4 - Invalid tokens should be rejected
+        """
+        # Test with malformed token
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer invalid.token.format')
+        
+        response = self.client.get('/api/auth/me/')
+        
+        # Verify unauthorized error
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        response_data = response.json()
+        
+        # Check if it's our custom format or DRF default format
+        if 'success' in response_data:
+            self.assertFalse(response_data['success'])
+        else:
+            self.assertIn('detail', response_data)
+        
+        # Test with empty token
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ')
+        
+        response2 = self.client.get('/api/auth/me/')
+        
+        # Verify unauthorized error
+        self.assertEqual(response2.status_code, status.HTTP_401_UNAUTHORIZED)
+        response_data2 = response2.json()
+        
+        if 'success' in response_data2:
+            self.assertFalse(response_data2['success'])
+        else:
+            self.assertIn('detail', response_data2)
+        
+        # Test with wrong token format
+        self.client.credentials(HTTP_AUTHORIZATION='Token wrongformat')
+        
+        response3 = self.client.get('/api/auth/me/')
+        
+        # Verify unauthorized error
+        self.assertEqual(response3.status_code, status.HTTP_401_UNAUTHORIZED)
+        response_data3 = response3.json()
+        
+        if 'success' in response_data3:
+            self.assertFalse(response_data3['success'])
+        else:
+            self.assertIn('detail', response_data3)
+    
+    def test_malformed_input_validation_errors(self):
+        """
+        Test malformed input validation errors
+        
+        Requirements: 8.3 - THE Authentication_System SHALL not expose sensitive 
+        information in error messages
+        """
+        # Test registration with malformed email
+        registration_data_bad_email = {
+            'email': 'invalid-email-format',
+            'password': 'ValidPassword123',
+            'name': 'Test User'
+        }
+        
+        response = self.client.post('/api/auth/register/', registration_data_bad_email, format='json')
+        
+        # Verify validation error
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+        # Verify response format
+        response_data = response.json()
+        self.assertIn('success', response_data)
+        self.assertIn('message', response_data)
+        self.assertIn('errors', response_data)
+        
+        # Verify error details
+        self.assertFalse(response_data['success'])
+        self.assertEqual(response_data['message'], 'Registration validation failed')
+        self.assertIn('email', response_data['errors'])
+        
+        # Test registration with short password
+        registration_data_short_password = {
+            'email': 'valid@example.com',
+            'password': 'short',
+            'name': 'Test User'
+        }
+        
+        response2 = self.client.post('/api/auth/register/', registration_data_short_password, format='json')
+        
+        # Verify validation error
+        self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response2.json()['success'])
+        self.assertIn('password', response2.json()['errors'])
+    
+    def test_missing_required_fields_validation(self):
+        """
+        Test validation errors for missing required fields
+        
+        Requirements: 8.2 - THE Authentication_System SHALL validate all input data before processing
+        """
+        # Test registration with missing email
+        registration_data_no_email = {
+            'password': 'ValidPassword123',
+            'name': 'Test User'
+        }
+        
+        response = self.client.post('/api/auth/register/', registration_data_no_email, format='json')
+        
+        # Verify validation error
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response_data = response.json()
+        self.assertFalse(response_data['success'])
+        self.assertIn('email', response_data['errors'])
+        
+        # Test registration with missing password
+        registration_data_no_password = {
+            'email': 'valid@example.com',
+            'name': 'Test User'
+        }
+        
+        response2 = self.client.post('/api/auth/register/', registration_data_no_password, format='json')
+        
+        # Verify validation error
+        self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response2.json()['success'])
+        self.assertIn('password', response2.json()['errors'])
+        
+        # Test login with missing fields
+        login_data_empty = {}
+        
+        response3 = self.client.post('/api/auth/login/', login_data_empty, format='json')
+        
+        # Verify validation error
+        self.assertEqual(response3.status_code, status.HTTP_400_BAD_REQUEST)
+        response_data3 = response3.json()
+        self.assertFalse(response_data3['success'])
+        self.assertIn('email', response_data3['errors'])
+        self.assertIn('password', response_data3['errors'])
+    
+    def test_profile_update_validation_errors(self):
+        """
+        Test validation errors for profile update with invalid data
+        
+        Requirements: 3.3, 3.4, 3.5 - Profile field validation
+        """
+        # First, get a valid token
+        login_data = {
+            'email': self.test_email,
+            'password': self.test_password
+        }
+        
+        login_response = self.client.post('/api/auth/login/', login_data, format='json')
+        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
+        
+        token = login_response.json()['data']['token']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        
+        # Test with invalid height (negative)
+        profile_data_invalid_height = {
+            'height': -10.0
+        }
+        
+        response = self.client.put('/api/auth/profile/', profile_data_invalid_height, format='json')
+        
+        # Verify validation error
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response_data = response.json()
+        self.assertFalse(response_data['success'])
+        self.assertIn('height', response_data['errors'])
+        
+        # Test with invalid weight (zero)
+        profile_data_invalid_weight = {
+            'weight': 0.0
+        }
+        
+        response2 = self.client.put('/api/auth/profile/', profile_data_invalid_weight, format='json')
+        
+        # Verify validation error
+        self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response2.json()['success'])
+        self.assertIn('weight', response2.json()['errors'])
+        
+        # Test with invalid gender
+        profile_data_invalid_gender = {
+            'gender': 'InvalidGender'
+        }
+        
+        response3 = self.client.put('/api/auth/profile/', profile_data_invalid_gender, format='json')
+        
+        # Verify validation error
+        self.assertEqual(response3.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response3.json()['success'])
+        self.assertIn('gender', response3.json()['errors'])
+        
+        # Test with invalid fitness level
+        profile_data_invalid_fitness = {
+            'fitness_level': 'InvalidLevel'
+        }
+        
+        response4 = self.client.put('/api/auth/profile/', profile_data_invalid_fitness, format='json')
+        
+        # Verify validation error
+        self.assertEqual(response4.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response4.json()['success'])
+        self.assertIn('fitness_level', response4.json()['errors'])
+    
+    def test_login_malformed_email_validation(self):
+        """
+        Test login validation with malformed email formats
+        
+        Requirements: 2.3 - WHEN a user provides malformed input, 
+        THE Authentication_System SHALL return a validation error
+        """
+        # Test with email missing @ symbol
+        login_data_no_at = {
+            'email': 'invalidemail.com',
+            'password': 'ValidPassword123'
+        }
+        
+        response = self.client.post('/api/auth/login/', login_data_no_at, format='json')
+        
+        # Verify validation error
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response_data = response.json()
+        self.assertFalse(response_data['success'])
+        self.assertEqual(response_data['message'], 'Invalid email format')
+        self.assertIn('email', response_data['errors'])
+        
+        # Test with email missing domain
+        login_data_no_domain = {
+            'email': 'user@',
+            'password': 'ValidPassword123'
+        }
+        
+        response2 = self.client.post('/api/auth/login/', login_data_no_domain, format='json')
+        
+        # Verify validation error
+        self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response2.json()['success'])
+        self.assertEqual(response2.json()['message'], 'Invalid email format')
+    
+    def test_error_response_consistency(self):
+        """
+        Test that all error responses follow consistent format
+        
+        Requirements: 7.5 - THE Authentication_System SHALL return consistent 
+        JSON response formats across all endpoints
+        """
+        # Test various error scenarios and verify consistent format
+        error_scenarios = [
+            # Duplicate email registration
+            ('/api/auth/register/', {'email': self.test_email, 'password': 'Valid123', 'name': 'Test'}),
+            # Invalid login
+            ('/api/auth/login/', {'email': 'wrong@example.com', 'password': 'wrong'}),
+            # Missing fields
+            ('/api/auth/register/', {'email': 'test@example.com'}),
+        ]
+        
+        for endpoint, data in error_scenarios:
+            response = self.client.post(endpoint, data, format='json')
+            
+            # Verify all error responses have consistent structure
+            self.assertIn(response.status_code, [400, 401, 409])  # Expected error codes
+            
+            response_data = response.json()
+            
+            # Verify required fields are present
+            self.assertIn('success', response_data)
+            self.assertIn('message', response_data)
+            self.assertIn('errors', response_data)
+            
+            # Verify field types
+            self.assertIsInstance(response_data['success'], bool)
+            self.assertIsInstance(response_data['message'], str)
+            self.assertIsInstance(response_data['errors'], dict)
+            
+            # Verify success is always False for errors
+            self.assertFalse(response_data['success'])
+            
+            # Verify message is not empty
+            self.assertGreater(len(response_data['message']), 0)
+    
+    def tearDown(self):
+        """Clean up after each test."""
+        # Clear any authentication credentials
+        self.client.credentials()
+        
+        # Clean up test data
+        User.objects.all().delete()

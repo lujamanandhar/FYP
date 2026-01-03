@@ -53,3 +53,48 @@ WARNING 2026-01-03 16:24:49,853 log 23364 12324 Unauthorized: /api/auth/login/
 WARNING 2026-01-03 16:24:50,331 log 23364 12324 Bad Request: /api/auth/register/
 WARNING 2026-01-03 16:24:50,333 log 23364 12324 Unauthorized: /api/auth/me/
 WARNING 2026-01-03 16:24:50,335 log 23364 12324 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:31:30,708 log 34576 31012 Conflict: /api/auth/register/
+WARNING 2026-01-03 16:31:31,568 log 34576 31012 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:31:32,007 log 34576 31012 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:31:32,009 log 34576 31012 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:31:32,011 log 34576 31012 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:31:32,880 log 34576 31012 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:31:33,750 log 34576 31012 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:31:34,183 log 34576 31012 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:31:34,184 log 34576 31012 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:31:34,624 log 34576 31012 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:31:34,626 log 34576 31012 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:31:35,064 log 34576 31012 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:31:35,066 log 34576 31012 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:31:35,067 log 34576 31012 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:31:35,500 log 34576 31012 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:31:36,383 log 34576 31012 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:31:36,385 log 34576 31012 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:31:36,387 log 34576 31012 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:31:36,389 log 34576 31012 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:31:36,813 log 34576 31012 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:31:37,250 log 34576 31012 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:33:13,549 log 5812 24948 Conflict: /api/auth/register/
+WARNING 2026-01-03 16:33:14,451 log 5812 24948 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:33:14,900 log 5812 24948 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:33:14,904 log 5812 24948 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:33:14,906 log 5812 24948 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:33:15,779 log 5812 24948 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:33:16,654 log 5812 24948 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:33:17,089 log 5812 24948 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:33:17,090 log 5812 24948 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:33:17,533 log 5812 24948 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:33:17,535 log 5812 24948 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:33:17,963 log 5812 24948 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:33:17,964 log 5812 24948 Bad Request: /api/auth/register/
+WARNING 2026-01-03 16:33:17,965 log 5812 24948 Bad Request: /api/auth/login/
+WARNING 2026-01-03 16:33:18,407 log 5812 24948 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 16:33:19,274 log 5812 24948 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:33:19,275 log 5812 24948 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:33:19,278 log 5812 24948 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:33:19,280 log 5812 24948 Bad Request: /api/auth/profile/
+WARNING 2026-01-03 16:33:19,714 log 5812 24948 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:33:19,715 log 5812 24948 Unauthorized: /api/auth/profile/
+WARNING 2026-01-03 16:33:20,148 log 5812 24948 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:33:20,149 log 5812 24948 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 16:33:20,150 log 5812 24948 Unauthorized: /api/auth/me/
