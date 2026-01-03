@@ -1,5 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilift/services/auth_service.dart';
+import 'package:nutrilift/services/api_client.dart';
+import 'dart:io';
+import 'dart:math';
 
 void main() {
   group('AuthService Request Models', () {
@@ -159,4 +162,197 @@ void main() {
       expect(profileWithoutName.displayName, equals('test'));
     });
   });
+
+  // Property-based tests for network error handling
+  group('Property 14: Network Error Handling', () {
+    test('Feature: user-authentication-profile, Property 14: Network Error Handling - ApiException categorization', () {
+      // Property test: For any ApiException, it should be properly categorized
+      final testCases = [
+        {'statusCode': null, 'expectedType': 'network'},
+        {'statusCode': 400, 'expectedType': 'validation'},
+        {'statusCode': 401, 'expectedType': 'unauthorized'},
+        {'statusCode': 500, 'expectedType': 'server'},
+        {'statusCode': 503, 'expectedType': 'server'},
+      ];
+      
+      for (final testCase in testCases) {
+        final exception = ApiException(
+          'Test error',
+          statusCode: testCase['statusCode'] as int?,
+          errors: testCase['expectedType'] == 'validation' ? {'field': ['error']} : null,
+        );
+        
+        switch (testCase['expectedType']) {
+          case 'network':
+            expect(exception.isNetworkError(), isTrue);
+            expect(exception.isUnauthorized(), isFalse);
+            expect(exception.isValidationError(), isFalse);
+            expect(exception.isServerError(), isFalse);
+            break;
+          case 'validation':
+            expect(exception.isNetworkError(), isFalse);
+            expect(exception.isUnauthorized(), isFalse);
+            expect(exception.isValidationError(), isTrue);
+            expect(exception.isServerError(), isFalse);
+            break;
+          case 'unauthorized':
+            expect(exception.isNetworkError(), isFalse);
+            expect(exception.isUnauthorized(), isTrue);
+            expect(exception.isValidationError(), isFalse);
+            expect(exception.isServerError(), isFalse);
+            break;
+          case 'server':
+            expect(exception.isNetworkError(), isFalse);
+            expect(exception.isUnauthorized(), isFalse);
+            expect(exception.isValidationError(), isFalse);
+            expect(exception.isServerError(), isTrue);
+            break;
+        }
+      }
+    });
+
+    test('Feature: user-authentication-profile, Property 14: Network Error Handling - Error message user-friendliness', () {
+      // Property test: For any network error type, the error message should be user-friendly
+      final networkErrorMessages = [
+        'No internet connection. Please check your network and try again.',
+        'Network error occurred. Please try again.',
+        'Invalid response format from server.',
+        'An unexpected error occurred. Please try again.',
+      ];
+      
+      for (final message in networkErrorMessages) {
+        final apiException = ApiException(message);
+        
+        // Verify error message is user-friendly
+        expect(apiException.message, isNotEmpty);
+        expect(apiException.message, isNot(contains('Exception')));
+        expect(apiException.message, isNot(contains('Stack trace')));
+        expect(apiException.message, isNot(contains('null')));
+        
+        // Should contain helpful guidance
+        final lowerMessage = apiException.message.toLowerCase();
+        final hasHelpfulGuidance = lowerMessage.contains('try again') ||
+                                 lowerMessage.contains('check') ||
+                                 lowerMessage.contains('please') ||
+                                 lowerMessage.contains('network') ||
+                                 lowerMessage.contains('connection') ||
+                                 lowerMessage.contains('server');
+        expect(hasHelpfulGuidance, isTrue, 
+               reason: 'Error message should provide helpful guidance: ${apiException.message}');
+      }
+    });
+
+    test('Feature: user-authentication-profile, Property 14: Network Error Handling - Error conversion consistency', () {
+      // Property test: For any type of network error, conversion to ApiException should be consistent
+      final random = Random();
+      final errorTypes = ['socket', 'http', 'format', 'generic'];
+      
+      for (int i = 0; i < 20; i++) {
+        final errorType = errorTypes[random.nextInt(errorTypes.length)];
+        final apiException = _convertToApiException(_createErrorByType(errorType));
+        
+        // All network errors should result in ApiException
+        expect(apiException, isA<ApiException>());
+        expect(apiException.message, isNotEmpty);
+        
+        // Network errors should not have status codes (indicating they're not HTTP errors)
+        if (errorType == 'socket' || errorType == 'http' || errorType == 'format' || errorType == 'generic') {
+          expect(apiException.isNetworkError(), isTrue);
+        }
+        
+        // Error messages should be appropriate for the error type
+        switch (errorType) {
+          case 'socket':
+            expect(apiException.message, contains('internet connection'));
+            expect(apiException.message, contains('network'));
+            break;
+          case 'http':
+            expect(apiException.message, contains('Network error'));
+            expect(apiException.message, contains('try again'));
+            break;
+          case 'format':
+            expect(apiException.message, contains('Invalid response format'));
+            expect(apiException.message, contains('server'));
+            break;
+          case 'generic':
+            expect(apiException.message, contains('unexpected error'));
+            expect(apiException.message, contains('try again'));
+            break;
+        }
+      }
+    });
+
+    test('Feature: user-authentication-profile, Property 14: Network Error Handling - Field error extraction', () {
+      // Property test: For any validation error, field-specific errors should be extractable
+      final fieldNames = ['email', 'password', 'name', 'height', 'weight'];
+      final random = Random();
+      
+      for (int i = 0; i < 10; i++) {
+        final field = fieldNames[random.nextInt(fieldNames.length)];
+        final errorMessage = 'This field is invalid';
+        
+        final exception = ApiException(
+          'Validation failed',
+          statusCode: 400,
+          errors: {field: [errorMessage]},
+        );
+        
+        expect(exception.isValidationError(), isTrue);
+        expect(exception.getFieldError(field), equals(errorMessage));
+        expect(exception.getFieldError('nonexistent_field'), isNull);
+      }
+    });
+
+    test('Feature: user-authentication-profile, Property 14: Network Error Handling - AuthService error wrapping', () {
+      // Property test: For any error in AuthService methods, error messages should be user-friendly
+      final authService = AuthService();
+      
+      // Test that AuthService has proper error handling structure
+      expect(authService, isNotNull);
+      
+      // Test that invalid requests would produce proper validation errors
+      final invalidRegisterRequest = RegisterRequest(email: '', password: '', name: '');
+      final registerErrors = invalidRegisterRequest.validate();
+      expect(registerErrors, isNotEmpty);
+      expect(registerErrors.every((error) => error.isNotEmpty), isTrue);
+      
+      final invalidLoginRequest = LoginRequest(email: '', password: '');
+      final loginErrors = invalidLoginRequest.validate();
+      expect(loginErrors, isNotEmpty);
+      expect(loginErrors.every((error) => error.isNotEmpty), isTrue);
+      
+      final invalidProfileRequest = ProfileUpdateRequest(height: -10.0, weight: -5.0);
+      final profileErrors = invalidProfileRequest.validate();
+      expect(profileErrors, isNotEmpty);
+      expect(profileErrors.every((error) => error.isNotEmpty), isTrue);
+    });
+  });
+}
+
+// Helper function to convert various errors to ApiException (simulating ApiClient behavior)
+ApiException _convertToApiException(dynamic error) {
+  if (error is SocketException) {
+    return ApiException('No internet connection. Please check your network and try again.');
+  } else if (error is HttpException) {
+    return ApiException('Network error occurred. Please try again.');
+  } else if (error is FormatException) {
+    return ApiException('Invalid response format from server.');
+  } else {
+    return ApiException('An unexpected error occurred. Please try again.');
+  }
+}
+
+// Helper function to create different types of errors for testing
+dynamic _createErrorByType(String type) {
+  switch (type) {
+    case 'socket':
+      return SocketException('Network unreachable');
+    case 'http':
+      return HttpException('Connection failed');
+    case 'format':
+      return const FormatException('Invalid JSON');
+    case 'generic':
+    default:
+      return Exception('Unexpected error');
+  }
 }

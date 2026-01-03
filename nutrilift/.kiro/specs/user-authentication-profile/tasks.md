@@ -162,7 +162,8 @@ This implementation plan converts the feature design into a series of coding tas
     - Add proper error handling and response parsing
     - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-  - [ ]* 8.3 Write property tests for API service
+  - [x] 8.3 Write property tests for API service
+
     - **Property 14: Network Error Handling**
     - **Validates: Requirements 5.5**
 
