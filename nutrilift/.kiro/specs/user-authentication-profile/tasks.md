@@ -181,12 +181,13 @@ This implementation plan converts the feature design into a series of coding tas
     - Redirect to login screen on authentication failure
     - _Requirements: 4.3, 4.4_
 
-  - [x]* 9.3 Write property tests for token management
+  - [x] 9.3 Write property tests for token management
+
     - **Property 13: Token Storage Round-trip**
     - **Validates: Requirements 4.4**
 
-- [ ] 10. Update Flutter authentication screens
-  - [ ] 10.1 Update LoginScreen with API integration
+- [x] 10. Update Flutter authentication screens
+  - [x] 10.1 Update LoginScreen with API integration
     - Add form controllers and validation
     - Integrate with AuthService.login method
     - Handle loading states and error messages
@@ -194,7 +195,7 @@ This implementation plan converts the feature design into a series of coding tas
     - Store auth token securely
     - _Requirements: 5.2, 4.4_
 
-  - [ ] 10.2 Update SignupScreen with API integration
+  - [x] 10.2 Update SignupScreen with API integration
     - Add form controllers and validation
     - Integrate with AuthService.register method
     - Handle loading states and error messages
