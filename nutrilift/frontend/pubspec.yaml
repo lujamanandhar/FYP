@@ -21,6 +21,8 @@ dev_dependencies:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4
   flutter_lints: ^5.0.0
+  mockito: ^5.4.4
+  build_runner: ^2.4.7
 
 flutter_icons:
   # Disabled platform injection because android/ios native folders are missing.

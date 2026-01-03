@@ -203,20 +203,21 @@ This implementation plan converts the feature design into a series of coding tas
     - Store auth token securely
     - _Requirements: 5.1, 4.4_
 
-  - [ ]* 10.3 Write unit tests for authentication screens
+  - [x] 10.3 Write unit tests for authentication screens
+
     - Test successful login navigation flow
     - Test successful registration navigation flow
     - Test error handling and display
     - _Requirements: 5.1, 5.2_
 
-- [ ] 11. Update Flutter onboarding screens with API integration
-  - [ ] 11.1 Create shared onboarding state management
+- [x] 11. Update Flutter onboarding screens with API integration
+  - [x] 11.1 Create shared onboarding state management
     - Create OnboardingData model to collect profile information
     - Implement state management to pass data between screens
     - Add validation for each onboarding step
     - _Requirements: 3.1, 3.3, 3.4, 3.5_
 
-  - [ ] 11.2 Update onboarding screens to collect data
+  - [x] 11.2 Update onboarding screens to collect data
     - Update GenderScreen to store selected gender
     - Update AgeGroupScreen to store selected age group
     - Update LevelScreen to store selected fitness level
@@ -224,7 +225,7 @@ This implementation plan converts the feature design into a series of coding tas
     - Update WeightScreen to store selected weight
     - _Requirements: 3.1_
 
-  - [ ] 11.3 Implement profile submission on onboarding completion
+  - [x] 11.3 Implement profile submission on onboarding completion
     - Call AuthService.updateProfile on final onboarding screen
     - Handle loading states during profile update
     - Navigate to MainNavigation on successful update

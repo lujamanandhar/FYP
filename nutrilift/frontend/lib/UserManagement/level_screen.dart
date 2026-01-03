@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'height_screen.dart';
 import '../widgets/onboarding_header.dart';
+import '../services/onboarding_service.dart';
 
 class LevelScreen extends StatefulWidget {
   const LevelScreen({super.key});
@@ -10,7 +11,15 @@ class LevelScreen extends StatefulWidget {
 }
 
 class _LevelScreenState extends State<LevelScreen> {
+  final OnboardingService _onboardingService = OnboardingService();
   String? _selectedLevel;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with existing data if any
+    _selectedLevel = _onboardingService.data.fitnessLevel;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +53,24 @@ class _LevelScreenState extends State<LevelScreen> {
               ),
               const SizedBox(height: 50),
               ElevatedButton(
-                onPressed: () {
+                onPressed: _selectedLevel != null ? () {
+                  // Validate current step before proceeding
+                  final error = _onboardingService.validateCurrentStep(3);
+                  if (error != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(_onboardingService.getStepErrorMessage(3) ?? error),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const HeightScreen()),
                   );
-                },
+                } : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
@@ -76,6 +97,7 @@ class _LevelScreenState extends State<LevelScreen> {
           setState(() {
             _selectedLevel = label;
           });
+          _onboardingService.updateFitnessLevel(label);
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: isSelected ? Colors.red : Colors.grey[200],

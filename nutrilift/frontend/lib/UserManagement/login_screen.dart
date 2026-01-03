@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'signup_screen.dart';
 import 'main_navigation.dart';
 import '../services/auth_service.dart';
+import '../services/api_client.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 // import 'success_screen.dart';
 import '../widgets/onboarding_header.dart';
+import '../services/onboarding_service.dart';
+import 'main_navigation.dart';
 
 class WeightScreen extends StatefulWidget {
   const WeightScreen({super.key});
@@ -10,7 +12,71 @@ class WeightScreen extends StatefulWidget {
 }
 
 class _WeightScreenState extends State<WeightScreen> {
+  final OnboardingService _onboardingService = OnboardingService();
   double _selectedWeight = 70; // in kg
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with existing data if any
+    _selectedWeight = _onboardingService.data.weight ?? 70;
+    
+    // Listen to onboarding service changes
+    _onboardingService.addListener(_onOnboardingServiceChanged);
+  }
+
+  @override
+  void dispose() {
+    _onboardingService.removeListener(_onOnboardingServiceChanged);
+    super.dispose();
+  }
+
+  void _onOnboardingServiceChanged() {
+    if (mounted) {
+      setState(() {
+        _isSubmitting = _onboardingService.isLoading;
+      });
+      
+      // Show error if submission failed
+      if (_onboardingService.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_onboardingService.error!),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'Retry',
+              textColor: Colors.white,
+              onPressed: _submitProfile,
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _submitProfile() async {
+    // Validate current step first
+    final error = _onboardingService.validateCurrentStep(5);
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_onboardingService.getStepErrorMessage(5) ?? error),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final success = await _onboardingService.submitProfile();
+    if (success && mounted) {
+      // Navigate to main navigation on success
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const MainNavigation()),
+        (route) => false,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +123,7 @@ class _WeightScreenState extends State<WeightScreen> {
                         setState(() {
                           _selectedWeight = value;
                         });
+                        _onboardingService.updateWeight(value);
                       },
                     ),
                     const SizedBox(height: 10),
@@ -72,19 +139,22 @@ class _WeightScreenState extends State<WeightScreen> {
               ),
               const SizedBox(height: 50),
               ElevatedButton(
-                onPressed: () {
-                  // TODO: Navigate to success screen
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => const SuccessScreen()),
-                  // );
-                },
+                onPressed: _isSubmitting ? null : _submitProfile,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 50),
                 ),
-                child: const Text('Next'),
+                child: _isSubmitting 
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text('Complete Profile'),
               ),
                   ],
                 ),

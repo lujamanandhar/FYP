@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'level_screen.dart';
 import '../widgets/onboarding_header.dart';
+import '../services/onboarding_service.dart';
 
 class AgeGroupScreen extends StatefulWidget {
   const AgeGroupScreen({super.key});
@@ -10,7 +11,15 @@ class AgeGroupScreen extends StatefulWidget {
 }
 
 class _AgeGroupScreenState extends State<AgeGroupScreen> {
+  final OnboardingService _onboardingService = OnboardingService();
   String? _selectedAge;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with existing data if any
+    _selectedAge = _onboardingService.data.ageGroup;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +53,24 @@ class _AgeGroupScreenState extends State<AgeGroupScreen> {
               ),
               const SizedBox(height: 50),
               ElevatedButton(
-                onPressed: () {
+                onPressed: _selectedAge != null ? () {
+                  // Validate current step before proceeding
+                  final error = _onboardingService.validateCurrentStep(2);
+                  if (error != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(_onboardingService.getStepErrorMessage(2) ?? error),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const LevelScreen()),
                   );
-                },
+                } : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
@@ -76,6 +97,7 @@ class _AgeGroupScreenState extends State<AgeGroupScreen> {
           setState(() {
             _selectedAge = label;
           });
+          _onboardingService.updateAgeGroup(label);
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: isSelected ? Colors.red : Colors.grey[200],

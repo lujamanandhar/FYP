@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'weight_screen.dart';
 import '../widgets/onboarding_header.dart';
+import '../services/onboarding_service.dart';
 
 class HeightScreen extends StatefulWidget {
   const HeightScreen({super.key});
@@ -10,7 +11,15 @@ class HeightScreen extends StatefulWidget {
 }
 
 class _HeightScreenState extends State<HeightScreen> {
+  final OnboardingService _onboardingService = OnboardingService();
   double _selectedHeight = 170; // in cm
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with existing data if any
+    _selectedHeight = _onboardingService.data.height ?? 170;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +66,7 @@ class _HeightScreenState extends State<HeightScreen> {
                         setState(() {
                           _selectedHeight = value;
                         });
+                        _onboardingService.updateHeight(value);
                       },
                     ),
                     const SizedBox(height: 10),
@@ -73,6 +83,18 @@ class _HeightScreenState extends State<HeightScreen> {
               const SizedBox(height: 50),
               ElevatedButton(
                 onPressed: () {
+                  // Validate current step before proceeding
+                  final error = _onboardingService.validateCurrentStep(4);
+                  if (error != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(_onboardingService.getStepErrorMessage(4) ?? error),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const WeightScreen()),

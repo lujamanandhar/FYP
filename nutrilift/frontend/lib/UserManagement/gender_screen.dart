@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'age_group_screen.dart';
 import '../widgets/onboarding_header.dart';
+import '../services/onboarding_service.dart';
 
 class GenderScreen extends StatefulWidget {
   const GenderScreen({super.key});
@@ -10,7 +11,17 @@ class GenderScreen extends StatefulWidget {
 }
 
 class _GenderScreenState extends State<GenderScreen> {
+  final OnboardingService _onboardingService = OnboardingService();
   String? _selectedGender;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize onboarding session
+    _onboardingService.initializeOnboarding();
+    // Initialize with existing data if any
+    _selectedGender = _onboardingService.data.gender;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +53,7 @@ class _GenderScreenState extends State<GenderScreen> {
                         setState(() {
                           _selectedGender = 'Male';
                         });
+                        _onboardingService.updateGender('Male');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _selectedGender == 'Male' ? Colors.red : Colors.grey[200],
@@ -58,6 +70,7 @@ class _GenderScreenState extends State<GenderScreen> {
                         setState(() {
                           _selectedGender = 'Female';
                         });
+                        _onboardingService.updateGender('Female');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _selectedGender == 'Female' ? Colors.red : Colors.grey[200],
@@ -71,12 +84,24 @@ class _GenderScreenState extends State<GenderScreen> {
               ),
               const SizedBox(height: 50),
               ElevatedButton(
-                onPressed: () {
+                onPressed: _selectedGender != null ? () {
+                  // Validate current step before proceeding
+                  final error = _onboardingService.validateCurrentStep(1);
+                  if (error != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(_onboardingService.getStepErrorMessage(1) ?? error),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const AgeGroupScreen()),
                   );
-                },
+                } : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
