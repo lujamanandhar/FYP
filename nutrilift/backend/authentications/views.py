@@ -14,16 +14,99 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@api_view(['POST'])
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def api_root(request):
+    """
+    API Root endpoint - Shows all available authentication endpoints
+    
+    GET /api/auth/
+    """
+    return Response({
+        'success': True,
+        'message': 'NutriLift Authentication API',
+        'data': {
+            'version': '1.0',
+            'description': 'User authentication and profile management API',
+            'endpoints': {
+                'register': {
+                    'url': '/api/auth/register/',
+                    'methods': ['GET', 'POST'],
+                    'description': 'User registration - GET for docs, POST to register'
+                },
+                'login': {
+                    'url': '/api/auth/login/',
+                    'methods': ['GET', 'POST'],
+                    'description': 'User login - GET for docs, POST to login'
+                },
+                'profile_get': {
+                    'url': '/api/auth/me/',
+                    'methods': ['GET'],
+                    'description': 'Get current user profile (requires authentication)'
+                },
+                'profile_update': {
+                    'url': '/api/auth/profile/',
+                    'methods': ['GET', 'PUT'],
+                    'description': 'Update user profile - GET for docs, PUT to update (requires authentication)'
+                }
+            },
+            'authentication': {
+                'type': 'JWT Bearer Token',
+                'header': 'Authorization: Bearer <token>',
+                'note': 'Include the token received from login/register in the Authorization header'
+            }
+        }
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def register(request):
     """
     User registration endpoint
     
-    POST /api/auth/register
+    GET /api/auth/register - Returns API documentation
+    POST /api/auth/register - Registers a new user
     
     Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6
     """
+    
+    # Handle GET request - return API documentation
+    if request.method == 'GET':
+        return Response({
+            'success': True,
+            'message': 'User Registration API',
+            'data': {
+                'endpoint': '/api/auth/register/',
+                'method': 'POST',
+                'description': 'Register a new user account',
+                'required_fields': {
+                    'email': 'Valid email address',
+                    'password': 'Password (minimum 8 characters)',
+                    'name': 'Full name (optional)'
+                },
+                'example_request': {
+                    'email': 'user@example.com',
+                    'password': 'securepassword123',
+                    'name': 'John Doe'
+                },
+                'example_response': {
+                    'success': True,
+                    'message': 'User registered successfully',
+                    'data': {
+                        'user': {
+                            'id': 'uuid-string',
+                            'email': 'user@example.com',
+                            'name': 'John Doe',
+                            'created_at': '2025-01-04T12:00:00Z'
+                        },
+                        'token': 'jwt-token-string'
+                    }
+                }
+            }
+        }, status=status.HTTP_200_OK)
+    
+    # Handle POST request - actual registration
     try:
         # Validate input data using UserRegistrationSerializer
         serializer = UserRegistrationSerializer(data=request.data)
@@ -81,16 +164,56 @@ def register(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def login(request):
     """
     User login endpoint
     
-    POST /api/auth/login
+    GET /api/auth/login - Returns API documentation
+    POST /api/auth/login - Authenticates user
     
     Requirements: 2.1, 2.2, 2.3, 2.4
     """
+    
+    # Handle GET request - return API documentation
+    if request.method == 'GET':
+        return Response({
+            'success': True,
+            'message': 'User Login API',
+            'data': {
+                'endpoint': '/api/auth/login/',
+                'method': 'POST',
+                'description': 'Authenticate user and get access token',
+                'required_fields': {
+                    'email': 'Registered email address',
+                    'password': 'User password'
+                },
+                'example_request': {
+                    'email': 'user@example.com',
+                    'password': 'securepassword123'
+                },
+                'example_response': {
+                    'success': True,
+                    'message': 'Login successful',
+                    'data': {
+                        'user': {
+                            'id': 'uuid-string',
+                            'email': 'user@example.com',
+                            'name': 'John Doe',
+                            'gender': 'Male',
+                            'age_group': 'Adult',
+                            'height': 175.0,
+                            'weight': 70.0,
+                            'fitness_level': 'Intermediate'
+                        },
+                        'token': 'jwt-token-string'
+                    }
+                }
+            }
+        }, status=status.HTTP_200_OK)
+    
+    # Handle POST request - actual login
     try:
         # Validate input data
         email = request.data.get('email')
@@ -192,16 +315,64 @@ def get_profile(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['PUT'])
+@api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def update_profile(request):
     """
     Profile update endpoint
     
-    PUT /api/auth/profile
+    GET /api/auth/profile - Returns API documentation
+    PUT /api/auth/profile - Updates user profile
     
     Requirements: 3.1, 3.3, 3.4, 3.5, 8.4
     """
+    
+    # Handle GET request - return API documentation
+    if request.method == 'GET':
+        return Response({
+            'success': True,
+            'message': 'Profile Update API',
+            'data': {
+                'endpoint': '/api/auth/profile/',
+                'method': 'PUT',
+                'description': 'Update user profile information',
+                'authentication': 'Required - Include Authorization: Bearer <token> header',
+                'optional_fields': {
+                    'name': 'Full name',
+                    'gender': 'Male or Female',
+                    'age_group': 'Adult, Mid-Age Adult, or Older Adult',
+                    'height': 'Height in centimeters (positive number)',
+                    'weight': 'Weight in kilograms (positive number)',
+                    'fitness_level': 'Beginner, Intermediate, or Advance'
+                },
+                'example_request': {
+                    'name': 'John Doe',
+                    'gender': 'Male',
+                    'age_group': 'Adult',
+                    'height': 175.0,
+                    'weight': 70.0,
+                    'fitness_level': 'Intermediate'
+                },
+                'example_response': {
+                    'success': True,
+                    'message': 'Profile updated successfully',
+                    'data': {
+                        'user': {
+                            'id': 'uuid-string',
+                            'email': 'user@example.com',
+                            'name': 'John Doe',
+                            'gender': 'Male',
+                            'age_group': 'Adult',
+                            'height': 175.0,
+                            'weight': 70.0,
+                            'fitness_level': 'Intermediate'
+                        }
+                    }
+                }
+            }
+        }, status=status.HTTP_200_OK)
+    
+    # Handle PUT request - actual profile update
     try:
         # Get current authenticated user
         user = request.user

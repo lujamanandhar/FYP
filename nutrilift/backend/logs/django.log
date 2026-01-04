@@ -597,3 +597,1751 @@ WARNING 2026-01-03 17:12:35,580 log 1100 24188 Unauthorized: /api/auth/me/
 WARNING 2026-01-03 17:12:35,581 basehttp 1100 24188 "GET /api/auth/me/ HTTP/1.1" 401 121
 WARNING 2026-01-03 17:13:00,734 log 1100 24188 Bad Request: /api/auth/register/
 WARNING 2026-01-03 17:13:00,735 basehttp 1100 24188 "POST /api/auth/register/ HTTP/1.1" 400 120
+WARNING 2026-01-03 22:23:40,197 log 50640 51300 Bad Request: /api/auth/register/
+WARNING 2026-01-03 22:23:41,386 log 50640 51300 Bad Request: /api/auth/register/
+WARNING 2026-01-03 22:23:42,171 log 50640 51300 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 22:25:34,879 log 55264 49516 Bad Request: /api/auth/register/
+WARNING 2026-01-03 22:25:34,881 log 55264 49516 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 22:25:34,882 log 55264 49516 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 22:25:36,124 log 55264 49516 Bad Request: /api/auth/register/
+WARNING 2026-01-03 22:25:36,927 log 55264 49516 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 22:26:51,780 log 87812 46800 Bad Request: /api/auth/register/
+WARNING 2026-01-03 22:27:49,163 log 21228 36660 Bad Request: /api/auth/register/
+WARNING 2026-01-03 22:27:49,164 log 21228 36660 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 22:27:49,165 log 21228 36660 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 22:27:51,237 views 21228 36660 Registration integrity error: UNIQUE constraint failed: users.username
+WARNING 2026-01-03 22:27:51,238 log 21228 36660 Conflict: /api/auth/register/
+WARNING 2026-01-03 22:27:52,062 log 21228 36660 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 22:29:49,206 log 52716 34784 Bad Request: /api/auth/register/
+WARNING 2026-01-03 22:29:49,208 log 52716 34784 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 22:29:49,209 log 52716 34784 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 22:29:51,275 views 52716 34784 Registration integrity error: UNIQUE constraint failed: users.username
+WARNING 2026-01-03 22:29:51,276 log 52716 34784 Conflict: /api/auth/register/
+WARNING 2026-01-03 22:29:52,091 log 52716 34784 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 22:29:52,091 log 52716 34784 Unauthorized: /api/auth/profile/
+WARNING 2026-01-03 22:31:05,608 log 63564 44144 Bad Request: /api/auth/register/
+WARNING 2026-01-03 22:31:05,609 log 63564 44144 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 22:31:05,610 log 63564 44144 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 22:31:08,855 log 63564 44144 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 22:31:08,856 log 63564 44144 Unauthorized: /api/auth/profile/
+WARNING 2026-01-03 23:32:39,393 log 46496 40764 Bad Request: /api/auth/register/
+WARNING 2026-01-03 23:32:39,395 log 46496 40764 Unauthorized: /api/auth/login/
+WARNING 2026-01-03 23:32:39,396 log 46496 40764 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 23:32:42,657 log 46496 40764 Unauthorized: /api/auth/me/
+WARNING 2026-01-03 23:32:42,657 log 46496 40764 Unauthorized: /api/auth/profile/
+WARNING 2026-01-03 23:44:43,540 log 62040 87152 Unauthorized: /api/auth/profile/
+WARNING 2026-01-03 23:44:43,983 log 62040 69284 Unauthorized: /api/auth/profile/
+WARNING 2026-01-03 23:44:47,936 log 62040 50264 Bad Request: /api/auth/register/
+WARNING 2026-01-03 23:51:34,573 log 36856 13640 Unauthorized: /api/auth/profile/
+ERROR 2026-01-03 23:51:35,006 views 36856 27024 Profile update error: database table is locked: users
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: database table is locked: users
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py", line 220, in update_profile
+    updated_user = serializer.save()
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 203, in save
+    self.instance = self.update(self.instance, validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 1033, in update
+    instance.save()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\base_user.py", line 65, in save
+    super().save(*args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1138, in _save_table
+    updated = self._do_update(
+        base_qs, using, pk_val, values, update_fields, forced_update
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1203, in _do_update
+    return filtered._update(values) > 0
+           ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1288, in _update
+    return query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 2060, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: database table is locked: users
+ERROR 2026-01-03 23:51:35,112 log 36856 27024 Internal Server Error: /api/auth/profile/
+WARNING 2026-01-03 23:51:38,856 log 36856 46832 Bad Request: /api/auth/register/
+ERROR 2026-01-03 23:54:01,965 views 95524 11556 Profile update error: database table is locked: users
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: database table is locked: users
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py", line 220, in update_profile
+    updated_user = serializer.save()
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 203, in save
+    self.instance = self.update(self.instance, validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 1033, in update
+    instance.save()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\base_user.py", line 65, in save
+    super().save(*args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1138, in _save_table
+    updated = self._do_update(
+        base_qs, using, pk_val, values, update_fields, forced_update
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1203, in _do_update
+    return filtered._update(values) > 0
+           ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1288, in _update
+    return query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 2060, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: database table is locked: users
+ERROR 2026-01-03 23:54:01,968 views 95524 36288 Profile update error: database table is locked
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: database table is locked
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py", line 220, in update_profile
+    updated_user = serializer.save()
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 203, in save
+    self.instance = self.update(self.instance, validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 1033, in update
+    instance.save()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\base_user.py", line 65, in save
+    super().save(*args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1138, in _save_table
+    updated = self._do_update(
+        base_qs, using, pk_val, values, update_fields, forced_update
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1203, in _do_update
+    return filtered._update(values) > 0
+           ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1288, in _update
+    return query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 2060, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: database table is locked
+ERROR 2026-01-03 23:54:01,976 log 95524 11556 Internal Server Error: /api/auth/profile/
+ERROR 2026-01-03 23:54:01,977 log 95524 36288 Internal Server Error: /api/auth/profile/
+ERROR 2026-01-03 23:54:02,397 views 95524 36300 Profile update error: database table is locked
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: database table is locked
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py", line 220, in update_profile
+    updated_user = serializer.save()
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 203, in save
+    self.instance = self.update(self.instance, validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 1033, in update
+    instance.save()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\base_user.py", line 65, in save
+    super().save(*args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1138, in _save_table
+    updated = self._do_update(
+        base_qs, using, pk_val, values, update_fields, forced_update
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1203, in _do_update
+    return filtered._update(values) > 0
+           ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1288, in _update
+    return query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 2060, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: database table is locked
+ERROR 2026-01-03 23:54:02,397 views 95524 4424 Profile update error: database table is locked: users
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: database table is locked: users
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py", line 220, in update_profile
+    updated_user = serializer.save()
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 203, in save
+    self.instance = self.update(self.instance, validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 1033, in update
+    instance.save()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\base_user.py", line 65, in save
+    super().save(*args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1138, in _save_table
+    updated = self._do_update(
+        base_qs, using, pk_val, values, update_fields, forced_update
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1203, in _do_update
+    return filtered._update(values) > 0
+           ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1288, in _update
+    return query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 2060, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: database table is locked: users
+ERROR 2026-01-03 23:54:02,402 log 95524 36300 Internal Server Error: /api/auth/profile/
+ERROR 2026-01-03 23:54:02,404 log 95524 4424 Internal Server Error: /api/auth/profile/
+ERROR 2026-01-03 23:54:02,939 views 95524 42712 Registration error: database table is locked
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: database table is locked
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py", line 49, in register
+    user = serializer.save()
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 208, in save
+    self.instance = self.create(validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\serializers.py", line 89, in create
+    user = User.objects.create(**validated_data)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 665, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\base_user.py", line 65, in save
+    super().save(*args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1169, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1210, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1873, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1882, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: database table is locked
+ERROR 2026-01-03 23:54:02,959 log 95524 42712 Internal Server Error: /api/auth/register/
+WARNING 2026-01-03 23:54:04,237 log 95524 38244 Bad Request: /api/auth/register/
+ERROR 2026-01-04 00:02:59,606 views 82572 61444 Profile update error: database table is locked
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: database table is locked
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py", line 220, in update_profile
+    updated_user = serializer.save()
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 203, in save
+    self.instance = self.update(self.instance, validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 1033, in update
+    instance.save()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\base_user.py", line 65, in save
+    super().save(*args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1138, in _save_table
+    updated = self._do_update(
+        base_qs, using, pk_val, values, update_fields, forced_update
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1203, in _do_update
+    return filtered._update(values) > 0
+           ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1288, in _update
+    return query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 2060, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: database table is locked
+ERROR 2026-01-04 00:02:59,614 log 82572 61444 Internal Server Error: /api/auth/profile/
+ERROR 2026-01-04 00:03:27,056 views 43028 59176 Profile update error: database table is locked
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: database table is locked
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py", line 220, in update_profile
+    updated_user = serializer.save()
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 203, in save
+    self.instance = self.update(self.instance, validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 1033, in update
+    instance.save()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\base_user.py", line 65, in save
+    super().save(*args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1138, in _save_table
+    updated = self._do_update(
+        base_qs, using, pk_val, values, update_fields, forced_update
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1203, in _do_update
+    return filtered._update(values) > 0
+           ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1288, in _update
+    return query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 2060, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: database table is locked
+ERROR 2026-01-04 00:03:27,063 log 43028 59176 Internal Server Error: /api/auth/profile/
+ERROR 2026-01-04 00:03:28,137 views 43028 91660 Registration error: database table is locked: users
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: database table is locked: users
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py", line 39, in register
+    if User.objects.filter(email=email).exists():
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1298, in exists
+    return self.query.has_results(using=self.db)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\query.py", line 674, in has_results
+    return compiler.has_results()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1591, in has_results
+    return bool(self.execute_sql(SINGLE))
+                ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: database table is locked: users
+ERROR 2026-01-04 00:03:28,161 log 43028 91660 Internal Server Error: /api/auth/register/
+WARNING 2026-01-04 00:03:31,499 log 43028 56532 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:06:45,139 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:06:45,140 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:06:45,141 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:06:48,356 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:06:48,357 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:06:51,206 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:06:52,042 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:06:52,844 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:06:53,633 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:06:54,442 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:06:54,451 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:06:54,451 log 41608 47840 Bad Request: /api/auth/login/
+WARNING 2026-01-04 00:06:54,453 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:06:54,454 log 41608 47840 Bad Request: /api/auth/login/
+WARNING 2026-01-04 00:06:54,458 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:06:54,459 log 41608 47840 Bad Request: /api/auth/login/
+WARNING 2026-01-04 00:06:54,461 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:06:54,462 log 41608 47840 Bad Request: /api/auth/login/
+WARNING 2026-01-04 00:06:54,465 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:06:54,466 log 41608 47840 Bad Request: /api/auth/login/
+WARNING 2026-01-04 00:07:08,847 log 41608 47840 Conflict: /api/auth/register/
+WARNING 2026-01-04 00:07:09,646 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:07:10,441 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:11,239 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:11,640 log 41608 47840 Bad Request: /api/auth/login/
+WARNING 2026-01-04 00:07:11,641 log 41608 47840 Bad Request: /api/auth/login/
+WARNING 2026-01-04 00:07:12,027 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:07:12,029 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:07:12,420 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:07:12,421 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:07:12,422 log 41608 47840 Bad Request: /api/auth/login/
+WARNING 2026-01-04 00:07:12,820 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:13,615 log 41608 47840 Bad Request: /api/auth/profile/
+WARNING 2026-01-04 00:07:13,616 log 41608 47840 Bad Request: /api/auth/profile/
+WARNING 2026-01-04 00:07:13,618 log 41608 47840 Bad Request: /api/auth/profile/
+WARNING 2026-01-04 00:07:13,620 log 41608 47840 Bad Request: /api/auth/profile/
+WARNING 2026-01-04 00:07:14,008 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:07:14,009 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:07:14,429 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:07:14,430 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:07:14,431 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:07:15,257 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:16,234 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:17,027 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:17,812 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:18,591 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:19,377 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:20,159 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:20,957 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:21,730 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:22,553 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:23,353 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:24,157 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:25,046 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:25,850 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:26,667 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:27,511 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:28,294 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:29,082 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:29,884 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:30,672 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:31,470 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:32,282 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:33,079 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:33,895 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:34,701 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:35,493 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:36,287 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:37,084 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:37,860 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:38,646 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:39,457 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:40,260 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:41,056 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:41,867 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:42,649 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:43,438 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:44,248 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:45,044 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:45,831 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:46,631 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:47,432 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:48,246 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:49,032 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:49,839 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:50,667 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:51,537 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:52,472 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:53,391 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:54,358 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:55,296 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:56,251 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:57,187 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:58,104 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:59,033 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:07:59,986 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:00,925 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:01,821 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:02,763 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:03,839 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:04,798 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:05,736 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:06,695 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:07,741 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:08,693 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:09,623 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:10,538 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:11,455 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:12,396 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:13,306 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:14,200 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:15,136 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:16,029 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:16,935 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:17,923 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:18,826 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:19,722 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:20,533 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:21,325 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:22,136 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:22,939 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:23,733 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:24,528 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:25,316 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:26,210 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:26,983 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:27,765 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:28,557 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:29,364 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:30,174 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:30,975 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:31,773 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:32,571 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:33,349 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:34,136 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:34,919 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:35,724 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:36,514 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:37,293 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:38,072 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:38,846 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:39,649 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:40,448 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:41,249 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:42,032 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:42,833 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:43,633 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:44,413 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:45,253 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:46,036 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:46,913 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:47,801 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:48,585 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:49,369 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:50,162 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:50,986 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:51,784 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:52,576 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:53,411 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:54,346 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:55,273 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:56,183 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:57,137 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:58,041 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:58,946 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:08:59,863 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:00,778 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:01,671 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:02,548 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:03,433 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:04,316 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:05,118 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:05,906 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:06,697 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:07,508 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:08,290 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:09,085 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:09,877 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:10,655 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:11,544 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:12,327 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:13,116 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:13,912 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:14,710 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:15,493 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:16,284 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:17,102 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:17,995 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:18,919 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:19,851 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:20,696 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:21,500 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:22,301 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:23,139 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:23,935 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:24,787 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:25,630 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:26,410 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:27,186 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:27,960 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:28,736 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:29,509 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:30,282 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:31,059 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:31,833 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:32,604 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:33,407 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:34,181 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:34,953 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:35,747 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:36,547 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:37,324 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:38,096 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:38,891 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:39,663 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:40,439 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:41,222 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:42,003 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:42,791 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:43,569 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:44,340 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:45,126 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:45,900 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:46,670 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:47,439 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:48,212 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:49,006 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:49,778 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:50,544 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:51,310 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:52,077 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:52,852 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:53,627 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:54,410 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:55,181 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:55,964 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:56,770 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:57,565 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:58,359 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:59,137 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:09:59,942 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:00,737 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:01,516 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:02,288 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:03,060 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:03,832 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:04,604 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:05,378 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:06,146 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:06,932 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:07,706 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:08,478 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:09,253 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:10,025 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:10,814 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:11,644 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:12,427 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:13,210 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:13,994 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:14,801 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:15,616 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:16,388 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:17,184 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:17,964 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:18,737 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:19,514 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:20,281 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:21,056 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:21,832 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:22,609 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:23,389 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:24,160 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:24,931 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:25,716 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:26,488 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:27,262 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:28,050 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:28,823 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:29,613 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:30,398 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:31,167 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:31,949 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:32,722 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:33,511 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:34,308 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:35,148 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:35,944 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:36,718 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:37,494 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:38,273 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:39,047 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:39,819 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:40,589 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:41,363 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:42,154 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:42,921 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:43,708 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:44,493 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:45,281 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:46,058 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:46,829 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:47,593 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:48,363 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:49,136 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:49,914 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:50,684 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:51,452 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:52,223 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:52,994 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:53,772 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:54,552 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:55,335 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:56,117 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:56,895 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:57,672 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:58,444 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:59,215 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:10:59,991 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:00,767 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:01,545 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:02,322 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:03,108 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:03,886 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:04,657 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:05,429 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:06,199 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:06,976 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:07,748 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:08,517 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:09,286 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:10,062 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:10,841 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:11,620 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:12,405 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:13,175 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:13,952 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:14,778 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:15,569 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:16,346 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:17,125 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:17,915 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:18,697 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:19,503 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:20,320 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:21,099 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:21,880 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:22,654 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:23,442 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:24,232 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:25,014 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:25,796 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:26,568 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:27,345 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:28,118 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:28,887 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:29,660 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:30,439 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:31,213 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:31,991 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:32,770 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:33,551 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:34,329 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:35,094 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:35,870 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:36,654 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:37,446 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:38,229 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:38,997 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:39,765 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:40,545 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:41,323 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:42,114 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:42,888 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:43,655 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:44,420 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:45,193 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:45,970 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:46,748 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:47,530 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:48,299 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:49,063 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:49,829 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:50,602 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:51,372 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:52,140 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:52,918 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:53,694 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:54,478 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:55,245 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:56,034 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:56,821 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:57,590 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:58,364 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:59,136 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:11:59,911 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:00,688 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:01,472 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:02,245 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:03,014 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:03,786 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:04,565 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:05,335 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:06,117 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:06,899 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:07,677 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:08,456 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:09,234 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:10,015 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:10,798 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:11,578 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:12,356 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:13,120 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:13,890 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:14,688 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:15,459 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:16,237 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:17,012 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:17,781 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:18,555 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:19,323 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:20,095 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:20,872 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:21,647 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:22,432 log 41608 47840 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:12:22,821 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:12:22,829 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,830 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,833 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,833 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,836 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,837 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,838 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,839 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,840 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,841 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,843 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,843 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,845 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,846 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,847 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,848 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,849 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,849 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,850 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,851 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,852 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,853 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,854 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,856 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,857 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,858 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,859 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,860 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,861 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,862 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,864 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,864 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,866 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,866 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,868 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,868 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,869 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,870 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,873 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,873 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,875 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,875 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,877 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,877 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,879 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,880 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,881 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,882 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,884 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,884 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,886 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,887 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,889 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,890 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,892 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,893 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,895 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,896 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,898 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,898 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,900 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,901 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,902 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,902 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,905 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,905 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,907 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,908 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,909 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,910 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,911 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,912 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,914 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,915 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,917 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,917 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,919 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,920 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,921 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,924 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,926 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,927 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,928 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,929 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,931 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,931 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,933 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,934 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,935 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,936 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,938 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,938 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,941 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,941 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,943 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,944 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,946 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,946 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,948 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,949 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,950 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,951 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,952 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,953 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,963 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,963 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,965 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,966 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,967 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,968 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,969 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,970 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,972 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,973 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,974 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,975 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,976 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,977 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,978 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,979 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,981 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,981 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,983 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,983 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,985 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,985 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,987 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,988 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,990 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,991 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,994 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,994 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:22,997 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:22,998 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,000 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,000 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,002 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,002 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,004 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,005 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,007 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,008 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,010 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,011 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,013 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,014 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,015 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,016 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,017 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,018 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,019 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,020 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,022 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,023 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,025 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,025 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,027 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,028 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,030 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,031 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,032 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,033 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,035 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,035 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,037 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,038 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,040 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,040 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,042 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,042 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,044 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,045 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,047 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,047 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,049 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,049 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,051 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,051 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,053 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,053 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,055 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,056 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,057 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,058 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,059 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,060 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,063 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,064 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,065 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,066 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,067 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,068 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,070 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,071 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,073 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,073 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,075 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,076 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:23,077 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:23,078 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:24,660 log 41608 47840 Unauthorized: /api/auth/register/
+WARNING 2026-01-04 00:12:24,668 log 41608 47840 Unauthorized: /api/auth/register/
+WARNING 2026-01-04 00:12:24,677 log 41608 47840 Unauthorized: /api/auth/register/
+WARNING 2026-01-04 00:12:24,687 log 41608 47840 Unauthorized: /api/auth/register/
+WARNING 2026-01-04 00:12:24,694 log 41608 47840 Unauthorized: /api/auth/register/
+WARNING 2026-01-04 00:12:24,700 log 41608 47840 Unauthorized: /api/auth/register/
+WARNING 2026-01-04 00:12:24,707 log 41608 47840 Unauthorized: /api/auth/register/
+WARNING 2026-01-04 00:12:24,713 log 41608 47840 Unauthorized: /api/auth/register/
+WARNING 2026-01-04 00:12:24,812 log 41608 47840 Unauthorized: /api/auth/register/
+WARNING 2026-01-04 00:12:24,817 log 41608 47840 Unauthorized: /api/auth/register/
+WARNING 2026-01-04 00:12:25,263 log 41608 47840 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 00:12:25,264 log 41608 47840 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 00:12:25,267 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:12:25,270 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:12:25,273 log 41608 47840 Bad Request: /api/auth/register/
+ERROR 2026-01-04 00:12:47,855 views 41608 80012 Profile update error: database table is locked
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: database table is locked
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py", line 220, in update_profile
+    updated_user = serializer.save()
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 203, in save
+    self.instance = self.update(self.instance, validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 1033, in update
+    instance.save()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\base_user.py", line 65, in save
+    super().save(*args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1138, in _save_table
+    updated = self._do_update(
+        base_qs, using, pk_val, values, update_fields, forced_update
+    )
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1203, in _do_update
+    return filtered._update(values) > 0
+           ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1288, in _update
+    return query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 2060, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: database table is locked
+ERROR 2026-01-04 00:12:47,860 log 41608 80012 Internal Server Error: /api/auth/profile/
+WARNING 2026-01-04 00:12:52,570 log 41608 47840 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:18:34,962 log 23216 90908 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:18:34,964 log 23216 90908 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:18:34,966 log 23216 90908 Bad Request: /api/auth/register/
+WARNING 2026-01-04 00:19:26,758 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:27,546 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:28,334 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:29,155 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:29,947 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:30,730 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:31,514 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:32,297 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:33,082 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:33,861 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:34,644 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:35,445 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:36,225 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:37,023 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:37,803 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:38,626 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:39,404 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:40,184 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:40,965 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:41,754 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:42,539 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:43,319 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:44,100 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:44,883 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:45,678 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:46,461 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:47,250 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:48,035 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:48,815 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:49,595 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:50,373 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:51,154 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:51,934 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:52,729 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:53,533 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:54,337 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:55,131 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:55,936 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:56,718 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:57,498 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:58,277 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:59,060 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:19:59,846 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:00,657 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:01,439 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:02,218 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:03,001 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:03,780 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:04,581 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:05,365 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:06,144 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:06,956 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:07,805 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:08,590 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:09,485 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:10,322 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:11,104 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:11,941 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:12,715 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:13,535 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:14,357 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:15,208 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:16,004 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:16,816 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:17,619 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:18,407 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:19,194 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:19,976 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:20,765 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:21,548 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:22,348 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:23,130 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:23,908 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:24,687 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:25,468 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:26,249 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:27,030 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:27,809 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:28,589 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:29,364 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:30,144 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:30,925 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:31,732 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:32,512 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:33,289 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:34,066 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:34,849 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:35,631 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:36,410 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:37,209 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:37,991 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:38,774 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:39,666 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:40,473 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:41,272 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:42,055 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:42,834 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:43,614 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:44,395 log 71368 73996 Unauthorized: /api/auth/login/
+WARNING 2026-01-04 00:20:45,249 log 71368 73996 Unauthorized: /api/auth/login/
+INFO 2026-01-04 13:45:16,778 autoreload 92216 48308 Watching for file changes with StatReloader
+INFO 2026-01-04 13:56:21,719 autoreload 24948 88244 Watching for file changes with StatReloader
+WARNING 2026-01-04 13:56:28,778 log 24948 31540 Not Found: /
+WARNING 2026-01-04 13:56:28,781 basehttp 24948 31540 "GET / HTTP/1.1" 404 2310
+WARNING 2026-01-04 13:56:29,217 log 24948 31540 Not Found: /favicon.ico
+WARNING 2026-01-04 13:56:29,219 basehttp 24948 31540 "GET /favicon.ico HTTP/1.1" 404 2361
+WARNING 2026-01-04 13:56:35,690 log 24948 31540 Not Found: /api
+WARNING 2026-01-04 13:56:35,691 basehttp 24948 31540 "GET /api HTTP/1.1" 404 2337
+WARNING 2026-01-04 13:56:40,178 log 24948 31540 Not Found: /auth
+WARNING 2026-01-04 13:56:40,180 basehttp 24948 31540 "GET /auth HTTP/1.1" 404 2340
+WARNING 2026-01-04 13:56:54,910 log 24948 31540 Not Found: /api/auth
+WARNING 2026-01-04 13:56:54,911 basehttp 24948 31540 "GET /api/auth HTTP/1.1" 404 2352
+INFO 2026-01-04 13:57:57,884 autoreload 24948 88244 F:\Herald Level 6\FYP\nutrilift\backend\backend\urls.py changed, reloading.
+INFO 2026-01-04 13:57:59,399 autoreload 71568 93136 Watching for file changes with StatReloader
+INFO 2026-01-04 13:58:07,370 autoreload 55384 56916 Watching for file changes with StatReloader
+WARNING 2026-01-04 13:58:15,164 log 55384 12192 Not Found: /
+WARNING 2026-01-04 13:58:15,176 basehttp 55384 12192 "GET / HTTP/1.1" 404 2310
+WARNING 2026-01-04 13:58:23,750 log 55384 12192 Not Found: /api/auth
+WARNING 2026-01-04 13:58:23,752 basehttp 55384 12192 "GET /api/auth HTTP/1.1" 404 2352
+WARNING 2026-01-04 13:58:28,434 log 55384 12192 Not Found: /api/auth/
+WARNING 2026-01-04 13:58:28,436 basehttp 55384 12192 "GET /api/auth/ HTTP/1.1" 404 3291
+WARNING 2026-01-04 13:58:40,533 log 55384 12192 Method Not Allowed: /api/auth/register/
+WARNING 2026-01-04 13:58:40,535 basehttp 55384 12192 "GET /api/auth/register/ HTTP/1.1" 405 98
+WARNING 2026-01-04 13:59:13,778 log 55384 12192 Method Not Allowed: /api/auth/login/
+WARNING 2026-01-04 13:59:13,779 basehttp 55384 12192 "GET /api/auth/login/ HTTP/1.1" 405 98
+WARNING 2026-01-04 13:59:18,521 log 55384 12192 Method Not Allowed: /api/auth/login/
+WARNING 2026-01-04 13:59:18,522 basehttp 55384 12192 "GET /api/auth/login/ HTTP/1.1" 405 98
+WARNING 2026-01-04 13:59:55,651 log 55384 12192 Method Not Allowed: /api/auth/login/
+WARNING 2026-01-04 13:59:55,653 basehttp 55384 12192 "GET /api/auth/login/ HTTP/1.1" 405 98
+WARNING 2026-01-04 14:00:09,766 log 55384 12192 Not Found: /api/auth/
+WARNING 2026-01-04 14:00:09,768 basehttp 55384 12192 "GET /api/auth/ HTTP/1.1" 404 3291
+WARNING 2026-01-04 14:00:19,905 log 55384 12192 Not Found: /api/me/
+WARNING 2026-01-04 14:00:19,906 basehttp 55384 12192 "GET /api/me/ HTTP/1.1" 404 2349
+WARNING 2026-01-04 14:00:27,193 log 55384 12192 Unauthorized: /api/auth/me/
+WARNING 2026-01-04 14:00:27,194 basehttp 55384 12192 "GET /api/auth/me/ HTTP/1.1" 401 121
+WARNING 2026-01-04 14:01:02,821 log 55384 12192 Not Found: /
+WARNING 2026-01-04 14:01:02,823 basehttp 55384 12192 "GET / HTTP/1.1" 404 2310
+WARNING 2026-01-04 14:01:14,598 log 55384 12192 Not Found: /api/auth/
+WARNING 2026-01-04 14:01:14,600 basehttp 55384 12192 "GET /api/auth/ HTTP/1.1" 404 3291
+WARNING 2026-01-04 14:01:21,199 log 55384 12192 Unauthorized: /api/auth/profile/
+WARNING 2026-01-04 14:01:21,201 basehttp 55384 12192 "GET /api/auth/profile/ HTTP/1.1" 401 121
+WARNING 2026-01-04 14:03:01,229 log 55384 12192 Method Not Allowed: /api/auth/register/
+WARNING 2026-01-04 14:03:01,231 basehttp 55384 12192 "GET /api/auth/register/ HTTP/1.1" 405 98
+WARNING 2026-01-04 14:05:14,075 log 55384 12192 Not Found: /api/auth/
+WARNING 2026-01-04 14:05:14,077 basehttp 55384 12192 "GET /api/auth/ HTTP/1.1" 404 3291
+WARNING 2026-01-04 14:05:32,891 log 55384 12192 Method Not Allowed: /api/auth/register/
+WARNING 2026-01-04 14:05:32,893 basehttp 55384 12192 "GET /api/auth/register/ HTTP/1.1" 405 98
+INFO 2026-01-04 14:08:50,221 autoreload 55384 56916 F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py changed, reloading.
+INFO 2026-01-04 14:08:51,726 autoreload 79252 56304 Watching for file changes with StatReloader
+INFO 2026-01-04 14:09:01,978 autoreload 79252 56304 F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py changed, reloading.
+INFO 2026-01-04 14:09:03,447 autoreload 17996 18940 Watching for file changes with StatReloader
+INFO 2026-01-04 14:09:14,776 autoreload 17996 18940 F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py changed, reloading.
+INFO 2026-01-04 14:09:16,249 autoreload 32900 88132 Watching for file changes with StatReloader
+INFO 2026-01-04 14:09:28,643 autoreload 32900 88132 F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py changed, reloading.
+INFO 2026-01-04 14:09:30,109 autoreload 59828 65524 Watching for file changes with StatReloader
+INFO 2026-01-04 14:09:38,387 autoreload 59828 65524 F:\Herald Level 6\FYP\nutrilift\backend\authentications\urls.py changed, reloading.
+INFO 2026-01-04 14:09:39,839 autoreload 34128 85776 Watching for file changes with StatReloader
+INFO 2026-01-04 14:10:44,463 autoreload 34128 85776 F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py changed, reloading.
+INFO 2026-01-04 14:10:45,948 autoreload 80776 81568 Watching for file changes with StatReloader
+INFO 2026-01-04 14:10:50,659 basehttp 80776 81980 "GET /api/auth/register/ HTTP/1.1" 200 595
+INFO 2026-01-04 14:11:09,077 basehttp 80776 81980 "GET /api/auth/ HTTP/1.1" 200 864
+INFO 2026-01-04 14:15:08,016 autoreload 80776 81568 F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py changed, reloading.
+INFO 2026-01-04 14:15:09,455 autoreload 50836 61916 Watching for file changes with StatReloader
+INFO 2026-01-04 14:15:23,963 autoreload 50836 61916 F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py changed, reloading.
+INFO 2026-01-04 14:15:25,484 autoreload 57628 12276 Watching for file changes with StatReloader
+INFO 2026-01-04 14:15:37,839 autoreload 57628 12276 F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py changed, reloading.
+INFO 2026-01-04 14:15:39,344 autoreload 7944 30836 Watching for file changes with StatReloader
+INFO 2026-01-04 14:15:53,916 autoreload 7944 30836 F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py changed, reloading.
+INFO 2026-01-04 14:15:55,345 autoreload 12308 66500 Watching for file changes with StatReloader
+INFO 2026-01-04 14:17:18,933 autoreload 12308 66500 F:\Herald Level 6\FYP\nutrilift\backend\authentications\views.py changed, reloading.
+INFO 2026-01-04 14:17:20,562 autoreload 88764 50260 Watching for file changes with StatReloader
+INFO 2026-01-04 14:18:48,339 basehttp 88764 26616 "GET /api/auth/ HTTP/1.1" 200 864
+INFO 2026-01-04 14:18:49,390 basehttp 88764 26616 "GET /api/auth/ HTTP/1.1" 200 864
+WARNING 2026-01-04 14:20:26,066 log 88764 5176 Method Not Allowed: /api/auth/
+WARNING 2026-01-04 14:20:26,067 basehttp 88764 5176 "POST /api/auth/ HTTP/1.1" 405 99
+WARNING 2026-01-04 14:21:14,749 log 88764 5176 Method Not Allowed: /api/auth/
+WARNING 2026-01-04 14:21:14,750 basehttp 88764 5176 "POST /api/auth/ HTTP/1.1" 405 99
+WARNING 2026-01-04 14:21:29,135 log 88764 5176 Bad Request: /api/auth/register/
+WARNING 2026-01-04 14:21:29,137 basehttp 88764 5176 "POST /api/auth/register/ HTTP/1.1" 400 131
+WARNING 2026-01-04 14:21:34,432 log 88764 5176 Bad Request: /api/auth/register/
+WARNING 2026-01-04 14:21:34,434 basehttp 88764 5176 "POST /api/auth/register/ HTTP/1.1" 400 131
+INFO 2026-01-04 14:21:50,990 basehttp 88764 26616 "GET /api/auth/register/ HTTP/1.1" 200 595
+WARNING 2026-01-04 14:22:19,964 log 88764 5176 Bad Request: /api/auth/register/
+WARNING 2026-01-04 14:22:19,966 basehttp 88764 5176 "POST /api/auth/register/ HTTP/1.1" 400 131
+WARNING 2026-01-04 14:22:51,901 log 88764 5176 Bad Request: /api/auth/register/
+WARNING 2026-01-04 14:22:51,904 basehttp 88764 5176 "POST /api/auth/register/ HTTP/1.1" 400 131
+INFO 2026-01-04 14:23:15,685 basehttp 88764 5176 "POST /api/auth/register/ HTTP/1.1" 201 516
+INFO 2026-01-04 14:26:03,703 basehttp 88764 38748 "OPTIONS /api/auth/login HTTP/1.1" 200 0
+ERROR 2026-01-04 14:26:03,871 log 88764 38748 Internal Server Error: /api/auth/login
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/login/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-04 14:26:03,877 basehttp 88764 38748 "POST /api/auth/login HTTP/1.1" 500 19866
+ERROR 2026-01-04 14:26:04,943 log 88764 11180 Internal Server Error: /api/auth/login
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/login/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-04 14:26:04,946 basehttp 88764 11180 "POST /api/auth/login HTTP/1.1" 500 19866
+ERROR 2026-01-04 14:26:07,318 log 88764 54944 Internal Server Error: /api/auth/login
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/login/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-04 14:26:07,321 basehttp 88764 54944 "POST /api/auth/login HTTP/1.1" 500 19866
+ERROR 2026-01-04 14:26:10,380 log 88764 78296 Internal Server Error: /api/auth/login
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/login/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-04 14:26:10,383 basehttp 88764 78296 "POST /api/auth/login HTTP/1.1" 500 19866
+ERROR 2026-01-04 14:26:23,995 log 88764 42588 Internal Server Error: /api/auth/login
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/login/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-04 14:26:24,000 basehttp 88764 42588 "POST /api/auth/login HTTP/1.1" 500 19866
+ERROR 2026-01-04 14:26:25,066 log 88764 59332 Internal Server Error: /api/auth/login
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/login/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-04 14:26:25,070 basehttp 88764 59332 "POST /api/auth/login HTTP/1.1" 500 19866
+ERROR 2026-01-04 14:26:27,443 log 88764 40028 Internal Server Error: /api/auth/login
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/login/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-04 14:26:27,445 basehttp 88764 40028 "POST /api/auth/login HTTP/1.1" 500 19866
+ERROR 2026-01-04 14:26:30,509 log 88764 27984 Internal Server Error: /api/auth/login
+Traceback (most recent call last):
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "F:\Herald Level 6\FYP\nutrilift\backend\.venv\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/login/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-04 14:26:30,512 basehttp 88764 27984 "POST /api/auth/login HTTP/1.1" 500 19866
+INFO 2026-01-04 14:58:02,957 autoreload 47052 14272 Watching for file changes with StatReloader

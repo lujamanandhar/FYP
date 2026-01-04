@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/error_handler.dart';
 import '../UserManagement/profile_edit_screen.dart';
 
 class HomePage extends StatefulWidget {
@@ -9,11 +10,10 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with ErrorHandlingMixin {
   bool showChart = false;
   UserProfile? _userProfile;
   bool _isLoading = true;
-  String? _errorMessage;
   final AuthService _authService = AuthService();
 
   final List<ChartData> chartData = [
@@ -33,28 +33,32 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadUserProfile() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-      });
+    setState(() {
+      _isLoading = true;
+    });
 
-      final profile = await _authService.getProfile();
-      
-      setState(() {
-        _userProfile = profile;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
-    }
+    final profile = await executeWithErrorHandling(
+      () => _authService.getProfile(),
+      loadingMessage: 'Loading your profile...',
+    );
+
+    setState(() {
+      _userProfile = profile;
+      _isLoading = false;
+    });
   }
 
   Future<void> _refreshProfile() async {
-    await _loadUserProfile();
+    final profile = await executeWithErrorHandling(
+      () => _authService.getProfile(),
+      successMessage: 'Profile refreshed successfully!',
+    );
+
+    if (profile != null) {
+      setState(() {
+        _userProfile = profile;
+      });
+    }
   }
 
   void nextView() {
@@ -110,8 +114,25 @@ class _HomePageState extends State<HomePage> {
 
               Expanded(
                 child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _errorMessage != null
+                    ? const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Loading your profile...',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF666666),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _userProfile == null
                         ? _buildErrorWidget()
                         : SingleChildScrollView(
                             padding: const EdgeInsets.all(16),
@@ -435,9 +456,9 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            _errorMessage ?? 'Unknown error occurred',
-            style: const TextStyle(
+          const Text(
+            'Please check your connection and try again',
+            style: TextStyle(
               fontSize: 14,
               color: Color(0xFF666666),
             ),
@@ -449,6 +470,9 @@ class _HomePageState extends State<HomePage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             child: const Text('Retry'),
           ),
@@ -488,6 +512,15 @@ class _HomePageState extends State<HomePage> {
                     setState(() {
                       _userProfile = updatedProfile;
                     });
+                    
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Profile updated successfully!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
                   }
                 }
               },

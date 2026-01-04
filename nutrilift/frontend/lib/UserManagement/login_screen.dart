@@ -4,6 +4,8 @@ import 'signup_screen.dart';
 import 'main_navigation.dart';
 import '../services/auth_service.dart';
 import '../services/api_client.dart';
+import '../services/error_handler.dart';
+import '../services/form_validator.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,10 +14,11 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with ErrorHandlingMixin {
   bool _obscurePassword = true;
   bool _isLoading = false;
   String? _errorMessage;
+  Map<String, dynamic>? _validationErrors;
   
   // Form controllers
   final _emailController = TextEditingController();
@@ -24,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   
   // Services
   final _authService = AuthService();
+  final _formValidator = FormValidator();
 
   @override
   void dispose() {
@@ -51,6 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _validationErrors = null;
     });
 
     try {
@@ -62,16 +67,15 @@ class _LoginScreenState extends State<LoginScreen> {
       // Validate request
       final validationErrors = loginRequest.validate();
       if (validationErrors.isNotEmpty) {
-        setState(() {
-          _errorMessage = validationErrors.first;
-          _isLoading = false;
-        });
-        return;
+        throw ApiException(validationErrors.first);
       }
 
-      final response = await _authService.login(loginRequest);
+      final result = await _authService.login(loginRequest);
       
-      if (response.token != null) {
+      if (result?.token != null) {
+        // Show success message
+        showSuccessMessage('Welcome back! Login successful.');
+        
         // Navigate to MainNavigation on successful login
         if (mounted) {
           Navigator.pushReplacement(
@@ -79,30 +83,20 @@ class _LoginScreenState extends State<LoginScreen> {
             MaterialPageRoute(builder: (context) => const MainNavigation()),
           );
         }
-      } else {
-        setState(() {
-          _errorMessage = 'Login failed. Please try again.';
-          _isLoading = false;
-        });
       }
     } on ApiException catch (e) {
       setState(() {
-        if (e.isUnauthorized()) {
-          _errorMessage = 'Invalid email or password. Please try again.';
-        } else if (e.isValidationError()) {
-          _errorMessage = e.getFieldError('email') ?? 
-                         e.getFieldError('password') ?? 
-                         e.message;
-        } else if (e.isNetworkError()) {
-          _errorMessage = 'Network error. Please check your connection and try again.';
-        } else {
-          _errorMessage = e.message;
+        _validationErrors = handleValidationErrors(e);
+        if (_validationErrors == null) {
+          _errorMessage = ErrorHandler().handleApiError(e);
         }
-        _isLoading = false;
       });
     } catch (e) {
       setState(() {
         _errorMessage = 'An unexpected error occurred. Please try again.';
+      });
+    } finally {
+      setState(() {
         _isLoading = false;
       });
     }
@@ -113,73 +107,60 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset('assets/nutrilift_logo.png', height: 80),
-                const SizedBox(height: 30),
-                const Text(
-                  'Sign In To NutriLift',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const Text(
-                  "Let's personalize your fitness with us",
-                  style: TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 30),
-                
-                // Error message display
-                if (_errorMessage != null) ...[
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 15),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      border: Border.all(color: Colors.red.shade200),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      _errorMessage!,
-                      style: TextStyle(color: Colors.red.shade700),
-                      textAlign: TextAlign.center,
-                    ),
+        child: LoadingOverlay(
+          isLoading: _isLoading,
+          loadingMessage: 'Signing you in...',
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('assets/nutrilift_logo.png', height: 80),
+                  const SizedBox(height: 30),
+                  const Text(
+                    'Sign In To NutriLift',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                ],
-                
-                // Email field
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  enabled: !_isLoading,
-                  decoration: const InputDecoration(
-                    labelText: 'Email Address',
-                    border: OutlineInputBorder(),
+                  const Text(
+                    "Let's personalize your fitness with us",
+                    style: TextStyle(color: Colors.grey),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email is required';
-                    }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                      return 'Please enter a valid email address';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 15),
-                
-                // Password field
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  enabled: !_isLoading,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: const OutlineInputBorder(),
+                  const SizedBox(height: 30),
+                  
+                  // Server validation errors display
+                  ServerValidationErrorDisplay(
+                    errors: _validationErrors,
+                    generalError: _errorMessage,
+                    onDismiss: () {
+                      setState(() {
+                        _validationErrors = null;
+                        _errorMessage = null;
+                      });
+                    },
+                  ),
+                  
+                  // Email field with real-time validation
+                  ValidatedTextFormField(
+                    label: 'Email Address',
+                    controller: _emailController,
+                    validator: _formValidator.validateEmail,
+                    enabled: !_isLoading,
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    keyboardType: TextInputType.emailAddress,
+                    serverError: _validationErrors?['email']?.first,
+                  ),
+                  const SizedBox(height: 15),
+                  
+                  // Password field with real-time validation
+                  ValidatedTextFormField(
+                    label: 'Password',
+                    controller: _passwordController,
+                    validator: (value) => _formValidator.validateRequired(value, 'Password'),
+                    enabled: !_isLoading,
+                    prefixIcon: const Icon(Icons.lock_outlined),
+                    obscureText: _obscurePassword,
                     suffixIcon: IconButton(
                       icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
                       onPressed: () {
@@ -188,86 +169,88 @@ class _LoginScreenState extends State<LoginScreen> {
                         });
                       },
                     ),
+                    showValidationIcon: false,
+                    serverError: _validationErrors?['password']?.first,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Password is required';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                
-                // Login button
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Text('Log In'),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Don't have an account? "),
-                    GestureDetector(
-                      onTap: _isLoading ? null : () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const SignupScreen()),
-                        );
-                      },
-                      child: Text(
-                        'Signup',
-                        style: TextStyle(
-                          color: _isLoading ? Colors.grey : Colors.red, 
-                          fontWeight: FontWeight.bold
-                        ),
+                  const SizedBox(height: 20),
+                  
+                  // Login button
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _handleLogin,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                const Text(
-                  'Or continue with',
-                  style: TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _socialLoginButton(
-                      icon: Icons.facebook,
-                      color: const Color(0xFF1877F2),
-                      onTap: _isLoading ? null : () => _launchURL('https://www.facebook.com/login'),
-                    ),
-                    const SizedBox(width: 20),
-                    _socialLoginButton(
-                      icon: Icons.camera_alt,
-                      color: const Color(0xFFE4405F),
-                      onTap: _isLoading ? null : () => _launchURL('https://www.instagram.com/accounts/login'),
-                    ),
-                    const SizedBox(width: 20),
-                    _socialLoginButton(
-                      icon: Icons.business,
-                      color: const Color(0xFF0A66C2),
-                      onTap: _isLoading ? null : () => _launchURL('https://www.linkedin.com/login'),
-                    ),
-                  ],
-                ),
-              ],
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Log In',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Don't have an account? "),
+                      GestureDetector(
+                        onTap: _isLoading ? null : () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SignupScreen()),
+                          );
+                        },
+                        child: Text(
+                          'Signup',
+                          style: TextStyle(
+                            color: _isLoading ? Colors.grey : Colors.red, 
+                            fontWeight: FontWeight.bold
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+                  const Text(
+                    'Or continue with',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _socialLoginButton(
+                        icon: Icons.facebook,
+                        color: const Color(0xFF1877F2),
+                        onTap: _isLoading ? null : () => _launchURL('https://www.facebook.com/login'),
+                      ),
+                      const SizedBox(width: 20),
+                      _socialLoginButton(
+                        icon: Icons.camera_alt,
+                        color: const Color(0xFFE4405F),
+                        onTap: _isLoading ? null : () => _launchURL('https://www.instagram.com/accounts/login'),
+                      ),
+                      const SizedBox(width: 20),
+                      _socialLoginButton(
+                        icon: Icons.business,
+                        color: const Color(0xFF0A66C2),
+                        onTap: _isLoading ? null : () => _launchURL('https://www.linkedin.com/login'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

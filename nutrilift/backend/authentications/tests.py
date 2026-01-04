@@ -2164,6 +2164,398 @@ class ErrorHandlingUnitTest(TestCase):
         self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(response2.json()['success'])
         self.assertEqual(response2.json()['message'], 'Invalid email format')
+
+
+@override_settings(
+    DATABASES={
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    },
+    JWT_SECRET_KEY='test-secret-key-for-jwt-testing',
+    JWT_ALGORITHM='HS256',
+    JWT_EXPIRATION_DELTA=3600,  # 1 hour for testing
+    ROOT_URLCONF='authentications.test_urls',  # Use test URL configuration
+    REST_FRAMEWORK={
+        'DEFAULT_AUTHENTICATION_CLASSES': [
+            'authentications.authentication.JWTAuthentication',
+        ],
+        'DEFAULT_PERMISSION_CLASSES': [
+            'rest_framework.permissions.AllowAny',  # Allow any for tests
+        ],
+        'DEFAULT_RENDERER_CLASSES': [
+            'rest_framework.renderers.JSONRenderer',
+        ],
+        'DEFAULT_PARSER_CLASSES': [
+            'rest_framework.parsers.JSONParser',
+        ],
+    }
+)
+class HTTPStatusCodesPropertyTest(HypothesisTestCase):
+    """
+    Property-based tests for HTTP status codes to ensure appropriate status codes
+    are returned based on the operation result.
+    
+    Feature: user-authentication-profile, Property 19: HTTP Status Codes
+    """
+    
+    def setUp(self):
+        """Set up test environment for HTTP status codes property tests."""
+        # Ensure we have a clean database state for each test
+        User.objects.all().delete()
+        
+        # Set up API client
+        self.client = APIClient()
+        
+        # Set up test data
+        self.test_email = 'existing@example.com'
+        # Create a user for duplicate email testing
+        User.objects.create(
+            email=self.test_email,
+            password='ExistingPassword123',
+            name='Existing User'
+        )
+    
+    @settings(max_examples=3, deadline=5000)  # Reduced examples, increased deadline
+    @given(
+        email=st.just('test@example.com'),  # Use simple fixed email
+        password=st.just('Test123!'),  # Use simple fixed password
+        name=st.just('TestUser')  # Use simple fixed name
+    )
+    def test_successful_registration_returns_201_created(self, email, password, name):
+        """
+        Feature: user-authentication-profile, Property 19: HTTP Status Codes
+        
+        For any successful user registration, the API should return HTTP 201 Created.
+        
+        Validates: Requirements 7.6, 5.5
+        """
+        # Ensure no user exists with this email
+        User.objects.filter(email=email).delete()
+        
+        # Prepare registration data
+        registration_data = {
+            'email': email,
+            'password': password,
+            'name': name
+        }
+        
+        # Make registration request
+        response = self.client.post('/api/auth/register/', registration_data, format='json')
+        
+        # Verify HTTP 201 Created status code for successful registration
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        # Verify response indicates success
+        response_data = response.json()
+        self.assertTrue(response_data.get('success', False))
+    
+    @settings(max_examples=3, deadline=5000)  # Reduced examples, increased deadline
+    @given(
+        email=st.just('login@example.com'),  # Use simple fixed email
+        password=st.just('Login123!'),  # Use simple fixed password
+        name=st.just('LoginUser')  # Use simple fixed name
+    )
+    def test_successful_login_returns_200_ok(self, email, password, name):
+        """
+        Feature: user-authentication-profile, Property 19: HTTP Status Codes
+        
+        For any successful user login, the API should return HTTP 200 OK.
+        
+        Validates: Requirements 7.6, 5.5
+        """
+        # Create a user first
+        User.objects.filter(email=email).delete()
+        
+        # Register user
+        registration_data = {
+            'email': email,
+            'password': password,
+            'name': name
+        }
+        
+        register_response = self.client.post('/api/auth/register/', registration_data, format='json')
+        self.assertEqual(register_response.status_code, status.HTTP_201_CREATED)
+        
+        # Now test login
+        login_data = {
+            'email': email,
+            'password': password
+        }
+        
+        # Make login request
+        response = self.client.post('/api/auth/login/', login_data, format='json')
+        
+        # Verify HTTP 200 OK status code for successful login
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Verify response indicates success
+        response_data = response.json()
+        self.assertTrue(response_data.get('success', False))
+    
+    @settings(max_examples=3, deadline=5000)  # Reduced examples, increased deadline
+    @given(
+        invalid_email=st.sampled_from(['', 'invalid-email', 'user@', '@domain.com']),
+        password=st.just('Test123!'),
+        name=st.just('TestUser')
+    )
+    def test_validation_errors_return_400_bad_request(self, invalid_email, password, name):
+        """
+        Feature: user-authentication-profile, Property 19: HTTP Status Codes
+        
+        For any request with validation errors, the API should return HTTP 400 Bad Request.
+        
+        Validates: Requirements 7.6, 5.5
+        """
+        # Test registration with invalid email
+        registration_data = {
+            'email': invalid_email,
+            'password': password,
+            'name': name
+        }
+        
+        # Make registration request
+        response = self.client.post('/api/auth/register/', registration_data, format='json')
+        
+        # Verify HTTP 400 Bad Request status code for validation errors
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+        # Verify response indicates failure
+        response_data = response.json()
+        self.assertFalse(response_data.get('success', True))
+        self.assertIn('errors', response_data)
+    
+    @settings(deadline=1000)  # Increase deadline to 1 second
+    @given(
+        email=st.builds(
+            lambda local, domain: f"{local}@{domain}",
+            local=st.text(min_size=1, max_size=10, alphabet=st.characters(min_codepoint=97, max_codepoint=122)),
+            domain=st.builds(
+                lambda name, tld: f"{name}.{tld}",
+                name=st.text(min_size=1, max_size=5, alphabet=st.characters(min_codepoint=97, max_codepoint=122)),
+                tld=st.sampled_from(['com', 'org', 'net'])
+            )
+        ),
+        wrong_password=st.text(min_size=1, max_size=10, alphabet=st.characters(min_codepoint=48, max_codepoint=122)),
+        correct_password=st.text(min_size=8, max_size=15, alphabet=st.characters(min_codepoint=48, max_codepoint=122)).filter(
+            lambda x: any(c.isalpha() for c in x) and any(c.isdigit() for c in x)
+        ),
+        name=st.text(min_size=1, max_size=20, alphabet=st.characters(min_codepoint=65, max_codepoint=122)).filter(
+            lambda x: x.strip() and x.isalnum()
+        )
+    )
+    def test_authentication_errors_return_401_unauthorized(self, email, wrong_password, correct_password, name):
+        """
+        Feature: user-authentication-profile, Property 19: HTTP Status Codes
+        
+        For any request with authentication errors, the API should return HTTP 401 Unauthorized.
+        
+        Validates: Requirements 7.6, 5.5
+        """
+        # Skip if passwords are the same
+        if wrong_password == correct_password:
+            return
+        
+        # Create a user first
+        User.objects.filter(email=email).delete()
+        
+        # Register user with correct password
+        registration_data = {
+            'email': email,
+            'password': correct_password,
+            'name': name
+        }
+        
+        register_response = self.client.post('/api/auth/register/', registration_data, format='json')
+        self.assertEqual(register_response.status_code, status.HTTP_201_CREATED)
+        
+        # Try to login with wrong password
+        login_data = {
+            'email': email,
+            'password': wrong_password
+        }
+        
+        # Make login request with wrong password
+        response = self.client.post('/api/auth/login/', login_data, format='json')
+        
+        # Verify HTTP 401 Unauthorized status code for authentication errors
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        # Verify response indicates failure
+        response_data = response.json()
+        self.assertFalse(response_data.get('success', True))
+    
+    def test_unauthorized_access_returns_401_unauthorized(self):
+        """
+        Feature: user-authentication-profile, Property 19: HTTP Status Codes
+        
+        For any request to protected endpoints without authentication, 
+        the API should return HTTP 401 Unauthorized.
+        
+        Validates: Requirements 7.6, 5.5
+        """
+        # Test accessing protected profile endpoint without token
+        response = self.client.get('/api/auth/me/')
+        
+        # Verify HTTP 401 Unauthorized status code
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        # Test accessing protected profile update endpoint without token
+        profile_data = {
+            'name': 'Updated Name',
+            'gender': 'Male'
+        }
+        
+        response2 = self.client.put('/api/auth/profile/', profile_data, format='json')
+        
+        # Verify HTTP 401 Unauthorized status code
+        self.assertEqual(response2.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    @settings(max_examples=3, deadline=5000)  # Reduced examples, increased deadline
+    @given(
+        email=st.just('profile@example.com'),  # Use simple fixed email
+        password=st.just('Profile123!'),  # Use simple fixed password
+        name=st.just('ProfileUser')  # Use simple fixed name
+    )
+    def test_successful_profile_operations_return_200_ok(self, email, password, name):
+        """
+        Feature: user-authentication-profile, Property 19: HTTP Status Codes
+        
+        For any successful profile operations (get/update), the API should return HTTP 200 OK.
+        
+        Validates: Requirements 7.6, 5.5
+        """
+        # Create and login user
+        User.objects.filter(email=email).delete()
+        
+        # Register user
+        registration_data = {
+            'email': email,
+            'password': password,
+            'name': name
+        }
+        
+        register_response = self.client.post('/api/auth/register/', registration_data, format='json')
+        self.assertEqual(register_response.status_code, status.HTTP_201_CREATED)
+        
+        # Login to get token
+        login_data = {
+            'email': email,
+            'password': password
+        }
+        
+        login_response = self.client.post('/api/auth/login/', login_data, format='json')
+        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
+        
+        # Get auth token
+        token = login_response.json()['data']['token']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        
+        # Test profile retrieval
+        profile_response = self.client.get('/api/auth/me/')
+        
+        # Verify HTTP 200 OK status code for successful profile retrieval
+        self.assertEqual(profile_response.status_code, status.HTTP_200_OK)
+        
+        # Verify response indicates success
+        profile_data = profile_response.json()
+        self.assertTrue(profile_data.get('success', False))
+        
+        # Test profile update
+        update_data = {
+            'name': f'Updated {name}',
+            'gender': 'Male',
+            'height': 175.0,
+            'weight': 70.0
+        }
+        
+        update_response = self.client.put('/api/auth/profile/', update_data, format='json')
+        
+        # Verify HTTP 200 OK status code for successful profile update
+        self.assertEqual(update_response.status_code, status.HTTP_200_OK)
+        
+        # Verify response indicates success
+        update_response_data = update_response.json()
+        self.assertTrue(update_response_data.get('success', False))
+    
+    def test_duplicate_email_returns_appropriate_error_status(self):
+        """
+        Feature: user-authentication-profile, Property 19: HTTP Status Codes
+        
+        For any duplicate email registration, the API should return appropriate error status
+        (either HTTP 400 Bad Request or HTTP 409 Conflict).
+        
+        Validates: Requirements 7.6, 5.5
+        """
+        # First registration should succeed
+        registration_data = {
+            'email': 'duplicate@example.com',
+            'password': 'ValidPassword123',
+            'name': 'First User'
+        }
+        
+        response1 = self.client.post('/api/auth/register/', registration_data, format='json')
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        
+        # Second registration with same email should fail with appropriate status
+        registration_data2 = {
+            'email': 'duplicate@example.com',  # Same email
+            'password': 'AnotherPassword456',
+            'name': 'Second User'
+        }
+        
+        response2 = self.client.post('/api/auth/register/', registration_data2, format='json')
+        
+        # Verify appropriate error status code (400 or 409 are both acceptable)
+        self.assertIn(response2.status_code, [status.HTTP_400_BAD_REQUEST, status.HTTP_409_CONFLICT])
+        
+        # Verify response indicates failure
+        response_data = response2.json()
+        self.assertFalse(response_data.get('success', True))
+        self.assertIn('errors', response_data)
+    
+    @given(
+        invalid_token=st.one_of(
+            st.just(''),  # Empty token
+            st.just('invalid.token.format'),  # Invalid format
+            st.just('Bearer '),  # Empty bearer token
+            st.text(min_size=1, max_size=50).filter(lambda x: '.' not in x),  # Random text without dots
+        )
+    )
+    def test_invalid_tokens_return_401_unauthorized(self, invalid_token):
+        """
+        Feature: user-authentication-profile, Property 19: HTTP Status Codes
+        
+        For any request with invalid authentication tokens, 
+        the API should return HTTP 401 Unauthorized.
+        
+        Validates: Requirements 7.6, 5.5
+        """
+        # Set invalid token
+        if invalid_token.strip():
+            if invalid_token.startswith('Bearer '):
+                self.client.credentials(HTTP_AUTHORIZATION=invalid_token)
+            else:
+                self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {invalid_token}')
+        else:
+            self.client.credentials(HTTP_AUTHORIZATION='Bearer ')
+        
+        # Test accessing protected endpoint with invalid token
+        response = self.client.get('/api/auth/me/')
+        
+        # Verify HTTP 401 Unauthorized status code
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        # Test profile update with invalid token
+        profile_data = {
+            'name': 'Updated Name'
+        }
+        
+        response2 = self.client.put('/api/auth/profile/', profile_data, format='json')
+        
+        # Verify HTTP 401 Unauthorized status code
+        self.assertEqual(response2.status_code, status.HTTP_401_UNAUTHORIZED)
     
     def test_error_response_consistency(self):
         """

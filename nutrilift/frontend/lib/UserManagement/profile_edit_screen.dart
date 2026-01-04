@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/form_validator.dart';
+import '../services/error_handler.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   final UserProfile userProfile;
@@ -13,9 +15,10 @@ class ProfileEditScreen extends StatefulWidget {
   State<ProfileEditScreen> createState() => _ProfileEditScreenState();
 }
 
-class _ProfileEditScreenState extends State<ProfileEditScreen> {
+class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlingMixin {
   final _formKey = GlobalKey<FormState>();
   final AuthService _authService = AuthService();
+  final FormValidator _formValidator = FormValidator();
   
   late TextEditingController _nameController;
   late TextEditingController _heightController;
@@ -68,26 +71,29 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       _errorMessage = null;
     });
 
-    try {
-      final request = ProfileUpdateRequest(
-        name: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
-        gender: _selectedGender,
-        ageGroup: _selectedAgeGroup,
-        height: _heightController.text.trim().isEmpty ? null : double.tryParse(_heightController.text.trim()),
-        weight: _weightController.text.trim().isEmpty ? null : double.tryParse(_weightController.text.trim()),
-        fitnessLevel: _selectedFitnessLevel,
-      );
+    final result = await executeWithErrorHandling(
+      () async {
+        final request = ProfileUpdateRequest(
+          name: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
+          gender: _selectedGender,
+          ageGroup: _selectedAgeGroup,
+          height: _heightController.text.trim().isEmpty ? null : double.tryParse(_heightController.text.trim()),
+          weight: _weightController.text.trim().isEmpty ? null : double.tryParse(_weightController.text.trim()),
+          fitnessLevel: _selectedFitnessLevel,
+        );
 
-      final updatedProfile = await _authService.updateProfile(request);
-      
-      if (mounted) {
-        Navigator.pop(context, updatedProfile);
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
+        return await _authService.updateProfile(request);
+      },
+      successMessage: 'Profile updated successfully!',
+      showLoading: false, // We handle loading state manually
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (result != null && mounted) {
+      Navigator.pop(context, result);
     }
   }
 
@@ -160,19 +166,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               // Name Field
               _buildSectionTitle('Personal Information'),
               const SizedBox(height: 12),
-              _buildTextFormField(
+              ValidatedTextFormField(
                 controller: _nameController,
                 label: 'Full Name',
-                icon: Icons.person,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Name is required';
-                  }
-                  if (value.trim().length < 2) {
-                    return 'Name must be at least 2 characters long';
-                  }
-                  return null;
-                },
+                validator: _formValidator.validateName,
+                prefixIcon: Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFEBEE),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.person, color: Colors.red, size: 20),
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -199,43 +205,37 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               // Physical Information
               _buildSectionTitle('Physical Information'),
               const SizedBox(height: 12),
-              _buildTextFormField(
+              ValidatedTextFormField(
                 controller: _heightController,
                 label: 'Height (cm)',
-                icon: Icons.height,
+                validator: _formValidator.validateHeight,
                 keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value != null && value.trim().isNotEmpty) {
-                    final height = double.tryParse(value.trim());
-                    if (height == null || height <= 0) {
-                      return 'Please enter a valid height';
-                    }
-                    if (height < 50 || height > 300) {
-                      return 'Height must be between 50 and 300 cm';
-                    }
-                  }
-                  return null;
-                },
+                prefixIcon: Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFEBEE),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.height, color: Colors.red, size: 20),
+                ),
               ),
               const SizedBox(height: 16),
 
-              _buildTextFormField(
+              ValidatedTextFormField(
                 controller: _weightController,
                 label: 'Weight (kg)',
-                icon: Icons.monitor_weight,
+                validator: _formValidator.validateWeight,
                 keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value != null && value.trim().isNotEmpty) {
-                    final weight = double.tryParse(value.trim());
-                    if (weight == null || weight <= 0) {
-                      return 'Please enter a valid weight';
-                    }
-                    if (weight < 20 || weight > 500) {
-                      return 'Weight must be between 20 and 500 kg';
-                    }
-                  }
-                  return null;
-                },
+                prefixIcon: Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFEBEE),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.monitor_weight, color: Colors.red, size: 20),
+                ),
               ),
               const SizedBox(height: 24),
 

@@ -4,6 +4,8 @@ import 'login_screen.dart';
 import 'gender_screen.dart';
 import '../services/auth_service.dart';
 import '../services/api_client.dart';
+import '../services/error_handler.dart';
+import '../services/form_validator.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -12,11 +14,8 @@ class SignupScreen extends StatefulWidget {
   State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
+class _SignupScreenState extends State<SignupScreen> with ErrorHandlingMixin {
   bool _isLoading = false;
-  String? _errorMessage;
   
   // Form controllers
   final _emailController = TextEditingController();
@@ -27,6 +26,7 @@ class _SignupScreenState extends State<SignupScreen> {
   
   // Services
   final _authService = AuthService();
+  final _formValidator = FormValidator();
 
   @override
   void dispose() {
@@ -53,73 +53,46 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    // Check password confirmation
-    if (_passwordController.text != _confirmPasswordController.text) {
-      setState(() {
-        _errorMessage = 'Passwords do not match';
-      });
-      return;
-    }
-
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
-    try {
-      final registerRequest = RegisterRequest(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-        name: _nameController.text.trim(),
-      );
+    final result = await executeWithErrorHandling(
+      () async {
+        final registerRequest = RegisterRequest(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          name: _nameController.text.trim(),
+        );
 
-      // Validate request
-      final validationErrors = registerRequest.validate();
-      if (validationErrors.isNotEmpty) {
-        setState(() {
-          _errorMessage = validationErrors.first;
-          _isLoading = false;
-        });
-        return;
-      }
+        // Additional validation
+        final validationErrors = registerRequest.validate();
+        if (validationErrors.isNotEmpty) {
+          throw ApiException(validationErrors.first);
+        }
 
-      final response = await _authService.register(registerRequest);
-      
-      if (response.token != null) {
-        // Navigate to GenderScreen on successful registration
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const GenderScreen()),
-          );
+        // Check password confirmation
+        if (_passwordController.text != _confirmPasswordController.text) {
+          throw ApiException('Passwords do not match');
         }
-      } else {
-        setState(() {
-          _errorMessage = 'Registration failed. Please try again.';
-          _isLoading = false;
-        });
+
+        return await _authService.register(registerRequest);
+      },
+      successMessage: 'Account created successfully! Please complete your profile.',
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (result?.token != null) {
+      // Navigate to GenderScreen on successful registration
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const GenderScreen()),
+        );
       }
-    } on ApiException catch (e) {
-      setState(() {
-        if (e.statusCode == 409) {
-          _errorMessage = 'An account with this email already exists. Please use a different email or try logging in.';
-        } else if (e.isValidationError()) {
-          _errorMessage = e.getFieldError('email') ?? 
-                         e.getFieldError('password') ?? 
-                         e.getFieldError('name') ?? 
-                         e.message;
-        } else if (e.isNetworkError()) {
-          _errorMessage = 'Network error. Please check your connection and try again.';
-        } else {
-          _errorMessage = e.message;
-        }
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'An unexpected error occurred. Please try again.';
-        _isLoading = false;
-      });
     }
   }
 
@@ -128,13 +101,14 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(height: 40),
                 Image.asset('assets/nutrilift_logo.png', height: 80),
                 const SizedBox(height: 30),
                 const Text(
@@ -147,131 +121,61 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: 30),
                 
-                // Error message display
-                if (_errorMessage != null) ...[
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 15),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      border: Border.all(color: Colors.red.shade200),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      _errorMessage!,
-                      style: TextStyle(color: Colors.red.shade700),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-                
-                // Name field
-                TextFormField(
+                // Name field with real-time validation
+                ValidatedTextFormField(
+                  label: 'Full Name',
                   controller: _nameController,
+                  validator: _formValidator.validateName,
                   enabled: !_isLoading,
-                  decoration: const InputDecoration(
-                    labelText: 'Full Name',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Name is required';
-                    }
-                    if (value.length < 2) {
-                      return 'Name must be at least 2 characters long';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 15),
-                
-                // Email field
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  enabled: !_isLoading,
-                  decoration: const InputDecoration(
-                    labelText: 'Email Address',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email is required';
-                    }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                      return 'Please enter a valid email address';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 15),
-                
-                // Password field
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  enabled: !_isLoading,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Password is required';
-                    }
-                    if (value.length < 8) {
-                      return 'Password must be at least 8 characters long';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 15),
-                
-                // Confirm password field
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  obscureText: _obscureConfirmPassword,
-                  enabled: !_isLoading,
-                  decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscureConfirmPassword ? Icons.visibility_off : Icons.visibility),
-                      onPressed: () {
-                        setState(() {
-                          _obscureConfirmPassword = !_obscureConfirmPassword;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
+                  prefixIcon: const Icon(Icons.person_outlined),
+                  keyboardType: TextInputType.name,
                 ),
                 const SizedBox(height: 20),
                 
-                // Sign up button
+                // Email field with real-time validation
+                ValidatedTextFormField(
+                  label: 'Email Address',
+                  controller: _emailController,
+                  validator: _formValidator.validateEmail,
+                  enabled: !_isLoading,
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 20),
+                
+                // Password field with strength indicator
+                PasswordFieldWithStrength(
+                  label: 'Password',
+                  controller: _passwordController,
+                  enabled: !_isLoading,
+                  showStrengthIndicator: true,
+                ),
+                const SizedBox(height: 20),
+                
+                // Confirm password field with real-time validation
+                ValidatedTextFormField(
+                  label: 'Confirm Password',
+                  controller: _confirmPasswordController,
+                  validator: (value) => _formValidator.validatePasswordConfirmation(
+                    _passwordController.text,
+                    value,
+                  ),
+                  enabled: !_isLoading,
+                  prefixIcon: const Icon(Icons.lock_outlined),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 30),
+                
+                // Sign up button with loading state
                 ElevatedButton(
                   onPressed: _isLoading ? null : _handleSignup,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
@@ -282,9 +186,14 @@ class _SignupScreenState extends State<SignupScreen> {
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
-                      : const Text('Sign Up'),
+                      : const Text(
+                          'Sign Up',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
                 ),
                 const SizedBox(height: 20),
+                
+                // Login link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -307,6 +216,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   ],
                 ),
                 const SizedBox(height: 30),
+                
+                // Social login section
                 const Text(
                   'Or continue with',
                   style: TextStyle(color: Colors.grey),
@@ -334,6 +245,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 40),
               ],
             ),
           ),
