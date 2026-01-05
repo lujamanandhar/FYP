@@ -17,9 +17,7 @@ class _GenderScreenState extends State<GenderScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize onboarding session
     _onboardingService.initializeOnboarding();
-    // Initialize with existing data if any
     _selectedGender = _onboardingService.data.gender;
   }
 
