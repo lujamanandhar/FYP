@@ -83,7 +83,6 @@ class _GenderScreenState extends State<GenderScreen> {
               const SizedBox(height: 50),
               ElevatedButton(
                 onPressed: _selectedGender != null ? () {
-                  // Validate current step before proceeding
                   final error = _onboardingService.validateCurrentStep(1);
                   if (error != null) {
                     ScaffoldMessenger.of(context).showSnackBar(
