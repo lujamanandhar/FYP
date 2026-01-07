@@ -17,7 +17,7 @@ class _AgeGroupScreenState extends State<AgeGroupScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize with existing data if any
+   
     _selectedAge = _onboardingService.data.ageGroup;
   }
 
