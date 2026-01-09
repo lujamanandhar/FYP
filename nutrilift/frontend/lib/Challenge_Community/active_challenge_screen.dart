@@ -157,7 +157,6 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
                     ),
             ),
 
-            // Complete Day Button
             if (allTasksCompleted)
               Padding(
                 padding: const EdgeInsets.only(top: 16),

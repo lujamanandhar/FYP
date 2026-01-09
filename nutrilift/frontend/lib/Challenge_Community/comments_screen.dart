@@ -21,7 +21,7 @@ class CommentsScreen extends StatelessWidget {
       _Comment(
         username: 'ronnie_coleman',
         time: '1 hr ago',
-        text: 'Yeah Lujiiii!! Light weight!!',
+        text: 'Yeah Luja!! Light weight!!',
       ),
     ];
 
