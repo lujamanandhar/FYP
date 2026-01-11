@@ -34,8 +34,9 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Find Gyms'),
-        backgroundColor: Colors.deepOrange,
+        title: Text('Find Gyms', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red[700],
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -48,9 +49,14 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                 controller: _searchController,
                 decoration: InputDecoration(
                   hintText: 'Search gyms...',
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: Icon(Icons.search, color: Colors.red[700]),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.red[700]!),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.red[700]!, width: 2),
                   ),
                 ),
               ),
@@ -66,6 +72,7 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                             child: FilterChip(
                               label: Text(filter),
                               selected: _selectedFilter == filter,
+                              selectedColor: Colors.red[100],
                               onSelected: (selected) {
                                 setState(() => _selectedFilter = filter);
                               },
@@ -101,6 +108,7 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
   Widget _buildGymCard(Map<String, dynamic> gym) {
     return Card(
       margin: EdgeInsets.only(bottom: 12),
+      elevation: 2,
       child: Padding(
         padding: EdgeInsets.all(12),
         child: Column(
@@ -116,12 +124,12 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.orange[100],
+                    color: Colors.red[50],
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.star, size: 16, color: Colors.orange),
+                      Icon(Icons.star, size: 16, color: Colors.red[700]),
                       SizedBox(width: 4),
                       Text('${gym['rating']}'),
                     ],
@@ -143,7 +151,7 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
               children: (gym['facilities'] as List)
                   .map((facility) => Chip(
                         label: Text(facility, style: TextStyle(fontSize: 12)),
-                        backgroundColor: Colors.deepOrange[100],
+                        backgroundColor: Colors.red[100],
                       ))
                   .toList(),
             ),
@@ -151,7 +159,7 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
             ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepOrange,
+                backgroundColor: Colors.red[700],
                 minimumSize: Size(double.infinity, 40),
               ),
               child: Text('View Details'),
