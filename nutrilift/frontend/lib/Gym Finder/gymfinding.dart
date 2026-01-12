@@ -34,9 +34,10 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Find Gyms', style: TextStyle(color: Colors.white)),
+        title: Text('Find Gyms', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.red[700],
-        elevation: 0,
+        elevation: 4,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -50,17 +51,19 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                 decoration: InputDecoration(
                   hintText: 'Search gyms...',
                   prefixIcon: Icon(Icons.search, color: Colors.red[700]),
+                  filled: true,
+                  fillColor: Colors.grey[100],
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.red[700]!),
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: Colors.red[700]!, width: 2),
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 20),
 
               // Filter Chips
               SingleChildScrollView(
@@ -70,9 +73,12 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                       .map((filter) => Padding(
                             padding: EdgeInsets.only(right: 8),
                             child: FilterChip(
-                              label: Text(filter),
+                              label: Text(filter, style: TextStyle(fontWeight: FontWeight.w500)),
                               selected: _selectedFilter == filter,
-                              selectedColor: Colors.red[100],
+                              selectedColor: Colors.red[700],
+                              labelStyle: TextStyle(
+                                color: _selectedFilter == filter ? Colors.white : Colors.black,
+                              ),
                               onSelected: (selected) {
                                 setState(() => _selectedFilter = filter);
                               },
@@ -81,14 +87,14 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                       .toList(),
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 24),
 
               // Gym List
               Text(
                 'Nearby Gyms',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 12),
+              SizedBox(height: 16),
               ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
@@ -107,62 +113,71 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
 
   Widget _buildGymCard(Map<String, dynamic> gym) {
     return Card(
-      margin: EdgeInsets.only(bottom: 12),
-      elevation: 2,
+      margin: EdgeInsets.only(bottom: 16),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  gym['name'],
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Text(
+                    gym['name'],
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.red[50],
-                    borderRadius: BorderRadius.circular(4),
+                    color: Colors.red[700],
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.star, size: 16, color: Colors.red[700]),
+                      Icon(Icons.star, size: 16, color: Colors.white),
                       SizedBox(width: 4),
-                      Text('${gym['rating']}'),
+                      Text('${gym['rating']}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.location_on, size: 16, color: Colors.grey),
-                SizedBox(width: 4),
-                Text(gym['distance'], style: TextStyle(color: Colors.grey)),
+                Icon(Icons.location_on, size: 18, color: Colors.red[700]),
+                SizedBox(width: 8),
+                Text(gym['distance'], style: TextStyle(color: Colors.grey[700], fontSize: 14)),
               ],
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 14),
             Wrap(
-              spacing: 6,
+              spacing: 8,
+              runSpacing: 8,
               children: (gym['facilities'] as List)
                   .map((facility) => Chip(
-                        label: Text(facility, style: TextStyle(fontSize: 12)),
-                        backgroundColor: Colors.red[100],
+                        label: Text(facility, style: TextStyle(fontSize: 12, color: Colors.white)),
+                        backgroundColor: Colors.red[700],
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       ))
                   .toList(),
             ),
-            SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red[700],
-                minimumSize: Size(double.infinity, 40),
+            SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[700],
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: Text('View Details', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
               ),
-              child: Text('View Details'),
             ),
           ],
         ),
