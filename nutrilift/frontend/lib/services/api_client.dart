@@ -12,7 +12,7 @@ class ApiClient {
   final TokenService _tokenService;
   String? _authToken;
 
-  // Callback for when authentication fails (token expired, etc.)
+  // Callback for when authentication fails 
   Function()? onAuthenticationFailed;
 
   ApiClient() : _client = http.Client(), _tokenService = TokenService();
