@@ -33,7 +33,7 @@ class ApiClient {
     if (storedToken != null && await _tokenService.isTokenValid()) {
       _authToken = storedToken;
     } else if (storedToken != null) {
-      // Token exists but is expired, clear it
+     
       await _tokenService.clearTokens();
     }
   }
