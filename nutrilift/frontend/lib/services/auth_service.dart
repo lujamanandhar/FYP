@@ -22,7 +22,7 @@ class AuthService {
   // Register a new user
   Future<AuthResponse> register(RegisterRequest request) async {
     try {
-      final response = await _apiClient.post('/auth/register', body: request.toJson(), requiresAuth: false);
+      final response = await _apiClient.post('/auth/register/', body: request.toJson(), requiresAuth: false);
       
       final authResponse = AuthResponse.fromJson(response.getData<Map<String, dynamic>>() ?? {});
       
@@ -42,7 +42,7 @@ class AuthService {
   // Login with email and password
   Future<AuthResponse> login(LoginRequest request) async {
     try {
-      final response = await _apiClient.post('/auth/login', body: request.toJson(), requiresAuth: false);
+      final response = await _apiClient.post('/auth/login/', body: request.toJson(), requiresAuth: false);
       
       final authResponse = AuthResponse.fromJson(response.getData<Map<String, dynamic>>() ?? {});
       
@@ -62,7 +62,7 @@ class AuthService {
   // Get current user profile
   Future<UserProfile> getProfile() async {
     try {
-      final response = await _apiClient.get('/auth/me');
+      final response = await _apiClient.get('/auth/me/');
       
       final profileData = response.getData<Map<String, dynamic>>();
       if (profileData == null || profileData['user'] == null) {
@@ -80,7 +80,7 @@ class AuthService {
   // Update user profile
   Future<UserProfile> updateProfile(ProfileUpdateRequest request) async {
     try {
-      final response = await _apiClient.put('/auth/profile', body: request.toJson());
+      final response = await _apiClient.put('/auth/profile/', body: request.toJson());
       
       final profileData = response.getData<Map<String, dynamic>>();
       if (profileData == null || profileData['user'] == null) {

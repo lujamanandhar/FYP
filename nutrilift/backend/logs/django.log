@@ -2345,3 +2345,424 @@ Traceback (most recent call last):
 RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/login/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
 ERROR 2026-01-04 14:26:30,512 basehttp 88764 27984 "POST /api/auth/login HTTP/1.1" 500 19866
 INFO 2026-01-04 14:58:02,957 autoreload 47052 14272 Watching for file changes with StatReloader
+INFO 2026-01-17 22:14:56,968 autoreload 38980 77808 Watching for file changes with StatReloader
+INFO 2026-01-17 22:36:35,710 autoreload 44648 93780 Watching for file changes with StatReloader
+INFO 2026-01-17 22:38:13,301 autoreload 70040 76944 Watching for file changes with StatReloader
+WARNING 2026-01-17 22:41:16,410 log 70040 21336 Not Found: /
+WARNING 2026-01-17 22:41:16,414 basehttp 70040 21336 "GET / HTTP/1.1" 404 2310
+WARNING 2026-01-17 22:41:16,976 log 70040 21336 Not Found: /favicon.ico
+WARNING 2026-01-17 22:41:16,978 basehttp 70040 21336 "GET /favicon.ico HTTP/1.1" 404 2361
+INFO 2026-01-17 22:43:43,519 autoreload 83684 39860 Watching for file changes with StatReloader
+INFO 2026-01-17 22:46:07,765 basehttp 83684 61192 "OPTIONS /api/auth/register HTTP/1.1" 200 0
+ERROR 2026-01-17 22:46:07,876 log 83684 61192 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:07,879 basehttp 83684 61192 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:08,923 log 83684 43148 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:08,924 basehttp 83684 43148 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:11,266 log 83684 57708 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:11,269 basehttp 83684 57708 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:14,303 log 83684 41704 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:14,305 basehttp 83684 41704 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:16,648 log 83684 45276 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:16,650 basehttp 83684 45276 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:17,690 log 83684 29224 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:17,692 basehttp 83684 29224 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:20,029 log 83684 51656 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:20,030 basehttp 83684 51656 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:23,061 log 83684 34368 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:23,062 basehttp 83684 34368 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:27,408 log 83684 79256 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:27,410 basehttp 83684 79256 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:28,450 log 83684 23252 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:28,451 basehttp 83684 23252 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:30,798 log 83684 33612 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:30,799 basehttp 83684 33612 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:33,832 log 83684 38576 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:33,834 basehttp 83684 38576 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:54,978 log 83684 70180 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:54,980 basehttp 83684 70180 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:56,042 log 83684 81700 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:56,043 basehttp 83684 81700 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:46:58,383 log 83684 50044 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:46:58,384 basehttp 83684 50044 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:47:01,425 log 83684 1496 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:47:01,427 basehttp 83684 1496 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:47:03,764 log 83684 76172 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:47:03,766 basehttp 83684 76172 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:47:04,791 log 83684 20488 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:47:04,792 basehttp 83684 20488 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:47:07,137 log 83684 75476 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:47:07,138 basehttp 83684 75476 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:47:10,165 log 83684 87288 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:47:10,166 basehttp 83684 87288 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:47:14,514 log 83684 47128 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:47:14,515 basehttp 83684 47128 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:47:15,535 log 83684 34164 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:47:15,537 basehttp 83684 34164 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:47:17,867 log 83684 43684 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:47:17,869 basehttp 83684 43684 "POST /api/auth/register HTTP/1.1" 500 18883
+ERROR 2026-01-17 22:47:20,916 log 83684 41556 Internal Server Error: /api/auth/register
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to localhost:8000/api/auth/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2026-01-17 22:47:20,918 basehttp 83684 41556 "POST /api/auth/register HTTP/1.1" 500 18883
+INFO 2026-01-17 22:49:06,979 autoreload 83684 39860 F:\Herald Level 6\FYP\nutrilift\backend\backend\settings.py changed, reloading.
+INFO 2026-01-17 22:49:08,192 autoreload 78672 60916 Watching for file changes with StatReloader
+WARNING 2026-01-17 22:50:23,712 log 78672 11736 Not Found: /api/auth/register
+WARNING 2026-01-17 22:50:23,712 basehttp 78672 11736 "POST /api/auth/register HTTP/1.1" 404 3576
+WARNING 2026-01-17 22:50:24,728 log 78672 11736 Not Found: /api/auth/register
+WARNING 2026-01-17 22:50:24,729 basehttp 78672 11736 "POST /api/auth/register HTTP/1.1" 404 3576
+WARNING 2026-01-17 22:50:26,765 log 78672 11736 Not Found: /api/auth/register
+WARNING 2026-01-17 22:50:26,765 basehttp 78672 11736 "POST /api/auth/register HTTP/1.1" 404 3576
+WARNING 2026-01-17 22:50:29,795 log 78672 11736 Not Found: /api/auth/register
+WARNING 2026-01-17 22:50:29,796 basehttp 78672 11736 "POST /api/auth/register HTTP/1.1" 404 3576
+WARNING 2026-01-17 22:50:31,822 log 78672 11736 Not Found: /api/auth/register
+WARNING 2026-01-17 22:50:31,823 basehttp 78672 11736 "POST /api/auth/register HTTP/1.1" 404 3576
+WARNING 2026-01-17 22:50:32,852 log 78672 11736 Not Found: /api/auth/register
+WARNING 2026-01-17 22:50:32,853 basehttp 78672 11736 "POST /api/auth/register HTTP/1.1" 404 3576
+WARNING 2026-01-17 22:50:34,877 log 78672 11736 Not Found: /api/auth/register
+WARNING 2026-01-17 22:50:34,877 basehttp 78672 11736 "POST /api/auth/register HTTP/1.1" 404 3576
+WARNING 2026-01-17 22:50:37,891 log 78672 11736 Not Found: /api/auth/register
+WARNING 2026-01-17 22:50:37,892 basehttp 78672 11736 "POST /api/auth/register HTTP/1.1" 404 3576
+WARNING 2026-01-17 22:50:41,910 log 78672 11736 Not Found: /api/auth/register
+WARNING 2026-01-17 22:50:41,910 basehttp 78672 11736 "POST /api/auth/register HTTP/1.1" 404 3576
+WARNING 2026-01-17 22:50:42,935 log 78672 11736 Not Found: /api/auth/register
+WARNING 2026-01-17 22:50:42,936 basehttp 78672 11736 "POST /api/auth/register HTTP/1.1" 404 3576
+WARNING 2026-01-17 22:50:44,960 log 78672 11736 Not Found: /api/auth/register
+WARNING 2026-01-17 22:50:44,961 basehttp 78672 11736 "POST /api/auth/register HTTP/1.1" 404 3576
+WARNING 2026-01-17 22:50:47,991 log 78672 11736 Not Found: /api/auth/register
+WARNING 2026-01-17 22:50:47,991 basehttp 78672 11736 "POST /api/auth/register HTTP/1.1" 404 3576
+INFO 2026-01-17 22:51:52,462 autoreload 78672 60916 F:\Herald Level 6\FYP\nutrilift\backend\authentications\urls.py changed, reloading.
+INFO 2026-01-17 22:51:53,458 autoreload 45240 28644 Watching for file changes with StatReloader
+INFO 2026-01-17 22:52:08,490 autoreload 45240 28644 F:\Herald Level 6\FYP\nutrilift\backend\backend\settings.py changed, reloading.
+INFO 2026-01-17 22:52:09,856 autoreload 74988 50052 Watching for file changes with StatReloader
+INFO 2026-01-17 22:52:18,793 autoreload 74988 50052 F:\Herald Level 6\FYP\nutrilift\backend\authentications\urls.py changed, reloading.
+INFO 2026-01-17 22:52:19,557 autoreload 36624 86072 Watching for file changes with StatReloader
+INFO 2026-01-17 22:53:08,273 autoreload 35624 46648 Watching for file changes with StatReloader
+WARNING 2026-01-17 22:53:18,303 log 35624 12860 Not Found: /
+WARNING 2026-01-17 22:53:18,304 basehttp 35624 12860 "GET / HTTP/1.1" 404 2310
+WARNING 2026-01-17 22:53:18,579 log 35624 12860 Not Found: /favicon.ico
+WARNING 2026-01-17 22:53:18,580 basehttp 35624 12860 "GET /favicon.ico HTTP/1.1" 404 2361
+INFO 2026-01-17 22:53:34,204 basehttp 35624 12860 "GET /api/auth HTTP/1.1" 301 0
+INFO 2026-01-17 22:53:34,213 basehttp 35624 7604 "GET /api/auth/ HTTP/1.1" 200 864
+INFO 2026-01-17 22:53:48,539 basehttp 35624 7604 "GET /api/auth/register/ HTTP/1.1" 200 595
+INFO 2026-01-17 22:55:00,701 basehttp 35624 39296 "OPTIONS /api/auth/register/ HTTP/1.1" 200 0
+INFO 2026-01-17 22:55:01,339 basehttp 35624 39296 "POST /api/auth/register/ HTTP/1.1" 201 548
+INFO 2026-01-17 22:55:24,796 basehttp 35624 39296 "OPTIONS /api/auth/profile/ HTTP/1.1" 200 0
+INFO 2026-01-17 22:55:24,854 basehttp 35624 39296 "PUT /api/auth/profile/ HTTP/1.1" 200 326
+INFO 2026-01-17 22:55:24,941 basehttp 35624 39296 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+INFO 2026-01-17 22:55:24,989 basehttp 35624 39296 "GET /api/auth/me/ HTTP/1.1" 200 328
+INFO 2026-01-17 22:58:53,885 basehttp 35624 39296 "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+WARNING 2026-01-17 22:58:53,930 log 35624 39296 Unauthorized: /api/auth/login/
+WARNING 2026-01-17 22:58:53,930 basehttp 35624 39296 "POST /api/auth/login/ HTTP/1.1" 401 103
+INFO 2026-01-17 22:59:03,972 basehttp 35624 39296 "POST /api/auth/login/ HTTP/1.1" 200 566
+INFO 2026-01-17 22:59:04,181 basehttp 35624 39296 "GET /api/auth/me/ HTTP/1.1" 200 328
+INFO 2026-01-17 22:59:24,875 basehttp 35624 39296 "GET /api/auth/me/ HTTP/1.1" 200 328
