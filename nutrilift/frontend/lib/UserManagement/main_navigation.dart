@@ -3,6 +3,7 @@ import '../Hompage/home_page.dart';
 import '../NutritionTracking/nutrition_tracking.dart';
 import '../WorkoutTracking/workout_tracking.dart';
 import '../Challenge_Community/community_feed_screen.dart';
+import '../Gym Finder/gymfinding.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({Key? key}) : super(key: key);
@@ -19,6 +20,7 @@ class _MainNavigationState extends State<MainNavigation> {
     const WorkoutTracking(),
     const NutritionTracking(),
     const CommunityFeedScreen(),
+    GymFindingScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -53,6 +55,10 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(
             icon: Icon(Icons.people_outline),
             label: 'Community',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.location_on),
+            label: 'Gym Finder',
           ),
         ],
       ),

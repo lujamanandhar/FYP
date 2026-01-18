@@ -82,10 +82,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # Hash the password before saving
         validated_data['password'] = make_password(validated_data['password'])
         
-        # Set username to email (since we use email as USERNAME_FIELD)
-        validated_data['username'] = validated_data['email']
-        
-        # Create the user
+        # Create the user (no need to set username since we removed it)
         user = User.objects.create(**validated_data)
         return user
 

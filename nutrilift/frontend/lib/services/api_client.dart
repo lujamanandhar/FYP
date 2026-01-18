@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'token_service.dart';
 
 class ApiClient {
-  static const String _baseUrl = 'http://localhost:8000/api';
+  static const String _baseUrl = 'http://127.0.0.1:8000/api';
   static const Duration _timeout = Duration(seconds: 30);
   static const int _maxRetries = 3;
 
@@ -67,16 +67,19 @@ class ApiClient {
   }
 
   // Get common headers with automatic token management
-  Future<Map<String, String>> _getHeaders({Map<String, String>? additionalHeaders}) async {
+  Future<Map<String, String>> _getHeaders({Map<String, String>? additionalHeaders, bool requiresAuth = true}) async {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
 
-    // Get valid token (handles refresh automatically)
-    final token = await _getValidToken();
-    if (token != null) {
-      headers['Authorization'] = 'Bearer $token';
+    // Only add Authorization header if authentication is required
+    if (requiresAuth) {
+      // Get valid token (handles refresh automatically)
+      final token = await _getValidToken();
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
     }
 
     if (additionalHeaders != null) {
@@ -97,7 +100,7 @@ class ApiClient {
   }) async {
     try {
       final uri = Uri.parse('$_baseUrl$endpoint');
-      final requestHeaders = await _getHeaders(additionalHeaders: headers);
+      final requestHeaders = await _getHeaders(additionalHeaders: headers, requiresAuth: requiresAuth);
 
       http.Response response;
       
