@@ -30,7 +30,7 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // App Bar with Image
+          
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
