@@ -98,7 +98,7 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Rating and Distance
+    
                   Row(
                     children: [
                       Container(
