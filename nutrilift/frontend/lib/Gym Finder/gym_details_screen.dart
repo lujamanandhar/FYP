@@ -142,7 +142,6 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
                   ),
                   SizedBox(height: 16),
 
-                  // Address
                   Row(
                     children: [
                       Icon(Icons.place, color: Colors.grey[600]),
