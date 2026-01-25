@@ -4743,3 +4743,22 @@ INFO 2026-01-18 18:37:40,083 basehttp 69004 67164 "OPTIONS /api/auth/profile/ HT
 INFO 2026-01-18 18:37:40,207 basehttp 69004 67164 "PUT /api/auth/profile/ HTTP/1.1" 200 324
 INFO 2026-01-18 18:37:40,429 basehttp 69004 67164 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
 INFO 2026-01-18 18:37:40,535 basehttp 69004 67164 "GET /api/auth/me/ HTTP/1.1" 200 326
+INFO 2026-01-24 23:55:52,487 autoreload 31044 8364 Watching for file changes with StatReloader
+INFO 2026-01-25 00:05:29,577 autoreload 21144 29536 Watching for file changes with StatReloader
+INFO 2026-01-25 00:07:19,764 basehttp 21144 7968 "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+INFO 2026-01-25 00:07:20,422 basehttp 21144 7968 "POST /api/auth/login/ HTTP/1.1" 200 559
+INFO 2026-01-25 00:07:20,682 basehttp 21144 7968 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+INFO 2026-01-25 00:07:20,753 basehttp 21144 7968 "GET /api/auth/me/ HTTP/1.1" 200 322
+INFO 2026-01-25 00:07:38,484 basehttp 21144 7968 "GET /api/auth/me/ HTTP/1.1" 200 322
+INFO 2026-01-25 00:07:48,333 basehttp 21144 24108 "GET /api/auth/me/ HTTP/1.1" 200 322
+INFO 2026-01-25 00:07:56,235 basehttp 21144 17960 "GET /api/auth/me/ HTTP/1.1" 200 322
+INFO 2026-01-25 15:41:28,421 autoreload 15084 24436 Watching for file changes with StatReloader
+INFO 2026-01-25 15:42:24,971 basehttp 15084 26208 "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+INFO 2026-01-25 15:42:25,556 basehttp 15084 26208 "POST /api/auth/login/ HTTP/1.1" 200 559
+INFO 2026-01-25 15:42:25,770 basehttp 15084 26208 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+INFO 2026-01-25 15:42:25,860 basehttp 15084 26208 "GET /api/auth/me/ HTTP/1.1" 200 322
+INFO 2026-01-25 16:04:05,266 basehttp 15084 26952 "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+INFO 2026-01-25 16:04:05,783 basehttp 15084 26952 "POST /api/auth/login/ HTTP/1.1" 200 559
+INFO 2026-01-25 16:04:06,078 basehttp 15084 26952 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+INFO 2026-01-25 16:04:06,147 basehttp 15084 26952 "GET /api/auth/me/ HTTP/1.1" 200 322
+INFO 2026-01-25 16:06:21,686 basehttp 15084 32108 "GET /api/auth/me/ HTTP/1.1" 200 322
