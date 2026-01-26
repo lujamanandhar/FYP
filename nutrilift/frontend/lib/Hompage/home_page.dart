@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/error_handler.dart';
 import '../UserManagement/profile_edit_screen.dart';
+import '../UserManagement/login_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -73,9 +74,169 @@ class _HomePageState extends State<HomePage> with ErrorHandlingMixin {
     });
   }
 
+  Future<void> _handleLogout() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout == true) {
+      await executeWithErrorHandling(
+        () => _authService.logout(),
+        loadingMessage: 'Logging out...',
+        successMessage: 'Logged out successfully!',
+      );
+
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    }
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFFB71C1C), Color(0xFFC62828)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.person,
+                    size: 35,
+                    color: Colors.red,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  _userProfile?.displayName ?? 'User',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  _userProfile?.email ?? '',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.person, color: Colors.red),
+            title: const Text('Profile'),
+            onTap: () async {
+              Navigator.pop(context); // Close drawer
+              if (_userProfile != null) {
+                final updatedProfile = await Navigator.push<UserProfile>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileEditScreen(userProfile: _userProfile!),
+                  ),
+                );
+                
+                if (updatedProfile != null) {
+                  setState(() {
+                    _userProfile = updatedProfile;
+                  });
+                  
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Profile updated successfully!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                }
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings, color: Colors.red),
+            title: const Text('Settings'),
+            onTap: () {
+              Navigator.pop(context); // Close drawer
+              // TODO: Navigate to settings screen
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Settings screen coming soon!'),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.help, color: Colors.red),
+            title: const Text('Help & Support'),
+            onTap: () {
+              Navigator.pop(context); // Close drawer
+              // TODO: Navigate to help screen
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Help & Support coming soon!'),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text(
+              'Logout',
+              style: TextStyle(color: Colors.red),
+            ),
+            onTap: () {
+              Navigator.pop(context); // Close drawer
+              _handleLogout();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: _buildDrawer(),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _refreshProfile,
@@ -104,7 +265,9 @@ class _HomePageState extends State<HomePage> with ErrorHandlingMixin {
                         ),
                         IconButton(
                           icon: const Icon(Icons.menu),
-                          onPressed: () {},
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
                         ),
                       ],
                     ),

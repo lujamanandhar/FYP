@@ -179,7 +179,7 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            // Get directions
+                            
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Opening directions...')),
                             );
