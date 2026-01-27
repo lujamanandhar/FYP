@@ -200,7 +200,6 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
             ),
           ),
 
-          // Tab Bar
           SliverPersistentHeader(
             pinned: true,
             delegate: _SliverTabBarDelegate(
