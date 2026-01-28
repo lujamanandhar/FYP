@@ -218,7 +218,7 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
             ),
           ),
 
-          // Tab Content
+          
           SliverFillRemaining(
             child: TabBarView(
               controller: _tabController,
