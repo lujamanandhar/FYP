@@ -224,7 +224,6 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
               facility.toLowerCase().contains(_searchController.text.toLowerCase()))).toList();
     }
     
-    // Apply category filter
     switch (_selectedFilter) {
       case 'Near Me':
         filtered.sort((a, b) => double.parse(a['distance'].split(' ')[0])

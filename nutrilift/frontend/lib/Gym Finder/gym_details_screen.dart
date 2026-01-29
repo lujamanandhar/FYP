@@ -274,7 +274,7 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
           ),
           SizedBox(height: 24),
 
-          // Facilities
+          
           Text(
             'Facilities',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
