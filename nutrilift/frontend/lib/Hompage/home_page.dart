@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/error_handler.dart';
 import '../UserManagement/profile_edit_screen.dart';
-import '../UserManagement/login_screen.dart';
+import '../widgets/nutrilift_header.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -74,501 +74,304 @@ class _HomePageState extends State<HomePage> with ErrorHandlingMixin {
     });
   }
 
-  Future<void> _handleLogout() async {
-    final shouldLogout = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
-              child: const Text('Logout'),
-            ),
-          ],
-        );
-      },
-    );
 
-    if (shouldLogout == true) {
-      await executeWithErrorHandling(
-        () => _authService.logout(),
-        loadingMessage: 'Logging out...',
-        successMessage: 'Logged out successfully!',
-      );
-
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (route) => false,
-        );
-      }
-    }
-  }
-
-  Widget _buildDrawer() {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFFB71C1C), Color(0xFFC62828)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person,
-                    size: 35,
-                    color: Colors.red,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  _userProfile?.displayName ?? 'User',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  _userProfile?.email ?? '',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.person, color: Colors.red),
-            title: const Text('Profile'),
-            onTap: () async {
-              Navigator.pop(context); // Close drawer
-              if (_userProfile != null) {
-                final updatedProfile = await Navigator.push<UserProfile>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProfileEditScreen(userProfile: _userProfile!),
-                  ),
-                );
-                
-                if (updatedProfile != null) {
-                  setState(() {
-                    _userProfile = updatedProfile;
-                  });
-                  
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Profile updated successfully!'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  }
-                }
-              }
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings, color: Colors.red),
-            title: const Text('Settings'),
-            onTap: () {
-              Navigator.pop(context); // Close drawer
-              // TODO: Navigate to settings screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Settings screen coming soon!'),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.help, color: Colors.red),
-            title: const Text('Help & Support'),
-            onTap: () {
-              Navigator.pop(context); // Close drawer
-              // TODO: Navigate to help screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Help & Support coming soon!'),
-                ),
-              );
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text(
-              'Logout',
-              style: TextStyle(color: Colors.red),
-            ),
-            onTap: () {
-              Navigator.pop(context); // Close drawer
-              _handleLogout();
-            },
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: _buildDrawer(),
+    return NutriLiftScaffold(
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _refreshProfile,
-          child: Column(
-            children: [
-              // Header
-              Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'NUTRILIFT',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
+          child: _isLoading
+              ? const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
                       ),
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Text('🔔', style: TextStyle(fontSize: 20)),
-                          onPressed: () {},
+                      SizedBox(height: 16),
+                      Text(
+                        'Loading your profile...',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Color(0xFF666666),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.menu),
-                          onPressed: () {
-                            Scaffold.of(context).openDrawer();
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+                      ),
+                    ],
+                  ),
+                )
+              : _userProfile == null
+                  ? _buildErrorWidget()
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildWelcomeSection(),
+                          const SizedBox(height: 24),
 
-              Expanded(
-                child: _isLoading
-                    ? const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              'Loading your profile...',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF666666),
+                          // Stats/Chart Section
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                showChart ? 'Overview' : 'Daily Summary',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2D2D2D),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : _userProfile == null
-                        ? _buildErrorWidget()
-                        : SingleChildScrollView(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildWelcomeSection(),
-                                const SizedBox(height: 24),
-
-                                // Stats/Chart Section
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      showChart ? 'Overview' : 'Daily Summary',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF2D2D2D),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Stack(
-                                      children: [
-                                        // Content
-                                        AnimatedSwitcher(
-                                          duration: const Duration(milliseconds: 300),
-                                          child: showChart
-                                              ? _buildChart()
-                                              : _buildStatsGrid(),
-                                        ),
-
-                                        // Left Arrow
-                                        Positioned(
-                                          left: -16,
-                                          top: 0,
-                                          bottom: 0,
-                                          child: Center(
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                shape: BoxShape.circle,
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black.withOpacity(0.1),
-                                                    blurRadius: 8,
-                                                    spreadRadius: 2,
-                                                  ),
-                                                ],
-                                              ),
-                                              child: IconButton(
-                                                icon: const Icon(Icons.chevron_left),
-                                                color: const Color(0xFF666666),
-                                                onPressed: prevView,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Right Arrow
-                                        Positioned(
-                                          right: -16,
-                                          top: 0,
-                                          bottom: 0,
-                                          child: Center(
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                shape: BoxShape.circle,
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black.withOpacity(0.1),
-                                                    blurRadius: 8,
-                                                    spreadRadius: 2,
-                                                  ),
-                                                ],
-                                              ),
-                                              child: IconButton(
-                                                icon: const Icon(Icons.chevron_right),
-                                                color: const Color(0xFF666666),
-                                                onPressed: nextView,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 24),
-
-                                _buildProfileSection(),
-                                const SizedBox(height: 24),
-
-                                // Today's Plan
-                                const Text(
-                                  "Today's Plan",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2D2D2D),
+                              const SizedBox(height: 12),
+                              Stack(
+                                children: [
+                                  // Content
+                                  AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 300),
+                                    child: showChart
+                                        ? _buildChart()
+                                        : _buildStatsGrid(),
                                   ),
-                                ),
-                                const SizedBox(height: 12),
-                                _buildPlanItem(
-                                  Icons.fitness_center,
-                                  'Cardio',
-                                  '07:00-08:00 AM',
-                                  'START',
-                                ),
-                                const SizedBox(height: 8),
-                                _buildPlanItem(
-                                  Icons.restaurant,
-                                  'Lunch',
-                                  '01:00-02:00 PM',
-                                  'LOG',
-                                ),
-                                const SizedBox(height: 24),
 
-                                // Quick Actions
-                                const Text(
-                                  'Quick Actions',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2D2D2D),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _buildQuickAction(
-                                        Icons.restaurant,
-                                        'SCAN MEAL',
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: _buildQuickAction(
-                                        Icons.fitness_center,
-                                        'ADD SHORTCUTS',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 24),
-
-                                // AI Assistant
-                                Container(
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFFB71C1C), Color(0xFFC62828)],
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  padding: const EdgeInsets.all(16),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'AI Assistant',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          SizedBox(height: 4),
-                                          Text(
-                                            'Get Personalized Recommendations',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.white70,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
+                                  // Left Arrow
+                                  Positioned(
+                                    left: -16,
+                                    top: 0,
+                                    bottom: 0,
+                                    child: Center(
+                                      child: Container(
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Icon(
-                                          Icons.chat_bubble,
                                           color: Colors.white,
-                                          size: 24,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-
-                                // Active Challenges
-                                const Text(
-                                  'Active Challenges',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2D2D2D),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
-                                        blurRadius: 4,
-                                        spreadRadius: 1,
-                                      ),
-                                    ],
-                                  ),
-                                  padding: const EdgeInsets.all(16),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFFFEBEE),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Icon(
-                                          Icons.fitness_center,
-                                          color: Colors.red,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      const Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '30 Days Pushup Challenge',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: Color(0xFF2D2D2D),
-                                              ),
-                                            ),
-                                            SizedBox(height: 2),
-                                            Text(
-                                              'Day 15 of 30',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Color(0xFF666666),
-                                              ),
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.1),
+                                              blurRadius: 8,
+                                              spreadRadius: 2,
                                             ),
                                           ],
                                         ),
+                                        child: IconButton(
+                                          icon: const Icon(Icons.chevron_left),
+                                          color: const Color(0xFF666666),
+                                          onPressed: prevView,
+                                        ),
                                       ),
-                                      const Icon(
-                                        Icons.chevron_right,
-                                        color: Color(0xFF999999),
+                                    ),
+                                  ),
+
+                                  // Right Arrow
+                                  Positioned(
+                                    right: -16,
+                                    top: 0,
+                                    bottom: 0,
+                                    child: Center(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.1),
+                                              blurRadius: 8,
+                                              spreadRadius: 2,
+                                            ),
+                                          ],
+                                        ),
+                                        child: IconButton(
+                                          icon: const Icon(Icons.chevron_right),
+                                          color: const Color(0xFF666666),
+                                          onPressed: nextView,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
+                          _buildProfileSection(),
+                          const SizedBox(height: 24),
+
+                          // Today's Plan
+                          const Text(
+                            "Today's Plan",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2D2D2D),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildPlanItem(
+                            Icons.fitness_center,
+                            'Cardio',
+                            '07:00-08:00 AM',
+                            'START',
+                          ),
+                          const SizedBox(height: 8),
+                          _buildPlanItem(
+                            Icons.restaurant,
+                            'Lunch',
+                            '01:00-02:00 PM',
+                            'LOG',
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Quick Actions
+                          const Text(
+                            'Quick Actions',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2D2D2D),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildQuickAction(
+                                  Icons.restaurant,
+                                  'SCAN MEAL',
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildQuickAction(
+                                  Icons.fitness_center,
+                                  'ADD SHORTCUTS',
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
+                          // AI Assistant
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFB71C1C), Color(0xFFC62828)],
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'AI Assistant',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      'Get Personalized Recommendations',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(
+                                    Icons.chat_bubble,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Active Challenges
+                          const Text(
+                            'Active Challenges',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2D2D2D),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 4,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFEBEE),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(
+                                    Icons.fitness_center,
+                                    color: Colors.red,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                const Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '30 Days Pushup Challenge',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF2D2D2D),
+                                        ),
+                                      ),
+                                      SizedBox(height: 2),
+                                      Text(
+                                        'Day 15 of 30',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF666666),
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 24),
+                                const Icon(
+                                  Icons.chevron_right,
+                                  color: Color(0xFF999999),
+                                ),
                               ],
                             ),
                           ),
-              ),
-            ],
-          ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
         ),
       ),
     );

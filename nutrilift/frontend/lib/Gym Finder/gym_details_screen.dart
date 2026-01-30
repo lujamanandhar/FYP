@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/nutrilift_header.dart';
 
 class GymDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> gym;
@@ -27,216 +28,215 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          
-          SliverAppBar(
-            expandedHeight: 300,
-            pinned: true,
-            backgroundColor: Colors.red[700],
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                widget.gym['name'],
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  shadows: [Shadow(color: Colors.black54, blurRadius: 2)],
+    return NutriLiftScaffold(
+      title: widget.gym['name'],
+      showBackButton: true,
+      showDrawer: false,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.favorite_border, color: Colors.black),
+          onPressed: () {
+            // Add to favorites
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Added to favorites!')),
+            );
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.share, color: Colors.black),
+          onPressed: () {
+            // Share gym
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Sharing ${widget.gym['name']}')),
+            );
+          },
+        ),
+      ],
+      body: Column(
+        children: [
+          // Hero Image Section
+          Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+            ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.network(
+                  widget.gym['images'][0],
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[300],
+                      child: Icon(Icons.fitness_center, size: 100, color: Colors.grey[600]),
+                    );
+                  },
                 ),
-              ),
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network(
-                    widget.gym['images'][0],
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey[300],
-                        child: Icon(Icons.fitness_center, size: 100, color: Colors.grey[600]),
-                      );
-                    },
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Colors.black54],
-                      ),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Colors.black.withOpacity(0.3)],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.favorite_border, color: Colors.white),
-                onPressed: () {
-                  // Add to favorites
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Added to favorites!')),
-                  );
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.share, color: Colors.white),
-                onPressed: () {
-                  // Share gym
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Sharing ${widget.gym['name']}')),
-                  );
-                },
-              ),
-            ],
           ),
 
-          // Quick Info Section
-          SliverToBoxAdapter(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-    
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.red[700],
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+          // Content
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                // Quick Info Section
+                SliverToBoxAdapter(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            Icon(Icons.star, size: 16, color: Colors.white),
-                            SizedBox(width: 4),
-                            Text('${widget.gym['rating']}', 
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.red[700],
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.star, size: 16, color: Colors.white),
+                                  const SizedBox(width: 4),
+                                  Text('${widget.gym['rating']}', 
+                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Row(
+                              children: [
+                                Icon(Icons.location_on, size: 18, color: Colors.red[700]),
+                                const SizedBox(width: 4),
+                                Text(widget.gym['distance'], 
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                              ],
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: widget.gym['isOpen'] ? Colors.green : Colors.red,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                widget.gym['isOpen'] ? 'Open Now' : 'Closed',
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                      SizedBox(width: 16),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on, size: 18, color: Colors.red[700]),
-                          SizedBox(width: 4),
-                          Text(widget.gym['distance'], 
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                        ],
-                      ),
-                      Spacer(),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: widget.gym['isOpen'] ? Colors.green : Colors.red,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          widget.gym['isOpen'] ? 'Open Now' : 'Closed',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                  Row(
+                        Row(
+                          children: [
+                            Icon(Icons.place, color: Colors.grey[600]),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                widget.gym['address'],
+                                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Quick Actions
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  // Call gym
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Calling ${widget.gym['phone']}')),
+                                  );
+                                },
+                                icon: const Icon(Icons.phone, color: Colors.white),
+                                label: const Text('Call', style: TextStyle(color: Colors.white)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red[700],
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Opening directions...')),
+                                  );
+                                },
+                                icon: Icon(Icons.directions, color: Colors.red[700]),
+                                label: Text('Directions', style: TextStyle(color: Colors.red[700])),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  side: BorderSide(color: Colors.red[700]!),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _SliverTabBarDelegate(
+                    TabBar(
+                      controller: _tabController,
+                      labelColor: Colors.red[700],
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Colors.red[700],
+                      tabs: const [
+                        Tab(text: 'Overview'),
+                        Tab(text: 'Photos'),
+                        Tab(text: 'Pricing'),
+                        Tab(text: 'Reviews'),
+                      ],
+                    ),
+                  ),
+                ),
+
+                SliverFillRemaining(
+                  child: TabBarView(
+                    controller: _tabController,
                     children: [
-                      Icon(Icons.place, color: Colors.grey[600]),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          widget.gym['address'],
-                          style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-                        ),
-                      ),
+                      _buildOverviewTab(),
+                      _buildPhotosTab(),
+                      _buildPricingTab(),
+                      _buildReviewsTab(),
                     ],
                   ),
-                  SizedBox(height: 16),
-
-                  // Quick Actions
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            // Call gym
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Calling ${widget.gym['phone']}')),
-                            );
-                          },
-                          icon: Icon(Icons.phone, color: Colors.white),
-                          label: Text('Call', style: TextStyle(color: Colors.white)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red[700],
-                            padding: EdgeInsets.symmetric(vertical: 12),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Opening directions...')),
-                            );
-                          },
-                          icon: Icon(Icons.directions, color: Colors.red[700]),
-                          label: Text('Directions', style: TextStyle(color: Colors.red[700])),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            side: BorderSide(color: Colors.red[700]!),
-                            padding: EdgeInsets.symmetric(vertical: 12),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _SliverTabBarDelegate(
-              TabBar(
-                controller: _tabController,
-                labelColor: Colors.red[700],
-                unselectedLabelColor: Colors.grey,
-                indicatorColor: Colors.red[700],
-                tabs: [
-                  Tab(text: 'Overview'),
-                  Tab(text: 'Photos'),
-                  Tab(text: 'Pricing'),
-                  Tab(text: 'Reviews'),
-                ],
-              ),
-            ),
-          ),
-
-          
-          SliverFillRemaining(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildOverviewTab(),
-                _buildPhotosTab(),
-                _buildPricingTab(),
-                _buildReviewsTab(),
+                ),
               ],
             ),
           ),
         ],
       ),
       bottomNavigationBar: Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))],
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: const Offset(0, -2))],
         ),
         child: ElevatedButton(
           onPressed: () {
@@ -244,10 +244,10 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red[700],
-            padding: EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: Text(
+          child: const Text(
             'Book Now',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
           ),

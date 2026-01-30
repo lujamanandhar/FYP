@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'gym_details_screen.dart';
+import '../widgets/nutrilift_header.dart';
 
 class GymFindingScreen extends StatefulWidget {
   @override
@@ -243,32 +244,27 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Find Gyms', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.red[700],
-        elevation: 4,
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.map, color: Colors.white),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Map view coming soon!')),
-              );
-            },
-          ),
-        ],
-      ),
+    return NutriLiftScaffold(
+      title: 'Find Gyms',
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.map, color: Colors.black),
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Map view coming soon!')),
+            );
+          },
+        ),
+      ],
       body: RefreshIndicator(
         onRefresh: () async {
           // Simulate refresh
-          await Future.delayed(Duration(seconds: 1));
+          await Future.delayed(const Duration(seconds: 1));
           setState(() {});
         },
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -281,7 +277,7 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                     prefixIcon: Icon(Icons.search, color: Colors.red[700]),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: Icon(Icons.clear),
+                            icon: const Icon(Icons.clear),
                             onPressed: () {
                               _searchController.clear();
                               setState(() {});
@@ -300,7 +296,7 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 // Filter Chips
                 SingleChildScrollView(
@@ -308,9 +304,9 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                   child: Row(
                     children: ['All', 'Near Me', 'Top Rated', 'New']
                         .map((filter) => Padding(
-                              padding: EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.only(right: 8),
                               child: FilterChip(
-                                label: Text(filter, style: TextStyle(fontWeight: FontWeight.w500)),
+                                label: Text(filter, style: const TextStyle(fontWeight: FontWeight.w500)),
                                 selected: _selectedFilter == filter,
                                 selectedColor: Colors.red[700],
                                 labelStyle: TextStyle(
@@ -324,19 +320,19 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                         .toList(),
                   ),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
 
                 // Results Count
                 Text(
                   '${filteredGyms.length} gyms found',
                   style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Gym List
                 ListView.builder(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: filteredGyms.length,
                   itemBuilder: (context, index) {
                     final gym = filteredGyms[index];
@@ -353,7 +349,7 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
 
   Widget _buildGymCard(Map<String, dynamic> gym) {
     return Card(
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
@@ -367,7 +363,7 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -377,77 +373,77 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                   Expanded(
                     child: Text(
                       gym['name'],
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.red[700],
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.star, size: 16, color: Colors.white),
-                        SizedBox(width: 4),
-                        Text('${gym['rating']}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        const Icon(Icons.star, size: 16, color: Colors.white),
+                        const SizedBox(width: 4),
+                        Text('${gym['rating']}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   Icon(Icons.location_on, size: 18, color: Colors.red[700]),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(gym['address'], style: TextStyle(color: Colors.grey[700], fontSize: 14)),
                   ),
                 ],
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Row(
                 children: [
                   Icon(Icons.directions_walk, size: 18, color: Colors.grey[600]),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(gym['distance'], style: TextStyle(color: Colors.grey[700], fontSize: 14)),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: gym['isOpen'] ? Colors.green : Colors.red,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       gym['isOpen'] ? 'Open' : 'Closed',
-                      style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 14),
+              const SizedBox(height: 14),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: (gym['facilities'] as List)
                     .take(4) // Show only first 4 facilities
                     .map((facility) => Chip(
-                          label: Text(facility, style: TextStyle(fontSize: 12, color: Colors.white)),
+                          label: Text(facility, style: const TextStyle(fontSize: 12, color: Colors.white)),
                           backgroundColor: Colors.red[700],
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         ))
                     .toList(),
               ),
               if ((gym['facilities'] as List).length > 4)
                 Padding(
-                  padding: EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     '+${(gym['facilities'] as List).length - 4} more facilities',
                     style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
                 ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
@@ -462,11 +458,11 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                       label: Text('Call', style: TextStyle(color: Colors.red[700])),
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: Colors.red[700]!),
-                        padding: EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
@@ -479,10 +475,10 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red[700],
-                        padding: EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: Text('View Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                      child: const Text('View Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
                     ),
                   ),
                 ],

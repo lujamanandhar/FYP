@@ -30,7 +30,7 @@ graph TB
     end
     
     subgraph "Django Backend"
-        L[Authentication Views]
+        L[Authentication Views]s
         M[User Model]
         N[JWT Middleware]
         O[Serializers]

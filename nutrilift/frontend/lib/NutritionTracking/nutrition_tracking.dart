@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/nutrilift_header.dart';
 
 class NutritionTracking extends StatelessWidget {
   const NutritionTracking({Key? key}) : super(key: key);
@@ -352,20 +353,7 @@ class _NutritionTrackerHomeState extends State<NutritionTrackerHome> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('NUTRILIFT'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {},
-          ),
-        ],
-      ),
+    return NutriLiftScaffold(
       body: _getCurrentScreen(),
     );
   }

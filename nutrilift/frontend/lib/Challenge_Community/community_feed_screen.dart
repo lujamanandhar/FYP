@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'challenge_overview_screen.dart';
 import 'comments_screen.dart';
+import '../widgets/nutrilift_header.dart';
 
 class CommunityFeedScreen extends StatelessWidget {
   const CommunityFeedScreen({super.key});
@@ -23,10 +24,7 @@ class CommunityFeedScreen extends StatelessWidget {
       ),
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('NUTRILIFT'),
-      ),
+    return NutriLiftScaffold(
       body: Column(
         children: [
           const Padding(

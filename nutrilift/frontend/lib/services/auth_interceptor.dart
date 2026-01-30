@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'auth_service.dart';
 import 'token_service.dart';
+import '../UserManagement/login_screen.dart';
 
 class AuthInterceptor {
   static final AuthInterceptor _instance = AuthInterceptor._internal();
@@ -13,16 +14,12 @@ class AuthInterceptor {
   // Navigation context for redirecting to login
   BuildContext? _context;
   
-  // Route name for login screen
-  String _loginRoute = '/login';
-  
   // Flag to prevent multiple simultaneous logout operations
   bool _isLoggingOut = false;
 
   // Initialize the interceptor with navigation context
-  void initialize(BuildContext context, {String loginRoute = '/login'}) {
+  void initialize(BuildContext context) {
     _context = context;
-    _loginRoute = loginRoute;
     
     // Set up authentication failure callback
     _authService.setAuthenticationFailureCallback(_handleAuthenticationFailure);
@@ -52,9 +49,9 @@ class AuthInterceptor {
       
       // Navigate to login screen if context is available
       if (_context != null && _context!.mounted) {
-        // Clear the navigation stack and go to login
-        Navigator.of(_context!).pushNamedAndRemoveUntil(
-          _loginRoute,
+        // Clear the navigation stack and go to login using MaterialPageRoute
+        Navigator.of(_context!, rootNavigator: true).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
           (route) => false,
         );
         
@@ -92,9 +89,9 @@ class AuthInterceptor {
     final isAuthenticated = await _authService.isAuthenticated();
     
     if (!isAuthenticated && _context != null && _context!.mounted) {
-      // Redirect to login if not authenticated
-      Navigator.of(_context!).pushNamedAndRemoveUntil(
-        _loginRoute,
+      // Redirect to login if not authenticated using MaterialPageRoute
+      Navigator.of(_context!, rootNavigator: true).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
         (route) => false,
       );
       return false;
@@ -139,10 +136,10 @@ class AuthInterceptor {
 
 // Extension to make it easier to use with widgets
 extension AuthInterceptorWidget on Widget {
-  Widget withAuthInterceptor(BuildContext context, {String loginRoute = '/login'}) {
+  Widget withAuthInterceptor(BuildContext context) {
     // Initialize the interceptor when the widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      AuthInterceptor().initialize(context, loginRoute: loginRoute);
+      AuthInterceptor().initialize(context);
     });
     
     return this;
