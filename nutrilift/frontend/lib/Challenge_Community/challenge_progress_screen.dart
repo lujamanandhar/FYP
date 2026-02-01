@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/nutrilift_header.dart';
 import 'challenge_overview_screen.dart';
 import 'challenge_complete_screen.dart';
 
@@ -8,10 +9,10 @@ class ChallengeProgressScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme.primary;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('NUTRILIFT'),
-      ),
+    return NutriLiftScaffold(
+      title: 'NUTRILIFT',
+      showBackButton: true,
+      showDrawer: false,
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/nutrilift_header.dart';
 import 'community_feed_screen.dart';
 
 class CommentsScreen extends StatelessWidget {
@@ -25,10 +26,10 @@ class CommentsScreen extends StatelessWidget {
       ),
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Comments'),
-      ),
+    return NutriLiftScaffold(
+      title: 'Comments',
+      showBackButton: true,
+      showDrawer: false,
       body: Column(
         children: [
           Expanded(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/form_validator.dart';
 import '../services/error_handler.dart';
+import '../widgets/nutrilift_header.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   final UserProfile userProfile;
@@ -99,40 +100,32 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: const Text(
-          'Edit Profile',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2D2D2D),
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF2D2D2D)),
-        actions: [
-          TextButton(
-            onPressed: _isLoading ? null : _saveProfile,
-            child: _isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text(
-                    'Save',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
+    return NutriLiftScaffold(
+      title: 'Edit Profile',
+      showBackButton: true,
+      showDrawer: false,
+      actions: [
+        TextButton(
+          onPressed: _isLoading ? null : _saveProfile,
+          child: _isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text(
+                  'Save',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
                   ),
-          ),
-        ],
-      ),
-      body: Form(
+                ),
+        ),
+      ],
+      body: Container(
+        color: Colors.grey[50],
+        child: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),

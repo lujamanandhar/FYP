@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/challenge_models.dart';
 import '../services/challenge_service.dart';
+import '../widgets/nutrilift_header.dart';
 import 'challenge_complete_screen.dart';
 
 class ActiveChallengeScreen extends StatefulWidget {
@@ -28,10 +29,10 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
   @override
   Widget build(BuildContext context) {
     if (activeChallenge == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Active Challenge'),
-        ),
+      return NutriLiftScaffold(
+        title: 'Active Challenge',
+        showBackButton: true,
+        showDrawer: false,
         body: const Center(
           child: Text(
             'No active challenge found',
@@ -45,10 +46,10 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
     final totalTasks = activeChallenge!.todaysTasks.length;
     final allTasksCompleted = completedTasks == totalTasks && totalTasks > 0;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Today\'s Tasks'),
-      ),
+    return NutriLiftScaffold(
+      title: 'Today\'s Tasks',
+      showBackButton: true,
+      showDrawer: false,
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

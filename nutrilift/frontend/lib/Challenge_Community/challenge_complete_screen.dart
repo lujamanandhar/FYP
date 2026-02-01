@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'challenge_overview_screen.dart';
+import '../widgets/nutrilift_header.dart';
 
 class ChallengeCompleteScreen extends StatelessWidget {
   const ChallengeCompleteScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Challenge Complete'),
-        automaticallyImplyLeading: false,
-      ),
+    return NutriLiftScaffold(
+      title: 'Challenge Complete',
+      showBackButton: true,
+      showDrawer: false,
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(

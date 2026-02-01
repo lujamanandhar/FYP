@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/challenge_models.dart';
 import '../services/challenge_service.dart';
+import '../widgets/nutrilift_header.dart';
 import 'active_challenge_screen.dart';
 
 class ChallengeDetailsScreen extends StatelessWidget {
@@ -10,10 +11,10 @@ class ChallengeDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Challenge Details'),
-      ),
+    return NutriLiftScaffold(
+      title: 'Challenge Details',
+      showBackButton: true,
+      showDrawer: false,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

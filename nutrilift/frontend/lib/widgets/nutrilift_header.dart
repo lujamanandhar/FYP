@@ -3,6 +3,8 @@ import '../services/auth_service.dart';
 import '../services/error_handler.dart';
 import '../UserManagement/profile_edit_screen.dart';
 import '../UserManagement/login_screen.dart';
+import '../Support/help_support_screen.dart';
+import '../Settings/settings_screen.dart';
 
 class NutriLiftHeader extends StatefulWidget implements PreferredSizeWidget {
   final String? title;
@@ -262,6 +264,14 @@ class _NutriLiftDrawerState extends State<NutriLiftDrawer> with ErrorHandlingMix
     }
   }
 
+  void _navigateToPage(BuildContext context, Widget page) {
+    Navigator.pop(context); // Close drawer first
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -314,68 +324,14 @@ class _NutriLiftDrawerState extends State<NutriLiftDrawer> with ErrorHandlingMix
             onTap: _navigateToProfile,
           ),
           ListTile(
-            leading: const Icon(Icons.home, color: Colors.red),
-            title: const Text('Home'),
-            onTap: () {
-              Navigator.pop(context); // Close drawer
-              // Navigate to home if not already there
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.fitness_center, color: Colors.red),
-            title: const Text('Workout'),
-            onTap: () {
-              Navigator.pop(context); // Close drawer
-              // Navigate to workout screen
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.restaurant, color: Colors.red),
-            title: const Text('Nutrition'),
-            onTap: () {
-              Navigator.pop(context); // Close drawer
-              // Navigate to nutrition screen
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.people_outline, color: Colors.red),
-            title: const Text('Community'),
-            onTap: () {
-              Navigator.pop(context); // Close drawer
-              // Navigate to community screen
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.location_on, color: Colors.red),
-            title: const Text('Gym Finder'),
-            onTap: () {
-              Navigator.pop(context); // Close drawer
-              // Navigate to gym finder screen
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.settings, color: Colors.red),
             title: const Text('Settings'),
-            onTap: () {
-              Navigator.pop(context); // Close drawer
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Settings screen coming soon!'),
-                ),
-              );
-            },
+            onTap: () => _navigateToPage(context, const SettingsScreen()),
           ),
           ListTile(
             leading: const Icon(Icons.help, color: Colors.red),
             title: const Text('Help & Support'),
-            onTap: () {
-              Navigator.pop(context); // Close drawer
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Help & Support coming soon!'),
-                ),
-              );
-            },
+            onTap: () => _navigateToPage(context, const HelpSupportScreen()),
           ),
           const Divider(),
           ListTile(
