@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage> with ErrorHandlingMixin {
                           _buildWelcomeSection(),
                           const SizedBox(height: 24),
 
-                          // Chart / Stats Section
+                          // Chart 
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -196,7 +196,7 @@ class _HomePageState extends State<HomePage> with ErrorHandlingMixin {
                           _buildProfileSection(),
                           const SizedBox(height: 24),
 
-                          // Today's Plan
+                          // Today's Plan screen
                           const Text(
                             "Today's Plan",
                             style: TextStyle(
