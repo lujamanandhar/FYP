@@ -126,157 +126,158 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
       body: Container(
         color: Colors.grey[50],
         child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_errorMessage != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red[200]!),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.error_outline, color: Colors.red[700], size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          _errorMessage!,
-                          style: TextStyle(color: Colors.red[700], fontSize: 14),
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_errorMessage != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red[200]!),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red[700], size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: TextStyle(color: Colors.red[700], fontSize: 14),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // Name Field
+                _buildSectionTitle('Personal Information'),
+                const SizedBox(height: 12),
+                ValidatedTextFormField(
+                  controller: _nameController,
+                  label: 'Full Name',
+                  validator: _formValidator.validateName,
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFEBEE),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.person, color: Colors.red, size: 20),
                   ),
                 ),
                 const SizedBox(height: 16),
-              ],
 
-              // Name Field
-              _buildSectionTitle('Personal Information'),
-              const SizedBox(height: 12),
-              ValidatedTextFormField(
-                controller: _nameController,
-                label: 'Full Name',
-                validator: _formValidator.validateName,
-                prefixIcon: Container(
-                  margin: const EdgeInsets.all(12),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFEBEE),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.person, color: Colors.red, size: 20),
+                // Gender Selection
+                _buildDropdownField(
+                  label: 'Gender',
+                  icon: Icons.wc,
+                  value: _selectedGender,
+                  items: _genderOptions,
+                  onChanged: (value) => setState(() => _selectedGender = value),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // Gender Selection
-              _buildDropdownField(
-                label: 'Gender',
-                icon: Icons.wc,
-                value: _selectedGender,
-                items: _genderOptions,
-                onChanged: (value) => setState(() => _selectedGender = value),
-              ),
-              const SizedBox(height: 16),
-
-              // Age Group Selection
-              _buildDropdownField(
-                label: 'Age Group',
-                icon: Icons.cake,
-                value: _selectedAgeGroup,
-                items: _ageGroupOptions,
-                onChanged: (value) => setState(() => _selectedAgeGroup = value),
-              ),
-              const SizedBox(height: 24),
-
-              // Physical Information
-              _buildSectionTitle('Physical Information'),
-              const SizedBox(height: 12),
-              ValidatedTextFormField(
-                controller: _heightController,
-                label: 'Height (cm)',
-                validator: _formValidator.validateHeight,
-                keyboardType: TextInputType.number,
-                prefixIcon: Container(
-                  margin: const EdgeInsets.all(12),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFEBEE),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.height, color: Colors.red, size: 20),
+                // Age Group Selection
+                _buildDropdownField(
+                  label: 'Age Group',
+                  icon: Icons.cake,
+                  value: _selectedAgeGroup,
+                  items: _ageGroupOptions,
+                  onChanged: (value) => setState(() => _selectedAgeGroup = value),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 24),
 
-              ValidatedTextFormField(
-                controller: _weightController,
-                label: 'Weight (kg)',
-                validator: _formValidator.validateWeight,
-                keyboardType: TextInputType.number,
-                prefixIcon: Container(
-                  margin: const EdgeInsets.all(12),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFEBEE),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.monitor_weight, color: Colors.red, size: 20),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Fitness Information
-              _buildSectionTitle('Fitness Information'),
-              const SizedBox(height: 12),
-              _buildDropdownField(
-                label: 'Fitness Level',
-                icon: Icons.fitness_center,
-                value: _selectedFitnessLevel,
-                items: _fitnessLevelOptions,
-                onChanged: (value) => setState(() => _selectedFitnessLevel = value),
-              ),
-              const SizedBox(height: 32),
-
-              // Save Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _saveProfile,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                // Physical Information
+                _buildSectionTitle('Physical Information'),
+                const SizedBox(height: 12),
+                ValidatedTextFormField(
+                  controller: _heightController,
+                  label: 'Height (cm)',
+                  validator: _formValidator.validateHeight,
+                  keyboardType: TextInputType.number,
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFEBEE),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    elevation: 0,
+                    child: const Icon(Icons.height, color: Colors.red, size: 20),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Text(
-                          'Save Changes',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+
+                ValidatedTextFormField(
+                  controller: _weightController,
+                  label: 'Weight (kg)',
+                  validator: _formValidator.validateWeight,
+                  keyboardType: TextInputType.number,
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFEBEE),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.monitor_weight, color: Colors.red, size: 20),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Fitness Information
+                _buildSectionTitle('Fitness Information'),
+                const SizedBox(height: 12),
+                _buildDropdownField(
+                  label: 'Fitness Level',
+                  icon: Icons.fitness_center,
+                  value: _selectedFitnessLevel,
+                  items: _fitnessLevelOptions,
+                  onChanged: (value) => setState(() => _selectedFitnessLevel = value),
+                ),
+                const SizedBox(height: 32),
+
+                // Save Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _saveProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Save Changes',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
