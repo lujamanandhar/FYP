@@ -196,8 +196,8 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
     // Check if challenge is completed
     final updatedChallenge = ChallengeService.getActiveChallenge();
     if (updatedChallenge == null) {
-      // Challenge completed, navigate to completion screen
-      Navigator.of(context).pushReplacement(
+      // Challenge completed, navigate to completion screen (use push instead of pushReplacement)
+      Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => const ChallengeCompleteScreen(),
         ),

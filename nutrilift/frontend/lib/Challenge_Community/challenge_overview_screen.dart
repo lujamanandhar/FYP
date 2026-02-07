@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/challenge_models.dart';
 import '../services/challenge_service.dart';
+import '../widgets/nutrilift_header.dart';
 import 'challenge_details_screen.dart';
 import 'active_challenge_screen.dart';
 import 'community_feed_screen.dart';
@@ -18,11 +19,7 @@ class _ChallengeOverviewScreenState extends State<ChallengeOverviewScreen> {
     final activeChallenge = ChallengeService.getActiveChallenge();
     final availableChallenges = ChallengeService.getAvailableChallenges();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('NUTRILIFT'),
-        centerTitle: false,
-      ),
+    return NutriLiftScaffold(
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -258,7 +255,8 @@ class ChallengeHeaderTabs extends StatelessWidget {
         GestureDetector(
           onTap: () {
             if (selected != 0) {
-              Navigator.of(context).pushReplacement(
+              // Navigate to Challenges tab
+              Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => const ChallengeOverviewScreen(),
                 ),
@@ -284,11 +282,8 @@ class ChallengeHeaderTabs extends StatelessWidget {
         GestureDetector(
           onTap: () {
             if (selected != 1) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (_) => const CommunityFeedScreen(),
-                ),
-              );
+              // Go back to Community tab (pop the challenge screen)
+              Navigator.of(context).pop();
             }
           },
           child: Container(

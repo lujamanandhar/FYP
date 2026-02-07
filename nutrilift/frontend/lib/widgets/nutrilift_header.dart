@@ -266,7 +266,7 @@ class _NutriLiftDrawerState extends State<NutriLiftDrawer> with ErrorHandlingMix
 
   void _navigateToPage(BuildContext context, Widget page) {
     Navigator.pop(context); // Close drawer first
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => page),
     );

@@ -109,12 +109,8 @@ class ChallengeCompleteScreen extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                          builder: (_) => const ChallengeOverviewScreen(),
-                        ),
-                        (route) => false,
-                      );
+                      // Navigate back to challenge overview (use pop to go back through navigation stack)
+                      Navigator.of(context).popUntil((route) => route.isFirst);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../Hompage/home_page.dart';
 import '../NutritionTracking/nutrition_tracking.dart';
 import '../WorkoutTracking/workout_tracking.dart';
-import '../Challenge_Community/community_feed_screen.dart';
+import '../Challenge_Community/challenge_community_wrapper.dart';
 import '../Gym Finder/gymfinding.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -19,7 +19,7 @@ class _MainNavigationState extends State<MainNavigation> {
     const HomePage(),
     const WorkoutTracking(),
     const NutritionTracking(),
-    const CommunityFeedScreen(),
+    const ChallengeCommunityWrapper(), // Use wrapper instead of CommunityFeedScreen
     GymFindingScreen(),
   ];
 

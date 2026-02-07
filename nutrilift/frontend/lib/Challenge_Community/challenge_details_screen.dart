@@ -170,8 +170,8 @@ class ChallengeDetailsScreen extends StatelessWidget {
                 // Close dialog
                 Navigator.of(context).pop();
                 
-                // Navigate to active challenge screen
-                Navigator.of(context).pushReplacement(
+                // Navigate to active challenge screen (use push instead of pushReplacement)
+                Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => const ActiveChallengeScreen(),
                   ),
