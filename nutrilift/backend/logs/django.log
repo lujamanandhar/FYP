@@ -4942,3 +4942,31 @@ INFO 2026-02-07 22:10:38,827 basehttp 5844 75372 "GET /api/auth/me/ HTTP/1.1" 20
 INFO 2026-02-07 22:15:36,833 basehttp 5844 75372 "POST /api/auth/login/ HTTP/1.1" 200 572
 INFO 2026-02-07 22:15:37,032 basehttp 5844 75372 "GET /api/auth/me/ HTTP/1.1" 200 334
 INFO 2026-02-07 23:00:38,014 basehttp 5844 21672 "GET /api/auth/me/ HTTP/1.1" 200 334
+INFO 2026-02-08 12:49:35,104 autoreload 27600 6468 Watching for file changes with StatReloader
+INFO 2026-02-08 14:35:12,684 autoreload 66216 10640 Watching for file changes with StatReloader
+INFO 2026-02-08 14:36:01,549 autoreload 12788 48616 Watching for file changes with StatReloader
+INFO 2026-02-08 14:39:24,231 basehttp 12788 82852 "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+INFO 2026-02-08 14:39:24,711 basehttp 12788 82852 "POST /api/auth/login/ HTTP/1.1" 200 572
+INFO 2026-02-08 14:39:24,876 basehttp 12788 82852 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+INFO 2026-02-08 14:39:24,922 basehttp 12788 82852 "GET /api/auth/me/ HTTP/1.1" 200 334
+INFO 2026-02-08 14:39:36,002 basehttp 12788 82852 "GET /api/auth/me/ HTTP/1.1" 200 334
+INFO 2026-02-08 15:11:32,273 autoreload 9684 43444 Watching for file changes with StatReloader
+INFO 2026-02-08 15:11:34,326 basehttp 9684 23452 "OPTIONS /api/auth/register/ HTTP/1.1" 200 0
+INFO 2026-02-08 15:11:35,119 basehttp 9684 23452 "POST /api/auth/register/ HTTP/1.1" 201 547
+INFO 2026-02-08 15:11:51,607 basehttp 9684 41644 "OPTIONS /api/auth/profile/ HTTP/1.1" 200 0
+INFO 2026-02-08 15:11:51,683 basehttp 9684 41644 "PUT /api/auth/profile/ HTTP/1.1" 200 326
+INFO 2026-02-08 15:11:51,815 basehttp 9684 41644 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+INFO 2026-02-08 15:11:51,870 basehttp 9684 41644 "GET /api/auth/me/ HTTP/1.1" 200 328
+INFO 2026-02-08 15:11:56,105 basehttp 9684 41644 "GET /api/auth/me/ HTTP/1.1" 200 328
+INFO 2026-02-08 15:12:10,083 basehttp 9684 41644 "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+INFO 2026-02-08 15:12:10,875 basehttp 9684 41644 "POST /api/auth/login/ HTTP/1.1" 200 565
+INFO 2026-02-08 15:12:11,124 basehttp 9684 41644 "GET /api/auth/me/ HTTP/1.1" 200 328
+INFO 2026-02-08 15:12:16,396 basehttp 9684 41644 "GET /api/auth/me/ HTTP/1.1" 200 328
+INFO 2026-02-08 15:46:22,684 basehttp 9684 77432 "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+INFO 2026-02-08 15:46:23,314 basehttp 9684 77432 "POST /api/auth/login/ HTTP/1.1" 200 565
+INFO 2026-02-08 15:46:23,605 basehttp 9684 77432 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+INFO 2026-02-08 15:46:23,674 basehttp 9684 77432 "GET /api/auth/me/ HTTP/1.1" 200 328
+INFO 2026-02-08 15:47:33,486 basehttp 9684 77432 "GET /api/auth/me/ HTTP/1.1" 200 328
+INFO 2026-02-08 15:47:57,831 basehttp 9684 77432 "OPTIONS /api/auth/profile/ HTTP/1.1" 200 0
+INFO 2026-02-08 15:47:57,895 basehttp 9684 77432 "PUT /api/auth/profile/ HTTP/1.1" 200 318
+INFO 2026-02-08 15:48:01,935 basehttp 9684 77432 "GET /api/auth/me/ HTTP/1.1" 200 320
