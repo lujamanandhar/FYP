@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // Assign navigator key to enable access from ErrorHandler service here
+      // Assign navigator key to enable access from ErrorHandler service 
       navigatorKey: navigatorKey,
       title: 'NutriLift',
       theme: ThemeData(
