@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
           elevation: 2,
         ),    //App bar theme with white background and black text for a clean look
         
-        // Button themes
+        // Button themes colors
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFE53935),
