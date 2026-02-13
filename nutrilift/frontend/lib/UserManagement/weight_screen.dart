@@ -13,7 +13,7 @@ class WeightScreen extends StatefulWidget {
 
 class _WeightScreenState extends State<WeightScreen> {
   final OnboardingService _onboardingService = OnboardingService();
-  double _selectedWeight = 70; // in kg
+  double _selectedWeight = 70; // in kilograms
   bool _isSubmitting = false;
 
   @override
