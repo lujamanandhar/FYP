@@ -15,18 +15,18 @@ The implementation is organized into major phases:
 
 ## Tasks
 
-- [ ] 1. Enhance Backend Exercise Model and Database
-  - [ ] 1.1 Update Exercise model with new fields (muscle_group, equipment, difficulty, instructions, image_url, video_url)
+- [x] 1. Enhance Backend Exercise Model and Database
+  - [x] 1.1 Update Exercise model with new fields (muscle_group, equipment, difficulty, instructions, image_url, video_url)
     - Modify `backend/workouts/models.py` to add new fields with choices
     - Create Django migration for model changes
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
   
-  - [ ] 1.2 Add model validation for Exercise enum fields
+  - [x] 1.2 Add model validation for Exercise enum fields
     - Implement clean() method to validate category, muscle_group, equipment, difficulty
     - Add unique constraint for exercise names (case-insensitive)
     - _Requirements: 6.2, 6.3, 6.4, 6.5, 6.8_
   
-  - [ ] 1.3 Write property tests for Exercise model validation
+  - [x] 1.3 Write property tests for Exercise model validation
     - **Property 16: Exercise Category Validation**
     - **Property 17: Exercise Muscle Group Validation**
     - **Property 18: Exercise Equipment Validation**
@@ -34,12 +34,12 @@ The implementation is organized into major phases:
     - **Property 21: Exercise Name Uniqueness**
     - **Validates: Requirements 6.2, 6.3, 6.4, 6.5, 6.8**
   
-  - [ ] 1.4 Create comprehensive exercise seeding command
+  - [x] 1.4 Create comprehensive exercise seeding command
     - Expand `backend/workouts/management/commands/seed_exercises.py` to seed 100+ exercises
     - Include exercises covering all categories, muscle groups, and difficulty levels
     - _Requirements: 6.6, 6.7, 3.10_
   
-  - [ ] 1.5 Write unit tests for exercise seeding
+  - [x] 1.5 Write unit tests for exercise seeding
     - Test that seeding creates at least 100 exercises
     - Test coverage of all categories and difficulty levels
     - **Property 20: Exercise Seeding Coverage**

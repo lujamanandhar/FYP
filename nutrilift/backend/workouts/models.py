@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 
 
 class Gym(models.Model):
@@ -29,13 +30,27 @@ class Gym(models.Model):
 class Exercise(models.Model):
     """Exercise model for storing exercise information"""
     CATEGORY_CHOICES = [
-        ('FULL_BODY', 'Full Body'),
-        ('ARMS', 'Arms'),
+        ('STRENGTH', 'Strength'),
+        ('CARDIO', 'Cardio'),
+        ('BODYWEIGHT', 'Bodyweight'),
+    ]
+
+    MUSCLE_GROUP_CHOICES = [
+        ('CHEST', 'Chest'),
+        ('BACK', 'Back'),
         ('LEGS', 'Legs'),
         ('CORE', 'Core'),
-        ('CARDIO', 'Cardio'),
-        ('UPPER_BODY', 'Upper Body'),
-        ('LOWER_BODY', 'Lower Body'),
+        ('ARMS', 'Arms'),
+        ('SHOULDERS', 'Shoulders'),
+        ('FULL_BODY', 'Full Body'),
+    ]
+
+    EQUIPMENT_CHOICES = [
+        ('FREE_WEIGHTS', 'Free Weights'),
+        ('MACHINES', 'Machines'),
+        ('BODYWEIGHT', 'Bodyweight'),
+        ('RESISTANCE_BANDS', 'Resistance Bands'),
+        ('CARDIO_EQUIPMENT', 'Cardio Equipment'),
     ]
 
     DIFFICULTY_CHOICES = [
@@ -44,13 +59,15 @@ class Exercise(models.Model):
         ('ADVANCED', 'Advanced'),
     ]
 
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    name = models.CharField(max_length=200, unique=True)
+    description = models.TextField(default='')
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
+    muscle_group = models.CharField(max_length=50, choices=MUSCLE_GROUP_CHOICES, default='FULL_BODY')
+    equipment = models.CharField(max_length=50, choices=EQUIPMENT_CHOICES, default='BODYWEIGHT')
     difficulty = models.CharField(max_length=20, choices=DIFFICULTY_CHOICES, default='BEGINNER')
-    instructions = models.TextField(blank=True, null=True)
-    video_url = models.URLField(blank=True, null=True)
+    instructions = models.TextField(default='')
     image_url = models.URLField(blank=True, null=True)
+    video_url = models.URLField(blank=True, null=True)
     calories_per_minute = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
@@ -73,8 +90,63 @@ class Exercise(models.Model):
         ordering = ['category', 'name']
         indexes = [
             models.Index(fields=['category']),
+            models.Index(fields=['muscle_group']),
+            models.Index(fields=['equipment']),
             models.Index(fields=['difficulty']),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                models.functions.Lower('name'),
+                name='unique_exercise_name_case_insensitive'
+            )
+        ]
+
+    def clean(self):
+        """Validate enum fields"""
+        super().clean()
+        
+        # Validate category
+        valid_categories = [choice[0] for choice in self.CATEGORY_CHOICES]
+        if self.category not in valid_categories:
+            raise ValidationError({
+                'category': f'Invalid category. Must be one of: {", ".join(valid_categories)}'
+            })
+        
+        # Validate muscle_group
+        valid_muscle_groups = [choice[0] for choice in self.MUSCLE_GROUP_CHOICES]
+        if self.muscle_group not in valid_muscle_groups:
+            raise ValidationError({
+                'muscle_group': f'Invalid muscle group. Must be one of: {", ".join(valid_muscle_groups)}'
+            })
+        
+        # Validate equipment
+        valid_equipment = [choice[0] for choice in self.EQUIPMENT_CHOICES]
+        if self.equipment not in valid_equipment:
+            raise ValidationError({
+                'equipment': f'Invalid equipment. Must be one of: {", ".join(valid_equipment)}'
+            })
+        
+        # Validate difficulty
+        valid_difficulties = [choice[0] for choice in self.DIFFICULTY_CHOICES]
+        if self.difficulty not in valid_difficulties:
+            raise ValidationError({
+                'difficulty': f'Invalid difficulty. Must be one of: {", ".join(valid_difficulties)}'
+            })
+        
+        # Check for case-insensitive name uniqueness
+        if self.pk:
+            # Updating existing exercise
+            existing = Exercise.objects.filter(
+                name__iexact=self.name
+            ).exclude(pk=self.pk)
+        else:
+            # Creating new exercise
+            existing = Exercise.objects.filter(name__iexact=self.name)
+        
+        if existing.exists():
+            raise ValidationError({
+                'name': f'An exercise with the name "{self.name}" already exists (case-insensitive).'
+            })
 
     def __str__(self):
         return f"{self.name} ({self.category})"
@@ -82,6 +154,13 @@ class Exercise(models.Model):
 
 class CustomWorkout(models.Model):
     """Custom workout templates created by users"""
+    CATEGORY_CHOICES = [
+        ('STRENGTH', 'Strength'),
+        ('CARDIO', 'Cardio'),
+        ('BODYWEIGHT', 'Bodyweight'),
+        ('MIXED', 'Mixed'),
+    ]
+    
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE, 
@@ -89,7 +168,7 @@ class CustomWorkout(models.Model):
     )
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    category = models.CharField(max_length=20, choices=Exercise.CATEGORY_CHOICES)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     exercises = models.ManyToManyField(Exercise, through='CustomWorkoutExercise')
     estimated_duration = models.IntegerField(
         help_text="Estimated duration in minutes",
