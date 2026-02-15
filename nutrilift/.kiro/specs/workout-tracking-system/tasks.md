@@ -46,24 +46,24 @@ The implementation is organized into major phases:
     - **Validates: Requirements 6.7, 3.10**
 
 
-- [ ] 2. Implement WorkoutExercise Model and Relationships
-  - [ ] 2.1 Create WorkoutExercise model
+- [x] 2. Implement WorkoutExercise Model and Relationships
+  - [x] 2.1 Create WorkoutExercise model
     - Create new model in `backend/workouts/models.py` with fields: workout_log, exercise, sets, reps, weight, order
     - Add validators for sets (1-100), reps (1-100), weight (0.1-1000)
     - Implement calculate_volume() method
     - _Requirements: 2.5, 2.6, 2.7_
   
-  - [ ] 2.2 Create migration for WorkoutExercise model
+  - [x] 2.2 Create migration for WorkoutExercise model
     - Generate and apply Django migration
     - _Requirements: 2.9_
   
-  - [ ] 2.3 Write property tests for WorkoutExercise validation
+  - [x] 2.3 Write property tests for WorkoutExercise validation
     - **Property 7: Input Validation Ranges**
     - Test that valid inputs (1-100 reps, 1-100 sets, 0.1-1000 weight) are accepted
     - Test that invalid inputs are rejected
     - **Validates: Requirements 2.5, 2.6, 2.7, 9.1, 9.2, 9.3, 9.9**
   
-  - [ ] 2.4 Write unit tests for calculate_volume method
+  - [x] 2.4 Write unit tests for calculate_volume method
     - Test volume calculation: sets * reps * weight
     - _Requirements: 2.10_
 

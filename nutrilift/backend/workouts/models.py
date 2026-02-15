@@ -256,6 +256,41 @@ class WorkoutLog(models.Model):
         return f"{self.workout_name} - {self.user.email} ({self.logged_at.date()})"
 
 
+class WorkoutExercise(models.Model):
+    """Individual exercises within a workout with sets, reps, and weight"""
+    workout_log = models.ForeignKey(
+        WorkoutLog, 
+        on_delete=models.CASCADE, 
+        related_name='workout_exercises'
+    )
+    exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE)
+    sets = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
+    reps = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
+    weight = models.DecimalField(
+        max_digits=6, 
+        decimal_places=2,
+        validators=[MinValueValidator(0.1), MaxValueValidator(1000)],
+        help_text="Weight in kg"
+    )
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'workout_exercises'
+        ordering = ['order']
+
+    def calculate_volume(self):
+        """Calculate total volume: sets * reps * weight"""
+        return float(self.sets * self.reps * self.weight)
+
+    def __str__(self):
+        return f"{self.exercise.name} - {self.sets}x{self.reps}@{self.weight}kg"
+
+
+
 class WorkoutLogExercise(models.Model):
     """Individual exercises within a workout log"""
     workout_log = models.ForeignKey(
@@ -273,6 +308,40 @@ class WorkoutLogExercise(models.Model):
 
     def __str__(self):
         return f"{self.exercise.name} in {self.workout_log.workout_name}"
+
+
+class WorkoutExercise(models.Model):
+    """Individual exercises within a workout with sets, reps, and weight"""
+    workout_log = models.ForeignKey(
+        WorkoutLog, 
+        on_delete=models.CASCADE, 
+        related_name='workout_exercises'
+    )
+    exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE)
+    sets = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
+    reps = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
+    weight = models.DecimalField(
+        max_digits=6, 
+        decimal_places=2,
+        validators=[MinValueValidator(0.1), MaxValueValidator(1000)],
+        help_text="Weight in kg"
+    )
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'workout_exercises'
+        ordering = ['order']
+
+    def calculate_volume(self):
+        """Calculate total volume: sets * reps * weight"""
+        return float(self.sets * self.reps * self.weight)
+
+    def __str__(self):
+        return f"{self.exercise.name} - {self.sets}x{self.reps}@{self.weight}kg"
 
 
 class WorkoutSet(models.Model):
