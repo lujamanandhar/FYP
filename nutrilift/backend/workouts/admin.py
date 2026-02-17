@@ -59,7 +59,7 @@ class WorkoutLogAdmin(admin.ModelAdmin):
 
 @admin.register(PersonalRecord)
 class PersonalRecordAdmin(admin.ModelAdmin):
-    list_display = ['user', 'exercise', 'record_type', 'value', 'unit', 'achieved_at']
-    list_filter = ['record_type', 'achieved_at']
-    search_fields = ['user__email', 'exercise__name', 'notes']
-    ordering = ['-achieved_at']
+    list_display = ['user', 'exercise', 'max_weight', 'max_reps', 'max_volume', 'achieved_date']
+    list_filter = ['achieved_date']
+    search_fields = ['user__email', 'exercise__name']
+    ordering = ['-achieved_date']

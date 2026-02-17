@@ -384,29 +384,26 @@ class WorkoutSet(models.Model):
 
 class PersonalRecord(models.Model):
     """Personal records for tracking user's best performances"""
-    RECORD_TYPE_CHOICES = [
-        ('MAX_WEIGHT', 'Maximum Weight'),
-        ('MAX_REPS', 'Maximum Reps'),
-        ('MAX_DURATION', 'Maximum Duration'),
-        ('FASTEST_TIME', 'Fastest Time'),
-    ]
-
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE, 
         related_name='personal_records'
     )
     exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE)
-    record_type = models.CharField(max_length=20, choices=RECORD_TYPE_CHOICES)
-    value = models.DecimalField(
+    max_weight = models.DecimalField(
+        max_digits=6, 
+        decimal_places=2,
+        validators=[MinValueValidator(0.0)]
+    )
+    max_reps = models.IntegerField(
+        validators=[MinValueValidator(1)]
+    )
+    max_volume = models.DecimalField(
         max_digits=10, 
         decimal_places=2,
         validators=[MinValueValidator(0.0)]
     )
-    unit = models.CharField(
-        max_length=20, 
-        help_text="kg, reps, seconds, etc."
-    )
+    achieved_date = models.DateTimeField()
     workout_log = models.ForeignKey(
         WorkoutLog, 
         on_delete=models.SET_NULL, 
@@ -414,16 +411,60 @@ class PersonalRecord(models.Model):
         blank=True,
         related_name='personal_records'
     )
-    achieved_at = models.DateTimeField(auto_now_add=True)
-    notes = models.TextField(blank=True, null=True)
+    previous_max_weight = models.DecimalField(
+        max_digits=6, 
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0)]
+    )
+    previous_max_reps = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1)]
+    )
+    previous_max_volume = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0)]
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'personal_records'
-        ordering = ['-achieved_at']
+        ordering = ['-achieved_date']
         indexes = [
-            models.Index(fields=['user', 'exercise', 'record_type']),
+            models.Index(fields=['user', 'exercise']),
         ]
-        unique_together = ['user', 'exercise', 'record_type']
+        unique_together = ['user', 'exercise']
+
+    def get_improvement_percentage(self):
+        """
+        Calculate the improvement percentage over the previous record.
+        Returns the highest improvement percentage among weight, reps, and volume.
+        Returns None if no previous values exist.
+        """
+        improvements = []
+        
+        if self.previous_max_weight is not None and self.previous_max_weight > 0:
+            weight_improvement = float((self.max_weight - self.previous_max_weight) / self.previous_max_weight) * 100
+            improvements.append(weight_improvement)
+        
+        if self.previous_max_reps is not None and self.previous_max_reps > 0:
+            reps_improvement = float((self.max_reps - self.previous_max_reps) / self.previous_max_reps) * 100
+            improvements.append(reps_improvement)
+        
+        if self.previous_max_volume is not None and self.previous_max_volume > 0:
+            volume_improvement = float((self.max_volume - self.previous_max_volume) / self.previous_max_volume) * 100
+            improvements.append(volume_improvement)
+        
+        if improvements:
+            return max(improvements)
+        
+        return None
 
     def __str__(self):
-        return f"{self.user.email} - {self.exercise.name}: {self.value} {self.unit}"
+        return f"{self.user.email} - {self.exercise.name}: {self.max_weight}kg, {self.max_reps} reps, {self.max_volume} volume"

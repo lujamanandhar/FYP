@@ -67,17 +67,17 @@ The implementation is organized into major phases:
     - Test volume calculation: sets * reps * weight
     - _Requirements: 2.10_
 
-- [ ] 3. Enhance PersonalRecord Model with Previous Values
-  - [ ] 3.1 Update PersonalRecord model
+- [x] 3. Enhance PersonalRecord Model with Previous Values
+  - [x] 3.1 Update PersonalRecord model
     - Add fields: previous_max_weight, previous_max_reps, previous_max_volume, workout_log FK
     - Implement get_improvement_percentage() method
     - _Requirements: 4.3, 4.7_
   
-  - [ ] 3.2 Create migration for PersonalRecord changes
+  - [x] 3.2 Create migration for PersonalRecord changes
     - Generate and apply Django migration
     - _Requirements: 4.7_
   
-  - [ ] 3.3 Write unit tests for improvement percentage calculation
+  - [x] 3.3 Write unit tests for improvement percentage calculation
     - Test percentage calculation with various previous/current values
     - _Requirements: 4.3_
 
