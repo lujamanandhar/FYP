@@ -81,26 +81,26 @@ The implementation is organized into major phases:
     - Test percentage calculation with various previous/current values
     - _Requirements: 4.3_
 
-- [ ] 4. Implement Signal Handlers for Automatic PR Detection
-  - [ ] 4.1 Create signal handler for WorkoutLog post_save
+- [-] 4. Implement Signal Handlers for Automatic PR Detection
+  - [x] 4.1 Create signal handler for WorkoutLog post_save
     - Implement post_save signal in `backend/workouts/signals.py`
     - Create update_personal_record() function to check and update PRs
     - Compare max_weight, max_reps, max_volume against existing PRs
     - Store previous values when updating PRs
     - _Requirements: 2.11, 4.7, 5.6, 5.7, 5.8_
   
-  - [ ] 4.2 Register signal handlers in apps.py
+  - [x] 4.2 Register signal handlers in apps.py
     - Import signals in WorkoutsConfig.ready() method
     - _Requirements: 5.6_
   
-  - [ ] 4.3 Write property tests for PR detection logic
+  - [x] 4.3 Write property tests for PR detection logic
     - **Property 10: Personal Record Detection and Update**
     - Test that workouts exceeding PRs trigger updates
     - Test that previous values are stored correctly
     - Test that all three metrics (weight, reps, volume) are checked
     - **Validates: Requirements 2.11, 4.7, 5.6, 5.7, 5.8**
   
-  - [ ] 4.4 Write integration tests for signal triggering
+  - [x] 4.4 Write integration tests for signal triggering
     - Test that creating WorkoutLog triggers signal
     - Test that PR entries are created/updated correctly
     - _Requirements: 5.6, 5.8_
