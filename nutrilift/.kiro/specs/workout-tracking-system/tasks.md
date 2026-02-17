@@ -105,16 +105,16 @@ The implementation is organized into major phases:
     - Test that PR entries are created/updated correctly
     - _Requirements: 5.6, 5.8_
 
-- [ ] 5. Implement Enhanced Serializers
-  - [ ] 5.1 Create ExerciseSerializer
+- [x] 5. Implement Enhanced Serializers
+  - [x] 5.1 Create ExerciseSerializer
     - Implement serializer in `backend/workouts/serializers.py` with all fields
     - _Requirements: 5.3_
   
-  - [ ] 5.2 Create WorkoutExerciseSerializer
+  - [x] 5.2 Create WorkoutExerciseSerializer
     - Include exercise_name (read-only), volume (calculated field)
     - _Requirements: 2.9_
   
-  - [ ] 5.3 Create/Update WorkoutLogSerializer
+  - [x] 5.3 Create/Update WorkoutLogSerializer
     - Include nested WorkoutExerciseSerializer
     - Add gym_name, workout_name (read-only fields)
     - Add has_new_prs calculated field
@@ -122,17 +122,17 @@ The implementation is organized into major phases:
     - Implement calories calculation
     - _Requirements: 1.8, 2.9, 2.10, 8.6_
   
-  - [ ] 5.4 Create PersonalRecordSerializer
+  - [x] 5.4 Create PersonalRecordSerializer
     - Include exercise_name, improvement_percentage
     - _Requirements: 4.2, 4.3_
   
-  - [ ] 5.5 Write unit tests for serializer validation
+  - [x] 5.5 Write unit tests for serializer validation
     - Test WorkoutLogSerializer validation
     - Test nested exercise creation
     - **Property 29: Incomplete Workout Validation**
     - **Validates: Requirements 9.4, 9.5**
   
-  - [ ] 5.6 Write property tests for calories calculation
+  - [x] 5.6 Write property tests for calories calculation
     - **Property 9: Calories Calculation**
     - Test that calculated calories are positive and reasonable
     - **Validates: Requirements 2.10**
