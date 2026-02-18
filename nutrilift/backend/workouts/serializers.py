@@ -1,9 +1,12 @@
 from decimal import Decimal
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import (
     Gym, Exercise, CustomWorkout, CustomWorkoutExercise,
     WorkoutLog, WorkoutExercise, WorkoutLogExercise, WorkoutSet, PersonalRecord
 )
+
+User = get_user_model()
 
 
 class GymSerializer(serializers.ModelSerializer):
@@ -78,11 +81,17 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
+    
+    # Add user as PrimaryKeyRelatedField to handle UUID properly
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        required=False  # Can be set from context in views
+    )
 
     class Meta:
         model = WorkoutLog
         fields = [
-            'id', 'workout_name', 'custom_workout', 'workout_name_display',
+            'id', 'user', 'workout_name', 'custom_workout', 'workout_name_display',
             'gym', 'gym_id', 'gym_name',
             'duration_minutes', 'calories_burned', 
             'workout_exercises', 'exercises', 'notes',

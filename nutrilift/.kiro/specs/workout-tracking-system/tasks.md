@@ -137,7 +137,7 @@ The implementation is organized into major phases:
     - Test that calculated calories are positive and reasonable
     - **Validates: Requirements 2.10**
 
-- [ ] 6. Checkpoint - Backend Models and Serializers Complete
+- [x] 6. Checkpoint - Backend Models and Serializers Complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Implement Workout API Endpoints
