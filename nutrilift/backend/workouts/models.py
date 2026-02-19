@@ -244,6 +244,8 @@ class WorkoutLog(models.Model):
     notes = models.TextField(blank=True, null=True)
     logged_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False, db_index=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         db_table = 'workout_logs'
@@ -254,6 +256,25 @@ class WorkoutLog(models.Model):
 
     def __str__(self):
         return f"{self.workout_name} - {self.user.email} ({self.logged_at.date()})"
+    
+    def delete(self, using=None, keep_parents=False):
+        """
+        Override delete to implement soft delete.
+        Marks the workout as deleted instead of removing it from the database.
+        
+        Requirements: 14.9
+        """
+        from django.utils import timezone
+        self.is_deleted = True
+        self.deleted_at = timezone.now()
+        self.save(update_fields=['is_deleted', 'deleted_at'])
+    
+    def hard_delete(self, using=None, keep_parents=False):
+        """
+        Permanently delete the workout from the database.
+        Use with caution - this cannot be undone.
+        """
+        super().delete(using=using, keep_parents=keep_parents)
 
 
 class WorkoutExercise(models.Model):
@@ -468,3 +489,39 @@ class PersonalRecord(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.exercise.name}: {self.max_weight}kg, {self.max_reps} reps, {self.max_volume} volume"
+
+
+class AuditLog(models.Model):
+    """Audit log for tracking all workout create/update/delete operations"""
+    ACTION_CHOICES = [
+        ('CREATE', 'Create'),
+        ('UPDATE', 'Update'),
+        ('DELETE', 'Delete'),
+    ]
+    
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='audit_logs'
+    )
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES)
+    model_name = models.CharField(max_length=100)
+    object_id = models.IntegerField()
+    object_repr = models.CharField(max_length=500)
+    changes = models.JSONField(default=dict, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=500, blank=True, null=True)
+    
+    class Meta:
+        db_table = 'audit_logs'
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['user', '-timestamp']),
+            models.Index(fields=['model_name', 'object_id']),
+            models.Index(fields=['action']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.action} {self.model_name} #{self.object_id} at {self.timestamp}"
+

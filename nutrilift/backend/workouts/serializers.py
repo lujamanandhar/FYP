@@ -2,13 +2,53 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.html import escape
+from django.db import transaction
 from rest_framework import serializers
 from .models import (
     Gym, Exercise, CustomWorkout, CustomWorkoutExercise,
-    WorkoutLog, WorkoutExercise, WorkoutLogExercise, WorkoutSet, PersonalRecord
+    WorkoutLog, WorkoutExercise, WorkoutLogExercise, WorkoutSet, PersonalRecord, AuditLog
 )
 
 User = get_user_model()
+
+
+def create_audit_log(user, action, instance, changes=None, request=None):
+    """
+    Create an audit log entry for a model operation.
+    
+    Args:
+        user: The user performing the action
+        action: One of 'CREATE', 'UPDATE', 'DELETE'
+        instance: The model instance being operated on
+        changes: Dict of changes (for UPDATE actions)
+        request: The HTTP request object (optional, for IP and user agent)
+    
+    Requirements: 14.8
+    """
+    ip_address = None
+    user_agent = None
+    
+    if request:
+        # Get IP address from request
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip_address = x_forwarded_for.split(',')[0]
+        else:
+            ip_address = request.META.get('REMOTE_ADDR')
+        
+        # Get user agent
+        user_agent = request.META.get('HTTP_USER_AGENT', '')[:500]
+    
+    AuditLog.objects.create(
+        user=user,
+        action=action,
+        model_name=instance.__class__.__name__,
+        object_id=instance.pk,
+        object_repr=str(instance)[:500],
+        changes=changes or {},
+        ip_address=ip_address,
+        user_agent=user_agent
+    )
 
 
 class GymSerializer(serializers.ModelSerializer):
@@ -270,7 +310,13 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
         return max(total_calories, duration * 3.0)
 
     def create(self, validated_data):
-        """Create WorkoutLog with nested WorkoutExercise entries"""
+        """
+        Create WorkoutLog with nested WorkoutExercise entries.
+        Uses atomic transaction to ensure all-or-nothing behavior.
+        Creates audit log entry for the operation.
+        
+        Requirements: 14.3, 14.7, 14.8
+        """
         # Extract nested data
         workout_exercises_data = validated_data.pop('workout_exercises', [])
         exercises_data = validated_data.pop('exercises', [])
@@ -279,32 +325,59 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
         if 'calories_burned' not in validated_data or validated_data['calories_burned'] is None:
             validated_data['calories_burned'] = Decimal('0.0')
         
-        # Create the workout log
-        workout_log = WorkoutLog.objects.create(**validated_data)
+        # Get request from context for audit logging
+        request = self.context.get('request')
+        user = validated_data.get('user')
         
-        # Create WorkoutExercise entries
-        for exercise_data in workout_exercises_data:
-            WorkoutExercise.objects.create(workout_log=workout_log, **exercise_data)
-        
-        # Create WorkoutLogExercise entries (backward compatibility)
-        for exercise_data in exercises_data:
-            sets_data = exercise_data.pop('sets', [])
-            workout_log_exercise = WorkoutLogExercise.objects.create(
-                workout_log=workout_log,
-                **exercise_data
+        # Wrap entire operation in atomic transaction
+        try:
+            with transaction.atomic():
+                # Create the workout log
+                workout_log = WorkoutLog.objects.create(**validated_data)
+                
+                # Create WorkoutExercise entries
+                for exercise_data in workout_exercises_data:
+                    WorkoutExercise.objects.create(workout_log=workout_log, **exercise_data)
+                
+                # Create WorkoutLogExercise entries (backward compatibility)
+                for exercise_data in exercises_data:
+                    sets_data = exercise_data.pop('sets', [])
+                    workout_log_exercise = WorkoutLogExercise.objects.create(
+                        workout_log=workout_log,
+                        **exercise_data
+                    )
+                    for set_data in sets_data:
+                        WorkoutSet.objects.create(
+                            workout_log_exercise=workout_log_exercise,
+                            **set_data
+                        )
+                
+                # Calculate and save calories
+                if workout_exercises_data:
+                    workout_log.calories_burned = self.calculate_calories(workout_log, workout_exercises_data)
+                    workout_log.save()
+                
+                # Create audit log entry
+                if user:
+                    create_audit_log(
+                        user=user,
+                        action='CREATE',
+                        instance=workout_log,
+                        changes={
+                            'workout_name': workout_log.workout_name,
+                            'duration_minutes': workout_log.duration_minutes,
+                            'calories_burned': float(workout_log.calories_burned),
+                            'exercise_count': len(workout_exercises_data) + len(exercises_data)
+                        },
+                        request=request
+                    )
+                
+                return workout_log
+        except Exception as e:
+            # Transaction will automatically rollback on any exception
+            raise serializers.ValidationError(
+                f"Failed to create workout log: {str(e)}"
             )
-            for set_data in sets_data:
-                WorkoutSet.objects.create(
-                    workout_log_exercise=workout_log_exercise,
-                    **set_data
-                )
-        
-        # Calculate and save calories
-        if workout_exercises_data:
-            workout_log.calories_burned = self.calculate_calories(workout_log, workout_exercises_data)
-            workout_log.save()
-        
-        return workout_log
 
 
 class CustomWorkoutExerciseSerializer(serializers.ModelSerializer):

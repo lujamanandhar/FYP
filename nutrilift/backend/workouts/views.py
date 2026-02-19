@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Sum, Count, Avg
 from django.utils import timezone
+from django.core.cache import cache
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from datetime import datetime, timedelta
 from .models import (
     Gym, Exercise, CustomWorkout, WorkoutLog, PersonalRecord
@@ -48,7 +51,7 @@ class ExerciseViewSet(viewsets.ModelViewSet):
     
     All filters can be combined to narrow down results.
     
-    Requirements: 3.9, 5.3
+    Requirements: 3.9, 5.3, 12.6
     """
     queryset = Exercise.objects.all()
     serializer_class = ExerciseSerializer
@@ -90,8 +93,70 @@ class ExerciseViewSet(viewsets.ModelViewSet):
         
         return queryset
 
+    def list(self, request, *args, **kwargs):
+        """
+        List exercises with caching support.
+        Cache key is based on query parameters to ensure different filters get different cached results.
+        
+        Requirements: 12.6
+        """
+        # Build cache key from query parameters
+        query_params = request.query_params.dict()
+        cache_key_parts = ['exercise_list']
+        for key in sorted(query_params.keys()):
+            cache_key_parts.append(f'{key}_{query_params[key]}')
+        cache_key = '_'.join(cache_key_parts)
+        
+        # Try to get from cache
+        cached_data = cache.get(cache_key)
+        if cached_data is not None:
+            return Response(cached_data)
+        
+        # If not in cache, get from database
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+            # Cache paginated response data
+            cache.set(cache_key, response.data, timeout=300)  # 5 minutes
+            return response
+        
+        serializer = self.get_serializer(queryset, many=True)
+        # Cache the response data
+        cache.set(cache_key, serializer.data, timeout=300)  # 5 minutes
+        return Response(serializer.data)
+
     def perform_create(self, serializer):
+        """
+        Clear exercise cache when new exercise is created.
+        
+        Requirements: 12.6
+        """
         serializer.save(created_by=self.request.user, is_custom=True)
+        # Clear cache by clearing all keys (simple approach for local memory cache)
+        cache.clear()
+
+    def perform_update(self, serializer):
+        """
+        Clear exercise cache when exercise is updated.
+        
+        Requirements: 12.6
+        """
+        serializer.save()
+        # Clear cache
+        cache.clear()
+
+    def perform_destroy(self, instance):
+        """
+        Clear exercise cache when exercise is deleted.
+        
+        Requirements: 12.6
+        """
+        instance.delete()
+        # Clear cache
+        cache.clear()
 
 
 class CustomWorkoutViewSet(viewsets.ModelViewSet):
@@ -125,7 +190,24 @@ class WorkoutLogViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """
+        Optimized queryset with select_related and prefetch_related.
+        
+        Requirements: 12.5
+        """
         queryset = WorkoutLog.objects.filter(user=self.request.user)
+        
+        # Optimize queries with select_related for ForeignKey relationships
+        queryset = queryset.select_related('user', 'custom_workout', 'gym')
+        
+        # Optimize queries with prefetch_related for reverse ForeignKey relationships
+        queryset = queryset.prefetch_related(
+            'workout_exercises',
+            'workout_exercises__exercise',
+            'personal_records',
+            'personal_records__exercise'
+        )
+        
         start_date = self.request.query_params.get('start_date', None)
         end_date = self.request.query_params.get('end_date', None)
         
@@ -181,8 +263,9 @@ class WorkoutLogViewSet(viewsets.ModelViewSet):
         
         Returns workouts ordered by date descending with pagination support.
         
-        Requirements: 1.2, 1.7, 5.2
+        Requirements: 1.2, 1.7, 5.2, 12.5
         """
+        # Use optimized queryset from get_queryset()
         queryset = self.get_queryset()
         
         # Order by date descending FIRST (before any slicing)
@@ -362,7 +445,16 @@ class PersonalRecordViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """
+        Optimized queryset with select_related for ForeignKey relationships.
+        
+        Requirements: 12.5
+        """
         queryset = PersonalRecord.objects.filter(user=self.request.user)
+        
+        # Optimize queries with select_related for ForeignKey relationships
+        queryset = queryset.select_related('user', 'exercise', 'workout_log')
+        
         exercise_id = self.request.query_params.get('exercise_id', None)
         
         if exercise_id:

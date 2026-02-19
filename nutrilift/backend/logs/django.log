@@ -5082,3 +5082,5 @@ WARNING 2026-02-19 13:30:02,328 log 24952 24696 Bad Request: /api/workouts/logs/
 WARNING 2026-02-19 13:30:02,732 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
 WARNING 2026-02-19 13:30:03,125 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
 WARNING 2026-02-19 13:30:03,520 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 14:59:17,160 log 18000 6028 Not Found: /api/exercises/
+WARNING 2026-02-19 14:59:17,689 log 18000 6028 Not Found: /api/exercises/
