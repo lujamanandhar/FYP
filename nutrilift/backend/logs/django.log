@@ -5084,3 +5084,68 @@ WARNING 2026-02-19 13:30:03,125 log 24952 24696 Bad Request: /api/workouts/logs/
 WARNING 2026-02-19 13:30:03,520 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
 WARNING 2026-02-19 14:59:17,160 log 18000 6028 Not Found: /api/exercises/
 WARNING 2026-02-19 14:59:17,689 log 18000 6028 Not Found: /api/exercises/
+WARNING 2026-02-19 17:16:59,035 log 9228 31964 Not Found: /api/workouts/history/
+WARNING 2026-02-19 17:16:59,036 log 9228 31964 Not Found: /api/workouts/history/
+WARNING 2026-02-19 17:16:59,036 log 9228 31964 Not Found: /api/workouts/history/
+WARNING 2026-02-19 17:16:59,037 log 9228 31964 Not Found: /api/workouts/log/
+WARNING 2026-02-19 17:16:59,037 log 9228 31964 Not Found: /api/workouts/log/
+WARNING 2026-02-19 17:16:59,038 log 9228 31964 Not Found: /api/workouts/history/
+WARNING 2026-02-19 17:16:59,449 log 9228 31964 Not Found: /api/workouts/history/
+ERROR 2026-02-19 17:18:37,847 exceptions 11720 4328 Unhandled exception: No default throttle rate set for 'workout_user' scope
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\throttling.py", line 92, in get_rate
+    return self.THROTTLE_RATES[self.scope]
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'workout_user'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 497, in dispatch
+    self.initial(request, *args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 416, in initial
+    self.check_throttles(request)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 358, in check_throttles
+    for throttle in self.get_throttles():
+                    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 284, in get_throttles
+    return [throttle() for throttle in self.throttle_classes]
+            ~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\throttling.py", line 70, in __init__
+    self.rate = self.get_rate()
+                ~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\throttling.py", line 95, in get_rate
+    raise ImproperlyConfigured(msg)
+django.core.exceptions.ImproperlyConfigured: No default throttle rate set for 'workout_user' scope
+ERROR 2026-02-19 17:18:37,877 log 11720 4328 Internal Server Error: /api/workouts/logs/get_history/
+ERROR 2026-02-19 17:19:42,267 exceptions 2384 21584 Unhandled exception: No default throttle rate set for 'workout_user' scope
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\throttling.py", line 92, in get_rate
+    return self.THROTTLE_RATES[self.scope]
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'workout_user'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 497, in dispatch
+    self.initial(request, *args, **kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 416, in initial
+    self.check_throttles(request)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 358, in check_throttles
+    for throttle in self.get_throttles():
+                    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 284, in get_throttles
+    return [throttle() for throttle in self.throttle_classes]
+            ~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\throttling.py", line 70, in __init__
+    self.rate = self.get_rate()
+                ~~~~~~~~~~~~~^^
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\throttling.py", line 95, in get_rate
+    raise ImproperlyConfigured(msg)
+django.core.exceptions.ImproperlyConfigured: No default throttle rate set for 'workout_user' scope
+ERROR 2026-02-19 17:19:42,270 log 2384 21584 Internal Server Error: /api/workouts/logs/get_history/

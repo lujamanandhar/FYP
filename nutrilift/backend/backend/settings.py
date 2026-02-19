@@ -169,6 +169,14 @@ REST_FRAMEWORK = {
     ],
     # Custom exception handler for consistent error responses
     'EXCEPTION_HANDLER': 'authentications.exceptions.custom_exception_handler',
+    # Rate limiting configuration
+    'DEFAULT_THROTTLE_RATES': {
+        'workout_user': '100/hour',  # Authenticated users: 100 requests per hour
+        'workout_anon': '20/hour',   # Anonymous users: 20 requests per hour
+        'exercise_user': '200/hour', # Exercise browsing: 200 requests per hour
+        'exercise_anon': '50/hour',  # Anonymous exercise browsing: 50 requests per hour
+        'pr_user': '100/hour',       # Personal records: 100 requests per hour
+    },
 }
 
 # JWT Configuration

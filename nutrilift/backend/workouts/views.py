@@ -15,6 +15,11 @@ from .serializers import (
     GymSerializer, ExerciseSerializer, CustomWorkoutSerializer,
     WorkoutLogSerializer, PersonalRecordSerializer
 )
+from .throttles import (
+    WorkoutUserRateThrottle, WorkoutAnonRateThrottle,
+    ExerciseUserRateThrottle, ExerciseAnonRateThrottle,
+    PersonalRecordUserRateThrottle
+)
 
 
 class GymViewSet(viewsets.ReadOnlyModelViewSet):
@@ -51,11 +56,12 @@ class ExerciseViewSet(viewsets.ModelViewSet):
     
     All filters can be combined to narrow down results.
     
-    Requirements: 3.9, 5.3, 12.6
+    Requirements: 3.9, 5.3, 12.6, 12.10
     """
     queryset = Exercise.objects.all()
     serializer_class = ExerciseSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ExerciseUserRateThrottle, ExerciseAnonRateThrottle]
 
     def get_queryset(self):
         """
@@ -185,9 +191,12 @@ class WorkoutLogViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing workout logs.
     Users can only view and modify their own workout logs.
+    
+    Requirements: 12.10
     """
     serializer_class = WorkoutLogSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [WorkoutUserRateThrottle, WorkoutAnonRateThrottle]
 
     def get_queryset(self):
         """
@@ -440,9 +449,12 @@ class PersonalRecordViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for viewing personal records.
     Personal records are automatically created/updated when workout logs are saved.
+    
+    Requirements: 12.10
     """
     serializer_class = PersonalRecordSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [PersonalRecordUserRateThrottle]
 
     def get_queryset(self):
         """
