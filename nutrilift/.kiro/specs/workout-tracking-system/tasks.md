@@ -281,29 +281,29 @@ The implementation is organized into major phases:
     - Test that excessive requests are throttled
     - **Validates: Requirements 12.10**
 
-- [ ] 14. Checkpoint - Backend API Complete
+- [x] 14. Checkpoint - Backend API Complete
   - Ensure all backend tests pass, ask the user if questions arise.
 
-- [ ] 15. Create Frontend Data Models with Freezed
-  - [ ] 15.1 Create Exercise model
+- [x] 15. Create Frontend Data Models with Freezed
+  - [x] 15.1 Create Exercise model
     - Create `frontend/lib/models/exercise.dart` with Freezed
     - Include all fields from backend Exercise model
     - Implement fromJson and toJson
     - _Requirements: 3.1_
   
-  - [ ] 15.2 Create WorkoutExercise model
+  - [x] 15.2 Create WorkoutExercise model
     - Create model with exercise_id, exercise_name, sets, reps, weight, volume, order
     - _Requirements: 2.4_
   
-  - [ ] 15.3 Create WorkoutLog model
+  - [x] 15.3 Create WorkoutLog model
     - Create model with all workout fields including exercises list
     - _Requirements: 1.1, 2.8_
   
-  - [ ] 15.4 Create PersonalRecord model
+  - [x] 15.4 Create PersonalRecord model
     - Create model with PR fields including improvement_percentage
     - _Requirements: 4.1_
   
-  - [ ] 15.5 Write unit tests for model serialization
+  - [x] 15.5 Write unit tests for model serialization
     - Test fromJson and toJson for all models
     - Test that models handle null values correctly
 

@@ -5149,3 +5149,6 @@ Traceback (most recent call last):
     raise ImproperlyConfigured(msg)
 django.core.exceptions.ImproperlyConfigured: No default throttle rate set for 'workout_user' scope
 ERROR 2026-02-19 17:19:42,270 log 2384 21584 Internal Server Error: /api/workouts/logs/get_history/
+WARNING 2026-02-19 23:02:31,253 log 17252 7492 Not Found: /api/workouts/exercises/99999/
+WARNING 2026-02-19 23:02:32,926 log 17252 7492 Unauthorized: /api/workouts/exercises/
+WARNING 2026-02-19 23:02:47,013 log 17252 7492 Unauthorized: /api/workouts/personal-records/
