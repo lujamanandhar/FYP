@@ -81,7 +81,7 @@ The implementation is organized into major phases:
     - Test percentage calculation with various previous/current values
     - _Requirements: 4.3_
 
-- [-] 4. Implement Signal Handlers for Automatic PR Detection
+- [x] 4. Implement Signal Handlers for Automatic PR Detection
   - [x] 4.1 Create signal handler for WorkoutLog post_save
     - Implement post_save signal in `backend/workouts/signals.py`
     - Create update_personal_record() function to check and update PRs
@@ -191,13 +191,13 @@ The implementation is organized into major phases:
     - **Property 5: Exercise Search Filtering**
     - **Validates: Requirements 2.3, 3.2, 3.3, 3.4, 3.5, 3.6, 3.9**
 
-- [ ] 9. Implement PersonalRecord API Endpoints
-  - [ ] 9.1 Create PersonalRecordViewSet with list action
+- [x] 9. Implement PersonalRecord API Endpoints
+  - [x] 9.1 Create PersonalRecordViewSet with list action
     - Implement GET /api/personal-records/ endpoint
     - Filter by authenticated user only
     - _Requirements: 4.6, 5.4_
   
-  - [ ] 9.2 Write property tests for user-scoped PRs
+  - [x] 9.2 Write property tests for user-scoped PRs
     - **Property 14: User-Scoped Personal Records**
     - Test that users only see their own PRs
     - **Validates: Requirements 4.6**

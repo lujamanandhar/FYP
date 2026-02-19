@@ -5041,3 +5041,6 @@ WARNING 2026-02-19 11:58:21,661 log 25960 18784 Not Found: /api/exercises/
 WARNING 2026-02-19 12:01:14,411 log 12292 28060 Not Found: /api/exercises/99999/
 WARNING 2026-02-19 12:01:14,852 log 12292 28060 Not Found: /api/exercises/57/
 WARNING 2026-02-19 12:01:16,143 log 12292 28060 Unauthorized: /api/workouts/exercises/
+WARNING 2026-02-19 12:58:56,023 log 24436 24464 Unauthorized: /api/workouts/personal-records/
+WARNING 2026-02-19 13:02:20,818 log 26804 4968 Unauthorized: /api/workouts/personal-records/
+WARNING 2026-02-19 13:05:25,939 log 15944 5544 Unauthorized: /api/workouts/personal-records/

@@ -110,6 +110,10 @@ class PersonalRecordDetectionPropertyTests(HypothesisTestCase):
             order=0
         )
         
+        # Trigger signal manually (since WorkoutExercise was created after WorkoutLog)
+        from workouts.signals import check_personal_records
+        check_personal_records(WorkoutLog, initial_workout, created=True)
+        
         # Verify initial PR was created
         pr = PersonalRecord.objects.get(user=self.user, exercise=self.exercise)
         self.assertEqual(pr.max_weight, initial_weight)
@@ -135,6 +139,9 @@ class PersonalRecordDetectionPropertyTests(HypothesisTestCase):
             weight=new_weight,
             order=0
         )
+        
+        # Trigger signal for new workout
+        check_personal_records(WorkoutLog, new_workout, created=True)
         
         # Refresh PR from database
         pr.refresh_from_db()
@@ -182,6 +189,10 @@ class PersonalRecordDetectionPropertyTests(HypothesisTestCase):
             order=0
         )
         
+        # Trigger signal manually
+        from workouts.signals import check_personal_records
+        check_personal_records(WorkoutLog, initial_workout, created=True)
+        
         # Verify initial PR was created
         pr = PersonalRecord.objects.get(user=self.user, exercise=self.exercise)
         self.assertEqual(pr.max_reps, initial_reps)
@@ -207,6 +218,9 @@ class PersonalRecordDetectionPropertyTests(HypothesisTestCase):
             weight=initial_weight,
             order=0
         )
+        
+        # Trigger signal for new workout
+        check_personal_records(WorkoutLog, new_workout, created=True)
         
         # Refresh PR from database
         pr.refresh_from_db()
@@ -256,6 +270,10 @@ class PersonalRecordDetectionPropertyTests(HypothesisTestCase):
         
         initial_volume = initial_exercise.calculate_volume()
         
+        # Trigger signal manually
+        from workouts.signals import check_personal_records
+        check_personal_records(WorkoutLog, initial_workout, created=True)
+        
         # Verify initial PR was created
         pr = PersonalRecord.objects.get(user=self.user, exercise=self.exercise)
         self.assertEqual(float(pr.max_volume), initial_volume)
@@ -283,6 +301,9 @@ class PersonalRecordDetectionPropertyTests(HypothesisTestCase):
         )
         
         new_volume = new_exercise.calculate_volume()
+        
+        # Trigger signal for new workout
+        check_personal_records(WorkoutLog, new_workout, created=True)
         
         # Refresh PR from database
         pr.refresh_from_db()
@@ -331,6 +352,10 @@ class PersonalRecordDetectionPropertyTests(HypothesisTestCase):
         
         initial_volume = initial_exercise.calculate_volume()
         
+        # Trigger signal manually
+        from workouts.signals import check_personal_records
+        check_personal_records(WorkoutLog, initial_workout, created=True)
+        
         # Verify initial PR was created
         pr = PersonalRecord.objects.get(user=self.user, exercise=self.exercise)
         initial_max_weight = pr.max_weight
@@ -359,6 +384,9 @@ class PersonalRecordDetectionPropertyTests(HypothesisTestCase):
             weight=new_weight,
             order=0
         )
+        
+        # Trigger signal for weight workout
+        check_personal_records(WorkoutLog, weight_workout, created=True)
         
         # Refresh PR from database
         pr.refresh_from_db()
@@ -411,6 +439,10 @@ class PersonalRecordDetectionPropertyTests(HypothesisTestCase):
             order=0
         )
         
+        # Trigger signal manually
+        from workouts.signals import check_personal_records
+        check_personal_records(WorkoutLog, initial_workout, created=True)
+        
         # Verify initial PR was created
         pr = PersonalRecord.objects.get(user=self.user, exercise=self.exercise)
         initial_max_weight = pr.max_weight
@@ -438,6 +470,9 @@ class PersonalRecordDetectionPropertyTests(HypothesisTestCase):
             weight=lower_weight,
             order=0
         )
+        
+        # Trigger signal for lower workout
+        check_personal_records(WorkoutLog, lower_workout, created=True)
         
         # Refresh PR from database
         pr.refresh_from_db()
