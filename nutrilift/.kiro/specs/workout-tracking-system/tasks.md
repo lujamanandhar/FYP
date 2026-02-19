@@ -307,44 +307,44 @@ The implementation is organized into major phases:
     - Test fromJson and toJson for all models
     - Test that models handle null values correctly
 
-- [ ] 16. Implement Repository Interfaces
-  - [ ] 16.1 Create WorkoutRepository interface
+- [x] 16. Implement Repository Interfaces
+  - [x] 16.1 Create WorkoutRepository interface
     - Create `frontend/lib/repositories/workout_repository.dart`
     - Define methods: getWorkoutHistory, logWorkout, getStatistics
     - _Requirements: 7.2_
   
-  - [ ] 16.2 Create ExerciseRepository interface
+  - [x] 16.2 Create ExerciseRepository interface
     - Create interface with getExercises, getExerciseById methods
     - _Requirements: 7.2_
   
-  - [ ] 16.3 Create PersonalRecordRepository interface
+  - [x] 16.3 Create PersonalRecordRepository interface
     - Create interface with getPersonalRecords, getPersonalRecordForExercise methods
     - _Requirements: 7.2_
 
-- [ ] 17. Implement API Service with Dio
-  - [ ] 17.1 Set up Dio client with JWT interceptor
+- [x] 17. Implement API Service with Dio
+  - [x] 17.1 Set up Dio client with JWT interceptor
     - Create `frontend/lib/services/dio_client.dart`
     - Add JWT token interceptor
     - Add error handling interceptor
     - _Requirements: 7.4, 7.5_
   
-  - [ ] 17.2 Implement WorkoutApiService
+  - [x] 17.2 Implement WorkoutApiService
     - Create `frontend/lib/services/workout_api_service.dart`
     - Implement WorkoutRepository interface
     - Implement getWorkoutHistory, logWorkout, getStatistics methods
     - _Requirements: 1.2, 2.8, 15.1_
   
-  - [ ] 17.3 Implement ExerciseApiService
+  - [x] 17.3 Implement ExerciseApiService
     - Create service implementing ExerciseRepository
     - Implement getExercises with all filters, getExerciseById
     - _Requirements: 3.2, 3.3, 3.4, 3.5, 3.6_
   
-  - [ ] 17.4 Implement PersonalRecordApiService
+  - [x] 17.4 Implement PersonalRecordApiService
     - Create service implementing PersonalRecordRepository
     - Implement getPersonalRecords method
     - _Requirements: 4.6_
   
-  - [ ] 17.5 Write unit tests for API services
+  - [x] 17.5 Write unit tests for API services
     - Mock Dio responses
     - Test that API calls are made correctly
     - Test error handling

@@ -1,284 +1,216 @@
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../models/workout_models.dart';
-import 'token_service.dart';
+import 'package:dio/dio.dart';
+import '../models/workout_log.dart';
+import '../models/workout_models.dart' show CreateWorkoutLogRequest, ExerciseSetRequest, WorkoutSetRequest;
+import '../repositories/workout_repository.dart';
+import 'dio_client.dart';
 
-class WorkoutApiService {
-  final String baseUrl;
-  final TokenService _tokenService = TokenService();
+/// API service for workout-related operations using Dio.
+/// 
+/// Implements the WorkoutRepository interface to provide
+/// workout data access through the backend API.
+/// 
+/// Validates: Requirements 1.2, 2.8, 15.1, 7.4, 7.5
+class WorkoutApiService implements WorkoutRepository {
+  final DioClient _dioClient;
+  late Dio _dio;
 
-  WorkoutApiService({this.baseUrl = 'http://127.0.0.1:8000/api'});
+  WorkoutApiService(this._dioClient) {
+    _dio = _dioClient.dio;
+  }
 
-  // Helper method to get headers with auth token
-  Future<Map<String, String>> _getHeaders() async {
-    final token = await _tokenService.getAccessToken();
+  @override
+  Future<List<WorkoutLog>> getWorkoutHistory({
+    DateTime? dateFrom,
+    int? limit,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{};
+      if (dateFrom != null) {
+        queryParams['date_from'] = dateFrom.toIso8601String();
+      }
+      if (limit != null) {
+        queryParams['limit'] = limit;
+      }
+
+      final response = await _dio.get(
+        '/workouts/history/',
+        queryParameters: queryParams,
+      );
+
+      final List<dynamic> data = response.data as List;
+      return data.map((json) => WorkoutLog.fromJson(json as Map<String, dynamic>)).toList();
+    } on DioException catch (e) {
+      throw _handleDioError(e, 'Failed to load workout history');
+    }
+  }
+
+  @override
+  Future<WorkoutLog> logWorkout(CreateWorkoutLogRequest workout) async {
+    try {
+      // Convert the request to match backend API format
+      final requestData = _convertWorkoutLogRequest(workout);
+
+      final response = await _dio.post(
+        '/workouts/log/',
+        data: requestData,
+      );
+
+      return WorkoutLog.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw _handleDioError(e, 'Failed to log workout');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getStatistics({
+    DateTime? dateFrom,
+    DateTime? dateTo,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{};
+      if (dateFrom != null) {
+        queryParams['date_from'] = dateFrom.toIso8601String();
+      }
+      if (dateTo != null) {
+        queryParams['date_to'] = dateTo.toIso8601String();
+      }
+
+      final response = await _dio.get(
+        '/workouts/statistics/',
+        queryParameters: queryParams,
+      );
+
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleDioError(e, 'Failed to load workout statistics');
+    }
+  }
+
+  /// Convert CreateWorkoutLogRequest to backend API format
+  Map<String, dynamic> _convertWorkoutLogRequest(CreateWorkoutLogRequest request) {
+    // Convert the request format to match the backend API expectations
+    // The backend expects: custom_workout, gym, date, duration, notes, exercises[]
+    // Each exercise should have: exercise (id), sets, reps, weight, order
+    
+    final exercises = <Map<String, dynamic>>[];
+    for (var exerciseSet in request.exercises) {
+      // For each exercise set, we need to aggregate the sets into a single entry
+      // The backend expects: exercise, sets (count), reps, weight, order
+      if (exerciseSet.sets.isNotEmpty) {
+        final firstSet = exerciseSet.sets.first;
+        exercises.add({
+          'exercise': int.parse(exerciseSet.exerciseId),
+          'sets': exerciseSet.sets.length,
+          'reps': firstSet.reps ?? 0,
+          'weight': firstSet.weight ?? 0.0,
+          'order': exerciseSet.order,
+        });
+      }
+    }
+
     return {
-      'Content-Type': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
+      if (request.customWorkoutId != null) 
+        'custom_workout': int.parse(request.customWorkoutId!),
+      if (request.gymId != null) 
+        'gym': int.parse(request.gymId!),
+      'date': DateTime.now().toIso8601String(),
+      'duration': request.durationMinutes,
+      'notes': request.notes ?? '',
+      'exercises': exercises,
     };
   }
 
-  // ==================== EXERCISES ====================
+  /// Handle Dio errors and convert to user-friendly exceptions
+  Exception _handleDioError(DioException error, String defaultMessage) {
+    if (error.response != null) {
+      final statusCode = error.response!.statusCode;
+      final data = error.response!.data;
 
-  /// Get all exercises
-  Future<List<Exercise>> getExercises({String? category, String? difficulty}) async {
-    final queryParams = <String, String>{};
-    if (category != null) queryParams['category'] = category;
-    if (difficulty != null) queryParams['difficulty'] = difficulty;
+      String message = defaultMessage;
+      if (data is Map<String, dynamic>) {
+        message = data['message'] ?? data['error'] ?? defaultMessage;
+      }
 
-    final uri = Uri.parse('$baseUrl/workouts/exercises/').replace(queryParameters: queryParams);
-    final response = await http.get(uri, headers: await _getHeaders());
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Exercise.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load exercises: ${response.body}');
+      switch (statusCode) {
+        case 400:
+          return ValidationException(message, data);
+        case 401:
+          return AuthenticationException(message);
+        case 403:
+          return AuthorizationException(message);
+        case 404:
+          return NotFoundException(message);
+        case 429:
+          return RateLimitException(message);
+        case 500:
+        case 502:
+        case 503:
+          return ServerException(message);
+        default:
+          return ApiException(message, statusCode);
+      }
     }
-  }
 
-  /// Get exercise by ID
-  Future<Exercise> getExercise(String id) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/workouts/exercises/$id/'),
-      headers: await _getHeaders(),
-    );
-
-    if (response.statusCode == 200) {
-      return Exercise.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load exercise: ${response.body}');
+    // Network errors
+    if (error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.sendTimeout ||
+        error.type == DioExceptionType.receiveTimeout) {
+      return NetworkException('Request timeout. Please check your connection and try again.');
     }
-  }
 
-  // ==================== GYMS ====================
-
-  /// Get all gyms
-  Future<List<Gym>> getGyms({String? location}) async {
-    final queryParams = <String, String>{};
-    if (location != null) queryParams['location'] = location;
-
-    final uri = Uri.parse('$baseUrl/workouts/gyms/').replace(queryParameters: queryParams);
-    final response = await http.get(uri, headers: await _getHeaders());
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Gym.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load gyms: ${response.body}');
+    if (error.type == DioExceptionType.connectionError) {
+      return NetworkException('No internet connection. Please check your network and try again.');
     }
+
+    return ApiException(defaultMessage, null);
   }
+}
 
-  /// Get gym by ID
-  Future<Gym> getGym(String id) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/workouts/gyms/$id/'),
-      headers: await _getHeaders(),
-    );
+// Custom exception classes for better error handling
 
-    if (response.statusCode == 200) {
-      return Gym.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load gym: ${response.body}');
+class ApiException implements Exception {
+  final String message;
+  final int? statusCode;
+
+  ApiException(this.message, this.statusCode);
+
+  @override
+  String toString() => message;
+}
+
+class ValidationException extends ApiException {
+  final dynamic errors;
+
+  ValidationException(String message, this.errors) : super(message, 400);
+
+  Map<String, dynamic>? get fieldErrors {
+    if (errors is Map<String, dynamic>) {
+      return errors as Map<String, dynamic>;
     }
+    return null;
   }
+}
 
-  // ==================== WORKOUT LOGS ====================
+class AuthenticationException extends ApiException {
+  AuthenticationException(String message) : super(message, 401);
+}
 
-  /// Get all workout logs for the current user
-  Future<List<WorkoutLog>> getWorkoutLogs({DateTime? startDate, DateTime? endDate}) async {
-    final queryParams = <String, String>{};
-    if (startDate != null) queryParams['start_date'] = startDate.toIso8601String();
-    if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
+class AuthorizationException extends ApiException {
+  AuthorizationException(String message) : super(message, 403);
+}
 
-    final uri = Uri.parse('$baseUrl/workouts/logs/').replace(queryParameters: queryParams);
-    final response = await http.get(uri, headers: await _getHeaders());
+class NotFoundException extends ApiException {
+  NotFoundException(String message) : super(message, 404);
+}
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((json) => WorkoutLog.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load workout logs: ${response.body}');
-    }
-  }
+class RateLimitException extends ApiException {
+  RateLimitException(String message) : super(message, 429);
+}
 
-  /// Get workout log by ID
-  Future<WorkoutLog> getWorkoutLog(String id) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/workouts/logs/$id/'),
-      headers: await _getHeaders(),
-    );
+class ServerException extends ApiException {
+  ServerException(String message) : super(message, 500);
+}
 
-    if (response.statusCode == 200) {
-      return WorkoutLog.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load workout log: ${response.body}');
-    }
-  }
-
-  /// Create a new workout log
-  Future<WorkoutLog> createWorkoutLog(CreateWorkoutLogRequest request) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/workouts/logs/'),
-      headers: await _getHeaders(),
-      body: json.encode(request.toJson()),
-    );
-
-    if (response.statusCode == 201) {
-      return WorkoutLog.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to create workout log: ${response.body}');
-    }
-  }
-
-  /// Update a workout log
-  Future<WorkoutLog> updateWorkoutLog(String id, CreateWorkoutLogRequest request) async {
-    final response = await http.put(
-      Uri.parse('$baseUrl/workouts/logs/$id/'),
-      headers: await _getHeaders(),
-      body: json.encode(request.toJson()),
-    );
-
-    if (response.statusCode == 200) {
-      return WorkoutLog.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to update workout log: ${response.body}');
-    }
-  }
-
-  /// Delete a workout log
-  Future<void> deleteWorkoutLog(String id) async {
-    final response = await http.delete(
-      Uri.parse('$baseUrl/workouts/logs/$id/'),
-      headers: await _getHeaders(),
-    );
-
-    if (response.statusCode != 204) {
-      throw Exception('Failed to delete workout log: ${response.body}');
-    }
-  }
-
-  // ==================== CUSTOM WORKOUTS ====================
-
-  /// Get all custom workouts for the current user
-  Future<List<CustomWorkout>> getCustomWorkouts({bool? isPublic}) async {
-    final queryParams = <String, String>{};
-    if (isPublic != null) queryParams['is_public'] = isPublic.toString();
-
-    final uri = Uri.parse('$baseUrl/workouts/custom-workouts/').replace(queryParameters: queryParams);
-    final response = await http.get(uri, headers: await _getHeaders());
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((json) => CustomWorkout.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load custom workouts: ${response.body}');
-    }
-  }
-
-  /// Get custom workout by ID
-  Future<CustomWorkout> getCustomWorkout(String id) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/workouts/custom-workouts/$id/'),
-      headers: await _getHeaders(),
-    );
-
-    if (response.statusCode == 200) {
-      return CustomWorkout.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load custom workout: ${response.body}');
-    }
-  }
-
-  /// Create a new custom workout
-  Future<CustomWorkout> createCustomWorkout(CreateCustomWorkoutRequest request) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/workouts/custom-workouts/'),
-      headers: await _getHeaders(),
-      body: json.encode(request.toJson()),
-    );
-
-    if (response.statusCode == 201) {
-      return CustomWorkout.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to create custom workout: ${response.body}');
-    }
-  }
-
-  /// Update a custom workout
-  Future<CustomWorkout> updateCustomWorkout(String id, CreateCustomWorkoutRequest request) async {
-    final response = await http.put(
-      Uri.parse('$baseUrl/workouts/custom-workouts/$id/'),
-      headers: await _getHeaders(),
-      body: json.encode(request.toJson()),
-    );
-
-    if (response.statusCode == 200) {
-      return CustomWorkout.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to update custom workout: ${response.body}');
-    }
-  }
-
-  /// Delete a custom workout
-  Future<void> deleteCustomWorkout(String id) async {
-    final response = await http.delete(
-      Uri.parse('$baseUrl/workouts/custom-workouts/$id/'),
-      headers: await _getHeaders(),
-    );
-
-    if (response.statusCode != 204) {
-      throw Exception('Failed to delete custom workout: ${response.body}');
-    }
-  }
-
-  // ==================== PERSONAL RECORDS ====================
-
-  /// Get all personal records for the current user
-  Future<List<PersonalRecord>> getPersonalRecords({String? exerciseId}) async {
-    final queryParams = <String, String>{};
-    if (exerciseId != null) queryParams['exercise_id'] = exerciseId;
-
-    final uri = Uri.parse('$baseUrl/workouts/personal-records/').replace(queryParameters: queryParams);
-    final response = await http.get(uri, headers: await _getHeaders());
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((json) => PersonalRecord.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load personal records: ${response.body}');
-    }
-  }
-
-  /// Get personal record by ID
-  Future<PersonalRecord> getPersonalRecord(String id) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/workouts/personal-records/$id/'),
-      headers: await _getHeaders(),
-    );
-
-    if (response.statusCode == 200) {
-      return PersonalRecord.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load personal record: ${response.body}');
-    }
-  }
-
-  // ==================== STATISTICS ====================
-
-  /// Get workout statistics for the current user
-  Future<Map<String, dynamic>> getWorkoutStatistics({DateTime? startDate, DateTime? endDate}) async {
-    final queryParams = <String, String>{};
-    if (startDate != null) queryParams['start_date'] = startDate.toIso8601String();
-    if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
-
-    final uri = Uri.parse('$baseUrl/workouts/statistics/').replace(queryParameters: queryParams);
-    final response = await http.get(uri, headers: await _getHeaders());
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load workout statistics: ${response.body}');
-    }
-  }
+class NetworkException extends ApiException {
+  NetworkException(String message) : super(message, null);
 }
