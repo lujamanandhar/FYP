@@ -35,20 +35,58 @@ class ExerciseViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing exercises.
     Users can view all exercises and create custom ones.
+    
+    GET /api/exercises/ - List all exercises with optional filtering
+    GET /api/exercises/{id}/ - Retrieve a single exercise
+    
+    Query parameters for list:
+    - category: Filter by exercise category (Strength, Cardio, Bodyweight)
+    - muscle: Filter by muscle group (Chest, Back, Legs, Core, Arms, Shoulders, Full Body)
+    - equipment: Filter by equipment type (Free Weights, Machines, Bodyweight, Resistance Bands, Cardio Equipment)
+    - difficulty: Filter by difficulty level (Beginner, Intermediate, Advanced)
+    - search: Search by exercise name (case-insensitive partial match)
+    
+    All filters can be combined to narrow down results.
+    
+    Requirements: 3.9, 5.3
     """
     queryset = Exercise.objects.all()
     serializer_class = ExerciseSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Exercise.objects.all()
-        category = self.request.query_params.get('category', None)
-        difficulty = self.request.query_params.get('difficulty', None)
+        """
+        Filter exercises by category, muscle group, equipment, difficulty, and search term.
+        All filters work in combination (AND logic).
         
+        Requirements: 3.2, 3.3, 3.4, 3.5, 3.6, 3.9
+        """
+        queryset = Exercise.objects.all()
+        
+        # Filter by category
+        category = self.request.query_params.get('category', None)
         if category:
             queryset = queryset.filter(category=category)
+        
+        # Filter by muscle group
+        muscle = self.request.query_params.get('muscle', None)
+        if muscle:
+            queryset = queryset.filter(muscle_group=muscle)
+        
+        # Filter by equipment
+        equipment = self.request.query_params.get('equipment', None)
+        if equipment:
+            queryset = queryset.filter(equipment=equipment)
+        
+        # Filter by difficulty
+        difficulty = self.request.query_params.get('difficulty', None)
         if difficulty:
             queryset = queryset.filter(difficulty=difficulty)
+        
+        # Search by name (case-insensitive partial match)
+        search = self.request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(name__icontains=search)
         
         return queryset
 

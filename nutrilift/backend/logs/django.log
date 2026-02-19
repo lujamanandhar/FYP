@@ -5025,3 +5025,19 @@ WARNING 2026-02-19 11:48:02,558 log 22000 20160 Bad Request: /api/workouts/logs/
 WARNING 2026-02-19 11:48:03,361 log 22000 20160 Unauthorized: /api/workouts/logs/log_workout/
 WARNING 2026-02-19 11:49:07,105 log 25604 33708 Bad Request: /api/workouts/logs/log_workout/
 WARNING 2026-02-19 11:49:07,909 log 25604 33708 Unauthorized: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 11:58:17,650 log 25960 18784 Not Found: /api/exercises/
+WARNING 2026-02-19 11:58:18,050 log 25960 18784 Not Found: /api/exercises/
+WARNING 2026-02-19 11:58:18,446 log 25960 18784 Not Found: /api/exercises/
+WARNING 2026-02-19 11:58:18,852 log 25960 18784 Not Found: /api/exercises/
+WARNING 2026-02-19 11:58:19,257 log 25960 18784 Not Found: /api/exercises/
+WARNING 2026-02-19 11:58:19,665 log 25960 18784 Not Found: /api/exercises/
+WARNING 2026-02-19 11:58:20,077 log 25960 18784 Not Found: /api/exercises/99999/
+WARNING 2026-02-19 11:58:20,472 log 25960 18784 Not Found: /api/exercises/57/
+WARNING 2026-02-19 11:58:20,870 log 25960 18784 Not Found: /api/exercises/
+WARNING 2026-02-19 11:58:21,264 log 25960 18784 Not Found: /api/exercises/
+WARNING 2026-02-19 11:58:21,265 log 25960 18784 Not Found: /api/exercises/
+WARNING 2026-02-19 11:58:21,266 log 25960 18784 Not Found: /api/exercises/
+WARNING 2026-02-19 11:58:21,661 log 25960 18784 Not Found: /api/exercises/
+WARNING 2026-02-19 12:01:14,411 log 12292 28060 Not Found: /api/exercises/99999/
+WARNING 2026-02-19 12:01:14,852 log 12292 28060 Not Found: /api/exercises/57/
+WARNING 2026-02-19 12:01:16,143 log 12292 28060 Unauthorized: /api/workouts/exercises/

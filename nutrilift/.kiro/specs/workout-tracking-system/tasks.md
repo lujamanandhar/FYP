@@ -177,14 +177,14 @@ The implementation is organized into major phases:
     - **Property 44: Exercise Frequency Ranking**
     - **Validates: Requirements 15.1, 15.2, 15.3, 15.4, 15.5**
 
-- [ ] 8. Implement Exercise API Endpoints
-  - [ ] 8.1 Create ExerciseViewSet with list and retrieve actions
+- [x] 8. Implement Exercise API Endpoints
+  - [x] 8.1 Create ExerciseViewSet with list and retrieve actions
     - Implement GET /api/exercises/ endpoint in `backend/workouts/views.py`
     - Add filtering by category, muscle, equipment, difficulty, search
     - Implement filter combination logic
     - _Requirements: 3.9, 5.3_
   
-  - [ ] 8.2 Write property tests for exercise filtering
+  - [x] 8.2 Write property tests for exercise filtering
     - **Property 11: Exercise Filter Combination**
     - Test that all filters work correctly in combination
     - Test that search filtering works
