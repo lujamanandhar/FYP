@@ -4986,3 +4986,42 @@ INFO 2026-02-13 23:13:45,129 basehttp 24564 7564 "PUT /api/auth/profile/ HTTP/1.
 INFO 2026-02-13 23:13:46,611 basehttp 24564 7564 "GET /api/auth/me/ HTTP/1.1" 200 326
 INFO 2026-02-13 23:13:50,796 basehttp 24564 7564 "GET /api/auth/me/ HTTP/1.1" 200 326
 INFO 2026-02-13 23:13:53,877 basehttp 24564 7564 "GET /api/auth/me/ HTTP/1.1" 200 326
+WARNING 2026-02-19 11:38:59,348 log 18252 9700 Not Found: /api/workouts/get_history/
+WARNING 2026-02-19 11:38:59,777 log 18252 9700 Not Found: /api/workouts/get_history/
+WARNING 2026-02-19 11:39:00,182 log 18252 9700 Not Found: /api/workouts/get_history/
+WARNING 2026-02-19 11:39:00,585 log 18252 9700 Not Found: /api/workouts/get_history/
+WARNING 2026-02-19 11:39:01,038 log 18252 9700 Not Found: /api/workouts/log_workout/
+WARNING 2026-02-19 11:39:01,439 log 18252 9700 Not Found: /api/workouts/log_workout/
+WARNING 2026-02-19 11:39:01,837 log 18252 9700 Not Found: /api/workouts/log_workout/
+WARNING 2026-02-19 11:39:02,242 log 18252 9700 Not Found: /api/workouts/log_workout/
+WARNING 2026-02-19 11:43:00,655 log 26884 18236 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 11:43:01,489 log 26884 18236 Unauthorized: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 11:43:03,164 log 26884 18236 Bad Request: /api/workouts/logs/get_history/
+ERROR 2026-02-19 11:43:03,565 exceptions 26884 18236 Unhandled exception: Cannot reorder a query once a slice has been taken.
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\workouts\views.py", line 180, in get_history
+    queryset = queryset.order_by('-logged_at')
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1724, in order_by
+    raise TypeError("Cannot reorder a query once a slice has been taken.")
+TypeError: Cannot reorder a query once a slice has been taken.
+ERROR 2026-02-19 11:43:03,596 log 26884 18236 Internal Server Error: /api/workouts/logs/get_history/
+WARNING 2026-02-19 11:43:55,371 log 4140 20096 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 11:43:56,178 log 4140 20096 Unauthorized: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 11:43:57,839 log 4140 20096 Bad Request: /api/workouts/logs/get_history/
+WARNING 2026-02-19 11:44:52,891 log 13088 5244 Bad Request: /api/workouts/logs/get_history/
+WARNING 2026-02-19 11:45:43,221 log 31480 26360 Bad Request: /api/workouts/logs/get_history/
+ERROR 2026-02-19 11:47:24,965 exceptions 30916 31976 Unhandled exception: name 'timezone' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Dell\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "F:\Herald Level 6\FYP\nutrilift\backend\workouts\views.py", line 172, in get_history
+    if timezone.is_naive(date_from_obj):
+       ^^^^^^^^
+NameError: name 'timezone' is not defined
+ERROR 2026-02-19 11:47:24,969 log 30916 31976 Internal Server Error: /api/workouts/logs/get_history/
+WARNING 2026-02-19 11:48:02,558 log 22000 20160 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 11:48:03,361 log 22000 20160 Unauthorized: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 11:49:07,105 log 25604 33708 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 11:49:07,909 log 25604 33708 Unauthorized: /api/workouts/logs/log_workout/

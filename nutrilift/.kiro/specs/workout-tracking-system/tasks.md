@@ -140,28 +140,28 @@ The implementation is organized into major phases:
 - [x] 6. Checkpoint - Backend Models and Serializers Complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Implement Workout API Endpoints
-  - [ ] 7.1 Create WorkoutViewSet with log_workout action
+- [x] 7. Implement Workout API Endpoints
+  - [x] 7.1 Create WorkoutViewSet with log_workout action
     - Implement POST /api/workouts/log/ endpoint in `backend/workouts/views.py`
     - Validate workout data, create WorkoutLog and WorkoutExercises
     - Return 201 with complete workout object including PR flags
     - _Requirements: 2.8, 2.9, 5.1, 14.1, 14.2_
   
-  - [ ] 7.2 Implement get_history action
+  - [x] 7.2 Implement get_history action
     - Implement GET /api/workouts/history/ endpoint
     - Add date_from and limit query parameters
     - Order by date descending
     - Include pagination support
     - _Requirements: 1.2, 1.7, 5.2_
   
-  - [ ] 7.3 Implement get_statistics action
+  - [x] 7.3 Implement get_statistics action
     - Implement GET /api/workouts/statistics/ endpoint
     - Calculate total workouts, calories, duration, averages
     - Provide breakdowns by time period and category
     - Identify most frequent exercises
     - _Requirements: 5.5, 15.1, 15.2, 15.3, 15.4, 15.5_
   
-  - [ ] 7.4 Write integration tests for workout endpoints
+  - [x] 7.4 Write integration tests for workout endpoints
     - Test POST /api/workouts/log/ with valid data returns 201
     - Test GET /api/workouts/history/ returns ordered workouts
     - Test date_from filtering works correctly
@@ -170,7 +170,7 @@ The implementation is organized into major phases:
     - **Property 8: Workout Persistence and Response**
     - **Validates: Requirements 1.1, 1.2, 1.7, 2.9, 14.1, 14.2**
   
-  - [ ] 7.5 Write property tests for statistics calculation
+  - [x] 7.5 Write property tests for statistics calculation
     - **Property 41: Statistics Calculation Accuracy**
     - **Property 42: Time Period Aggregation**
     - **Property 43: Category Aggregation**
