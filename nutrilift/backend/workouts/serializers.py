@@ -1,5 +1,7 @@
 from decimal import Decimal
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+from django.utils.html import escape
 from rest_framework import serializers
 from .models import (
     Gym, Exercise, CustomWorkout, CustomWorkoutExercise,
@@ -25,6 +27,18 @@ class ExerciseSerializer(serializers.ModelSerializer):
             'is_custom', 'created_by', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_by', 'created_at', 'updated_at']
+
+    def validate_name(self, value):
+        """Sanitize exercise name"""
+        return sanitize_text_input(value)
+
+    def validate_description(self, value):
+        """Sanitize exercise description"""
+        return sanitize_text_input(value)
+
+    def validate_instructions(self, value):
+        """Sanitize exercise instructions"""
+        return sanitize_text_input(value)
 
 
 class WorkoutExerciseSerializer(serializers.ModelSerializer):
@@ -106,6 +120,126 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
             workout_log=obj,
             achieved_date=obj.logged_at
         ).exists()
+
+    def validate_notes(self, value):
+        """
+        Validate and sanitize notes field.
+        
+        Requirements: 9.10
+        """
+        if value:
+            return sanitize_text_input(value)
+        return value
+
+    def validate_workout_name(self, value):
+        """
+        Validate and sanitize workout_name field.
+        
+        Requirements: 9.10
+        """
+        if value:
+            return sanitize_text_input(value)
+        return value
+
+    def validate_duration_minutes(self, value):
+        """
+        Validate duration is within acceptable range (1-600 minutes).
+        
+        Requirements: 9.1, 9.9
+        """
+        if value is not None:
+            if value < 1:
+                raise serializers.ValidationError("Duration must be at least 1 minute.")
+            if value > 600:
+                raise serializers.ValidationError("Duration cannot exceed 600 minutes (10 hours).")
+        return value
+
+    def validate_workout_exercises(self, value):
+        """
+        Validate workout exercises list.
+        
+        Requirements: 9.4, 9.5, 9.7
+        """
+        if not value or len(value) == 0:
+            raise serializers.ValidationError("At least one exercise is required.")
+        
+        # Validate each exercise
+        for idx, exercise_data in enumerate(value):
+            # Validate exercise exists
+            exercise_id = exercise_data.get('exercise')
+            if exercise_id:
+                if isinstance(exercise_id, int):
+                    if not Exercise.objects.filter(id=exercise_id).exists():
+                        raise serializers.ValidationError(
+                            f"Exercise with ID {exercise_id} does not exist."
+                        )
+                elif hasattr(exercise_id, 'id'):
+                    # Already an Exercise object
+                    pass
+            
+            # Validate sets range (1-100)
+            sets = exercise_data.get('sets')
+            if sets is not None:
+                if sets < 1:
+                    raise serializers.ValidationError(
+                        f"Exercise {idx + 1}: Sets must be at least 1."
+                    )
+                if sets > 100:
+                    raise serializers.ValidationError(
+                        f"Exercise {idx + 1}: Sets cannot exceed 100."
+                    )
+            
+            # Validate reps range (1-100)
+            reps = exercise_data.get('reps')
+            if reps is not None:
+                if reps < 1:
+                    raise serializers.ValidationError(
+                        f"Exercise {idx + 1}: Reps must be at least 1."
+                    )
+                if reps > 100:
+                    raise serializers.ValidationError(
+                        f"Exercise {idx + 1}: Reps cannot exceed 100."
+                    )
+            
+            # Validate weight range (0.1-1000 kg)
+            weight = exercise_data.get('weight')
+            if weight is not None:
+                weight_decimal = Decimal(str(weight))
+                if weight_decimal < Decimal('0.1'):
+                    raise serializers.ValidationError(
+                        f"Exercise {idx + 1}: Weight must be at least 0.1 kg."
+                    )
+                if weight_decimal > Decimal('1000'):
+                    raise serializers.ValidationError(
+                        f"Exercise {idx + 1}: Weight cannot exceed 1000 kg."
+                    )
+        
+        return value
+
+    def validate(self, data):
+        """
+        Object-level validation.
+        
+        Requirements: 9.4, 9.5, 9.8
+        """
+        # Validate that workout date is not in the future
+        logged_at = data.get('logged_at')
+        if logged_at and logged_at > timezone.now():
+            raise serializers.ValidationError({
+                'logged_at': 'Workout date cannot be in the future.'
+            })
+        
+        # Validate that at least one exercise is provided
+        workout_exercises = data.get('workout_exercises', [])
+        exercises = data.get('exercises', [])
+        
+        if not workout_exercises and not exercises:
+            raise serializers.ValidationError({
+                'workout_exercises': 'At least one exercise is required.',
+                'exercises': 'At least one exercise is required.'
+            })
+        
+        return data
 
     def calculate_calories(self, workout_log, exercises_data):
         """
@@ -204,6 +338,14 @@ class CustomWorkoutSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
+    def validate_name(self, value):
+        """Sanitize workout name"""
+        return sanitize_text_input(value)
+
+    def validate_description(self, value):
+        """Sanitize workout description"""
+        return sanitize_text_input(value)
+
     def create(self, validated_data):
         exercises_data = validated_data.pop('customworkoutexercise_set')
         custom_workout = CustomWorkout.objects.create(**validated_data)
@@ -258,3 +400,25 @@ class PersonalRecordSerializer(serializers.ModelSerializer):
     def get_improvement_percentage(self, obj):
         """Get the improvement percentage from the model method"""
         return obj.get_improvement_percentage()
+
+
+def sanitize_text_input(text):
+    """
+    Sanitize text input to prevent XSS and injection attacks.
+    Escapes HTML special characters and strips dangerous content.
+    
+    Requirements: 9.10
+    """
+    if text is None:
+        return None
+    
+    # Convert to string and strip whitespace
+    text = str(text).strip()
+    
+    # Escape HTML special characters
+    text = escape(text)
+    
+    # Remove null bytes
+    text = text.replace('\x00', '')
+    
+    return text

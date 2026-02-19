@@ -5044,3 +5044,41 @@ WARNING 2026-02-19 12:01:16,143 log 12292 28060 Unauthorized: /api/workouts/exer
 WARNING 2026-02-19 12:58:56,023 log 24436 24464 Unauthorized: /api/workouts/personal-records/
 WARNING 2026-02-19 13:02:20,818 log 26804 4968 Unauthorized: /api/workouts/personal-records/
 WARNING 2026-02-19 13:05:25,939 log 15944 5544 Unauthorized: /api/workouts/personal-records/
+WARNING 2026-02-19 13:25:36,882 log 20792 7000 Not Found: /api/workouts/log/
+WARNING 2026-02-19 13:25:37,050 log 20792 7000 Not Found: /api/workouts/history/
+WARNING 2026-02-19 13:25:37,070 log 20792 7000 Not Found: /api/workouts/statistics/
+WARNING 2026-02-19 13:25:37,086 log 20792 7000 Not Found: /api/exercises/
+WARNING 2026-02-19 13:25:37,099 log 20792 7000 Not Found: /api/gyms/
+WARNING 2026-02-19 13:25:37,113 log 20792 7000 Not Found: /api/custom-workouts/
+WARNING 2026-02-19 13:25:37,127 log 20792 7000 Not Found: /api/workouts/log/
+WARNING 2026-02-19 13:25:37,141 log 20792 7000 Not Found: /api/personal-records/
+WARNING 2026-02-19 13:25:37,158 log 20792 7000 Not Found: /api/workouts/log/
+WARNING 2026-02-19 13:28:01,206 log 25996 11088 Unauthorized: /api/workouts/logs/
+WARNING 2026-02-19 13:28:01,209 log 25996 11088 Unauthorized: /api/workouts/gyms/
+WARNING 2026-02-19 13:28:01,210 log 25996 11088 Unauthorized: /api/workouts/logs/get_history/
+WARNING 2026-02-19 13:28:01,211 log 25996 11088 Unauthorized: /api/workouts/logs/statistics/
+WARNING 2026-02-19 13:28:01,212 log 25996 11088 Unauthorized: /api/workouts/personal-records/
+WARNING 2026-02-19 13:28:01,213 log 25996 11088 Unauthorized: /api/workouts/exercises/
+WARNING 2026-02-19 13:28:01,214 log 25996 11088 Unauthorized: /api/workouts/custom-workouts/
+WARNING 2026-02-19 13:28:01,216 log 25996 11088 Unauthorized: /api/workouts/logs/
+WARNING 2026-02-19 13:28:50,887 log 24952 24696 Unauthorized: /api/workouts/logs/
+WARNING 2026-02-19 13:28:50,891 log 24952 24696 Unauthorized: /api/workouts/logs/
+WARNING 2026-02-19 13:28:50,893 log 24952 24696 Unauthorized: /api/workouts/gyms/
+WARNING 2026-02-19 13:28:50,894 log 24952 24696 Unauthorized: /api/workouts/logs/statistics/
+WARNING 2026-02-19 13:28:50,895 log 24952 24696 Unauthorized: /api/workouts/logs/get_history/
+WARNING 2026-02-19 13:28:50,896 log 24952 24696 Unauthorized: /api/workouts/personal-records/
+WARNING 2026-02-19 13:28:50,897 log 24952 24696 Unauthorized: /api/workouts/exercises/
+WARNING 2026-02-19 13:28:50,898 log 24952 24696 Unauthorized: /api/workouts/custom-workouts/
+WARNING 2026-02-19 13:28:51,330 log 24952 24696 Unauthorized: /api/workouts/exercises/
+WARNING 2026-02-19 13:28:51,733 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 13:28:52,128 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 13:28:52,535 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 13:29:04,939 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 13:29:05,333 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 13:29:05,740 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 13:29:17,850 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 13:29:52,697 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 13:30:02,328 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 13:30:02,732 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 13:30:03,125 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
+WARNING 2026-02-19 13:30:03,520 log 24952 24696 Bad Request: /api/workouts/logs/log_workout/
