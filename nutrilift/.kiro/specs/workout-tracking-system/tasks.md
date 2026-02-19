@@ -351,22 +351,22 @@ The implementation is organized into major phases:
     - **Property 23: Loading State Display** (service portion)
     - **Property 24: Error Message Display** (service portion)
 
-- [ ] 18. Implement Mock Repositories for Testing
-  - [ ] 18.1 Create MockWorkoutRepository
+- [x] 18. Implement Mock Repositories for Testing
+  - [x] 18.1 Create MockWorkoutRepository
     - Implement in-memory workout storage
     - Return mock data for all methods
     - _Requirements: 7.9_
   
-  - [ ] 18.2 Create MockExerciseRepository
+  - [x] 18.2 Create MockExerciseRepository
     - Return mock exercise data
     - Implement filtering logic
     - _Requirements: 7.9_
   
-  - [ ] 18.3 Create MockPersonalRecordRepository
+  - [x] 18.3 Create MockPersonalRecordRepository
     - Return mock PR data
     - _Requirements: 7.9_
 
-- [ ] 19. Implement Riverpod State Management
+- [-] 19. Implement Riverpod State Management
   - [ ] 19.1 Create repository providers
     - Create `frontend/lib/providers/repository_providers.dart`
     - Define providers for WorkoutRepository, ExerciseRepository, PersonalRecordRepository
