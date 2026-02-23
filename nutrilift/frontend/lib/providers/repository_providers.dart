@@ -27,8 +27,9 @@ final dioClientProvider = Provider<DioClient>((ref) {
 /// 
 /// Validates: Requirements 7.9
 final useMockDataProvider = StateProvider<bool>((ref) {
-  // Default to false (use API), can be toggled for testing
-  return false;
+  // Set to true to use mock data (for testing without backend)
+  // Set to false to use real API (requires backend running)
+  return true;  // Using mock data by default until backend is properly connected
 });
 
 /// Provider for WorkoutRepository

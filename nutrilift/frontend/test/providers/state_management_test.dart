@@ -132,9 +132,10 @@ void main() {
       // Wait for initial load
       await Future.delayed(const Duration(milliseconds: 200));
 
-      // Apply date filter
+      // Apply date filter with both from and to dates
       final dateFrom = DateTime.now().subtract(const Duration(days: 30));
-      await container.read(workoutHistoryProvider.notifier).filterByDateRange(dateFrom);
+      final dateTo = DateTime.now();
+      await container.read(workoutHistoryProvider.notifier).filterByDateRange(dateFrom, dateTo);
 
       final state = container.read(workoutHistoryProvider);
       expect(state.hasValue || state.hasError, true);
@@ -154,7 +155,8 @@ void main() {
 
       // Apply and clear filter
       final dateFrom = DateTime.now().subtract(const Duration(days: 30));
-      await container.read(workoutHistoryProvider.notifier).filterByDateRange(dateFrom);
+      final dateTo = DateTime.now();
+      await container.read(workoutHistoryProvider.notifier).filterByDateRange(dateFrom, dateTo);
       await container.read(workoutHistoryProvider.notifier).clearDateFilter();
 
       final state = container.read(workoutHistoryProvider);

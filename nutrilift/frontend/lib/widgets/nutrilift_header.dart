@@ -38,7 +38,7 @@ class _NutriLiftHeaderState extends State<NutriLiftHeader> with ErrorHandlingMix
       shadowColor: Colors.black.withOpacity(0.1),
       leading: widget.showBackButton
           ? IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              icon: const Icon(Icons.arrow_back, color: Color(0xFFE53935)),
               onPressed: () => Navigator.pop(context),
             )
           : null,
