@@ -9,7 +9,6 @@ import 'package:nutrilift/services/dio_client.dart';
 import 'package:nutrilift/services/exercise_api_service.dart';
 import 'package:nutrilift/services/personal_record_api_service.dart';
 import 'package:nutrilift/services/workout_api_service.dart';
-import 'package:nutrilift/services/cache_service.dart';
 
 // Helper class to create a testable DioClient
 class TestDioClient extends DioClient {
@@ -21,65 +20,10 @@ class TestDioClient extends DioClient {
   Dio get dio => testDio;
 }
 
-// Mock CacheService for testing
-class MockCacheService implements CacheService {
-  @override
-  Future<void> cacheWorkoutHistory(List<WorkoutLog> workouts) async {}
-  
-  @override
-  Future<List<WorkoutLog>?> getCachedWorkoutHistory() async => null;
-  
-  @override
-  Future<void> addWorkoutToCache(WorkoutLog workout) async {}
-  
-  @override
-  Future<void> cacheExercises(List<Exercise> exercises) async {}
-  
-  @override
-  Future<List<Exercise>?> getCachedExercises() async => null;
-  
-  @override
-  Future<void> cachePersonalRecords(List<PersonalRecord> records) async {}
-  
-  @override
-  Future<List<PersonalRecord>?> getCachedPersonalRecords() async => null;
-  
-  @override
-  Future<void> clearWorkoutHistoryCache() async {}
-  
-  @override
-  Future<void> clearExercisesCache() async {}
-  
-  @override
-  Future<void> clearPersonalRecordsCache() async {}
-  
-  @override
-  Future<void> updatePersonalRecordInCache(PersonalRecord record) async {}
-  
-  @override
-  Future<DateTime?> getLastSyncTime() async => null;
-  
-  @override
-  Future<bool> needsRefresh({Duration maxAge = const Duration(hours: 1)}) async => false;
-  
-  @override
-  Future<bool> hasCachedData() async => false;
-  
-  @override
-  Future<void> clearAllCache() async {}
-  
-  @override
-  Future<Map<String, dynamic>> getCacheStats() async => {};
-  
-  @override
-  void dispose() {}
-}
-
 void main() {
   late Dio dio;
   late DioAdapter dioAdapter;
   late TestDioClient dioClient;
-  late MockCacheService cacheService;
 
   setUp(() {
     dio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:8000/api'));
@@ -87,14 +31,13 @@ void main() {
     dio.httpClientAdapter = dioAdapter;
     
     dioClient = TestDioClient(dio);
-    cacheService = MockCacheService();
   });
 
   group('WorkoutApiService', () {
     late WorkoutApiService workoutApiService;
 
     setUp(() {
-      workoutApiService = WorkoutApiService(dioClient, cacheService);
+      workoutApiService = WorkoutApiService(dioClient);
     });
 
     test('getWorkoutHistory returns list of workouts', () async {
@@ -263,7 +206,7 @@ void main() {
     late ExerciseApiService exerciseApiService;
 
     setUp(() {
-      exerciseApiService = ExerciseApiService(dioClient, cacheService);
+      exerciseApiService = ExerciseApiService(dioClient);
     });
 
     test('getExercises returns list of exercises', () async {
@@ -358,7 +301,7 @@ void main() {
     late PersonalRecordApiService personalRecordApiService;
 
     setUp(() {
-      personalRecordApiService = PersonalRecordApiService(dioClient, cacheService);
+      personalRecordApiService = PersonalRecordApiService(dioClient);
     });
 
     test('getPersonalRecords returns list of records', () async {
@@ -442,7 +385,7 @@ void main() {
     late WorkoutApiService workoutApiService;
 
     setUp(() {
-      workoutApiService = WorkoutApiService(dioClient, cacheService);
+      workoutApiService = WorkoutApiService(dioClient);
     });
 
     test('Feature: workout-tracking-system, Property 23: Loading State Display - Service handles loading states', () async {

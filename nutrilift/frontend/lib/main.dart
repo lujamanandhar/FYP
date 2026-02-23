@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'UserManagement/login_screen.dart';
 import 'services/error_handler.dart';
 
@@ -8,12 +7,8 @@ void main() {
   final navigatorKey = GlobalKey<NavigatorState>();
   ErrorHandler().initialize(navKey: navigatorKey);
   
-  // Run the app wrapped with ProviderScope for Riverpod state management
-  runApp(
-    ProviderScope(
-      child: MyApp(navigatorKey: navigatorKey),
-    ),
-  );
+  // Run the app with the navigator key passed to enable global error handling
+  runApp(MyApp(navigatorKey: navigatorKey));
 }
 
 class MyApp extends StatelessWidget {

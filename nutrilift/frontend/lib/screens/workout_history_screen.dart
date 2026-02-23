@@ -89,7 +89,6 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
 
     return NutriLiftScaffold(
       title: 'Workout History',
-      showBackButton: true,
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToNewWorkout,
         backgroundColor: const Color(0xFFE53935),
@@ -325,12 +324,10 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
           _selectedDateFrom = result.dateFrom;
           _selectedDateTo = result.dateTo;
         });
-        // Use dateFrom for filtering (dateTo not yet supported by backend)
-        if (result.dateFrom != null) {
-          await ref.read(workoutHistoryProvider.notifier).filterByDateRange(result.dateFrom!);
-        } else {
-          await ref.read(workoutHistoryProvider.notifier).clearDateFilter();
-        }
+        await ref.read(workoutHistoryProvider.notifier).filterByDateRange(
+          result.dateFrom,
+          result.dateTo,
+        );
       }
     }
   }

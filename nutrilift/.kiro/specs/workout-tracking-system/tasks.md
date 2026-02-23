@@ -400,41 +400,41 @@ The implementation is organized into major phases:
     - **Property 26: Reactive State Updates**
     - **Validates: Requirements 8.1**
 
-- [x] 20. Implement Local Caching
-  - [x] 20.1 Set up shared_preferences for caching
+- [ ] 20. Implement Local Caching
+  - [ ] 20.1 Set up shared_preferences for caching
     - Add shared_preferences dependency
     - Create cache service
     - _Requirements: 8.5, 14.4_
   
-  - [x] 20.2 Implement cache in repositories
+  - [ ] 20.2 Implement cache in repositories
     - Cache workout history locally
     - Cache exercises locally
     - Cache PRs locally
     - Implement cache synchronization on startup
     - _Requirements: 8.5, 14.4, 14.5_
   
-  - [x] 20.3 Write property tests for caching behavior
+  - [ ] 20.3 Write property tests for caching behavior
     - **Property 28: Data Caching** (frontend portion)
     - **Property 37: Cache Synchronization on Startup**
     - Test that data is cached and retrievable offline
     - **Validates: Requirements 8.5, 14.4, 14.5**
 
-- [x] 21. Implement Network Failure Handling
-  - [x] 21.1 Create retry queue for failed operations
+- [ ] 21. Implement Network Failure Handling
+  - [ ] 21.1 Create retry queue for failed operations
     - Implement operation queue in cache service
     - Retry operations when network restored
     - _Requirements: 14.6_
   
-  - [x] 21.2 Write property tests for retry logic
+  - [ ] 21.2 Write property tests for retry logic
     - **Property 38: Network Failure Retry Queue**
     - Test that failed operations are queued and retried
     - **Validates: Requirements 14.6**
 
-- [x] 22. Checkpoint - Frontend Data Layer Complete
+- [ ] 22. Checkpoint - Frontend Data Layer Complete
   - Ensure all data layer tests pass, ask the user if questions arise.
 
-- [x] 23. Implement Workout History Screen
-  - [x] 23.1 Create WorkoutHistoryScreen widget
+- [ ] 23. Implement Workout History Screen
+  - [ ] 23.1 Create WorkoutHistoryScreen widget
     - Create `frontend/lib/screens/workout_history_screen.dart`
     - Integrate NutriLiftHeader
     - Add RefreshIndicator for pull-to-refresh
@@ -442,35 +442,35 @@ The implementation is organized into major phases:
     - Add FAB for new workout
     - _Requirements: 1.1, 1.5, 1.6_
   
-  - [x] 23.2 Create WorkoutCard widget
+  - [ ] 23.2 Create WorkoutCard widget
     - Create `frontend/lib/widgets/workout_card.dart`
     - Display workout name, date, duration, calories, gym
     - Show PR badge when has_new_prs is true
     - _Requirements: 1.3, 1.4_
   
-  - [x] 23.3 Implement date range filter dialog
+  - [ ] 23.3 Implement date range filter dialog
     - Create dialog for selecting date range
     - Update workout list when filter applied
     - _Requirements: 1.2_
   
-  - [x] 23.4 Implement pagination for workout list
+  - [ ] 23.4 Implement pagination for workout list
     - Add scroll listener
     - Load more workouts when scrolling to bottom
     - _Requirements: 12.2_
   
-  - [x] 23.5 Write widget tests for WorkoutHistoryScreen
+  - [ ] 23.5 Write widget tests for WorkoutHistoryScreen
     - Test that workouts are displayed
     - Test that PR badges show correctly
     - **Property 3: Workout Card Completeness**
     - **Property 4: Workout Card Completeness** (PR badge portion)
     - **Validates: Requirements 1.3, 1.4**
   
-  - [x] 23.6 Write property tests for pagination
+  - [ ] 23.6 Write property tests for pagination
     - **Property 34: Pagination Behavior**
     - **Validates: Requirements 12.2**
 
-- [x] 24. Implement New Workout Screen
-  - [x] 24.1 Create NewWorkoutScreen widget
+- [ ] 24. Implement New Workout Screen
+  - [ ] 24.1 Create NewWorkoutScreen widget
     - Create `frontend/lib/screens/new_workout_screen.dart`
     - Add workout template dropdown
     - Add gym selection dropdown
@@ -479,24 +479,24 @@ The implementation is organized into major phases:
     - Add save button
     - _Requirements: 2.1, 2.5_
   
-  - [x] 24.2 Create ExerciseInputWidget
+  - [ ] 24.2 Create ExerciseInputWidget
     - Create widget for inputting sets, reps, weight per exercise
     - Add validation for input ranges
     - Add remove button
     - _Requirements: 2.4, 2.5, 2.6, 2.7_
   
-  - [x] 24.3 Implement template selection logic
+  - [ ] 24.3 Implement template selection logic
     - Load exercises when template selected
     - Pre-populate exercise list
     - _Requirements: 2.2_
   
-  - [x] 24.4 Implement exercise search and add
+  - [ ] 24.4 Implement exercise search and add
     - Add search bar
     - Show filtered exercises
     - Add exercise to workout on tap
     - _Requirements: 2.3, 2.4_
   
-  - [x] 24.5 Implement form validation
+  - [ ] 24.5 Implement form validation
     - Validate duration (1-600)
     - Validate reps (1-100)
     - Validate weight (0.1-1000)
@@ -504,186 +504,186 @@ The implementation is organized into major phases:
     - Show validation errors inline
     - _Requirements: 2.5, 2.6, 2.7, 9.4, 9.5_
   
-  - [x] 24.6 Implement workout submission
+  - [ ] 24.6 Implement workout submission
     - Call logWorkout API
     - Show loading indicator
     - Handle success: show PR notification if applicable, navigate back
     - Handle errors: show error message
     - _Requirements: 2.8, 8.2_
   
-  - [x] 24.7 Write widget tests for NewWorkoutScreen
+  - [ ] 24.7 Write widget tests for NewWorkoutScreen
     - Test form validation
     - Test exercise addition/removal
     - **Property 6: Exercise Addition to Workout**
     - **Property 29: Incomplete Workout Validation**
     - **Validates: Requirements 2.4, 2.5, 2.6, 2.7, 9.4, 9.5**
   
-  - [x] 24.8 Write property tests for template pre-population
+  - [ ] 24.8 Write property tests for template pre-population
     - **Property 4: Template Pre-population**
     - **Validates: Requirements 2.2**
 
-- [x] 25. Implement Exercise Library Screen
-  - [x] 25.1 Create ExerciseLibraryScreen widget
+- [ ] 25. Implement Exercise Library Screen
+  - [ ] 25.1 Create ExerciseLibraryScreen widget
     - Create `frontend/lib/screens/exercise_library_screen.dart`
     - Add search bar
     - Add filter chips for category, muscle, equipment, difficulty
     - Display exercises in grid
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
   
-  - [x] 25.2 Create ExerciseCard widget
+  - [ ] 25.2 Create ExerciseCard widget
     - Create `frontend/lib/widgets/exercise_card.dart`
     - Display exercise image, name, muscle group, difficulty
     - _Requirements: 3.1_
   
-  - [x] 25.3 Implement exercise filtering
+  - [ ] 25.3 Implement exercise filtering
     - Update exercise list when filters applied
     - Support multiple filters simultaneously
     - _Requirements: 3.2, 3.3, 3.4, 3.5, 3.9_
   
-  - [x] 25.4 Implement exercise search
+  - [ ] 25.4 Implement exercise search
     - Filter exercises by name as user types
     - _Requirements: 3.6_
   
-  - [x] 25.5 Implement exercise detail bottom sheet
+  - [ ] 25.5 Implement exercise detail bottom sheet
     - Show full exercise details on tap
     - Display image, instructions, video link
     - Add "Add to Workout" button
     - _Requirements: 3.7, 3.8_
   
-  - [x] 25.6 Write widget tests for ExerciseLibraryScreen
+  - [ ] 25.6 Write widget tests for ExerciseLibraryScreen
     - Test that exercises are displayed
     - Test that filters work
     - Test that search works
     - **Property 5: Exercise Search Filtering**
     - **Validates: Requirements 2.3, 3.6**
 
-- [x] 26. Implement Personal Records Screen
-  - [x] 26.1 Create PersonalRecordsScreen widget
+- [ ] 26. Implement Personal Records Screen
+  - [ ] 26.1 Create PersonalRecordsScreen widget
     - Create `frontend/lib/screens/personal_records_screen.dart`
     - Display PRs in grid layout
     - _Requirements: 4.1_
   
-  - [x] 26.2 Create PRCard widget
+  - [ ] 26.2 Create PRCard widget
     - Create `frontend/lib/widgets/pr_card.dart`
     - Display exercise name, max weight, max reps, max volume, date
     - Show progress indicator if improvement data exists
     - Add share button
     - _Requirements: 4.2, 4.3, 4.5_
   
-  - [x] 26.3 Implement PR tap navigation
+  - [ ] 26.3 Implement PR tap navigation
     - Navigate to workout history filtered to exercise
     - _Requirements: 4.4_
   
-  - [x] 26.4 Implement PR sharing
+  - [ ] 26.4 Implement PR sharing
     - Generate share message
     - Open share dialog
     - _Requirements: 4.5_
   
-  - [x] 26.5 Write widget tests for PersonalRecordsScreen
+  - [ ] 26.5 Write widget tests for PersonalRecordsScreen
     - Test that PRs are displayed correctly
     - Test that progress indicators show
     - **Property 12: Personal Record Display Completeness**
     - **Property 13: PR Share Message Generation**
     - **Validates: Requirements 4.2, 4.3, 4.5**
 
-- [x] 27. Implement Navigation and Integration
-  - [x] 27.1 Integrate screens with existing navigation
+- [ ] 27. Implement Navigation and Integration
+  - [ ] 27.1 Integrate screens with existing navigation
     - Add workout screens to drawer navigation
     - Integrate with NutriLiftHeader
     - Set up routes
     - _Requirements: 7.10, 13.2, 13.3_
   
-  - [x] 27.2 Apply red theme consistently
+  - [ ] 27.2 Apply red theme consistently
     - Use #E53935 for primary color
     - Apply theme to all workout screens
     - _Requirements: 7.10, 13.1_
   
-  - [x] 27.3 Write integration tests for navigation flows
+  - [ ] 27.3 Write integration tests for navigation flows
     - Test complete user flows
     - Test navigation between screens
 
-- [x] 28. Implement Loading and Error States
-  - [x] 28.1 Add loading indicators to all screens
+- [ ] 28. Implement Loading and Error States
+  - [ ] 28.1 Add loading indicators to all screens
     - Show CircularProgressIndicator during API calls
     - _Requirements: 7.6, 13.4_
   
-  - [x] 28.2 Add error handling to all screens
+  - [ ] 28.2 Add error handling to all screens
     - Display error messages when operations fail
     - Add retry buttons
     - _Requirements: 7.7, 13.5_
   
-  - [x] 28.3 Write property tests for loading and error states
+  - [ ] 28.3 Write property tests for loading and error states
     - **Property 23: Loading State Display**
     - **Property 24: Error Message Display**
     - **Validates: Requirements 7.6, 7.7, 13.4, 13.5**
 
-- [x] 29. Implement Optimistic UI Updates
-  - [x] 29.1 Add optimistic updates for workout logging
+- [ ] 29. Implement Optimistic UI Updates
+  - [ ] 29.1 Add optimistic updates for workout logging
     - Update UI immediately when workout logged
     - Rollback if API call fails
     - _Requirements: 7.8_
   
-  - [x] 29.2 Write property tests for optimistic updates
+  - [ ] 29.2 Write property tests for optimistic updates
     - **Property 25: Optimistic UI Updates**
     - **Validates: Requirements 7.8**
 
-- [x] 30. Implement PR Notifications
-  - [x] 30.1 Add notification display for new PRs
+- [ ] 30. Implement PR Notifications
+  - [ ] 30.1 Add notification display for new PRs
     - Show celebration notification when PR achieved
     - Display immediately after workout submission
     - _Requirements: 8.2, 4.8_
   
-  - [x] 30.2 Write property tests for PR notifications
+  - [ ] 30.2 Write property tests for PR notifications
     - **Property 15: PR Notification Creation**
     - **Validates: Requirements 4.8, 8.2, 8.6**
 
-- [x] 31. Checkpoint - Frontend UI Complete
+- [ ] 31. Checkpoint - Frontend UI Complete
   - Ensure all frontend tests pass, ask the user if questions arise.
 
-- [x] 32. Implement Backend Deployment Configuration
-  - [x] 32.1 Create Dockerfile for backend
+- [ ] 32. Implement Backend Deployment Configuration
+  - [ ] 32.1 Create Dockerfile for backend
     - Create multi-stage Dockerfile
     - Configure for production deployment
     - _Requirements: 11.1_
   
-  - [x] 32.2 Create docker-compose.yml for local development
+  - [ ] 32.2 Create docker-compose.yml for local development
     - Configure PostgreSQL service
     - Configure backend service
     - _Requirements: 11.2_
   
-  - [x] 32.3 Configure environment variables
+  - [ ] 32.3 Configure environment variables
     - Set up .env.example file
     - Document all required environment variables
     - _Requirements: 11.9_
   
-  - [x] 32.4 Create deployment documentation
+  - [ ] 32.4 Create deployment documentation
     - Document Railway/Heroku deployment steps
     - Document database migration steps
     - _Requirements: 11.3_
 
-- [x] 33. Implement Frontend Deployment Configuration
-  - [x] 33.1 Create GitHub Actions workflow for Android build
+- [ ] 33. Implement Frontend Deployment Configuration
+  - [ ] 33.1 Create GitHub Actions workflow for Android build
     - Configure Flutter build action
     - Build release APK
     - Upload artifact
     - _Requirements: 11.4_
   
-  - [x] 33.2 Configure Firebase Hosting for web
+  - [ ] 33.2 Configure Firebase Hosting for web
     - Create firebase.json
     - Configure hosting settings
     - _Requirements: 11.5_
   
-  - [x] 33.3 Create environment configuration
+  - [ ] 33.3 Create environment configuration
     - Set up environment-specific API endpoints
     - _Requirements: 11.10_
 
 - [ ] 34. Implement CI/CD Pipeline
-  - [x] 34.1 Create GitHub Actions workflow for backend tests
+  - [ ] 34.1 Create GitHub Actions workflow for backend tests
     - Run pytest on every PR
     - Upload coverage reports
     - _Requirements: 11.6_
   
-  - [x] 34.2 Create GitHub Actions workflow for frontend tests
+  - [ ] 34.2 Create GitHub Actions workflow for frontend tests
     - Run Flutter tests on every PR
     - Upload coverage reports
     - _Requirements: 11.6_
@@ -693,17 +693,17 @@ The implementation is organized into major phases:
     - Deploy frontend to Firebase on merge to main
     - _Requirements: 11.7, 11.8_
 
-- [x] 35. Final Integration Testing
-  - [x] 35.1 Run complete end-to-end tests
+- [ ] 35. Final Integration Testing
+  - [ ] 35.1 Run complete end-to-end tests
     - Test complete user flows from UI to database
     - Test all API endpoints with real database
     - Verify PR detection works end-to-end
   
-  - [x] 35.2 Run property-based test suite
+  - [ ] 35.2 Run property-based test suite
     - Run all 47 property tests with 100+ iterations each
     - Verify all properties hold
   
-  - [x] 35.3 Verify test coverage goals
+  - [ ] 35.3 Verify test coverage goals
     - Backend: 90% coverage
     - Frontend: 85% coverage
 

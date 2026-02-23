@@ -3,7 +3,7 @@ import 'token_service.dart';
 
 /// Dio HTTP client with JWT authentication and error handling interceptors
 class DioClient {
-  static const String _baseUrl = 'http://127.0.0.1:8000/api/workouts';
+  static const String _baseUrl = 'http://127.0.0.1:8000/api';
   static const Duration _timeout = Duration(seconds: 30);
 
   late final Dio _dio;
