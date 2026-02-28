@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       title: 'NutriLift',
       theme: ThemeData(
-        // Primary red color scheme
+        // Primary red 
         primarySwatch: Colors.red,
         primaryColor: const Color(0xFFE53935),
         colorScheme: ColorScheme.fromSeed(
@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
           elevation: 2,
         ),    
         
-        // Button themes colors
+        // Button themes 
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFE53935),
