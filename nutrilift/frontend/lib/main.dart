@@ -20,11 +20,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // Assign navigator key to enable access from ErrorHandler service 
+      // Assign navigator key to enable access from ErrorHandler service here
       navigatorKey: navigatorKey,
       title: 'NutriLift',
       theme: ThemeData(
-        // Primary red 
+        // Primary red color scheme
         primarySwatch: Colors.red,
         primaryColor: const Color(0xFFE53935),
         colorScheme: ColorScheme.fromSeed(
@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
           elevation: 2,
         ),    
         
-        // Button themes 
+        // Button themes colors
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFE53935),
