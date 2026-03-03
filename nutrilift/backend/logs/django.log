@@ -5152,3 +5152,10 @@ ERROR 2026-02-19 17:19:42,270 log 2384 21584 Internal Server Error: /api/workout
 WARNING 2026-02-19 23:02:31,253 log 17252 7492 Not Found: /api/workouts/exercises/99999/
 WARNING 2026-02-19 23:02:32,926 log 17252 7492 Unauthorized: /api/workouts/exercises/
 WARNING 2026-02-19 23:02:47,013 log 17252 7492 Unauthorized: /api/workouts/personal-records/
+INFO 2026-03-03 23:55:49,869 autoreload 7992 67524 Watching for file changes with StatReloader
+INFO 2026-03-03 23:56:40,538 basehttp 7992 71128 "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+INFO 2026-03-03 23:56:41,039 basehttp 7992 71128 "POST /api/auth/login/ HTTP/1.1" 200 564
+INFO 2026-03-03 23:56:41,212 basehttp 7992 71128 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+INFO 2026-03-03 23:56:41,268 basehttp 7992 71128 "GET /api/auth/me/ HTTP/1.1" 200 326
+INFO 2026-03-03 23:58:57,491 basehttp 7992 71128 "POST /api/auth/login/ HTTP/1.1" 200 564
+INFO 2026-03-03 23:58:57,679 basehttp 7992 71128 "GET /api/auth/me/ HTTP/1.1" 200 326
