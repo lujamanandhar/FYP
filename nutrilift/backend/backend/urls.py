@@ -7,9 +7,10 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 API Structure:
 - /api/auth/ - Authentication endpoints
 - /api/workouts/ - Workout tracking endpoints
+- /api/nutrition/ - Nutrition tracking endpoints
 - /admin/ - Django admin interface
 
-Requirements: 7.1, 7.2, 7.3, 7.4
+Requirements: 7.1, 7.2, 7.3, 7.4, 16.1
 """
 from django.contrib import admin
 from django.urls import path, include
@@ -25,4 +26,8 @@ urlpatterns = [
     # API v1 workout endpoints
     # All workout endpoints are prefixed with /api/workouts/
     path('api/workouts/', include('workouts.urls', namespace='workouts')),
+    
+    # API v1 nutrition endpoints
+    # All nutrition endpoints are prefixed with /api/nutrition/
+    path('api/nutrition/', include('nutrition.urls', namespace='nutrition')),
 ]

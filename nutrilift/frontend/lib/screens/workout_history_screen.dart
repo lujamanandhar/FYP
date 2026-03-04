@@ -89,6 +89,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
 
     return NutriLiftScaffold(
       title: 'Workout History',
+      showBackButton: true,
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToNewWorkout,
         backgroundColor: const Color(0xFFE53935),

@@ -20,6 +20,7 @@ class _ChallengeOverviewScreenState extends State<ChallengeOverviewScreen> {
     final availableChallenges = ChallengeService.getAvailableChallenges();
 
     return NutriLiftScaffold(
+      showBackButton: true,
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

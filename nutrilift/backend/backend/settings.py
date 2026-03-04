@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentications',
     'workouts',
+    'nutrition',
 ]
 
 MIDDLEWARE = [

@@ -5159,3 +5159,79 @@ INFO 2026-03-03 23:56:41,212 basehttp 7992 71128 "OPTIONS /api/auth/me/ HTTP/1.1
 INFO 2026-03-03 23:56:41,268 basehttp 7992 71128 "GET /api/auth/me/ HTTP/1.1" 200 326
 INFO 2026-03-03 23:58:57,491 basehttp 7992 71128 "POST /api/auth/login/ HTTP/1.1" 200 564
 INFO 2026-03-03 23:58:57,679 basehttp 7992 71128 "GET /api/auth/me/ HTTP/1.1" 200 326
+INFO 2026-03-04 00:00:07,424 basehttp 7992 86124 "GET /api/auth/me/ HTTP/1.1" 200 326
+INFO 2026-03-04 00:02:23,318 basehttp 7992 86124 "GET /api/auth/me/ HTTP/1.1" 200 326
+INFO 2026-03-04 00:03:57,650 basehttp 7992 86124 "POST /api/auth/login/ HTTP/1.1" 200 564
+INFO 2026-03-04 00:03:57,824 basehttp 7992 86124 "GET /api/auth/me/ HTTP/1.1" 200 326
+INFO 2026-03-04 00:15:05,644 basehttp 7992 54620 "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+INFO 2026-03-04 00:15:06,095 basehttp 7992 54620 "POST /api/auth/login/ HTTP/1.1" 200 564
+INFO 2026-03-04 00:15:06,284 basehttp 7992 54620 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+INFO 2026-03-04 00:15:06,342 basehttp 7992 54620 "GET /api/auth/me/ HTTP/1.1" 200 326
+INFO 2026-03-04 13:40:32,186 autoreload 46908 55004 Watching for file changes with StatReloader
+INFO 2026-03-04 13:41:24,677 basehttp 46908 75428 "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+INFO 2026-03-04 13:41:25,240 basehttp 46908 75428 "POST /api/auth/login/ HTTP/1.1" 200 564
+INFO 2026-03-04 13:41:25,541 basehttp 46908 75428 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+INFO 2026-03-04 13:41:25,622 basehttp 46908 75428 "GET /api/auth/me/ HTTP/1.1" 200 326
+INFO 2026-03-04 14:21:50,932 basehttp 46908 68412 "GET /api/auth/me/ HTTP/1.1" 200 326
+INFO 2026-03-04 14:27:14,701 basehttp 46908 58728 "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+INFO 2026-03-04 14:27:15,271 basehttp 46908 58728 "POST /api/auth/login/ HTTP/1.1" 200 564
+INFO 2026-03-04 14:27:15,465 basehttp 46908 58728 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+INFO 2026-03-04 14:27:15,516 basehttp 46908 58728 "GET /api/auth/me/ HTTP/1.1" 200 326
+WARNING 2026-03-04 14:30:36,887 log 46908 58728 Unauthorized: /api/auth/login/
+WARNING 2026-03-04 14:30:36,888 basehttp 46908 58728 "POST /api/auth/login/ HTTP/1.1" 401 103
+INFO 2026-03-04 14:31:01,932 basehttp 46908 58728 "POST /api/auth/login/ HTTP/1.1" 200 564
+INFO 2026-03-04 14:31:02,161 basehttp 46908 58728 "GET /api/auth/me/ HTTP/1.1" 200 326
+INFO 2026-03-04 15:02:54,182 autoreload 64160 67688 Watching for file changes with StatReloader
+INFO 2026-03-04 15:07:03,819 basehttp 64160 8096 "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+WARNING 2026-03-04 15:07:04,280 log 64160 8096 Unauthorized: /api/auth/login/
+WARNING 2026-03-04 15:07:04,280 basehttp 64160 8096 "POST /api/auth/login/ HTTP/1.1" 401 103
+INFO 2026-03-04 15:07:14,433 basehttp 64160 8096 "POST /api/auth/login/ HTTP/1.1" 200 564
+INFO 2026-03-04 15:07:14,645 basehttp 64160 8096 "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+INFO 2026-03-04 15:07:14,692 basehttp 64160 8096 "GET /api/auth/me/ HTTP/1.1" 200 326
+INFO 2026-03-04 16:13:39,196 autoreload 64160 67688 F:\Herald Level 6\FYP\nutrilift\backend\backend\settings.py changed, reloading.
+INFO 2026-03-04 16:13:40,081 autoreload 42596 85192 Watching for file changes with StatReloader
+INFO 2026-03-04 23:36:45,666 autoreload 42596 85192 F:\Herald Level 6\FYP\nutrilift\backend\backend\urls.py changed, reloading.
+INFO 2026-03-04 23:36:46,831 autoreload 58596 68120 Watching for file changes with StatReloader
+WARNING 2026-03-04 23:42:26,325 log 33628 22244 Unauthorized: /api/nutrition/food-items/
+WARNING 2026-03-04 23:42:28,516 log 33628 22244 Unsupported Media Type: /api/nutrition/food-items/
+WARNING 2026-03-04 23:42:29,541 log 33628 22244 Unsupported Media Type: /api/nutrition/food-items/
+WARNING 2026-03-04 23:42:30,539 log 33628 22244 Unsupported Media Type: /api/nutrition/food-items/
+WARNING 2026-03-04 23:42:38,921 log 33628 22244 Unsupported Media Type: /api/nutrition/food-items/3/
+WARNING 2026-03-04 23:46:19,836 log 67172 80888 Unauthorized: /api/nutrition/food-items/
+INFO 2026-03-04 23:48:11,749 autoreload 58596 68120 F:\Herald Level 6\FYP\nutrilift\backend\nutrition\views.py changed, reloading.
+INFO 2026-03-04 23:48:12,634 autoreload 51228 27204 Watching for file changes with StatReloader
+WARNING 2026-03-04 23:51:10,605 log 86652 63480 Not Found: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:51:11,489 log 86652 63480 Not Found: /api/nutrition/intake-logs/8/
+WARNING 2026-03-04 23:51:12,349 log 86652 63480 Not Found: /api/nutrition/intake-logs/12/
+WARNING 2026-03-04 23:51:13,206 log 86652 63480 Not Found: /api/nutrition/intake-logs/16/
+WARNING 2026-03-04 23:51:14,071 log 86652 63480 Not Found: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:51:14,956 log 86652 63480 Not Found: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:51:15,876 log 86652 63480 Not Found: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:51:16,718 log 86652 63480 Not Found: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:51:17,623 log 86652 63480 Not Found: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:51:18,514 log 86652 63480 Not Found: /api/nutrition/intake-logs/37/
+WARNING 2026-03-04 23:51:19,332 log 86652 63480 Not Found: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:51:20,156 log 86652 63480 Not Found: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:51:20,969 log 86652 63480 Not Found: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:51:21,762 log 86652 63480 Not Found: /api/nutrition/intake-logs/53/
+WARNING 2026-03-04 23:51:22,550 log 86652 63480 Not Found: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:51:23,350 log 86652 63480 Not Found: /api/nutrition/intake-logs/61/
+INFO 2026-03-04 23:51:40,929 autoreload 51228 27204 F:\Herald Level 6\FYP\nutrilift\backend\nutrition\urls.py changed, reloading.
+INFO 2026-03-04 23:51:42,004 autoreload 13040 46376 Watching for file changes with StatReloader
+WARNING 2026-03-04 23:54:25,267 log 35028 59528 Unauthorized: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:54:26,085 log 35028 59528 Not Found: /api/nutrition/intake-logs/8/
+WARNING 2026-03-04 23:54:26,879 log 35028 59528 Not Found: /api/nutrition/intake-logs/12/
+WARNING 2026-03-04 23:54:27,699 log 35028 59528 Not Found: /api/nutrition/intake-logs/16/
+WARNING 2026-03-04 23:54:28,539 log 35028 59528 Bad Request: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:54:29,360 log 35028 59528 Bad Request: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:54:37,607 log 35028 59528 Bad Request: /api/nutrition/intake-logs/61/
+INFO 2026-03-04 23:54:57,510 autoreload 13040 46376 F:\Herald Level 6\FYP\nutrilift\backend\nutrition\serializers.py changed, reloading.
+INFO 2026-03-04 23:54:58,166 autoreload 25988 86260 Watching for file changes with StatReloader
+WARNING 2026-03-04 23:55:19,747 log 65404 20664 Unauthorized: /api/nutrition/intake-logs/
+WARNING 2026-03-04 23:55:20,545 log 65404 20664 Not Found: /api/nutrition/intake-logs/8/
+WARNING 2026-03-04 23:55:21,343 log 65404 20664 Not Found: /api/nutrition/intake-logs/12/
+WARNING 2026-03-04 23:55:22,150 log 65404 20664 Not Found: /api/nutrition/intake-logs/16/
+INFO 2026-03-04 23:56:57,664 autoreload 25988 86260 F:\Herald Level 6\FYP\nutrilift\backend\nutrition\views.py changed, reloading.
+INFO 2026-03-04 23:56:58,518 autoreload 43676 19872 Watching for file changes with StatReloader
+INFO 2026-03-04 23:57:16,431 autoreload 43676 19872 F:\Herald Level 6\FYP\nutrilift\backend\nutrition\urls.py changed, reloading.
+INFO 2026-03-04 23:57:17,262 autoreload 47568 40552 Watching for file changes with StatReloader

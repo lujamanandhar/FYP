@@ -19,18 +19,21 @@ class _MainNavigationState extends State<MainNavigation> {
     const HomePage(),
     const WorkoutTracking(),
     const NutritionTracking(),
-    const ChallengeCommunityWrapper(), // Use wrapper instead of CommunityFeedScreen
+    const ChallengeCommunityWrapper(),
     GymFindingScreen(),
   ];
 
   void _onItemTapped(int index) {
+    print('📱 MainNavigation: Tab tapped - index: $index');
     setState(() {
       _selectedIndex = index;
     });
+    print('📱 MainNavigation: Selected index updated to: $_selectedIndex');
   }
 
   @override
   Widget build(BuildContext context) {
+    print('📱 MainNavigation: build() called, selectedIndex: $_selectedIndex');
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(

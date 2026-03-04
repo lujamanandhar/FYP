@@ -7,6 +7,7 @@ class WorkoutTracking extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('🏋️ WorkoutTracking: build() called');
     return const WorkoutHome();
   }
 }
@@ -89,8 +90,12 @@ class _WorkoutHomeState extends State<WorkoutHome> {
 
   @override
   Widget build(BuildContext context) {
+    print('🏋️ WorkoutHome: build() called, workouts count: ${workouts.length}');
     return NutriLiftScaffold(
-      body: _buildWorkoutScreen(),
+      body: Container(
+        color: Colors.grey[50], // Add background color to make content visible
+        child: _buildWorkoutScreen(),
+      ),
     );
   }
 
