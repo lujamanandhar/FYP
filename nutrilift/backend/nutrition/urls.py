@@ -8,6 +8,9 @@ router = DefaultRouter()
 router.register(r'food-items', views.FoodItemViewSet, basename='food-item')
 router.register(r'intake-logs', views.IntakeLogViewSet, basename='intake-log')
 router.register(r'hydration-logs', views.HydrationLogViewSet, basename='hydration-log')
+router.register(r'nutrition-goals', views.NutritionGoalsViewSet, basename='nutrition-goal')
+router.register(r'nutrition-progress', views.NutritionProgressViewSet, basename='nutrition-progress')
+router.register(r'quick-logs', views.QuickLogViewSet, basename='quick-log')
 
 urlpatterns = [
     path('', include(router.urls)),

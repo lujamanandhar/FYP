@@ -125,6 +125,25 @@ class IntakeLogSerializer(serializers.ModelSerializer):
         validated_data['fats'] = food_item.fats_per_100g * multiplier
         
         return super().create(validated_data)
+    
+    def update(self, instance, validated_data):
+        """
+        Recalculate macros when quantity is updated using formula: (nutrient_per_100g ÷ 100) × quantity
+        
+        Requirements: 2.2, 2.3, 2.4, 2.5
+        """
+        # Get food_item (either from validated_data or existing instance)
+        food_item = validated_data.get('food_item', instance.food_item)
+        quantity = validated_data.get('quantity', instance.quantity)
+        
+        # Recalculate macros: (nutrient_per_100g ÷ 100) × quantity
+        multiplier = quantity / 100
+        validated_data['calories'] = food_item.calories_per_100g * multiplier
+        validated_data['protein'] = food_item.protein_per_100g * multiplier
+        validated_data['carbs'] = food_item.carbs_per_100g * multiplier
+        validated_data['fats'] = food_item.fats_per_100g * multiplier
+        
+        return super().update(instance, validated_data)
 
 
 class HydrationLogSerializer(serializers.ModelSerializer):
@@ -139,7 +158,7 @@ class HydrationLogSerializer(serializers.ModelSerializer):
             'id', 'user', 'amount', 'unit',
             'logged_at', 'created_at'
         ]
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id', 'user', 'created_at']
     
     def validate_amount(self, value):
         """
@@ -166,7 +185,7 @@ class NutritionGoalsSerializer(serializers.ModelSerializer):
             'daily_fats', 'daily_water',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'user', 'created_at', 'updated_at']
     
     def validate(self, data):
         """

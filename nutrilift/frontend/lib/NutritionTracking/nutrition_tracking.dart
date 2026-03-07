@@ -1852,13 +1852,69 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
   bool _showCustomFoodForm = false;
   bool _isSearching = false;
   bool _isLoading = false;
+  bool _isLoadingRecent = false;
   String? _errorMessage;
   List<dynamic> _searchResults = [];
+  List<FoodItem> _recentFoods = [];
+  
+  // Track custom food that needs to be logged
+  int? _pendingFoodIdToLog;
+  String? _pendingFoodNameToLog;
+
+  // Popular food suggestions
+  final List<Map<String, dynamic>> _popularSuggestions = [
+    {'name': 'Chicken breast', 'calories': '165 cal per 100g'},
+    {'name': 'Brown rice', 'calories': '112 cal per 100g'},
+    {'name': 'Banana', 'calories': '89 cal per 100g'},
+    {'name': 'Egg', 'calories': '155 cal per 100g'},
+    {'name': 'Salmon', 'calories': '208 cal per 100g'},
+    {'name': 'Broccoli', 'calories': '34 cal per 100g'},
+  ];
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _loadRecentFoods();
+  }
+
+  Future<void> _loadRecentFoods() async {
+    setState(() {
+      _isLoadingRecent = true;
+    });
+
+    try {
+      final repository = ref.read(nutritionRepositoryProvider);
+      final recentFoods = await repository.getRecentFoods();
+      
+      if (mounted) {
+        setState(() {
+          _recentFoods = recentFoods;
+          _isLoadingRecent = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingRecent = false;
+        });
+      }
+    }
+  }
+
+  // Helper method to set pending food from custom food form
+  void _setPendingFoodToLog(int foodId, String foodName) {
+    print('🎯 _setPendingFoodToLog called with ID: $foodId, Name: $foodName');
+    if (mounted) {
+      setState(() {
+        _showCustomFoodForm = false;
+        _pendingFoodIdToLog = foodId;
+        _pendingFoodNameToLog = foodName;
+      });
+      print('🎯 Parent state updated successfully');
+    } else {
+      print('❌ Widget not mounted, cannot update state');
+    }
   }
 
   @override
@@ -2003,13 +2059,13 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
                     filled: true,
                     fillColor: Colors.grey[100],
                   ),
-                  items: ['Breakfast', 'Lunch', 'Dinner', 'Snack']
+                  items: ['Breakfast', 'Lunch', 'Dinner']
                       .map((type) => DropdownMenuItem(value: type, child: Text(type)))
                       .toList(),
                   onChanged: (value) {
                     setDialogState(() {
                       selectedMealType = value!;
-                      selectedEntryType = value == 'Snack' ? 'snack' : 'meal';
+                      selectedEntryType = 'meal';
                     });
                   },
                 ),
@@ -2095,19 +2151,33 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
     );
   }
 
-  final List<Map<String, dynamic>> recentFoods = [
-    {'name': 'Grilled Chicken Breast', 'calories': '1 Meal - 165 cal', 'icon': Icons.restaurant},
-    {'name': 'Yogurt', 'calories': '1 Cup - 109 cal', 'icon': Icons.food_bank},
-  ];
-
-  final List<Map<String, dynamic>> recentFoodImages = [
-    {'name': 'Salmon', 'image': Icons.set_meal},
-    {'name': 'Banana', 'image': Icons.breakfast_dining},
-    {'name': 'Yogurt', 'image': Icons.emoji_food_beverage},
-  ];
-
   @override
   Widget build(BuildContext context) {
+    // Check if there's a pending food to log after custom food creation
+    if (_pendingFoodIdToLog != null && _pendingFoodNameToLog != null) {
+      print('🎯 BUILD: Detected pending food to log');
+      print('   Food ID: $_pendingFoodIdToLog');
+      print('   Food Name: $_pendingFoodNameToLog');
+      
+      // Schedule the dialog to show after this build completes
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _pendingFoodIdToLog != null && _pendingFoodNameToLog != null) {
+          print('🎯 POST-FRAME: Calling _logMeal');
+          final foodId = _pendingFoodIdToLog!;
+          final foodName = _pendingFoodNameToLog!;
+          
+          // Clear the pending food before showing dialog
+          setState(() {
+            _pendingFoodIdToLog = null;
+            _pendingFoodNameToLog = null;
+          });
+          
+          // Show the quantity dialog
+          _logMeal(foodId, foodName);
+        }
+      });
+    }
+    
     if (_showCustomFoodForm) {
       return _buildCustomFoodForm();
     }
@@ -2216,75 +2286,115 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
                   )
                 else if (_searchController.text.isEmpty)
                   ...[
-                    ...recentFoods.map((food) => _buildFoodCard(
-                      food['name'],
-                      food['calories'],
-                      food['icon'],
-                    )),
-
-                    const SizedBox(height: 16),
-
+                    // Popular Suggestions Section
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Recent Foods',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            'Popular Foods',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF212121),
+                            ),
                           ),
                           const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: recentFoodImages.map((food) => 
-                              Padding(
-                                padding: const EdgeInsets.only(right: 16),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      width: 80,
-                                      height: 80,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Icon(food['image'], size: 40),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      food['name'],
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ).toList(),
-                          ),
-                          const SizedBox(height: 24),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _showCustomFoodForm = true;
-                              });
+                          ..._popularSuggestions.map((food) => _buildFoodCard(
+                            food['name'],
+                            food['calories'],
+                            Icons.restaurant,
+                            onTap: () async {
+                              // Search for this food and log it
+                              try {
+                                final repository = ref.read(nutritionRepositoryProvider);
+                                final results = await repository.searchFoods(food['name']);
+                                
+                                if (results.isNotEmpty) {
+                                  // Use the first result
+                                  final foodItem = results.first;
+                                  _logMeal(foodItem.id, foodItem.name);
+                                } else {
+                                  // Fallback: fill search box
+                                  _searchController.text = food['name'];
+                                }
+                              } catch (e) {
+                                // Fallback: fill search box
+                                _searchController.text = food['name'];
+                              }
                             },
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: const Color(0xFFE53935), style: BorderStyle.solid, width: 1.5),
-                                borderRadius: BorderRadius.circular(8),
+                          )),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // Recent Foods Section
+                    if (_recentFoods.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Recently Logged',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF212121),
                               ),
-                              child: const Center(
-                                child: Text(
-                                  '+ Add Custom Food',
-                                  style: TextStyle(
-                                    color: Color(0xFFE53935),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
+                            ),
+                            const SizedBox(height: 12),
+                            ..._recentFoods.map((food) => _buildFoodCard(
+                              food.name,
+                              '${food.caloriesPer100g.toStringAsFixed(0)} cal per 100g',
+                              Icons.history,
+                              onTap: () => _logMeal(food.id, food.name),
+                            )),
+                          ],
+                        ),
+                      )
+                    else if (_isLoadingRecent)
+                      const Padding(
+                        padding: EdgeInsets.all(32),
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+
+                    const SizedBox(height: 16),
+
+                    // Add Custom Food Button
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _showCustomFoodForm = true;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: const Color(0xFFE53935),
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              '+ Add Custom Food',
+                              style: TextStyle(
+                                color: Color(0xFFE53935),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
                               ),
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ],
@@ -2313,7 +2423,12 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
     final TextEditingController carbsController = TextEditingController();
     final TextEditingController fatsController = TextEditingController();
     
+    // New controllers for quantity and meal type
+    final TextEditingController quantityController = TextEditingController(text: '100');
+    
     String selectedUnit = 'g';
+    String selectedMealType = 'Breakfast';
+    String selectedEntryType = 'meal';
     bool isLoading = false;
     String? errorMessage;
 
@@ -2383,21 +2498,65 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
             print('✅ Custom food created successfully: ${createdFood.name} (ID: ${createdFood.id})');
 
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Custom food created successfully!'),
-                  backgroundColor: Colors.green,
-                ),
+              print('🎯 Custom food created, now logging with quantity');
+              print('   Food ID: ${createdFood.id}');
+              print('   Food Name: ${createdFood.name}');
+              print('   Quantity: ${quantityController.text}$selectedUnit');
+              print('   Meal Type: $selectedMealType');
+              
+              // Parse quantity
+              final quantity = double.tryParse(quantityController.text) ?? 100;
+              
+              // Create intake log directly with the quantity and meal type from the form
+              final logMeal = ref.read(logMealProvider);
+              final log = IntakeLog(
+                id: 0,
+                userId: null, // Will be set by backend
+                foodItemId: createdFood.id,
+                entryType: selectedEntryType,
+                description: selectedMealType,
+                quantity: quantity,
+                unit: selectedUnit,
+                calories: 0, // Will be calculated by backend
+                protein: 0,
+                carbs: 0,
+                fats: 0,
+                loggedAt: DateTime.now(),
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
               );
-              setState(() {
-                _showCustomFoodForm = false;
-              });
+
+              await logMeal(log);
+              
+              // Show success message
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${createdFood.name} logged successfully!'),
+                    backgroundColor: Colors.green,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+                
+                // Close the form and return to main screen
+                setFormState(() {
+                  isLoading = false;
+                });
+                
+                setState(() {
+                  _showCustomFoodForm = false;
+                });
+                
+                // Go back to main screen
+                widget.onBack();
+              }
             }
           } catch (e, stackTrace) {
             print('❌ Error in handleAddCustomFood: $e');
             print('   Stack trace: $stackTrace');
             if (mounted) {
               setFormState(() {
+                isLoading = false;
                 errorMessage = 'Error: ${e.toString().replaceAll('Exception: ', '')}';
               });
               ScaffoldMessenger.of(context).showSnackBar(
@@ -2407,12 +2566,6 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
                   duration: const Duration(seconds: 5),
                 ),
               );
-            }
-          } finally {
-            if (mounted) {
-              setFormState(() {
-                isLoading = false;
-              });
             }
           }
         }
@@ -2503,6 +2656,71 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: _buildNutritionField('Fats (g)*', fatsController, '0'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // Meal Type and Quantity Section
+                      const Text('Meal Information', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 16),
+                      const Text('Meal Type', style: TextStyle(fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: selectedMealType,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                        ),
+                        items: ['Breakfast', 'Lunch', 'Dinner']
+                            .map((type) => DropdownMenuItem(value: type, child: Text(type)))
+                            .toList(),
+                        onChanged: (value) {
+                          setFormState(() {
+                            selectedMealType = value!;
+                            selectedEntryType = 'meal';
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      const Text('Quantity', style: TextStyle(fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: TextField(
+                              controller: quantityController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: '100',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              value: selectedUnit,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                              ),
+                              items: ['g', 'ml', 'oz', 'cup', 'piece']
+                                  .map((unit) => DropdownMenuItem(value: unit, child: Text(unit)))
+                                  .toList(),
+                              onChanged: (value) {
+                                setFormState(() {
+                                  selectedUnit = value!;
+                                });
+                              },
+                            ),
                           ),
                         ],
                       ),

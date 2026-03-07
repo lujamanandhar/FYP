@@ -64,11 +64,6 @@ class DioClient {
     DioException error,
     ErrorInterceptorHandler handler,
   ) async {
-    // Handle authentication failures (401)
-    if (error.response?.statusCode == 401) {
-      await _handleAuthenticationFailure();
-    }
-
     // Handle rate limiting (429)
     if (error.response?.statusCode == 429) {
       final retryAfter = error.response?.headers.value('Retry-After');
@@ -86,33 +81,20 @@ class DioClient {
       }
     }
 
+    // Handle authentication failures (401) - but don't clear tokens automatically
+    // Let the UI handle re-authentication
+    if (error.response?.statusCode == 401) {
+      onAuthenticationFailed?.call();
+    }
+
     handler.next(error);
   }
 
-  /// Get valid token (with automatic refresh if needed)
+  /// Get valid token (without refresh - backend doesn't support token refresh yet)
   Future<String?> _getValidToken() async {
-    // Check if token is still valid
-    if (await _tokenService.isTokenValid()) {
-      return await _tokenService.getToken();
-    }
-
-    // Try to refresh token if available
-    final refreshedToken = await _tokenService.refreshTokenIfNeeded();
-    if (refreshedToken != null) {
-      return refreshedToken;
-    }
-
-    // No valid token available
-    return null;
-  }
-
-  /// Handle authentication failure
-  Future<void> _handleAuthenticationFailure() async {
-    // Clear stored tokens
-    await _tokenService.clearTokens();
-
-    // Notify listeners about authentication failure
-    onAuthenticationFailed?.call();
+    // Simply return the stored token if it exists
+    // Note: Token refresh is not implemented in the backend yet
+    return await _tokenService.getToken();
   }
 
   /// Get the Dio instance for making requests
