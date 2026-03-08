@@ -6,6 +6,7 @@ import '../widgets/workout_card.dart';
 import '../widgets/date_range_filter_dialog.dart';
 import '../providers/workout_history_provider.dart';
 import '../models/workout_log.dart';
+import 'new_workout_screen.dart';
 
 /// Workout History Screen
 /// 
@@ -344,11 +345,10 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
 
   /// Navigate to new workout screen
   void _navigateToNewWorkout() {
-    // TODO: Navigate to new workout screen when implemented
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('New workout screen coming soon!'),
-        backgroundColor: Color(0xFFE53935),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const NewWorkoutScreen(),
       ),
     );
   }
