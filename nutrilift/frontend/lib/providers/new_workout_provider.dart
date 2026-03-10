@@ -55,6 +55,8 @@ class NewWorkoutState {
   /// Check if the workout is valid for submission
   bool get isValid {
     return validationErrors.isEmpty &&
+        workoutName != null &&
+        workoutName!.trim().isNotEmpty &&
         exercises.isNotEmpty &&
         durationMinutes != null &&
         durationMinutes! >= 1 &&
@@ -199,7 +201,7 @@ class NewWorkoutNotifier extends StateNotifier<NewWorkoutState> {
       (index) => NewWorkoutSet(
         setNumber: index + 1,
         reps: 10, // Default reps
-        weight: 0.0, // Default weight
+        weight: 20.0, // Default weight (valid range is 0.1-1000)
         completed: false,
       ),
     );
@@ -295,7 +297,7 @@ class NewWorkoutNotifier extends StateNotifier<NewWorkoutState> {
     sets.add(NewWorkoutSet(
       setNumber: sets.length + 1,
       reps: lastSet?.reps ?? 10,
-      weight: lastSet?.weight ?? 0.0,
+      weight: lastSet?.weight ?? 20.0, // Default weight (valid range is 0.1-1000)
       completed: false,
     ));
 
@@ -330,6 +332,11 @@ class NewWorkoutNotifier extends StateNotifier<NewWorkoutState> {
   /// Validates: Requirements 2.5, 2.6, 2.7, 9.1, 9.2, 9.3, 9.4, 9.5
   void _validateWorkout() {
     final errors = <String, String>{};
+
+    // Validate workout name
+    if (state.workoutName == null || state.workoutName!.trim().isEmpty) {
+      errors['workoutName'] = 'Workout name is required';
+    }
 
     // Validate duration
     if (state.durationMinutes == null) {
@@ -400,13 +407,18 @@ class NewWorkoutNotifier extends StateNotifier<NewWorkoutState> {
         notes: state.notes,
       );
 
+      print('DEBUG: Submitting workout: ${request.workoutName}, exercises: ${request.exercises.length}');
+
       final workoutLog = await _repository.logWorkout(request);
+      
+      print('DEBUG: Workout logged successfully: ${workoutLog.id}');
       
       // Reset state after successful submission
       reset();
       
       return workoutLog;
     } catch (e) {
+      print('DEBUG: Error submitting workout: $e');
       state = state.copyWith(isSubmitting: false);
       rethrow;
     }
@@ -436,7 +448,7 @@ class NewWorkoutNotifier extends StateNotifier<NewWorkoutState> {
         (setIndex) => NewWorkoutSet(
           setNumber: setIndex + 1,
           reps: 10, // Default reps
-          weight: 0.0, // Default weight
+          weight: 20.0, // Default weight (valid range is 0.1-1000)
           completed: false,
         ),
       );

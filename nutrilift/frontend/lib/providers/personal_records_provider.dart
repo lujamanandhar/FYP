@@ -28,10 +28,16 @@ class PersonalRecordsNotifier extends StateNotifier<AsyncValue<List<PersonalReco
   /// Validates: Requirements 4.1, 4.6
   Future<void> loadPersonalRecords() async {
     // Set loading state
-    state = const AsyncValue.loading();
+    if (mounted) {
+      state = const AsyncValue.loading();
+    }
     
     // Load data and update state
-    state = await AsyncValue.guard(() => _repository.getPersonalRecords());
+    final result = await AsyncValue.guard(() => _repository.getPersonalRecords());
+    
+    if (mounted) {
+      state = result;
+    }
   }
 
   /// Refresh personal records

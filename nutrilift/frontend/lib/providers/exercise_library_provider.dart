@@ -55,16 +55,22 @@ class ExerciseLibraryNotifier extends StateNotifier<AsyncValue<List<Exercise>>> 
     _currentSearch = search;
     
     // Set loading state
-    state = const AsyncValue.loading();
+    if (mounted) {
+      state = const AsyncValue.loading();
+    }
     
     // Load data and update state
-    state = await AsyncValue.guard(() => _repository.getExercises(
+    final result = await AsyncValue.guard(() => _repository.getExercises(
       category: category,
       muscleGroup: muscleGroup,
       equipment: equipment,
       difficulty: difficulty,
       search: search,
     ));
+    
+    if (mounted) {
+      state = result;
+    }
   }
 
   /// Apply category filter
