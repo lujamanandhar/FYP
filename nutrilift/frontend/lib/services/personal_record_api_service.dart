@@ -21,7 +21,7 @@ class PersonalRecordApiService implements PersonalRecordRepository {
   @override
   Future<List<PersonalRecord>> getPersonalRecords() async {
     try {
-      final response = await _dio.get('/personal-records/');
+      final response = await _dio.get('/workouts/personal-records/');
 
       final List<dynamic> data = response.data as List;
       return data.map((json) => PersonalRecord.fromJson(json as Map<String, dynamic>)).toList();
@@ -34,7 +34,7 @@ class PersonalRecordApiService implements PersonalRecordRepository {
   Future<PersonalRecord?> getPersonalRecordForExercise(String exerciseId) async {
     try {
       final response = await _dio.get(
-        '/personal-records/',
+        '/workouts/personal-records/',
         queryParameters: {'exercise_id': exerciseId},
       );
 

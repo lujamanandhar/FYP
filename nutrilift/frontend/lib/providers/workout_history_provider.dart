@@ -40,13 +40,19 @@ class WorkoutHistoryNotifier extends StateNotifier<AsyncValue<List<WorkoutLog>>>
     _currentLimit = limit;
     
     // Set loading state
-    state = const AsyncValue.loading();
+    if (mounted) {
+      state = const AsyncValue.loading();
+    }
     
     // Load data and update state
-    state = await AsyncValue.guard(() => _repository.getWorkoutHistory(
+    final result = await AsyncValue.guard(() => _repository.getWorkoutHistory(
       dateFrom: dateFrom,
       limit: limit,
     ));
+    
+    if (mounted) {
+      state = result;
+    }
   }
 
   /// Refresh workout history with current filters
@@ -64,11 +70,28 @@ class WorkoutHistoryNotifier extends StateNotifier<AsyncValue<List<WorkoutLog>>>
 
   /// Apply date range filter to workout history
   /// 
-  /// Filters workouts to only show those from the specified date onwards.
+  /// Filters workouts to only show those within the specified date range.
+  /// If dateTo is provided, filters workouts on the client side.
   /// 
   /// Validates: Requirements 1.2
-  Future<void> filterByDateRange(DateTime dateFrom) async {
+  Future<void> filterByDateRange(DateTime? dateFrom, DateTime? dateTo) async {
+    // Store the date range for filtering
+    _currentDateFrom = dateFrom;
+    
+    // Load workouts from the backend with dateFrom filter
     await loadWorkouts(dateFrom: dateFrom, limit: _currentLimit);
+    
+    // If dateTo is specified, filter the results client-side
+    if (dateTo != null && state is AsyncData<List<WorkoutLog>>) {
+      final currentState = state as AsyncData<List<WorkoutLog>>;
+      final filteredWorkouts = currentState.value
+          .where((workout) => workout.date.isBefore(dateTo.add(const Duration(days: 1))))
+          .toList();
+      
+      if (mounted) {
+        state = AsyncValue.data(filteredWorkouts);
+      }
+    }
   }
 
   /// Clear date range filter
@@ -112,13 +135,15 @@ class WorkoutHistoryNotifier extends StateNotifier<AsyncValue<List<WorkoutLog>>>
             .where((w) => w.date.isBefore(oldestDate))
             .toList();
 
-        if (newWorkouts.isNotEmpty) {
+        if (newWorkouts.isNotEmpty && mounted) {
           state = AsyncValue.data([...currentWorkouts, ...newWorkouts]);
         }
       } catch (error, stackTrace) {
         // Don't replace the current data on error, just log it
         // The UI can show a "failed to load more" message
-        state = AsyncValue.error(error, stackTrace);
+        if (mounted) {
+          state = AsyncValue.error(error, stackTrace);
+        }
       }
     }
   }

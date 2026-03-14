@@ -415,6 +415,9 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
     final selected = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
     final isPastDate = selected.isBefore(today);
 
+    // Get image URL from log's food item if available
+    final imageUrl = log?.foodItemDetails?.imageUrl;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -431,7 +434,20 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.fastfood, size: 24),
+            child: imageUrl != null && imageUrl.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      imageUrl,
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.fastfood, size: 24);
+                      },
+                    ),
+                  )
+                : const Icon(Icons.fastfood, size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1863,12 +1879,36 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
 
   // Popular food suggestions
   final List<Map<String, dynamic>> _popularSuggestions = [
-    {'name': 'Chicken breast', 'calories': '165 cal per 100g'},
-    {'name': 'Brown rice', 'calories': '112 cal per 100g'},
-    {'name': 'Banana', 'calories': '89 cal per 100g'},
-    {'name': 'Egg', 'calories': '155 cal per 100g'},
-    {'name': 'Salmon', 'calories': '208 cal per 100g'},
-    {'name': 'Broccoli', 'calories': '34 cal per 100g'},
+    {
+      'name': 'Chicken breast',
+      'calories': '165 cal per 100g',
+      'imageUrl': 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=200'
+    },
+    {
+      'name': 'Brown rice',
+      'calories': '112 cal per 100g',
+      'imageUrl': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200'
+    },
+    {
+      'name': 'Banana',
+      'calories': '89 cal per 100g',
+      'imageUrl': 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200'
+    },
+    {
+      'name': 'Egg',
+      'calories': '155 cal per 100g',
+      'imageUrl': 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=200'
+    },
+    {
+      'name': 'Salmon',
+      'calories': '208 cal per 100g',
+      'imageUrl': 'https://images.unsplash.com/photo-1485921325833-c519f76c4927?w=200'
+    },
+    {
+      'name': 'Broccoli',
+      'calories': '34 cal per 100g',
+      'imageUrl': 'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=200'
+    },
   ];
 
   @override
@@ -2245,6 +2285,7 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
                     '${food.caloriesPer100g.toStringAsFixed(0)} cal per 100g',
                     Icons.restaurant,
                     onTap: () => _logMeal(food.id, food.name),
+                    imageUrl: food.imageUrl,
                   ))
                 else if (_searchController.text.isNotEmpty && !_isSearching && _errorMessage == null)
                   Padding(
@@ -2324,6 +2365,7 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
                                 _searchController.text = food['name'];
                               }
                             },
+                            imageUrl: food['imageUrl'],
                           )),
                         ],
                       ),
@@ -2352,6 +2394,7 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
                               '${food.caloriesPer100g.toStringAsFixed(0)} cal per 100g',
                               Icons.history,
                               onTap: () => _logMeal(food.id, food.name),
+                              imageUrl: food.imageUrl,
                             )),
                           ],
                         ),
@@ -2809,7 +2852,7 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
     );
   }
 
-  Widget _buildFoodCard(String name, String calories, IconData icon, {VoidCallback? onTap}) {
+  Widget _buildFoodCard(String name, String calories, IconData icon, {VoidCallback? onTap, String? imageUrl}) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.all(12),
@@ -2826,7 +2869,20 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, size: 28),
+            child: imageUrl != null && imageUrl.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      imageUrl,
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(icon, size: 28);
+                      },
+                    ),
+                  )
+                : Icon(icon, size: 28),
           ),
           const SizedBox(width: 12),
           Expanded(

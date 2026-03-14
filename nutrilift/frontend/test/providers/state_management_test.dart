@@ -58,16 +58,16 @@ void main() {
     test('should allow toggling between mock and API implementations', () {
       final container = ProviderContainer();
 
-      // Start with API (default)
-      expect(container.read(useMockDataProvider), false);
-
-      // Toggle to mock
-      container.read(useMockDataProvider.notifier).state = true;
+      // Start with mock (default)
       expect(container.read(useMockDataProvider), true);
 
-      // Toggle back to API
+      // Toggle to API
       container.read(useMockDataProvider.notifier).state = false;
       expect(container.read(useMockDataProvider), false);
+
+      // Toggle back to mock
+      container.read(useMockDataProvider.notifier).state = true;
+      expect(container.read(useMockDataProvider), true);
 
       container.dispose();
     });
@@ -94,8 +94,8 @@ void main() {
         ],
       );
 
-      // Wait for state to settle
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for state to settle (mock has 300ms delay)
+      await Future.delayed(const Duration(milliseconds: 500));
 
       final state = container.read(workoutHistoryProvider);
       expect(state.hasValue || state.hasError, true);
@@ -110,8 +110,8 @@ void main() {
         ],
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 300ms delay)
+      await Future.delayed(const Duration(milliseconds: 400));
 
       // Refresh
       await container.read(workoutHistoryProvider.notifier).refresh();
@@ -129,8 +129,8 @@ void main() {
         ],
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 300ms delay)
+      await Future.delayed(const Duration(milliseconds: 400));
 
       // Apply date filter
       final dateFrom = DateTime.now().subtract(const Duration(days: 30));
@@ -149,8 +149,8 @@ void main() {
         ],
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 300ms delay)
+      await Future.delayed(const Duration(milliseconds: 400));
 
       // Apply and clear filter
       final dateFrom = DateTime.now().subtract(const Duration(days: 30));
@@ -202,8 +202,8 @@ void main() {
         ],
       );
 
-      // Wait for state to settle
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for state to settle (mock has 200ms delay)
+      await Future.delayed(const Duration(milliseconds: 400));
 
       final state = container.read(exerciseLibraryProvider);
       expect(state.hasValue || state.hasError, true);
@@ -218,8 +218,8 @@ void main() {
         ],
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 200ms delay)
+      await Future.delayed(const Duration(milliseconds: 300));
 
       // Apply category filter
       await container.read(exerciseLibraryProvider.notifier).filterByCategory('Strength');
@@ -237,8 +237,8 @@ void main() {
         ],
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 200ms delay)
+      await Future.delayed(const Duration(milliseconds: 300));
 
       // Apply muscle group filter
       await container.read(exerciseLibraryProvider.notifier).filterByMuscleGroup('Chest');
@@ -256,8 +256,8 @@ void main() {
         ],
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 200ms delay)
+      await Future.delayed(const Duration(milliseconds: 300));
 
       // Apply equipment filter
       await container.read(exerciseLibraryProvider.notifier).filterByEquipment('Free Weights');
@@ -275,8 +275,8 @@ void main() {
         ],
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 200ms delay)
+      await Future.delayed(const Duration(milliseconds: 300));
 
       // Apply difficulty filter
       await container.read(exerciseLibraryProvider.notifier).filterByDifficulty('Beginner');
@@ -294,8 +294,8 @@ void main() {
         ],
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 200ms delay)
+      await Future.delayed(const Duration(milliseconds: 300));
 
       // Apply search filter
       await container.read(exerciseLibraryProvider.notifier).search('bench');
@@ -313,8 +313,8 @@ void main() {
         ],
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 200ms delay)
+      await Future.delayed(const Duration(milliseconds: 300));
 
       // Apply multiple filters
       await container.read(exerciseLibraryProvider.notifier).filterByCategory('Strength');
@@ -339,8 +339,8 @@ void main() {
         ],
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 200ms delay)
+      await Future.delayed(const Duration(milliseconds: 300));
 
       final notifier = container.read(exerciseLibraryProvider.notifier);
 
@@ -377,8 +377,8 @@ void main() {
         ],
       );
 
-      // Wait for state to settle
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for state to settle (mock has 250ms delay)
+      await Future.delayed(const Duration(milliseconds: 450));
 
       final state = container.read(personalRecordsProvider);
       expect(state.hasValue || state.hasError, true);
@@ -393,8 +393,8 @@ void main() {
         ],
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 250ms delay)
+      await Future.delayed(const Duration(milliseconds: 350));
 
       // Refresh
       await container.read(personalRecordsProvider.notifier).refresh();
@@ -412,8 +412,8 @@ void main() {
         ],
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 250ms delay)
+      await Future.delayed(const Duration(milliseconds: 350));
 
       final notifier = container.read(personalRecordsProvider.notifier);
       expect(notifier.totalPersonalRecords, greaterThanOrEqualTo(0));
@@ -676,20 +676,27 @@ void main() {
         description: 'Test exercise',
         instructions: 'Test instructions',
       );
-      container.read(newWorkoutProvider.notifier).addExercise(exercise);
+      
+      final notifier = container.read(newWorkoutProvider.notifier);
+      notifier.addExercise(exercise);
+
+      // Check exercise was added
+      state = container.read(newWorkoutProvider);
+      expect(state.exercises.length, 1, reason: 'Exercise should be added');
 
       // Still invalid without duration
-      state = container.read(newWorkoutProvider);
       expect(state.isValid, false);
       expect(state.validationErrors.containsKey('duration'), true);
 
       // Add duration
-      container.read(newWorkoutProvider.notifier).setDuration(60);
+      notifier.setDuration(60);
 
       // Now valid
       state = container.read(newWorkoutProvider);
+      expect(state.exercises.isNotEmpty, true, reason: 'Should have exercises');
+      expect(state.durationMinutes, 60, reason: 'Should have duration');
+      expect(state.validationErrors.isEmpty, true, reason: 'Should have no errors: ${state.validationErrors}');
       expect(state.isValid, true);
-      expect(state.validationErrors, isEmpty);
 
       container.dispose();
     });
@@ -752,14 +759,14 @@ void main() {
         },
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 300ms delay)
+      await Future.delayed(const Duration(milliseconds: 400));
       expect(stateChangeCount, greaterThan(0));
 
       // Refresh should trigger another state change
       final initialCount = stateChangeCount;
       await container.read(workoutHistoryProvider.notifier).refresh();
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 400));
       expect(stateChangeCount, greaterThan(initialCount));
 
       container.dispose();
@@ -781,14 +788,14 @@ void main() {
         },
       );
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Wait for initial load (mock has 200ms delay)
+      await Future.delayed(const Duration(milliseconds: 300));
       expect(stateChangeCount, greaterThan(0));
 
       // Filter should trigger another state change
       final initialCount = stateChangeCount;
       await container.read(exerciseLibraryProvider.notifier).filterByCategory('Strength');
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 300));
       expect(stateChangeCount, greaterThan(initialCount));
 
       container.dispose();

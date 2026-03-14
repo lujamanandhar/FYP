@@ -12,6 +12,7 @@ class FoodItem(models.Model):
     """
     name = models.CharField(max_length=255)
     brand = models.CharField(max_length=255, blank=True, null=True)
+    image_url = models.URLField(max_length=500, blank=True, null=True)  # Food image URL
     
     # Nutritional values per 100g
     calories_per_100g = models.DecimalField(

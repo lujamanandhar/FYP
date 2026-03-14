@@ -10,6 +10,7 @@ class FoodItem {
   final double sugarPer100g;
   final bool isCustom;
   final String? createdBy;  // Changed from int? to String? to handle UUID
+  final String? imageUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -25,6 +26,7 @@ class FoodItem {
     required this.sugarPer100g,
     required this.isCustom,
     this.createdBy,
+    this.imageUrl,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -42,6 +44,7 @@ class FoodItem {
       sugarPer100g: _parseDouble(json['sugar_per_100g']),
       isCustom: json['is_custom'] as bool,
       createdBy: json['created_by'] as String?,  // Changed from int? to String?
+      imageUrl: json['image_url'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
@@ -68,6 +71,7 @@ class FoodItem {
       'sugar_per_100g': sugarPer100g,
       'is_custom': isCustom,
       'created_by': createdBy,
+      'image_url': imageUrl,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -85,6 +89,7 @@ class FoodItem {
     double? sugarPer100g,
     bool? isCustom,
     String? createdBy,  // Changed from int? to String?
+    String? imageUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -100,6 +105,7 @@ class FoodItem {
       sugarPer100g: sugarPer100g ?? this.sugarPer100g,
       isCustom: isCustom ?? this.isCustom,
       createdBy: createdBy ?? this.createdBy,
+      imageUrl: imageUrl ?? this.imageUrl,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -120,6 +126,7 @@ class FoodItem {
         other.sugarPer100g == sugarPer100g &&
         other.isCustom == isCustom &&
         other.createdBy == createdBy &&
+        other.imageUrl == imageUrl &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -138,6 +145,7 @@ class FoodItem {
       sugarPer100g,
       isCustom,
       createdBy,
+      imageUrl,
       createdAt,
       updatedAt,
     );

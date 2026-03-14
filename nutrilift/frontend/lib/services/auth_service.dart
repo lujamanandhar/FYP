@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'api_client.dart';
 import 'token_service.dart';
 
@@ -231,6 +233,8 @@ class ProfileUpdateRequest {
   final double? height;
   final double? weight;
   final String? fitnessLevel;
+  final Uint8List? avatarBytes;
+  final String? avatarMime;
 
   ProfileUpdateRequest({
     this.name,
@@ -239,18 +243,22 @@ class ProfileUpdateRequest {
     this.height,
     this.weight,
     this.fitnessLevel,
+    this.avatarBytes,
+    this.avatarMime,
   });
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    
     if (name != null) json['name'] = name;
     if (gender != null) json['gender'] = gender;
     if (ageGroup != null) json['age_group'] = ageGroup;
     if (height != null) json['height'] = height;
     if (weight != null) json['weight'] = weight;
     if (fitnessLevel != null) json['fitness_level'] = fitnessLevel;
-    
+    if (avatarBytes != null) {
+      final mime = avatarMime ?? 'image/jpeg';
+      json['avatar'] = 'data:$mime;base64,${base64Encode(avatarBytes!)}';
+    }
     return json;
   }
 
@@ -332,6 +340,7 @@ class UserProfile {
   final double? weight;
   final String? fitnessLevel;
   final DateTime? createdAt;
+  final String? avatarUrl;
 
   UserProfile({
     required this.id,
@@ -343,6 +352,7 @@ class UserProfile {
     this.weight,
     this.fitnessLevel,
     this.createdAt,
+    this.avatarUrl,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -356,6 +366,7 @@ class UserProfile {
       weight: json['weight']?.toDouble(),
       fitnessLevel: json['fitness_level'] as String?,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+      avatarUrl: json['avatar_url'] as String?,
     );
   }
 
@@ -370,6 +381,7 @@ class UserProfile {
       'weight': weight,
       'fitness_level': fitnessLevel,
       'created_at': createdAt?.toIso8601String(),
+      'avatar_url': avatarUrl,
     };
   }
 
@@ -395,6 +407,7 @@ class UserProfile {
     double? weight,
     String? fitnessLevel,
     DateTime? createdAt,
+    String? avatarUrl,
   }) {
     return UserProfile(
       id: id ?? this.id,
@@ -406,6 +419,7 @@ class UserProfile {
       weight: weight ?? this.weight,
       fitnessLevel: fitnessLevel ?? this.fitnessLevel,
       createdAt: createdAt ?? this.createdAt,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
     );
   }
 }

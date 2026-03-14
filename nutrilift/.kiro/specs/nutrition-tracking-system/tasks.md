@@ -59,18 +59,18 @@ The backend follows the exact patterns from the existing workout module. The fro
   - [x]* 7.3 Write unit tests for API endpoints
   - [x]* 7.4 Write unit tests for signal handlers
 
-- [ ] 8. Write property-based tests for correctness properties (OPTIONAL)
-  - [ ]* 8.1 Write property test for nutrient calculation
-  - [ ]* 8.2 Write property tests for aggregation
-  - [ ]* 8.3 Write property tests for adherence calculations
-  - [ ]* 8.4 Write property tests for validation
-  - [ ]* 8.5 Write property tests for authentication and authorization
-  - [ ]* 8.6 Write property tests for filtering and pagination
-  - [ ]* 8.7 Write property tests for QuickLog functionality
-  - [ ]* 8.8 Write property tests for serializer round-trip
-  - [ ]* 8.9 Write property tests for data completeness and integrity
-  - [ ]* 8.10 Write property tests for goals and timestamps
-  - [ ]* 8.11 Write property test for error format consistency
+- [x] 8. Write property-based tests for correctness properties (OPTIONAL)
+  - [x]* 8.1 Write property test for nutrient calculation
+  - [x]* 8.2 Write property tests for aggregation
+  - [x]* 8.3 Write property tests for adherence calculations
+  - [x]* 8.4 Write property tests for validation
+  - [x]* 8.5 Write property tests for authentication and authorization
+  - [x]* 8.6 Write property tests for filtering and pagination
+  - [x]* 8.7 Write property tests for QuickLog functionality
+  - [x]* 8.8 Write property tests for serializer round-trip
+  - [x]* 8.9 Write property tests for data completeness and integrity
+  - [x]* 8.10 Write property tests for goals and timestamps
+  - [x]* 8.11 Write property test for error format consistency
 
 - [x] 9. Final checkpoint and coverage verification
   - Run full test suite
@@ -314,12 +314,14 @@ The backend follows the exact patterns from the existing workout module. The fro
     - Sync queued logs when online
     - _Requirements: 22.6, 22.7_
 
-- [ ] 16. Write tests for Flutter integration
-  - [ ] 16.1 Write model tests
+- [x] 16. Write tests for Flutter integration
+  - [x] 16.1 Write model tests
     - Test fromJson for all models
     - Test toJson for all models
     - Test copyWith for all models
     - Test equality operators for all models
+    - ✅ Tests located at: `frontend/test/nutrition/models/nutrition_models_test.dart`
+    - ✅ 33 tests covering all 7 models (FoodItem, IntakeLog, HydrationLog, NutritionGoals, NutritionProgress, QuickLog, FrequentMealEntry)
     - _Requirements: 23.1_
 
   - [ ] 16.2 Write API service tests
@@ -327,6 +329,7 @@ The backend follows the exact patterns from the existing workout module. The fro
     - Test successful responses
     - Test error responses
     - Test request parameters
+    - Tests to be created at: `frontend/test/nutrition/services/nutrition_api_service_test.dart`
     - _Requirements: 23.2_
 
   - [ ] 16.3 Write repository tests
@@ -334,6 +337,7 @@ The backend follows the exact patterns from the existing workout module. The fro
     - Test business logic
     - Test error handling
     - Test caching behavior
+    - Tests to be created at: `frontend/test/nutrition/repositories/nutrition_repository_test.dart`
     - _Requirements: 23.3_
 
   - [ ] 16.4 Write widget tests
@@ -341,16 +345,18 @@ The backend follows the exact patterns from the existing workout module. The fro
     - Test add meal screen with mock providers
     - Test custom food form with mock providers
     - Test loading and error states
+    - Tests to be created at: `frontend/test/nutrition/widgets/`
     - _Requirements: 23.4_
 
   - [ ] 16.5 Write integration tests (OPTIONAL)
     - Test end-to-end meal logging flow
     - Test end-to-end food search flow
     - Test end-to-end goals update flow
+    - Tests to be created at: `frontend/test/nutrition/integration/`
     - _Requirements: 23.5_
 
   - [ ] 16.6 Verify test coverage
-    - Run `flutter test --coverage`
+    - Run `flutter test --coverage test/nutrition/`
     - Verify minimum 80% coverage for nutrition module
     - _Requirements: 23.6_
 

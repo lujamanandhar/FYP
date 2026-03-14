@@ -33,6 +33,7 @@ class ExerciseApiService implements ExerciseRepository {
         queryParams['category'] = category;
       }
       if (muscleGroup != null) {
+        // Backend expects 'muscle' not 'muscleGroup'
         queryParams['muscle'] = muscleGroup;
       }
       if (equipment != null) {
@@ -46,7 +47,7 @@ class ExerciseApiService implements ExerciseRepository {
       }
 
       final response = await _dio.get(
-        '/exercises/',
+        '/workouts/exercises/',
         queryParameters: queryParams,
       );
 
@@ -60,7 +61,7 @@ class ExerciseApiService implements ExerciseRepository {
   @override
   Future<Exercise> getExerciseById(String id) async {
     try {
-      final response = await _dio.get('/exercises/$id/');
+      final response = await _dio.get('/workouts/exercises/$id/');
 
       return Exercise.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {

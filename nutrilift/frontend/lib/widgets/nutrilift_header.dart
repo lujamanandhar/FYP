@@ -290,14 +290,15 @@ class _NutriLiftDrawerState extends State<NutriLiftDrawer> with ErrorHandlingMix
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person,
-                    size: 35,
-                    color: Colors.red,
-                  ),
+                  backgroundImage: _userProfile?.avatarUrl != null
+                      ? NetworkImage(_userProfile!.avatarUrl!)
+                      : null,
+                  child: _userProfile?.avatarUrl == null
+                      ? const Icon(Icons.person, size: 35, color: Colors.red)
+                      : null,
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -323,6 +324,7 @@ class _NutriLiftDrawerState extends State<NutriLiftDrawer> with ErrorHandlingMix
             title: const Text('Profile View'),
             onTap: _navigateToProfile,
           ),
+          const Divider(),
           ListTile(
             leading: const Icon(Icons.settings, color: Colors.red),
             title: const Text('Settings'),

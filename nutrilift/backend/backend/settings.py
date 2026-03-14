@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'authentications',
     'workouts',
     'nutrition',
+    'challenges',
 ]
 
 MIDDLEWARE = [

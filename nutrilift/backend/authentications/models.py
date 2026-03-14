@@ -78,6 +78,9 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    # Profile photo stored as a URL (uploaded separately or as base64-decoded file)
+    avatar_url = models.TextField(blank=True, null=True)
+    
     # Use email as the username field
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []  # Remove 'username' from required fields

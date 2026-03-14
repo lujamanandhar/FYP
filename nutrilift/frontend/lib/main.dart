@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart' as provider_pkg;
 import 'UserManagement/login_screen.dart';
 import 'services/error_handler.dart';
+import 'Challenge_Community/challenge_provider.dart';
+import 'Challenge_Community/challenge_api_service.dart';
+import 'Challenge_Community/community_provider.dart';
+import 'Challenge_Community/community_api_service.dart';
 
 void main() {
   // Initialize global error handler with navigation key for displaying errors globally
@@ -11,7 +16,13 @@ void main() {
   // Run the app with ProviderScope for Riverpod state management
   runApp(
     ProviderScope(
-      child: MyApp(navigatorKey: navigatorKey),
+      child: provider_pkg.MultiProvider(
+        providers: [
+          provider_pkg.ChangeNotifierProvider(create: (_) => ChallengeProvider(ChallengeApiService())),
+          provider_pkg.ChangeNotifierProvider(create: (_) => CommunityProvider(CommunityApiService())),
+        ],
+        child: MyApp(navigatorKey: navigatorKey),
+      ),
     ),
   );
 }

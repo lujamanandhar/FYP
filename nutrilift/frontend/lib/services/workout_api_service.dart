@@ -33,7 +33,7 @@ class WorkoutApiService implements WorkoutRepository {
       }
 
       final response = await _dio.get(
-        '/workouts/history/',
+        '/workouts/logs/get_history/',
         queryParameters: queryParams,
       );
 
@@ -50,13 +50,19 @@ class WorkoutApiService implements WorkoutRepository {
       // Convert the request to match backend API format
       final requestData = _convertWorkoutLogRequest(workout);
 
+      print('DEBUG: Sending workout log request: $requestData');
+
       final response = await _dio.post(
-        '/workouts/log/',
+        '/workouts/logs/log_workout/',
         data: requestData,
       );
 
+      print('DEBUG: Workout log response: ${response.data}');
+
       return WorkoutLog.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
+      print('DEBUG: Workout log error: ${e.response?.data}');
+      print('DEBUG: Status code: ${e.response?.statusCode}');
       throw _handleDioError(e, 'Failed to log workout');
     }
   }
@@ -76,7 +82,7 @@ class WorkoutApiService implements WorkoutRepository {
       }
 
       final response = await _dio.get(
-        '/workouts/statistics/',
+        '/workouts/logs/statistics/',
         queryParameters: queryParams,
       );
 
@@ -89,14 +95,15 @@ class WorkoutApiService implements WorkoutRepository {
   /// Convert CreateWorkoutLogRequest to backend API format
   Map<String, dynamic> _convertWorkoutLogRequest(CreateWorkoutLogRequest request) {
     // Convert the request format to match the backend API expectations
-    // The backend expects: custom_workout, gym, date, duration, notes, exercises[]
-    // Each exercise should have: exercise (id), sets, reps, weight, order
+    // The backend expects: workout_name, custom_workout, gym_id, duration_minutes, notes, workout_exercises[]
+    // Each exercise should have: exercise (id), sets (count), reps, weight, order
+    // Note: The backend uses a simplified format where each exercise has a single sets/reps/weight value
     
     final exercises = <Map<String, dynamic>>[];
     for (var exerciseSet in request.exercises) {
-      // For each exercise set, we need to aggregate the sets into a single entry
-      // The backend expects: exercise, sets (count), reps, weight, order
       if (exerciseSet.sets.isNotEmpty) {
+        // Use the first set's values as representative values
+        // In a real app, you might want to use average or max values
         final firstSet = exerciseSet.sets.first;
         exercises.add({
           'exercise': int.parse(exerciseSet.exerciseId),
@@ -108,16 +115,23 @@ class WorkoutApiService implements WorkoutRepository {
       }
     }
 
-    return {
-      if (request.customWorkoutId != null) 
-        'custom_workout': int.parse(request.customWorkoutId!),
-      if (request.gymId != null) 
-        'gym': int.parse(request.gymId!),
-      'date': DateTime.now().toIso8601String(),
-      'duration': request.durationMinutes,
-      'notes': request.notes ?? '',
-      'exercises': exercises,
+    final data = {
+      'workout_name': request.workoutName,
+      'duration_minutes': request.durationMinutes,
+      'workout_exercises': exercises,
     };
+
+    if (request.customWorkoutId != null) {
+      data['custom_workout'] = int.parse(request.customWorkoutId!);
+    }
+    if (request.gymId != null) {
+      data['gym_id'] = int.parse(request.gymId!);
+    }
+    if (request.notes != null && request.notes!.isNotEmpty) {
+      data['notes'] = request.notes!;  // Add ! to assert non-null
+    }
+
+    return data;
   }
 
   /// Handle Dio errors and convert to user-friendly exceptions

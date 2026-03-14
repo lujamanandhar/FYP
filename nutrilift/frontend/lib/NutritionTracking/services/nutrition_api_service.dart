@@ -452,7 +452,13 @@ class ValidationException extends ApiException {
 
   Map<String, dynamic>? get fieldErrors {
     if (errors is Map<String, dynamic>) {
-      return errors as Map<String, dynamic>;
+      final errorsMap = errors as Map<String, dynamic>;
+      // If the errors object has an 'errors' field, return that
+      if (errorsMap.containsKey('errors') && errorsMap['errors'] is Map<String, dynamic>) {
+        return errorsMap['errors'] as Map<String, dynamic>;
+      }
+      // Otherwise return the errors object itself
+      return errorsMap;
     }
     return null;
   }

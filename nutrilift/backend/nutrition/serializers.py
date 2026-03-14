@@ -37,7 +37,7 @@ class FoodItemSerializer(serializers.ModelSerializer):
             'id', 'name', 'brand',
             'calories_per_100g', 'protein_per_100g', 'carbs_per_100g', 
             'fats_per_100g', 'fiber_per_100g', 'sugar_per_100g',
-            'is_custom', 'created_by', 'created_at', 'updated_at'
+            'is_custom', 'created_by', 'image_url', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_by', 'created_at', 'updated_at']
     

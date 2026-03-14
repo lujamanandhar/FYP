@@ -1,6 +1,6 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import '../services/auth_service.dart';
 import '../services/form_validator.dart';
 import '../services/error_handler.dart';
@@ -23,16 +23,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
   final AuthService _authService = AuthService();
   final FormValidator _formValidator = FormValidator();
   final ImagePicker _imagePicker = ImagePicker();
-  
+
   late TextEditingController _nameController;
   late TextEditingController _heightController;
   late TextEditingController _weightController;
-  
+
   String? _selectedGender;
   String? _selectedAgeGroup;
   String? _selectedFitnessLevel;
-  File? _profileImage;
-  
+
+  // Web-safe: store bytes instead of File
+  Uint8List? _profileImageBytes;
+  String? _profileImageMime;
+
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -54,7 +57,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
     _weightController = TextEditingController(
       text: widget.userProfile.weight?.toStringAsFixed(1) ?? '',
     );
-    
     _selectedGender = widget.userProfile.gender;
     _selectedAgeGroup = widget.userProfile.ageGroup;
     _selectedFitnessLevel = widget.userProfile.fitnessLevel;
@@ -82,20 +84,23 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
           name: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
           gender: _selectedGender,
           ageGroup: _selectedAgeGroup,
-          height: _heightController.text.trim().isEmpty ? null : double.tryParse(_heightController.text.trim()),
-          weight: _weightController.text.trim().isEmpty ? null : double.tryParse(_weightController.text.trim()),
+          height: _heightController.text.trim().isEmpty
+              ? null
+              : double.tryParse(_heightController.text.trim()),
+          weight: _weightController.text.trim().isEmpty
+              ? null
+              : double.tryParse(_weightController.text.trim()),
           fitnessLevel: _selectedFitnessLevel,
+          avatarBytes: _profileImageBytes,
+          avatarMime: _profileImageMime,
         );
-
         return await _authService.updateProfile(request);
       },
       successMessage: 'Profile updated successfully!',
-      showLoading: false, // We handle loading state manually
+      showLoading: false,
     );
 
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() => _isLoading = false);
 
     if (result != null && mounted) {
       Navigator.pop(context, result);
@@ -104,23 +109,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final XFile? pickedFile = await _imagePicker.pickImage(
+      final XFile? picked = await _imagePicker.pickImage(
         source: source,
         maxWidth: 512,
         maxHeight: 512,
         imageQuality: 85,
       );
-
-      if (pickedFile != null) {
+      if (picked != null) {
+        final bytes = await picked.readAsBytes();
+        final mime = picked.mimeType ?? 'image/jpeg';
         setState(() {
-          _profileImage = File(pickedFile.path);
+          _profileImageBytes = bytes;
+          _profileImageMime = mime;
         });
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to pick image: ${e.toString()}'),
+            content: Text('Failed to pick image: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -134,7 +141,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (BuildContext context) {
+      builder: (BuildContext ctx) {
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -143,57 +150,34 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
               children: [
                 const Text(
                   'Choose Profile Photo',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.camera_alt, color: Colors.red),
-                  ),
+                  leading: _iconBox(Icons.camera_alt),
                   title: const Text('Take Photo'),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(ctx);
                     _pickImage(ImageSource.camera);
                   },
                 ),
                 ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.photo_library, color: Colors.red),
-                  ),
+                  leading: _iconBox(Icons.photo_library),
                   title: const Text('Choose from Gallery'),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(ctx);
                     _pickImage(ImageSource.gallery);
                   },
                 ),
-                if (_profileImage != null)
+                if (_profileImageBytes != null)
                   ListTile(
-                    leading: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.delete, color: Colors.red),
-                    ),
+                    leading: _iconBox(Icons.delete),
                     title: const Text('Remove Photo'),
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.pop(ctx);
                       setState(() {
-                        _profileImage = null;
+                        _profileImageBytes = null;
+                        _profileImageMime = null;
                       });
                     },
                   ),
@@ -204,6 +188,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
       },
     );
   }
+
+  Widget _iconBox(IconData icon) => Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.red.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: Colors.red),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -250,35 +243,45 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
                     children: [
                       Stack(
                         children: [
-                          Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.grey[200],
-                              border: Border.all(
-                                color: Colors.red,
-                                width: 3,
+                          GestureDetector(
+                            onTap: _showImageSourceDialog,
+                            child: Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey[200],
+                                border: Border.all(color: Colors.red, width: 3),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 10,
-                                  spreadRadius: 2,
-                                ),
-                              ],
-                            ),
-                            child: ClipOval(
-                              child: _profileImage != null
-                                  ? Image.file(
-                                      _profileImage!,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Icon(
-                                      Icons.person,
-                                      size: 60,
-                                      color: Colors.grey[400],
-                                    ),
+                              child: ClipOval(
+                                child: _profileImageBytes != null
+                                    ? Image.memory(
+                                        _profileImageBytes!,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : widget.userProfile.avatarUrl != null
+                                        ? Image.network(
+                                            widget.userProfile.avatarUrl!,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) => Icon(
+                                              Icons.person,
+                                              size: 60,
+                                              color: Colors.grey[400],
+                                            ),
+                                          )
+                                        : Icon(
+                                            Icons.person,
+                                            size: 60,
+                                            color: Colors.grey[400],
+                                          ),
+                              ),
                             ),
                           ),
                           Positioned(
@@ -291,16 +294,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
                                 decoration: BoxDecoration(
                                   color: Colors.red,
                                   shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2,
-                                  ),
+                                  border: Border.all(color: Colors.white, width: 2),
                                 ),
-                                child: const Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
+                                child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
                               ),
                             ),
                           ),
@@ -309,17 +305,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
                       const SizedBox(height: 12),
                       Text(
                         'Tap to change photo',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 32),
 
-                // Name Field
                 _buildSectionTitle('Personal Information'),
                 const SizedBox(height: 12),
                 ValidatedTextFormField(
@@ -337,28 +329,23 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Gender Selection
                 _buildDropdownField(
                   label: 'Gender',
                   icon: Icons.wc,
                   value: _selectedGender,
                   items: _genderOptions,
-                  onChanged: (value) => setState(() => _selectedGender = value),
+                  onChanged: (v) => setState(() => _selectedGender = v),
                 ),
                 const SizedBox(height: 16),
-
-                // Age Group Selection
                 _buildDropdownField(
                   label: 'Age Group',
                   icon: Icons.cake,
                   value: _selectedAgeGroup,
                   items: _ageGroupOptions,
-                  onChanged: (value) => setState(() => _selectedAgeGroup = value),
+                  onChanged: (v) => setState(() => _selectedAgeGroup = v),
                 ),
                 const SizedBox(height: 24),
 
-                // Physical Information
                 _buildSectionTitle('Physical Information'),
                 const SizedBox(height: 12),
                 ValidatedTextFormField(
@@ -377,7 +364,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
                   ),
                 ),
                 const SizedBox(height: 16),
-
                 ValidatedTextFormField(
                   controller: _weightController,
                   label: 'Weight (kg)',
@@ -395,7 +381,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
                 ),
                 const SizedBox(height: 24),
 
-                // Fitness Information
                 _buildSectionTitle('Fitness Information'),
                 const SizedBox(height: 12),
                 _buildDropdownField(
@@ -403,11 +388,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
                   icon: Icons.fitness_center,
                   value: _selectedFitnessLevel,
                   items: _fitnessLevelOptions,
-                  onChanged: (value) => setState(() => _selectedFitnessLevel = value),
+                  onChanged: (v) => setState(() => _selectedFitnessLevel = v),
                 ),
                 const SizedBox(height: 32),
 
-                // Save Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -432,10 +416,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
                           )
                         : const Text(
                             'Save Changes',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),
@@ -447,62 +428,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF2D2D2D),
-      ),
-    );
-  }
-
-  Widget _buildTextFormField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        validator: validator,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Container(
-            margin: const EdgeInsets.all(12),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFEBEE),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: Colors.red, size: 20),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+  Widget _buildSectionTitle(String title) => Text(
+        title,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF2D2D2D),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildDropdownField({
     required String label,
@@ -545,12 +478,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
           fillColor: Colors.white,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
-        items: items.map((String item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item),
-          );
-        }).toList(),
+        items: items
+            .map((item) => DropdownMenuItem<String>(value: item, child: Text(item)))
+            .toList(),
       ),
     );
   }

@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 
 class Gym(models.Model):
@@ -424,7 +425,7 @@ class PersonalRecord(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(0.0)]
     )
-    achieved_date = models.DateTimeField()
+    achieved_date = models.DateTimeField(default=timezone.now)
     workout_log = models.ForeignKey(
         WorkoutLog, 
         on_delete=models.SET_NULL, 

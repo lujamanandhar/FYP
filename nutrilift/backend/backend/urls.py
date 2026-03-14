@@ -30,4 +30,8 @@ urlpatterns = [
     # API v1 nutrition endpoints
     # All nutrition endpoints are prefixed with /api/nutrition/
     path('api/nutrition/', include('nutrition.urls', namespace='nutrition')),
+
+    # Challenge & Community endpoints
+    path('api/challenges/', include('challenges.urls')),
+    path('api/community/', include('challenges.urls')),
 ]
