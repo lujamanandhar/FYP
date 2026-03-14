@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/challenge_models.dart';
-import '../services/challenge_service.dart';
+import 'package:provider/provider.dart';
 import '../widgets/nutrilift_header.dart';
+import 'challenge_provider.dart';
+import 'challenge_api_service.dart';
 import 'challenge_details_screen.dart';
-import 'active_challenge_screen.dart';
 import 'community_feed_screen.dart';
 
 class ChallengeOverviewScreen extends StatefulWidget {
@@ -15,10 +15,15 @@ class ChallengeOverviewScreen extends StatefulWidget {
 
 class _ChallengeOverviewScreenState extends State<ChallengeOverviewScreen> {
   @override
-  Widget build(BuildContext context) {
-    final activeChallenge = ChallengeService.getActiveChallenge();
-    final availableChallenges = ChallengeService.getAvailableChallenges();
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ChallengeProvider>().fetchChallenges();
+    });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return NutriLiftScaffold(
       showBackButton: true,
       body: Padding(
@@ -28,54 +33,88 @@ class _ChallengeOverviewScreenState extends State<ChallengeOverviewScreen> {
           children: [
             const ChallengeHeaderTabs(selected: 0),
             const SizedBox(height: 16),
-            
-            // Active Challenge Section
-            if (activeChallenge != null) ...[
-              Text(
-                'Active Challenge',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              _ActiveChallengeCard(challenge: activeChallenge),
-              const SizedBox(height: 24),
-            ],
-
-            // Available Challenges Section
-            Text(
-              activeChallenge != null ? 'Other Challenges' : 'Available Challenges',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            
             Expanded(
-              child: availableChallenges.isEmpty
-                  ? const Center(
+              child: Consumer<ChallengeProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (provider.error != null) {
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.error_outline,
+                              size: 48, color: Colors.grey),
+                          const SizedBox(height: 12),
+                          Text(
+                            provider.error!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: () => provider.fetchChallenges(),
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  final challenges = provider.challenges;
+
+                  if (challenges.isEmpty) {
+                    return const Center(
                       child: Text(
                         'No challenges available at the moment',
                         style: TextStyle(color: Colors.grey),
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: availableChallenges.length,
-                      itemBuilder: (context, index) {
-                        final challenge = availableChallenges[index];
-                        return _ChallengeCard(
-                          challenge: challenge,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChallengeDetailsScreen(challenge: challenge),
-                              ),
+                    );
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Available Challenges',
+                        style:
+                            Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                      ),
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: challenges.length,
+                          itemBuilder: (context, index) {
+                            final challenge = challenges[index];
+                            return _ChallengeCard(
+                              challenge: challenge,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ChallengeDetailsScreen(
+                                      challenge: challenge,
+                                    ),
+                                  ),
+                                );
+                              },
+                              onJoin: () =>
+                                  provider.joinChallenge(challenge.id),
+                              onLeave: () =>
+                                  provider.leaveChallenge(challenge.id),
                             );
                           },
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -84,108 +123,47 @@ class _ChallengeOverviewScreenState extends State<ChallengeOverviewScreen> {
   }
 }
 
-class _ActiveChallengeCard extends StatelessWidget {
-  final Challenge challenge;
-
-  const _ActiveChallengeCard({required this.challenge});
-
-  @override
-  Widget build(BuildContext context) {
-    
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const ActiveChallengeScreen(),
-            ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      challenge.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text(
-                      'Active',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: challenge.progressPercentage,
-                  minHeight: 8,
-                  backgroundColor: Colors.grey[200],
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.red),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Day ${challenge.currentDay} of ${challenge.durationDays}',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Tap to view today\'s tasks',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// ─── Challenge Card ───────────────────────────────────────────────────────────
 
 class _ChallengeCard extends StatelessWidget {
-  final Challenge challenge;
+  final ChallengeModel challenge;
   final VoidCallback onTap;
+  final VoidCallback onJoin;
+  final VoidCallback onLeave;
 
   const _ChallengeCard({
     required this.challenge,
     required this.onTap,
+    required this.onJoin,
+    required this.onLeave,
   });
+
+  int get _daysRemaining {
+    final diff = challenge.endDate.difference(DateTime.now()).inDays;
+    return diff < 0 ? 0 : diff;
+  }
+
+  double get _progressValue {
+    if (challenge.goalValue <= 0) return 0;
+    return (challenge.participantProgress / challenge.goalValue).clamp(0.0, 1.0);
+  }
+
+  Color _typeColor(String type) {
+    switch (type) {
+      case 'nutrition':
+        return Colors.green;
+      case 'workout':
+        return Colors.orange;
+      default:
+        return Colors.purple;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final typeColor = _typeColor(challenge.challengeType);
     return Card(
+      elevation: 4,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
@@ -196,44 +174,96 @@ class _ChallengeCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                challenge.title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                challenge.description,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 12),
+              // Name + type badge
               Row(
                 children: [
-                  Icon(Icons.schedule, size: 16, color: Colors.grey[500]),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${challenge.durationDays} days',
-                    style: TextStyle(
-                      color: Colors.grey[500],
-                      fontSize: 12,
+                  Expanded(
+                    child: Text(
+                      challenge.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  const Text(
-                    'Tap to view details',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                  Chip(
+                    label: Text(
+                      challenge.challengeType.toUpperCase(),
+                      style: const TextStyle(fontSize: 11, color: Colors.white),
                     ),
+                    backgroundColor: typeColor,
+                    padding: EdgeInsets.zero,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // Goal
+              Text(
+                'Goal: ${challenge.goalValue.toStringAsFixed(0)} ${challenge.unit}',
+                style: TextStyle(color: Colors.grey[600], fontSize: 13),
+              ),
+              const SizedBox(height: 8),
+              // Progress bar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value: _progressValue,
+                  minHeight: 8,
+                  backgroundColor: Colors.grey[200],
+                  valueColor: AlwaysStoppedAnimation<Color>(typeColor),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '${challenge.participantProgress.toStringAsFixed(0)} / ${challenge.goalValue.toStringAsFixed(0)} ${challenge.unit}',
+                style: TextStyle(color: Colors.grey[500], fontSize: 12),
+              ),
+              const SizedBox(height: 8),
+              // Days remaining + JOIN/LEAVE button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.schedule, size: 14, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$_daysRemaining days remaining',
+                        style:
+                            TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
+                    ],
+                  ),
+                  challenge.isJoined
+                      ? ElevatedButton(
+                          onPressed: onLeave,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFE53935),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text('LEAVE',
+                              style: TextStyle(fontSize: 12)),
+                        )
+                      : ElevatedButton(
+                          onPressed: onJoin,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF4CAF50),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text('JOIN',
+                              style: TextStyle(fontSize: 12)),
+                        ),
                 ],
               ),
             ],
@@ -244,8 +274,10 @@ class _ChallengeCard extends StatelessWidget {
   }
 }
 
+// ─── Header Tabs ──────────────────────────────────────────────────────────────
+
 class ChallengeHeaderTabs extends StatelessWidget {
-  final int selected; 
+  final int selected;
   const ChallengeHeaderTabs({super.key, required this.selected});
 
   @override
@@ -256,7 +288,6 @@ class ChallengeHeaderTabs extends StatelessWidget {
         GestureDetector(
           onTap: () {
             if (selected != 0) {
-              // Navigate to Challenges tab
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => const ChallengeOverviewScreen(),
@@ -283,7 +314,6 @@ class ChallengeHeaderTabs extends StatelessWidget {
         GestureDetector(
           onTap: () {
             if (selected != 1) {
-              // Go back to Community tab (pop the challenge screen)
               Navigator.of(context).pop();
             }
           },
@@ -302,68 +332,6 @@ class ChallengeHeaderTabs extends StatelessWidget {
             ),
           ),
         ),
-      ],
-    );
-  }
-}
-
-class _ChallengeOverviewCard extends StatelessWidget {
-  const _ChallengeOverviewCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(12);
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: borderRadius),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              '30 Days Fitness Challenge',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'February 1 - February 30, 2025',
-              style: TextStyle(color: Colors.grey[600], fontSize: 12),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Transform your lifestyle with our comprehensive 30-day challenge. Focus on nutrition, exercise, and mindful habits.',
-              style: TextStyle(color: Colors.grey[700], fontSize: 13),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Basic Rules',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[800],
-              ),
-            ),
-            const SizedBox(height: 8),
-            const _BulletRow(text: 'Log meals daily'),
-            const _BulletRow(text: 'Complete daily challenges'),
-            const _BulletRow(text: 'Share progress weekly'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BulletRow extends StatelessWidget {
-  final String text;
-  const _BulletRow({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Icon(Icons.circle, size: 6),
-        const SizedBox(width: 6),
-        Expanded(child: Text(text, style: const TextStyle(fontSize: 13))),
       ],
     );
   }
