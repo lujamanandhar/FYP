@@ -253,11 +253,11 @@ class LikePostView(APIView):
         if like:
             like.delete()
             Post.objects.filter(pk=pk).update(like_count=post.like_count - 1)
-            return Response({'liked': False}, status=status.HTTP_200_OK)
+            return Response({'liked': False, 'like_count': max(0, post.like_count - 1)}, status=status.HTTP_200_OK)
         else:
             Like.objects.create(post=post, user=request.user)
             Post.objects.filter(pk=pk).update(like_count=post.like_count + 1)
-            return Response({'liked': True}, status=status.HTTP_201_CREATED)
+            return Response({'liked': True, 'like_count': post.like_count + 1}, status=status.HTTP_201_CREATED)
 
 
 class CommentPostView(APIView):

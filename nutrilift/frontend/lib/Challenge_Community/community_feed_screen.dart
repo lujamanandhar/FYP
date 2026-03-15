@@ -1,4 +1,8 @@
 import 'dart:typed_data';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:ui_web' as ui_web;
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/token_service.dart';
@@ -398,6 +402,7 @@ class _PostCardState extends State<_PostCard> {
             _MediaSection(
               urls: post.imageUrls,
               localBytes: context.read<CommunityProvider>().localBytesFor(post.id),
+              videoUrls: context.read<CommunityProvider>().videoUrlsFor(post.id),
             ),
 
           // Divider
@@ -436,7 +441,8 @@ class _PostCardState extends State<_PostCard> {
 class _MediaSection extends StatefulWidget {
   final List<String> urls;
   final List<Uint8List> localBytes;
-  const _MediaSection({required this.urls, this.localBytes = const []});
+  final Set<String> videoUrls;
+  const _MediaSection({required this.urls, this.localBytes = const [], this.videoUrls = const {}});
 
   @override
   State<_MediaSection> createState() => _MediaSectionState();
@@ -516,7 +522,9 @@ class _MediaSectionState extends State<_MediaSection> {
                     }
                     final url = widget.urls[i];
                     if (url.isEmpty) return _brokenMedia();
-                    if (_isVideoUrl(url)) return _VideoThumbnail(url: url);
+                    // Check provider's video set first, then fall back to extension check
+                    final isVideo = widget.videoUrls.contains(url) || _isVideoUrl(url);
+                    if (isVideo) return _VideoThumbnail(url: url);
                     return Image.network(
                       url,
                       fit: BoxFit.contain,
@@ -637,40 +645,318 @@ class _NavArrow extends StatelessWidget {
   }
 }
 
-class _VideoThumbnail extends StatelessWidget {
+class _VideoThumbnail extends StatefulWidget {
   final String url;
   const _VideoThumbnail({required this.url});
 
   @override
+  State<_VideoThumbnail> createState() => _VideoThumbnailState();
+}
+
+class _VideoThumbnailState extends State<_VideoThumbnail> {
+  late final String _viewId;
+  html.VideoElement? _videoEl;
+
+  // Playback state
+  bool _showReplay = false;
+  int _loopCount = 0;
+  static const int _maxLoops = 2;
+
+  bool _isPaused = false;
+  double _currentSec = 0;
+  double _durationSec = 0;
+  bool _isSeeking = false;
+
+  // Controls visibility
+  bool _showControls = false;
+  DateTime? _controlsShownAt;
+
+  @override
+  void initState() {
+    super.initState();
+    _viewId = 'video-${widget.url.hashCode}-${DateTime.now().microsecondsSinceEpoch}';
+    _registerView();
+    // Poll playback position every 250 ms
+    _startPoller();
+  }
+
+  void _startPoller() {
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(milliseconds: 250));
+      if (!mounted) return false;
+      final v = _videoEl;
+      if (v != null && !_isSeeking) {
+        final cur = v.currentTime.toDouble();
+        final dur = v.duration.isNaN ? 0.0 : v.duration.toDouble();
+        if (mounted) {
+          setState(() {
+            _currentSec = cur;
+            _durationSec = dur;
+          });
+        }
+      }
+      // Auto-hide controls after 3 s
+      if (_showControls && _controlsShownAt != null) {
+        if (DateTime.now().difference(_controlsShownAt!).inSeconds >= 3) {
+          if (mounted) setState(() => _showControls = false);
+        }
+      }
+      return mounted;
+    });
+  }
+
+  void _registerView() {
+    ui_web.platformViewRegistry.registerViewFactory(_viewId, (int id) {
+      final video = html.VideoElement()
+        ..src = widget.url
+        ..autoplay = true
+        ..muted = false
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..style.objectFit = 'contain'
+        ..style.background = '#000';
+
+      video.onEnded.listen((_) {
+        _loopCount++;
+        if (_loopCount < _maxLoops) {
+          video.currentTime = 0;
+          video.play();
+        } else {
+          if (mounted) setState(() => _showReplay = true);
+        }
+      });
+
+      _videoEl = video;
+      return video;
+    });
+  }
+
+  void _toggleControls() {
+    setState(() {
+      _showControls = !_showControls;
+      if (_showControls) _controlsShownAt = DateTime.now();
+    });
+  }
+
+  void _resetControlsTimer() {
+    _controlsShownAt = DateTime.now();
+  }
+
+  void _togglePlayPause() {
+    _resetControlsTimer();
+    final v = _videoEl;
+    if (v == null) return;
+    if (v.paused) {
+      v.play();
+      setState(() => _isPaused = false);
+    } else {
+      v.pause();
+      setState(() => _isPaused = true);
+    }
+  }
+
+  void _rewind10() {
+    _resetControlsTimer();
+    final v = _videoEl;
+    if (v == null) return;
+    final target = (v.currentTime - 10).clamp(0.0, v.duration.isNaN ? 0.0 : v.duration);
+    v.currentTime = target;
+    setState(() => _currentSec = target.toDouble());
+  }
+
+  void _seekTo(double sec) {
+    final v = _videoEl;
+    if (v == null) return;
+    v.currentTime = sec;
+    setState(() => _currentSec = sec);
+  }
+
+  void _replay() {
+    setState(() {
+      _showReplay = false;
+      _loopCount = 0;
+      _isPaused = false;
+    });
+    _videoEl?.currentTime = 0;
+    _videoEl?.play();
+  }
+
+  String _fmt(double sec) {
+    final s = sec.toInt();
+    final m = s ~/ 60;
+    final r = s % 60;
+    return '${m.toString().padLeft(2, '0')}:${r.toString().padLeft(2, '0')}';
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black,
+    final progress = _durationSec > 0 ? (_currentSec / _durationSec).clamp(0.0, 1.0) : 0.0;
+
+    return GestureDetector(
+      onTap: _showReplay ? null : _toggleControls,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          const Center(
-            child: Icon(Icons.play_circle_fill, color: Colors.white70, size: 64),
-          ),
-          Positioned(
-            bottom: 8,
-            left: 8,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          HtmlElementView(viewType: _viewId),
+
+          // ── Controls overlay (tap to show/hide) ──────────────────
+          if (!_showReplay && _showControls)
+            Container(
               decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(6),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.15),
+                    Colors.black.withOpacity(0.7),
+                  ],
+                  stops: const [0.0, 0.5, 1.0],
+                ),
               ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Icon(Icons.videocam, color: Colors.white, size: 14),
-                  SizedBox(width: 4),
-                  Text('Video',
-                      style: TextStyle(color: Colors.white, fontSize: 12)),
+                  // Centre row: rewind-10 + play/pause
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // -10 s button
+                      GestureDetector(
+                        onTap: _rewind10,
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.black45,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.replay_10, color: Colors.white, size: 28),
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      // Play / Pause
+                      GestureDetector(
+                        onTap: _togglePlayPause,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: _kRed,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 10,
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            _isPaused ? Icons.play_arrow : Icons.pause,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // ── Seek bar + time ──────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Column(
+                      children: [
+                        SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            trackHeight: 3,
+                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+                            activeTrackColor: _kRed,
+                            inactiveTrackColor: Colors.white38,
+                            thumbColor: Colors.white,
+                            overlayColor: _kRed.withOpacity(0.25),
+                          ),
+                          child: Slider(
+                            value: progress,
+                            min: 0,
+                            max: 1,
+                            onChangeStart: (_) {
+                              _isSeeking = true;
+                              _resetControlsTimer();
+                            },
+                            onChanged: (v) {
+                              final target = v * _durationSec;
+                              setState(() => _currentSec = target);
+                            },
+                            onChangeEnd: (v) {
+                              _seekTo(v * _durationSec);
+                              _isSeeking = false;
+                              _resetControlsTimer();
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _fmt(_currentSec),
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 11),
+                              ),
+                              Text(
+                                _fmt(_durationSec),
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
+
+          // ── "Watch again" overlay after 2 loops ─────────────────
+          if (_showReplay)
+            Container(
+              color: Colors.black.withOpacity(0.65),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: _replay,
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: _kRed,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 12,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.replay, color: Colors.white, size: 36),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Watch again',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );

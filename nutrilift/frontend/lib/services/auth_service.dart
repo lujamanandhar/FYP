@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'api_client.dart';
+import 'dio_client.dart';
 import 'token_service.dart';
 
 class AuthService {
@@ -10,6 +12,7 @@ class AuthService {
 
   final ApiClient _apiClient = ApiClient();
   final TokenService _tokenService = TokenService();
+  final DioClient _dioClient = DioClient();
 
   // Initialize the service with stored token
   Future<void> initialize() async {
@@ -82,19 +85,42 @@ class AuthService {
   // Update user profile
   Future<UserProfile> updateProfile(ProfileUpdateRequest request) async {
     try {
-      final response = await _apiClient.put('/auth/profile/', body: request.toJson());
-      
+      String? uploadedAvatarUrl;
+
+      // If avatar bytes provided, upload to server first
+      if (request.avatarBytes != null) {
+        uploadedAvatarUrl = await _uploadAvatar(
+          request.avatarBytes!,
+          request.avatarMime ?? 'image/jpeg',
+        );
+      }
+
+      final body = request.toJson(avatarUrl: uploadedAvatarUrl);
+      final response = await _apiClient.put('/auth/profile/', body: body);
+
       final profileData = response.getData<Map<String, dynamic>>();
       if (profileData == null || profileData['user'] == null) {
         throw ApiException('Invalid profile data received');
       }
-      
+
       return UserProfile.fromJson(profileData['user'] as Map<String, dynamic>);
     } on ApiException {
       rethrow;
     } catch (e) {
       throw ApiException('Failed to update profile: ${e.toString()}');
     }
+  }
+
+  // Upload avatar bytes to /api/upload/ and return the URL
+  Future<String> _uploadAvatar(Uint8List bytes, String mime) async {
+    final ext = mime.contains('png') ? '.png' : mime.contains('gif') ? '.gif' : '.jpg';
+    final formData = FormData.fromMap({
+      'image': MultipartFile.fromBytes(bytes, filename: 'avatar$ext'),
+    });
+    final response = await _dioClient.dio.post('/upload/', data: formData);
+    final url = (response.data as Map<String, dynamic>)['url'] as String?;
+    if (url == null) throw ApiException('Upload failed: no URL returned');
+    return url;
   }
 
   // Set authentication token (for when token is loaded from storage)
@@ -247,7 +273,7 @@ class ProfileUpdateRequest {
     this.avatarMime,
   });
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({String? avatarUrl}) {
     final json = <String, dynamic>{};
     if (name != null) json['name'] = name;
     if (gender != null) json['gender'] = gender;
@@ -255,10 +281,7 @@ class ProfileUpdateRequest {
     if (height != null) json['height'] = height;
     if (weight != null) json['weight'] = weight;
     if (fitnessLevel != null) json['fitness_level'] = fitnessLevel;
-    if (avatarBytes != null) {
-      final mime = avatarMime ?? 'image/jpeg';
-      json['avatar'] = 'data:$mime;base64,${base64Encode(avatarBytes!)}';
-    }
+    if (avatarUrl != null) json['avatar_url'] = avatarUrl;
     return json;
   }
 

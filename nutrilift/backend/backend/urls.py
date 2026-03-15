@@ -14,6 +14,8 @@ Requirements: 7.1, 7.2, 7.3, 7.4, 16.1
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     # Django admin interface
@@ -34,4 +36,7 @@ urlpatterns = [
     # Challenge & Community endpoints
     path('api/challenges/', include('challenges.urls')),
     path('api/community/', include('challenges.urls')),
-]
+    
+    # Media upload endpoint
+    path('api/', include('challenges.upload_urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

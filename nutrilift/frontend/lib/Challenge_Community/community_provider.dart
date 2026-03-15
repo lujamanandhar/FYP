@@ -18,11 +18,19 @@ class CommunityProvider extends ChangeNotifier {
   /// Survives fetchFeed() calls — never cleared automatically.
   final Map<String, List<Uint8List>> _localBytesCache = {};
 
+  /// Persistent video URL set keyed by post ID.
+  /// Tracks which URLs in imageUrls are videos (for posts created in this session).
+  final Map<String, Set<String>> _videoUrlsCache = {};
+
   CommunityProvider(CommunityApiService service) : _service = service;
 
   /// Returns local bytes for a post if available.
   List<Uint8List> localBytesFor(String postId) =>
       _localBytesCache[postId] ?? const [];
+
+  /// Returns the set of video URLs for a post (populated for newly created posts).
+  Set<String> videoUrlsFor(String postId) =>
+      _videoUrlsCache[postId] ?? const {};
 
   /// Fetch the first page of the community feed, resetting state.
   Future<void> fetchFeed() async {
@@ -70,16 +78,21 @@ class CommunityProvider extends ChangeNotifier {
 
   /// Create a new post and prepend it to [posts].
   /// [localMediaBytes] are stored in the persistent cache keyed by post ID.
+  /// [videoUrls] tracks which uploaded URLs are videos.
   Future<void> createPost(
     String content,
     List<String> imageUrls, {
     List<Uint8List> localMediaBytes = const [],
+    Set<String> videoUrls = const {},
   }) async {
     try {
       final newPost = await _service.createPost(content, imageUrls);
       // Store bytes in persistent cache — survives fetchFeed()
       if (localMediaBytes.isNotEmpty) {
         _localBytesCache[newPost.id] = localMediaBytes;
+      }
+      if (videoUrls.isNotEmpty) {
+        _videoUrlsCache[newPost.id] = videoUrls;
       }
       posts = [newPost, ...posts];
       notifyListeners();
@@ -94,6 +107,7 @@ class CommunityProvider extends ChangeNotifier {
     final backup = List<PostModel>.from(posts);
     posts = posts.where((p) => p.id != postId).toList();
     _localBytesCache.remove(postId);
+    _videoUrlsCache.remove(postId);
     notifyListeners();
     try {
       await _service.deletePost(postId);

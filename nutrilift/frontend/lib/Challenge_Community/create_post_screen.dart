@@ -1,7 +1,9 @@
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../services/dio_client.dart';
 import 'community_provider.dart';
 
 const Color _kRed = Color(0xFFE53935);
@@ -91,19 +93,32 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     if (!_canPost || _isSubmitting) return;
     setState(() => _isSubmitting = true);
     try {
-      // Collect local bytes for images (for immediate feed display)
-      final localBytes = _selectedMedia
-          .where((m) => !m.isVideo && m.bytes != null)
-          .map((m) => m.bytes!)
-          .toList();
+      final imageUrls = <String>[];
+      final localBytes = <Uint8List>[];
+      final videoUrls = <String>{};
 
-      // Pass file names as placeholder URLs (server-side upload would replace these)
-      final mediaUrls = _selectedMedia.map((m) => m.file.name).toList();
+      for (final item in _selectedMedia) {
+        // Read bytes for videos too (needed for upload)
+        final bytes = item.bytes ?? await item.file.readAsBytes();
+        if (!item.isVideo) localBytes.add(bytes);
+
+        try {
+          final result = await _uploadMedia(item, bytes);
+          imageUrls.add(result['url'] as String);
+          if (result['is_video'] == true) {
+            videoUrls.add(result['url'] as String);
+          }
+        } catch (_) {
+          // Fall back to filename if upload fails
+          imageUrls.add(item.file.name);
+        }
+      }
 
       await context.read<CommunityProvider>().createPost(
             _contentController.text.trim(),
-            mediaUrls,
+            imageUrls,
             localMediaBytes: localBytes,
+            videoUrls: videoUrls,
           );
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
@@ -111,6 +126,20 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  Future<Map<String, dynamic>> _uploadMedia(_MediaItem item, Uint8List bytes) async {
+    final ext = item.file.name.contains('.') ? item.file.name.split('.').last : (item.isVideo ? 'mp4' : 'jpg');
+    final fieldName = item.isVideo ? 'file' : 'image';
+    final formData = FormData.fromMap({
+      fieldName: MultipartFile.fromBytes(bytes, filename: 'post.$ext'),
+    });
+    final dio = DioClient().dio;
+    final response = await dio.post('/upload/', data: formData);
+    final data = response.data as Map<String, dynamic>;
+    final url = data['url'] as String?;
+    if (url == null) throw Exception('Upload failed');
+    return {'url': url, 'is_video': data['is_video'] ?? false};
   }
 
   @override

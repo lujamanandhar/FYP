@@ -4,7 +4,6 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from .models import User
 import re
-import base64
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -106,13 +105,11 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
     """
     Serializer for updating user profile fields.
     Includes validation for numeric and enum fields.
-    Accepts an optional 'avatar' field as a base64 data URI (data:<mime>;base64,<data>).
+    Accepts an optional 'avatar_url' field (URL string from upload endpoint).
     """
-    avatar = serializers.CharField(required=False, write_only=True, allow_blank=True)
-
     class Meta:
         model = User
-        fields = ['gender', 'age_group', 'height', 'weight', 'fitness_level', 'name', 'avatar']
+        fields = ['gender', 'age_group', 'height', 'weight', 'fitness_level', 'name', 'avatar_url']
         extra_kwargs = {
             'gender': {'required': False},
             'age_group': {'required': False},
@@ -120,6 +117,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             'weight': {'required': False},
             'fitness_level': {'required': False},
             'name': {'required': False},
+            'avatar_url': {'required': False},
         }
     
     def validate_height(self, value):
@@ -178,14 +176,4 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
-        """
-        Handle avatar base64 data URI: decode and store as data URI in avatar_url.
-        """
-        avatar_data = validated_data.pop('avatar', None)
-        if avatar_data:
-            # Expect format: data:<mime>;base64,<encoded>
-            if avatar_data.startswith('data:') and ';base64,' in avatar_data:
-                instance.avatar_url = avatar_data  # store the full data URI
-            else:
-                raise serializers.ValidationError({'avatar': 'Invalid avatar format.'})
         return super().update(instance, validated_data)

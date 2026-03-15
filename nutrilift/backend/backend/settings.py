@@ -150,6 +150,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Media files (user uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -168,6 +172,8 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser',
     ],
     # Custom exception handler for consistent error responses
     'EXCEPTION_HANDLER': 'authentications.exceptions.custom_exception_handler',
