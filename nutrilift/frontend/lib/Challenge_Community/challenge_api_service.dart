@@ -7,12 +7,15 @@ class ChallengeModel {
   final String id;
   final String name;
   final String description;
-  final String challengeType; // 'nutrition' | 'workout' | 'mixed'
+  final String challengeType;
   final double goalValue;
   final String unit;
   final DateTime startDate;
   final DateTime endDate;
   final double participantProgress;
+  final bool isOfficial;
+  final String createdByUsername;
+  final String? createdById;
   bool isJoined;
 
   ChallengeModel({
@@ -25,11 +28,13 @@ class ChallengeModel {
     required this.startDate,
     required this.endDate,
     required this.participantProgress,
+    required this.isOfficial,
+    required this.createdByUsername,
+    this.createdById,
     required this.isJoined,
   });
 
   factory ChallengeModel.fromJson(Map<String, dynamic> json) {
-    final progress = (json['participant_progress'] as num?)?.toDouble() ?? 0.0;
     return ChallengeModel(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -39,8 +44,11 @@ class ChallengeModel {
       unit: json['unit'] as String,
       startDate: DateTime.parse(json['start_date'] as String),
       endDate: DateTime.parse(json['end_date'] as String),
-      participantProgress: progress,
-      isJoined: progress > 0,
+      participantProgress: (json['participant_progress'] as num?)?.toDouble() ?? 0.0,
+      isOfficial: json['is_official'] as bool? ?? false,
+      createdByUsername: json['created_by_username'] as String? ?? 'NutriLift',
+      createdById: json['created_by_id'] as String?,
+      isJoined: json['is_joined'] as bool? ?? false,
     );
   }
 }
@@ -151,6 +159,32 @@ class ChallengeApiService {
     }
   }
 
+  /// Create a new user challenge.
+  Future<ChallengeModel> createChallenge({
+    required String name,
+    required String description,
+    required String challengeType,
+    required double goalValue,
+    required String unit,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    try {
+      final response = await _dio.post('/challenges/create/', data: {
+        'name': name,
+        'description': description,
+        'challenge_type': challengeType,
+        'goal_value': goalValue,
+        'unit': unit,
+        'start_date': startDate.toIso8601String(),
+        'end_date': endDate.toIso8601String(),
+      });
+      return ChallengeModel.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw _handleError(e, 'Failed to create challenge');
+    }
+  }
+
   /// Join a challenge by ID.
   ///
   /// Validates: Requirement 3.2
@@ -170,6 +204,15 @@ class ChallengeApiService {
       await _dio.delete('/challenges/$id/leave/');
     } on DioException catch (e) {
       throw _handleError(e, 'Failed to leave challenge');
+    }
+  }
+
+  /// Delete a challenge by ID (owner only).
+  Future<void> deleteChallenge(String id) async {
+    try {
+      await _dio.delete('/challenges/$id/');
+    } on DioException catch (e) {
+      throw _handleError(e, 'Failed to delete challenge');
     }
   }
 
