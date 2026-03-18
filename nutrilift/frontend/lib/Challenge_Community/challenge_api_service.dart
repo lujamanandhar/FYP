@@ -12,7 +12,7 @@ class ChallengeModel {
   final String unit;
   final DateTime startDate;
   final DateTime endDate;
-  final double participantProgress;
+  double participantProgress;
   final bool isOfficial;
   final String createdByUsername;
   final String? createdById;
@@ -128,6 +128,76 @@ class StreakModel {
   }
 }
 
+// ── Daily Log Models ──────────────────────────────────────────────────────
+
+class DailyTaskItem {
+  final String label;
+  bool completed;
+
+  DailyTaskItem({required this.label, required this.completed});
+
+  factory DailyTaskItem.fromJson(Map<String, dynamic> json) {
+    return DailyTaskItem(
+      label: json['label'] as String? ?? '',
+      completed: json['completed'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'label': label, 'completed': completed};
+}
+
+class DailyMediaItem {
+  final String url;
+  final bool isVideo;
+
+  DailyMediaItem({required this.url, required this.isVideo});
+
+  factory DailyMediaItem.fromJson(Map<String, dynamic> json) {
+    return DailyMediaItem(
+      url: json['url'] as String,
+      isVideo: json['is_video'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'url': url, 'is_video': isVideo};
+}
+
+class ChallengeDailyLogModel {
+  final String id;
+  final int dayNumber;
+  List<DailyTaskItem> taskItems;
+  List<DailyMediaItem> mediaUrls;
+  final bool isComplete;
+  final String? completedAt;
+
+  ChallengeDailyLogModel({
+    required this.id,
+    required this.dayNumber,
+    required this.taskItems,
+    required this.mediaUrls,
+    required this.isComplete,
+    this.completedAt,
+  });
+
+  factory ChallengeDailyLogModel.fromJson(Map<String, dynamic> json) {
+    return ChallengeDailyLogModel(
+      id: json['id'] as String,
+      dayNumber: json['day_number'] as int,
+      taskItems: (json['task_items'] as List<dynamic>? ?? [])
+          .map((e) => DailyTaskItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      mediaUrls: (json['media_urls'] as List<dynamic>? ?? [])
+          .map((e) => DailyMediaItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      isComplete: json['is_complete'] as bool? ?? false,
+      completedAt: json['completed_at'] as String?,
+    );
+  }
+
+  bool get allTasksComplete =>
+      taskItems.isEmpty || taskItems.every((t) => t.completed);
+}
+
 // ==================== Service ====================
 
 /// API service for challenge and gamification endpoints.
@@ -168,6 +238,7 @@ class ChallengeApiService {
     required String unit,
     required DateTime startDate,
     required DateTime endDate,
+    List<Map<String, String>> defaultTasks = const [],
   }) async {
     try {
       final response = await _dio.post('/challenges/create/', data: {
@@ -178,6 +249,7 @@ class ChallengeApiService {
         'unit': unit,
         'start_date': startDate.toIso8601String(),
         'end_date': endDate.toIso8601String(),
+        if (defaultTasks.isNotEmpty) 'default_tasks': defaultTasks,
       });
       return ChallengeModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
@@ -260,6 +332,71 @@ class ChallengeApiService {
       return StreakModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw _handleError(e, 'Failed to fetch streak');
+    }
+  }
+
+  // ── Daily Log API methods ───────────────────────────────────────────────
+
+  /// Fetch (or create) today's daily log for a challenge.
+  /// Requirements: 23.1
+  Future<ChallengeDailyLogModel> fetchTodayLog(String challengeId) async {
+    try {
+      final response = await _dio.get('/challenges/$challengeId/daily-log/');
+      return ChallengeDailyLogModel.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw _handleError(e, 'Failed to fetch today\'s log');
+    }
+  }
+
+  /// Update task_items and/or media_urls for today's log.
+  /// Requirements: 23.3, 23.6
+  Future<ChallengeDailyLogModel> updateDailyLog(
+    String challengeId, {
+    List<DailyTaskItem>? taskItems,
+    List<DailyMediaItem>? mediaUrls,
+  }) async {
+    try {
+      final data = <String, dynamic>{};
+      if (taskItems != null) data['task_items'] = taskItems.map((t) => t.toJson()).toList();
+      if (mediaUrls != null) data['media_urls'] = mediaUrls.map((m) => m.toJson()).toList();
+      final response = await _dio.patch('/challenges/$challengeId/daily-log/', data: data);
+      return ChallengeDailyLogModel.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw _handleError(e, 'Failed to update daily log');
+    }
+  }
+
+  /// Mark today's log complete, optionally sharing to community.
+  /// Returns map with 'log' and optional 'shared_post'.
+  /// Requirements: 24.1–24.7
+  Future<Map<String, dynamic>> completeDailyLog(
+    String challengeId, {
+    bool shareToCommunity = false,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/challenges/$challengeId/daily-log/complete/',
+        data: {'share_to_community': shareToCommunity},
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e, 'Failed to complete daily log');
+    }
+  }
+
+  /// Fetch all daily logs for a challenge (ordered by day_number asc).
+  /// Requirements: 23.9, 23.10
+  Future<List<ChallengeDailyLogModel>> fetchAllDailyLogs(String challengeId) async {
+    try {
+      final response = await _dio.get('/challenges/$challengeId/daily-logs/');
+      final List<dynamic> data = response.data is List
+          ? response.data as List
+          : (response.data['results'] as List? ?? []);
+      return data
+          .map((e) => ChallengeDailyLogModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw _handleError(e, 'Failed to fetch daily logs');
     }
   }
 

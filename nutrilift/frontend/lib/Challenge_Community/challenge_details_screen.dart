@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../widgets/nutrilift_header.dart';
 import 'challenge_provider.dart';
 import 'challenge_api_service.dart';
+import 'active_challenge_screen.dart';
 
 class ChallengeDetailsScreen extends StatefulWidget {
   final ChallengeModel challenge;
@@ -51,12 +52,6 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
   int get _daysRemaining {
     final diff = widget.challenge.endDate.difference(DateTime.now()).inDays;
     return diff < 0 ? 0 : diff;
-  }
-
-  double get _progressPercent {
-    if (widget.challenge.goalValue <= 0) return 0;
-    return (widget.challenge.participantProgress / widget.challenge.goalValue)
-        .clamp(0.0, 1.0);
   }
 
   Color _typeColor(String type) {
@@ -156,59 +151,70 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
             const SizedBox(height: 16),
 
             // ── Circular progress ────────────────────────────────────────
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Your Progress',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 16),
-                    Center(
-                      child: SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            CircularProgressIndicator(
-                              value: _progressPercent,
-                              strokeWidth: 10,
-                              backgroundColor: Colors.grey[200],
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(typeColor),
-                            ),
-                            Center(
-                              child: Text(
-                                '${(_progressPercent * 100).toStringAsFixed(0)}%',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ),
-                          ],
+            Consumer<ChallengeProvider>(
+              builder: (context, provider, _) {
+                final live = provider.challenges.firstWhere(
+                  (c) => c.id == challenge.id,
+                  orElse: () => challenge,
+                );
+                final progressPercent = live.goalValue > 0
+                    ? (live.participantProgress / live.goalValue).clamp(0.0, 1.0)
+                    : 0.0;
+                return Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Your Progress',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                      ),
+                        const SizedBox(height: 16),
+                        Center(
+                          child: SizedBox(
+                            width: 100,
+                            height: 100,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                CircularProgressIndicator(
+                                  value: progressPercent,
+                                  strokeWidth: 10,
+                                  backgroundColor: Colors.grey[200],
+                                  valueColor:
+                                      AlwaysStoppedAnimation<Color>(typeColor),
+                                ),
+                                Center(
+                                  child: Text(
+                                    '${(progressPercent * 100).toStringAsFixed(0)}%',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Center(
+                          child: Text(
+                            '${live.participantProgress.toStringAsFixed(0)} / ${live.goalValue.toStringAsFixed(0)} ${live.unit}',
+                            style: TextStyle(
+                                color: Colors.grey[600], fontSize: 13),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    Center(
-                      child: Text(
-                        '${challenge.participantProgress.toStringAsFixed(0)} / ${challenge.goalValue.toStringAsFixed(0)} ${challenge.unit}',
-                        style: TextStyle(
-                            color: Colors.grey[600], fontSize: 13),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 16),
 
@@ -270,40 +276,116 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
             ),
             const SizedBox(height: 24),
 
-            // ── LEAVE button (if joined) ─────────────────────────────────
+            // ── JOIN / LEAVE buttons ─────────────────────────────────
             Consumer<ChallengeProvider>(
               builder: (context, provider, _) {
-                // Reflect the latest joined state from provider if available
                 final current = provider.challenges.firstWhere(
                   (c) => c.id == challenge.id,
                   orElse: () => challenge,
                 );
-                if (!current.isJoined) return const SizedBox.shrink();
+                if (current.isJoined) {
+                  // Already joined — show "Go to Daily Log" + Leave
+                  return Column(children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => ActiveChallengeScreen(
+                                  challengeId: challenge.id)),
+                        ),
+                        icon: const Icon(Icons.today),
+                        label: const Text("Today's Daily Log",
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4CAF50),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          final ok = await showDialog<bool>(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text('Leave Challenge?'),
+                              content: const Text(
+                                  'Are you sure you want to leave? All your progress will be reset and cannot be recovered.'),
+                              actions: [
+                                TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: Text('Cancel',
+                                        style: TextStyle(
+                                            color: Colors.grey[600]))),
+                                TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(true),
+                                    style: TextButton.styleFrom(
+                                        foregroundColor:
+                                            const Color(0xFFE53935)),
+                                    child: const Text('Leave')),
+                              ],
+                            ),
+                          );
+                          if (ok == true && context.mounted) {
+                            await provider.leaveChallenge(challenge.id);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content:
+                                        Text('Left challenge successfully')),
+                              );
+                              Navigator.of(context).pop();
+                            }
+                          }
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFFE53935),
+                          side: const BorderSide(color: Color(0xFFE53935)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('Leave Challenge',
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ]);
+                }
+                // Not joined — show JOIN button
                 return SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: () async {
-                      await provider.leaveChallenge(challenge.id);
+                      await provider.joinChallenge(challenge.id);
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Left challenge successfully')),
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => ActiveChallengeScreen(
+                                  challengeId: challenge.id)),
                         );
-                        Navigator.of(context).pop();
                       }
                     },
+                    icon: const Icon(Icons.emoji_events),
+                    label: const Text('Join Challenge',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE53935),
+                      backgroundColor: const Color(0xFF4CAF50),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'LEAVE',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                 );

@@ -1,69 +1,45 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/nutrilift_header.dart';
 import 'challenge_provider.dart';
 import 'challenge_api_service.dart';
 import 'challenge_details_screen.dart';
+import 'active_challenge_screen.dart';
 import 'community_feed_screen.dart';
+import 'challenge_progress_screen.dart';
 
 const Color _kRed = Color(0xFFE53935);
+const Color _kGold = Color(0xFFFFC107);
+const Color _kGreen = Color(0xFF4CAF50);
 
+// ─── Standalone screen ────────────────────────────────────────────────────────
 class ChallengeOverviewScreen extends StatefulWidget {
   const ChallengeOverviewScreen({super.key});
-
   @override
   State<ChallengeOverviewScreen> createState() => _ChallengeOverviewScreenState();
 }
-
-class _ChallengeOverviewScreenState extends State<ChallengeOverviewScreen>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
-
+class _ChallengeOverviewScreenState extends State<ChallengeOverviewScreen> {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ChallengeProvider>().fetchChallenges();
     });
   }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  void _showCreateSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => const _CreateChallengeSheet(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return NutriLiftScaffold(
       showBackButton: true,
-      body: Column(
-        children: [
-          const ChallengeHeaderTabs(selected: 0),
-          const SizedBox(height: 8),
-          const Expanded(child: ChallengeOverviewBody()),
-        ],
-      ),
+      body: Column(children: [
+        const Expanded(child: ChallengeOverviewBody()),
+      ]),
     );
   }
 }
 
-/// The challenge tabs content (All/Mine) without any scaffold wrapping.
-/// Used both inside [ChallengeOverviewScreen] and [ChallengeCommunityWrapper].
+// ─── Body ─────────────────────────────────────────────────────────────────────
 class ChallengeOverviewBody extends StatefulWidget {
   const ChallengeOverviewBody({super.key});
-
   @override
   State<ChallengeOverviewBody> createState() => _ChallengeOverviewBodyState();
 }
@@ -75,9 +51,10 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ChallengeProvider>().fetchChallenges();
+      final provider = context.read<ChallengeProvider>();
+      if (provider.challenges.isEmpty) provider.fetchChallenges();
     });
   }
 
@@ -92,39 +69,52 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => const _CreateChallengeSheet(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // All / Mine tab bar
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: TabBar(
-            controller: _tabController,
-            indicator: BoxDecoration(
-              color: _kRed,
-              borderRadius: BorderRadius.circular(10),
+    return Stack(children: [
+      Column(children: [
+        // ── Tab bar ──
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+          child: Container(
+            height: 42,
+            decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12)),
+            child: TabBar(
+              controller: _tabController,
+              indicator: BoxDecoration(
+                  color: _kRed,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [BoxShadow(color: _kRed.withOpacity(0.3), blurRadius: 6, offset: const Offset(0, 2))]),
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.grey[600],
+              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              dividerColor: Colors.transparent,
+              tabs: [
+                const Tab(text: 'All'),
+                Tab(child: Row(mainAxisSize: MainAxisSize.min, children: const [
+                  Icon(Icons.star_rounded, size: 14, color: _kGold),
+                  SizedBox(width: 4),
+                  Text('Official'),
+                ])),
+                Tab(child: Row(mainAxisSize: MainAxisSize.min, children: const [
+                  Icon(Icons.fitness_center, size: 13),
+                  SizedBox(width: 4),
+                  Text('Mine'),
+                ])),
+              ],
             ),
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.grey[600],
-            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            dividerColor: Colors.transparent,
-            tabs: const [
-              Tab(text: 'All Challenges'),
-              Tab(text: 'My Challenges'),
-            ],
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
+
+        // ── Content ──
         Expanded(
           child: Consumer<ChallengeProvider>(
             builder: (context, provider, _) {
@@ -132,154 +122,163 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
                 return const Center(child: CircularProgressIndicator(color: _kRed));
               }
               if (provider.error != null && provider.challenges.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.error_outline, size: 48, color: Colors.grey),
-                      const SizedBox(height: 12),
-                      Text(provider.error!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.grey)),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        onPressed: () => provider.fetchChallenges(),
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Retry'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _kRed,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
+                return _ErrorState(
+                  message: provider.error!,
+                  onRetry: provider.fetchChallenges,
                 );
               }
-              return Stack(
-                children: [
-                  TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _ChallengeList(
-                        challenges: provider.challenges,
-                        provider: provider,
-                        emptyMessage: 'No challenges available',
-                      ),
-                      _ChallengeList(
-                        challenges: provider.myChallenges,
-                        provider: provider,
-                        emptyMessage: 'You haven\'t joined any challenges yet',
-                        showDeleteForOwned: true,
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                    bottom: 16,
-                    right: 16,
-                    child: FloatingActionButton.extended(
-                      onPressed: _showCreateSheet,
-                      backgroundColor: _kRed,
-                      foregroundColor: Colors.white,
-                      icon: const Icon(Icons.add),
-                      label: const Text('Create Challenge',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                ],
+              final official = provider.challenges.where((c) => c.isOfficial).toList();
+              final mine = provider.myChallenges;
+              return RefreshIndicator(
+                color: _kRed,
+                onRefresh: () => provider.fetchChallenges(),
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _ChallengeList(challenges: provider.challenges, provider: provider, emptyMessage: 'No challenges available'),
+                    _ChallengeList(challenges: official, provider: provider, emptyMessage: 'No official challenges yet'),
+                    _ActiveChallengeList(challenges: mine, provider: provider),
+                  ],
+                ),
               );
             },
           ),
         ),
-      ],
+      ]),
+
+      // ── FAB ──
+      Positioned(
+        bottom: 20, right: 16,
+        child: FloatingActionButton.extended(
+          onPressed: _showCreateSheet,
+          backgroundColor: _kRed,
+          foregroundColor: Colors.white,
+          elevation: 4,
+          icon: const Icon(Icons.add),
+          label: const Text('Create', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      ),
+    ]);
+  }
+}
+
+// ─── Error state ──────────────────────────────────────────────────────────────
+class _ErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  const _ErrorState({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Icon(Icons.wifi_off_rounded, size: 56, color: Colors.grey),
+        const SizedBox(height: 12),
+        Text(message, textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
+        const SizedBox(height: 16),
+        ElevatedButton.icon(
+          onPressed: onRetry,
+          icon: const Icon(Icons.refresh),
+          label: const Text('Retry'),
+          style: ElevatedButton.styleFrom(backgroundColor: _kRed, foregroundColor: Colors.white),
+        ),
+      ]),
     );
   }
 }
 
-// ─── Challenge List ───────────────────────────────────────────────────────────
-
+// ─── Challenge List (All + Official tabs) ─────────────────────────────────────
 class _ChallengeList extends StatelessWidget {
   final List<ChallengeModel> challenges;
   final ChallengeProvider provider;
   final String emptyMessage;
-  final bool showDeleteForOwned;
 
   const _ChallengeList({
     required this.challenges,
     required this.provider,
     required this.emptyMessage,
-    this.showDeleteForOwned = false,
   });
 
   @override
   Widget build(BuildContext context) {
     if (challenges.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.emoji_events_outlined, size: 56, color: Colors.grey[300]),
-            const SizedBox(height: 12),
-            Text(emptyMessage, style: TextStyle(color: Colors.grey[500])),
-          ],
-        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.emoji_events_outlined, size: 64, color: Colors.grey[300]),
+          const SizedBox(height: 12),
+          Text(emptyMessage, style: TextStyle(color: Colors.grey[500], fontSize: 15)),
+        ]),
       );
     }
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
       itemCount: challenges.length,
       itemBuilder: (context, index) {
-        final challenge = challenges[index];
-        final isOwner = provider.currentUserId != null &&
-            challenge.createdById == provider.currentUserId;
+        final c = challenges[index];
+        final isOwner = provider.currentUserId != null && c.createdById == provider.currentUserId;
         return _ChallengeCard(
-          challenge: challenge,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) => ChallengeDetailsScreen(challenge: challenge)),
-          ),
-          onJoin: () => provider.joinChallenge(challenge.id),
-          onLeave: () => provider.leaveChallenge(challenge.id),
-          onDelete: (showDeleteForOwned && isOwner)
-              ? () => _confirmDelete(context, provider, challenge)
-              : null,
+          challenge: c,
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => ChallengeDetailsScreen(challenge: c))),
+          onJoin: () async {
+            await provider.joinChallenge(c.id);
+            if (context.mounted) {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => ActiveChallengeScreen(challengeId: c.id)));
+            }
+          },
+          onLeave: () => _confirmLeave(context, provider, c),
+          onDelete: isOwner ? () => _confirmDelete(context, provider, c) : null,
         );
       },
     );
   }
 
-  Future<void> _confirmDelete(
-      BuildContext context, ChallengeProvider provider, ChallengeModel c) async {
-    final confirm = await showDialog<bool>(
+  Future<void> _confirmLeave(BuildContext context, ChallengeProvider provider, ChallengeModel c) async {
+    final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Delete Challenge'),
-        content: Text('Delete "${c.name}"? This cannot be undone.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Leave Challenge?'),
+        content: const Text('All your progress will be reset and cannot be recovered.'),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel')),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: _kRed),
-            child: const Text('Delete'),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Cancel', style: TextStyle(color: Colors.grey[600]))),
+          TextButton(onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: _kRed),
+              child: const Text('Leave')),
         ],
       ),
     );
-    if (confirm == true && context.mounted) {
-      final ok = await provider.deleteChallenge(c.id);
+    if (ok == true && context.mounted) await provider.leaveChallenge(c.id);
+  }
+
+  Future<void> _confirmDelete(BuildContext context, ChallengeProvider provider, ChallengeModel c) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Delete Challenge'),
+        content: Text('Delete "${c.name}"? This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: _kRed),
+              child: const Text('Delete')),
+        ],
+      ),
+    );
+    if (ok == true && context.mounted) {
+      final deleted = await provider.deleteChallenge(c.id);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(ok ? 'Challenge deleted' : (provider.error ?? 'Failed')),
-        ));
+            content: Text(deleted ? 'Challenge deleted' : (provider.error ?? 'Failed'))));
       }
     }
   }
 }
 
-// ─── Challenge Card ───────────────────────────────────────────────────────────
-
+// ─── Enhanced Challenge Card ──────────────────────────────────────────────────
 class _ChallengeCard extends StatelessWidget {
   final ChallengeModel challenge;
   final VoidCallback onTap;
@@ -295,148 +294,489 @@ class _ChallengeCard extends StatelessWidget {
     this.onDelete,
   });
 
-  int get _daysRemaining {
-    final diff = challenge.endDate.difference(DateTime.now()).inDays;
-    return diff < 0 ? 0 : diff;
+  Color _typeColor(String t) {
+    switch (t) {
+      case 'nutrition': return const Color(0xFF43A047);
+      case 'workout': return const Color(0xFFFF7043);
+      default: return const Color(0xFF7E57C2);
+    }
   }
 
-  double get _progressValue {
-    if (challenge.goalValue <= 0) return 0;
-    return (challenge.participantProgress / challenge.goalValue).clamp(0.0, 1.0);
-  }
-
-  Color _typeColor(String type) {
-    switch (type) {
-      case 'nutrition': return Colors.green;
-      case 'workout': return Colors.orange;
-      default: return Colors.purple;
+  IconData _typeIcon(String t) {
+    switch (t) {
+      case 'nutrition': return Icons.restaurant_rounded;
+      case 'workout': return Icons.fitness_center_rounded;
+      default: return Icons.track_changes_rounded;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final typeColor = _typeColor(challenge.challengeType);
-    return Card(
-      elevation: 3,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(challenge.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+    final tc = _typeColor(challenge.challengeType);
+    final official = challenge.isOfficial;
+    final progress = challenge.goalValue > 0
+        ? (challenge.participantProgress / challenge.goalValue).clamp(0.0, 1.0)
+        : 0.0;
+    final daysLeft = challenge.endDate.difference(DateTime.now()).inDays;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: official ? _kGold.withOpacity(0.18) : Colors.black.withOpacity(0.07),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            // ── Coloured header strip ──
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: official
+                      ? [const Color(0xFFFFC107), const Color(0xFFFFB300)]
+                      : [tc.withOpacity(0.85), tc],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+              ),
+              child: Row(children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  Chip(
-                    label: Text(challenge.challengeType.toUpperCase(),
-                        style: const TextStyle(fontSize: 11, color: Colors.white)),
-                    backgroundColor: typeColor,
-                    padding: EdgeInsets.zero,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  if (onDelete != null) ...[
-                    const SizedBox(width: 4),
-                    PopupMenuButton<String>(
-                      icon: Icon(Icons.more_vert, size: 18, color: Colors.grey[400]),
-                      onSelected: (v) { if (v == 'delete') onDelete!(); },
-                      itemBuilder: (_) => [
-                        const PopupMenuItem(
-                          value: 'delete',
+                  child: Icon(_typeIcon(challenge.challengeType), color: Colors.white, size: 18),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(challenge.name,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                        maxLines: 1, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 2),
+                    Row(children: [
+                      if (official) ...[
+                        const Icon(Icons.verified_rounded, size: 12, color: Colors.white),
+                        const SizedBox(width: 3),
+                        const Text('Official', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                      ] else ...[
+                        const Icon(Icons.person_outline, size: 12, color: Colors.white70),
+                        const SizedBox(width: 3),
+                        Text('@${challenge.createdByUsername}',
+                            style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                      ],
+                    ]),
+                  ]),
+                ),
+                if (onDelete != null)
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert, color: Colors.white, size: 20),
+                    onSelected: (v) { if (v == 'delete') onDelete!(); },
+                    itemBuilder: (_) => [
+                      const PopupMenuItem(value: 'delete',
                           child: Row(children: [
                             Icon(Icons.delete_outline, color: Colors.red, size: 18),
                             SizedBox(width: 8),
                             Text('Delete', style: TextStyle(color: Colors.red)),
-                          ]),
-                        ),
-                      ],
+                          ])),
+                    ],
+                  ),
+              ]),
+            ),
+
+            // ── Body ──
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                // Stats row
+                Row(children: [
+                  _MiniStat(icon: Icons.flag_rounded, label: '${challenge.goalValue.toStringAsFixed(0)} ${challenge.unit}', color: tc),
+                  const SizedBox(width: 12),
+                  _MiniStat(
+                    icon: Icons.schedule_rounded,
+                    label: '${daysLeft < 0 ? 0 : daysLeft}d left',
+                    color: daysLeft <= 3 ? Colors.red : Colors.grey[600]!,
+                  ),
+                  const Spacer(),
+                  if (challenge.isJoined)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _kGreen.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: _kGreen.withOpacity(0.3)),
+                      ),
+                      child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.check_circle_rounded, size: 13, color: _kGreen),
+                        SizedBox(width: 4),
+                        Text('Joined', style: TextStyle(color: _kGreen, fontSize: 11, fontWeight: FontWeight.bold)),
+                      ]),
                     ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  if (challenge.isOfficial) ...[
-                    const Icon(Icons.verified, size: 14, color: _kRed),
-                    const SizedBox(width: 4),
-                    const Text('NutriLift',
-                        style: TextStyle(fontSize: 12, color: _kRed, fontWeight: FontWeight.w600)),
-                  ] else ...[
-                    const Icon(Icons.person_outline, size: 14, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text('by @${challenge.createdByUsername}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text('Goal: ${challenge.goalValue.toStringAsFixed(0)} ${challenge.unit}',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 13)),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: _progressValue,
-                  minHeight: 8,
-                  backgroundColor: Colors.grey[200],
-                  valueColor: AlwaysStoppedAnimation<Color>(typeColor),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '${challenge.participantProgress.toStringAsFixed(0)} / ${challenge.goalValue.toStringAsFixed(0)} ${challenge.unit}',
-                style: TextStyle(color: Colors.grey[500], fontSize: 12),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(children: [
-                    const Icon(Icons.schedule, size: 14, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text('$_daysRemaining days remaining',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                  ]),
-                  challenge.isJoined
-                      ? ElevatedButton(
-                          onPressed: onLeave,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _kRed,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
-                          child: const Text('LEAVE', style: TextStyle(fontSize: 12)),
-                        )
-                      : ElevatedButton(
-                          onPressed: onJoin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4CAF50),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
-                          child: const Text('JOIN', style: TextStyle(fontSize: 12)),
+                ]),
+                const SizedBox(height: 12),
+
+                // Progress bar
+                Row(children: [
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 7,
+                          backgroundColor: Colors.grey[100],
+                          valueColor: AlwaysStoppedAnimation<Color>(tc),
                         ),
-                ],
-              ),
-            ],
-          ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                        Text('${challenge.participantProgress.toStringAsFixed(0)} / ${challenge.goalValue.toStringAsFixed(0)}',
+                            style: TextStyle(color: Colors.grey[500], fontSize: 11)),
+                        Text('${(progress * 100).toStringAsFixed(0)}%',
+                            style: TextStyle(color: tc, fontWeight: FontWeight.bold, fontSize: 11)),
+                      ]),
+                    ]),
+                  ),
+                ]),
+                const SizedBox(height: 12),
+
+                // Action button
+                if (!challenge.isJoined)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: onJoin,
+                      icon: const Icon(Icons.emoji_events_rounded, size: 16),
+                      label: const Text('Join Challenge', style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: tc,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 11),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        elevation: 0,
+                      ),
+                    ),
+                  )
+                else
+                  Row(children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: onTap,
+                        icon: const Icon(Icons.today_rounded, size: 15),
+                        label: const Text('View', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: tc,
+                          side: BorderSide(color: tc.withOpacity(0.5)),
+                          padding: const EdgeInsets.symmetric(vertical: 9),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      onPressed: onLeave,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: _kRed,
+                        side: BorderSide(color: _kRed.withOpacity(0.4)),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text('Leave', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                  ]),
+              ]),
+            ),
+          ]),
         ),
       ),
     );
   }
 }
 
-// ─── Create Challenge Sheet ───────────────────────────────────────────────────
+class _MiniStat extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  const _MiniStat({required this.icon, required this.label, required this.color});
 
+  @override
+  Widget build(BuildContext context) {
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      Icon(icon, size: 13, color: color),
+      const SizedBox(width: 3),
+      Text(label, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w500)),
+    ]);
+  }
+}
+
+
+// ─── Active Challenge List (My Challenges tab) ────────────────────────────────
+class _ActiveChallengeList extends StatelessWidget {
+  final List<ChallengeModel> challenges;
+  final ChallengeProvider provider;
+
+  const _ActiveChallengeList({required this.challenges, required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    if (challenges.isEmpty) {
+      return Center(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: _kRed.withOpacity(0.06),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.emoji_events_outlined, size: 56, color: _kRed),
+          ),
+          const SizedBox(height: 16),
+          const Text("No active challenges", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 6),
+          Text('Browse the All tab to find one!', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
+        ]),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
+      itemCount: challenges.length,
+      itemBuilder: (context, index) {
+        final c = challenges[index];
+        return _ActiveChallengeCard(
+          challenge: c,
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => ActiveChallengeScreen(challengeId: c.id))),
+          onProgress: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => ChallengeProgressScreen(challenge: c))),
+          onLeave: () => _confirmLeave(context, c),
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmLeave(BuildContext context, ChallengeModel c) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Leave Challenge?'),
+        content: const Text('All your progress will be reset and cannot be recovered.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Cancel', style: TextStyle(color: Colors.grey[600]))),
+          TextButton(onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: _kRed),
+              child: const Text('Leave')),
+        ],
+      ),
+    );
+    if (ok == true && context.mounted) await provider.leaveChallenge(c.id);
+  }
+}
+
+// ─── Enhanced Active Challenge Card ──────────────────────────────────────────
+class _ActiveChallengeCard extends StatelessWidget {
+  final ChallengeModel challenge;
+  final VoidCallback onTap;
+  final VoidCallback onLeave;
+  final VoidCallback onProgress;
+
+  const _ActiveChallengeCard({
+    required this.challenge,
+    required this.onTap,
+    required this.onLeave,
+    required this.onProgress,
+  });
+
+  Color _typeColor(String t) {
+    switch (t) {
+      case 'nutrition': return const Color(0xFF43A047);
+      case 'workout': return const Color(0xFFFF7043);
+      default: return const Color(0xFF7E57C2);
+    }
+  }
+
+  IconData _typeIcon(String t) {
+    switch (t) {
+      case 'nutrition': return Icons.restaurant_rounded;
+      case 'workout': return Icons.fitness_center_rounded;
+      default: return Icons.track_changes_rounded;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tc = _typeColor(challenge.challengeType);
+    final progress = challenge.goalValue > 0
+        ? (challenge.participantProgress / challenge.goalValue).clamp(0.0, 1.0)
+        : 0.0;
+    final daysLeft = challenge.endDate.difference(DateTime.now()).inDays;
+    final pct = (progress * 100).toStringAsFixed(0);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(color: tc.withOpacity(0.15), blurRadius: 14, offset: const Offset(0, 5)),
+        ],
+      ),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        clipBehavior: Clip.antiAlias,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          // ── Gradient header ──
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [tc, tc.withOpacity(0.75)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Row(children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(_typeIcon(challenge.challengeType), color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(challenge.name,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 2),
+                  Row(children: [
+                    const Icon(Icons.play_circle_filled_rounded, size: 12, color: Colors.white70),
+                    const SizedBox(width: 4),
+                    const Text('Active', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                    const SizedBox(width: 10),
+                    Icon(Icons.schedule_rounded, size: 12, color: Colors.white70),
+                    const SizedBox(width: 3),
+                    Text('${daysLeft < 0 ? 0 : daysLeft} days left',
+                        style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                  ]),
+                ]),
+              ),
+              // Big % circle
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text('$pct%',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                ),
+              ),
+            ]),
+          ),
+
+          // ── Progress bar ──
+          Container(
+            height: 6,
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.grey[100],
+              valueColor: AlwaysStoppedAnimation<Color>(tc),
+              minHeight: 6,
+            ),
+          ),
+
+          // ── Body ──
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // Progress text
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text('${challenge.participantProgress.toStringAsFixed(0)} / ${challenge.goalValue.toStringAsFixed(0)} ${challenge.unit}',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.w500)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: tc.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(challenge.challengeType.toUpperCase(),
+                      style: TextStyle(color: tc, fontSize: 10, fontWeight: FontWeight.bold)),
+                ),
+              ]),
+              const SizedBox(height: 14),
+
+              // Action buttons
+              Row(children: [
+                Expanded(
+                  flex: 3,
+                  child: ElevatedButton.icon(
+                    onPressed: onTap,
+                    icon: const Icon(Icons.today_rounded, size: 16),
+                    label: const Text("Today's Log", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kGreen,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 2,
+                  child: OutlinedButton.icon(
+                    onPressed: onProgress,
+                    icon: Icon(Icons.bar_chart_rounded, size: 15, color: tc),
+                    label: Text('Progress', style: TextStyle(fontSize: 11, color: tc, fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: tc,
+                      side: BorderSide(color: tc.withOpacity(0.5)),
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton(
+                  onPressed: onLeave,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _kRed,
+                    side: BorderSide(color: _kRed.withOpacity(0.4)),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Icon(Icons.exit_to_app_rounded, size: 18),
+                ),
+              ]),
+            ]),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+
+// ─── Create Challenge Sheet ───────────────────────────────────────────────────
 class _CreateChallengeSheet extends StatefulWidget {
   const _CreateChallengeSheet();
   @override
@@ -453,12 +793,14 @@ class _CreateChallengeSheetState extends State<_CreateChallengeSheet> {
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 7));
   bool _loading = false;
+  final List<TextEditingController> _taskControllers = [];
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _descCtrl.dispose();
     _goalCtrl.dispose();
+    for (final c in _taskControllers) c.dispose();
     super.dispose();
   }
 
@@ -469,18 +811,10 @@ class _CreateChallengeSheetState extends State<_CreateChallengeSheet> {
       firstDate: DateTime.now().subtract(const Duration(days: 1)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
       builder: (ctx, child) => Theme(
-        data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.light(primary: _kRed),
-        ),
-        child: child!,
-      ),
+          data: Theme.of(ctx).copyWith(colorScheme: const ColorScheme.light(primary: _kRed)),
+          child: child!),
     );
-    if (picked != null) {
-      setState(() {
-        if (isStart) _startDate = picked;
-        else _endDate = picked;
-      });
-    }
+    if (picked != null) setState(() => isStart ? _startDate = picked : _endDate = picked);
   }
 
   Future<void> _submit() async {
@@ -500,214 +834,243 @@ class _CreateChallengeSheetState extends State<_CreateChallengeSheet> {
       unit: _unit,
       startDate: _startDate,
       endDate: _endDate,
+      defaultTasks: _taskControllers
+          .map((c) => c.text.trim())
+          .where((s) => s.isNotEmpty)
+          .map((s) => {'label': s})
+          .toList(),
     );
     setState(() => _loading = false);
     if (!mounted) return;
     if (ok) {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Challenge created!')));
+          const SnackBar(content: Text('Challenge created!'), backgroundColor: _kGreen));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(provider.error ?? 'Failed to create challenge')));
     }
   }
 
-  InputDecoration _dec(String label) => InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _kRed),
-        ),
-      );
+  String _fmt(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        left: 16, right: 16, top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Create a Challenge',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _nameCtrl,
-                decoration: _dec('Challenge Name'),
-                validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _descCtrl,
-                decoration: _dec('Description'),
-                maxLines: 3,
-                validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: _type,
-                      decoration: _dec('Type'),
-                      items: const [
-                        DropdownMenuItem(value: 'workout', child: Text('Workout')),
-                        DropdownMenuItem(value: 'nutrition', child: Text('Nutrition')),
-                        DropdownMenuItem(value: 'mixed', child: Text('Mixed')),
-                      ],
-                      onChanged: (v) => setState(() => _type = v!),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: _unit,
-                      decoration: _dec('Unit'),
-                      items: const [
-                        DropdownMenuItem(value: 'reps', child: Text('Reps')),
-                        DropdownMenuItem(value: 'kcal', child: Text('kcal')),
-                        DropdownMenuItem(value: 'days', child: Text('Days')),
-                      ],
-                      onChanged: (v) => setState(() => _unit = v!),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _goalCtrl,
-                decoration: _dec('Goal Value'),
-                keyboardType: TextInputType.number,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Required';
-                  if (double.tryParse(v.trim()) == null) return 'Enter a number';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _pickDate(true),
-                      icon: const Icon(Icons.calendar_today, size: 16),
-                      label: Text(
-                          'Start: ${_startDate.day}/${_startDate.month}/${_startDate.year}',
-                          style: const TextStyle(fontSize: 12)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: _kRed),
-                        foregroundColor: _kRed,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _pickDate(false),
-                      icon: const Icon(Icons.calendar_today, size: 16),
-                      label: Text(
-                          'End: ${_endDate.day}/${_endDate.month}/${_endDate.year}',
-                          style: const TextStyle(fontSize: 12)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: _kRed),
-                        foregroundColor: _kRed,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _loading ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _kRed,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: _loading
-                      ? const SizedBox(
-                          height: 20, width: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Create Challenge',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                ),
-              ),
-            ],
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (_, scrollCtrl) => Column(children: [
+          // Handle
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            width: 40, height: 4,
+            decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: _kRed.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.emoji_events_rounded, color: _kRed, size: 20),
+              ),
+              const SizedBox(width: 10),
+              const Text('Create Challenge', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ]),
+          ),
+          const SizedBox(height: 4),
+          const Divider(),
+          Expanded(
+            child: SingleChildScrollView(
+              controller: scrollCtrl,
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              child: Form(
+                key: _formKey,
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  _buildField('Challenge Name', _nameCtrl, hint: 'e.g. 30-Day Workout Streak'),
+                  const SizedBox(height: 14),
+                  _buildField('Description', _descCtrl, hint: 'What is this challenge about?', maxLines: 3),
+                  const SizedBox(height: 14),
+
+                  // Type selector
+                  const Text('Type', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  const SizedBox(height: 8),
+                  Row(children: ['workout', 'nutrition', 'mixed'].map((t) {
+                    final selected = _type == t;
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _type = t),
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 6),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: selected ? _kRed : Colors.grey[100],
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: selected ? _kRed : Colors.grey[300]!),
+                          ),
+                          child: Text(t[0].toUpperCase() + t.substring(1),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: selected ? Colors.white : Colors.grey[700],
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12)),
+                        ),
+                      ),
+                    );
+                  }).toList()),
+                  const SizedBox(height: 14),
+
+                  Row(children: [
+                    Expanded(child: _buildField('Goal Value', _goalCtrl, hint: '30', keyboardType: TextInputType.number)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        const Text('Unit', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                        const SizedBox(height: 6),
+                        DropdownButtonFormField<String>(
+                          value: _unit,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(color: _kRed)),
+                          ),
+                          items: ['reps', 'days', 'km', 'minutes', 'calories', 'kg']
+                              .map((u) => DropdownMenuItem(value: u, child: Text(u)))
+                              .toList(),
+                          onChanged: (v) => setState(() => _unit = v!),
+                        ),
+                      ]),
+                    ),
+                  ]),
+                  const SizedBox(height: 14),
+
+                  // Dates
+                  Row(children: [
+                    Expanded(child: _DateTile(label: 'Start', date: _startDate, onTap: () => _pickDate(true))),
+                    const SizedBox(width: 12),
+                    Expanded(child: _DateTile(label: 'End', date: _endDate, onTap: () => _pickDate(false))),
+                  ]),
+                  const SizedBox(height: 16),
+
+                  // Tasks
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    const Text('Daily Tasks (optional)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    TextButton.icon(
+                      onPressed: () => setState(() => _taskControllers.add(TextEditingController())),
+                      icon: const Icon(Icons.add, size: 16, color: _kRed),
+                      label: const Text('Add', style: TextStyle(color: _kRed, fontSize: 12)),
+                    ),
+                  ]),
+                  ..._taskControllers.asMap().entries.map((e) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: e.value,
+                              decoration: InputDecoration(
+                                hintText: 'Task ${e.key + 1}',
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: const BorderSide(color: _kRed)),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.remove_circle_outline, color: Colors.red, size: 20),
+                            onPressed: () => setState(() {
+                              e.value.dispose();
+                              _taskControllers.removeAt(e.key);
+                            }),
+                          ),
+                        ]),
+                      )),
+                  const SizedBox(height: 20),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _loading ? null : _submit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _kRed,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                      ),
+                      child: _loading
+                          ? const SizedBox(width: 22, height: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Text('Create Challenge',
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ]),
+              ),
+            ),
+          ),
+        ]),
       ),
     );
   }
+
+  Widget _buildField(String label, TextEditingController ctrl,
+      {String? hint, int maxLines = 1, TextInputType? keyboardType}) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+      const SizedBox(height: 6),
+      TextFormField(
+        controller: ctrl,
+        maxLines: maxLines,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.grey[400]),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: _kRed)),
+        ),
+        validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+      ),
+    ]);
+  }
 }
 
-// ─── Header Tabs ──────────────────────────────────────────────────────────────
-
-class ChallengeHeaderTabs extends StatelessWidget {
-  final int selected;
-  const ChallengeHeaderTabs({super.key, required this.selected});
+class _DateTile extends StatelessWidget {
+  final String label;
+  final DateTime date;
+  final VoidCallback onTap;
+  const _DateTile({required this.label, required this.date, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.primary;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () {
-              if (selected != 0) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ChallengeOverviewScreen()),
-                );
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: selected == 0 ? color.withOpacity(0.1) : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                'Challenges',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: selected == 0 ? color : Colors.grey[500],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          GestureDetector(
-            onTap: () {
-              if (selected != 1) Navigator.of(context).pop();
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: selected == 1 ? color.withOpacity(0.1) : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                'Community',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: selected == 1 ? color : Colors.grey[500],
-                ),
-              ),
-            ),
-          ),
-        ],
+    final fmt = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(children: [
+          const Icon(Icons.calendar_today_rounded, size: 15, color: _kRed),
+          const SizedBox(width: 8),
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(label, style: TextStyle(color: Colors.grey[500], fontSize: 10)),
+            Text(fmt, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          ]),
+        ]),
       ),
     );
   }
