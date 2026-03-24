@@ -59,6 +59,7 @@ class ChallengeParticipantModel {
   final String username;
   final String? avatarUrl;
   final double progress;
+  final int currentStreak;
 
   ChallengeParticipantModel({
     required this.rank,
@@ -66,6 +67,7 @@ class ChallengeParticipantModel {
     required this.username,
     this.avatarUrl,
     required this.progress,
+    this.currentStreak = 0,
   });
 
   factory ChallengeParticipantModel.fromJson(Map<String, dynamic> json) {
@@ -75,6 +77,7 @@ class ChallengeParticipantModel {
       username: json['username'] as String,
       avatarUrl: json['avatar_url'] as String?,
       progress: (json['progress'] as num).toDouble(),
+      currentStreak: json['current_streak'] as int? ?? 0,
     );
   }
 }

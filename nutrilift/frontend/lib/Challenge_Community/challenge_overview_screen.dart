@@ -51,7 +51,7 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ChallengeProvider>();
       if (provider.challenges.isEmpty) provider.fetchChallenges();
@@ -82,7 +82,7 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
           child: Container(
-            height: 42,
+            height: 44,
             decoration: BoxDecoration(
                 color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(12)),
@@ -94,8 +94,10 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
                   boxShadow: [BoxShadow(color: _kRed.withOpacity(0.3), blurRadius: 6, offset: const Offset(0, 2))]),
               labelColor: Colors.white,
               unselectedLabelColor: Colors.grey[600],
-              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
               dividerColor: Colors.transparent,
+              isScrollable: false,
+              tabAlignment: TabAlignment.fill,
               tabs: [
                 const Tab(text: 'All'),
                 Tab(child: Row(mainAxisSize: MainAxisSize.min, children: const [
@@ -104,7 +106,12 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
                   Text('Official'),
                 ])),
                 Tab(child: Row(mainAxisSize: MainAxisSize.min, children: const [
-                  Icon(Icons.fitness_center, size: 13),
+                  Icon(Icons.check_circle_rounded, size: 13),
+                  SizedBox(width: 4),
+                  Text('Joined'),
+                ])),
+                Tab(child: Row(mainAxisSize: MainAxisSize.min, children: const [
+                  Icon(Icons.person_rounded, size: 13),
                   SizedBox(width: 4),
                   Text('Mine'),
                 ])),
@@ -128,7 +135,8 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
                 );
               }
               final official = provider.challenges.where((c) => c.isOfficial).toList();
-              final mine = provider.myChallenges;
+              final joined = provider.myChallenges;
+              final createdByMe = provider.createdByMe;
               return RefreshIndicator(
                 color: _kRed,
                 onRefresh: () => provider.fetchChallenges(),
@@ -137,7 +145,8 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
                   children: [
                     _ChallengeList(challenges: provider.challenges, provider: provider, emptyMessage: 'No challenges available'),
                     _ChallengeList(challenges: official, provider: provider, emptyMessage: 'No official challenges yet'),
-                    _ActiveChallengeList(challenges: mine, provider: provider),
+                    _ActiveChallengeList(challenges: joined, provider: provider),
+                    _ChallengeList(challenges: createdByMe, provider: provider, emptyMessage: 'You haven\'t created any challenges yet'),
                   ],
                 ),
               );
@@ -437,7 +446,7 @@ class _ChallengeCard extends StatelessWidget {
                           value: progress,
                           minHeight: 7,
                           backgroundColor: Colors.grey[100],
-                          valueColor: AlwaysStoppedAnimation<Color>(tc),
+                          valueColor: AlwaysStoppedAnimation<Color>(_kRed),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -445,7 +454,7 @@ class _ChallengeCard extends StatelessWidget {
                         Text('${challenge.participantProgress.toStringAsFixed(0)} / ${challenge.goalValue.toStringAsFixed(0)}',
                             style: TextStyle(color: Colors.grey[500], fontSize: 11)),
                         Text('${(progress * 100).toStringAsFixed(0)}%',
-                            style: TextStyle(color: tc, fontWeight: FontWeight.bold, fontSize: 11)),
+                            style: TextStyle(color: _kRed, fontWeight: FontWeight.bold, fontSize: 11)),
                       ]),
                     ]),
                   ),
@@ -461,7 +470,7 @@ class _ChallengeCard extends StatelessWidget {
                       icon: const Icon(Icons.emoji_events_rounded, size: 16),
                       label: const Text('Join Challenge', style: TextStyle(fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: tc,
+                        backgroundColor: _kRed,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 11),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -477,8 +486,8 @@ class _ChallengeCard extends StatelessWidget {
                         icon: const Icon(Icons.today_rounded, size: 15),
                         label: const Text('View', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: tc,
-                          side: BorderSide(color: tc.withOpacity(0.5)),
+                          foregroundColor: _kRed,
+                          side: BorderSide(color: _kRed.withOpacity(0.5)),
                           padding: const EdgeInsets.symmetric(vertical: 9),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
@@ -543,9 +552,9 @@ class _ActiveChallengeList extends StatelessWidget {
             child: const Icon(Icons.emoji_events_outlined, size: 56, color: _kRed),
           ),
           const SizedBox(height: 16),
-          const Text("No active challenges", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text("No joined challenges", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 6),
-          Text('Browse the All tab to find one!', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
+          Text('Browse the All tab and join one!', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
         ]),
       );
     }
@@ -698,7 +707,7 @@ class _ActiveChallengeCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               backgroundColor: Colors.grey[100],
-              valueColor: AlwaysStoppedAnimation<Color>(tc),
+              valueColor: AlwaysStoppedAnimation<Color>(_kRed),
               minHeight: 6,
             ),
           ),
@@ -714,11 +723,11 @@ class _ActiveChallengeCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: tc.withOpacity(0.1),
+                    color: _kRed.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(challenge.challengeType.toUpperCase(),
-                      style: TextStyle(color: tc, fontSize: 10, fontWeight: FontWeight.bold)),
+                      style: TextStyle(color: _kRed, fontSize: 10, fontWeight: FontWeight.bold)),
                 ),
               ]),
               const SizedBox(height: 14),
@@ -732,7 +741,7 @@ class _ActiveChallengeCard extends StatelessWidget {
                     icon: const Icon(Icons.today_rounded, size: 16),
                     label: const Text("Today's Log", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _kGreen,
+                      backgroundColor: _kRed,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 11),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -745,11 +754,11 @@ class _ActiveChallengeCard extends StatelessWidget {
                   flex: 2,
                   child: OutlinedButton.icon(
                     onPressed: onProgress,
-                    icon: Icon(Icons.bar_chart_rounded, size: 15, color: tc),
-                    label: Text('Progress', style: TextStyle(fontSize: 11, color: tc, fontWeight: FontWeight.bold)),
+                    icon: const Icon(Icons.bar_chart_rounded, size: 15, color: _kRed),
+                    label: const Text('Progress', style: TextStyle(fontSize: 11, color: _kRed, fontWeight: FontWeight.bold)),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: tc,
-                      side: BorderSide(color: tc.withOpacity(0.5)),
+                      foregroundColor: _kRed,
+                      side: BorderSide(color: _kRed.withOpacity(0.5)),
                       padding: const EdgeInsets.symmetric(vertical: 11),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
