@@ -112,6 +112,127 @@ Backend-first implementation: scaffold the `challenges` Django app, wire signals
 - [x] 13. Final checkpoint — Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
+- [x] 14. Backend — Add `ChallengeDailyLog` model and `Challenge.default_tasks`
+  - [x] 14.1 Add `default_tasks = models.JSONField(default=list)` to the existing `Challenge` model in `backend/challenges/models.py`
+    - _Requirements: 18.1_
+  - [x] 14.2 Add `ChallengeDailyLog` model to `backend/challenges/models.py` with fields: `id` (UUID PK), `participant` (FK to ChallengeParticipant, CASCADE, related_name='daily_logs'), `day_number` (PositiveIntegerField), `task_items` (JSONField default list), `media_urls` (JSONField default list), `is_complete` (BooleanField default False), `completed_at` (DateTimeField null/blank), `created_at` (auto_now_add), `updated_at` (auto_now), unique_together `('participant', 'day_number')`
+    - _Requirements: 18.2, 18.3_
+  - [x] 14.3 Run `python manage.py makemigrations challenges` to generate migration
+    - _Requirements: 18.1, 18.2_
+  - [x] 14.4 Register `ChallengeDailyLog` in `backend/challenges/admin.py`
+    - _Requirements: 18.2_
+
+- [x] 15. Backend — Daily log serializer
+  - [x] 15.1 Add `ChallengeDailyLogSerializer` to `backend/challenges/serializers.py` with all fields including nested `task_items` and `media_urls` JSON arrays
+    - _Requirements: 19.1–19.5_
+  - [x] 15.2 Add `DailyLogCompleteResponseSerializer` that includes the log fields plus an optional `shared_post` field using the existing `PostSerializer`
+    - _Requirements: 20.3_
+
+- [x] 16. Backend — Daily log API views and URL routing
+  - [x] 16.1 Add `DailyLogView` to `backend/challenges/views.py` handling `GET` (get_or_create today's log using `day_number = (today - participant.joined_at.date()).days + 1`; populate `task_items` from `challenge.default_tasks` adding `"completed": False` to each; return 404 if user not joined) and `PATCH` (update `task_items` and/or `media_urls` for today's log; return updated log)
+    - _Requirements: 19.1–19.5_
+  - [x] 16.2 Add `DailyLogCompleteView` to `backend/challenges/views.py` handling `POST`: set `is_complete=True`, `completed_at=now()`; if `share_to_community=true`, create a `Post` with content `"I completed Day {day_number} of {challenge_name}! 💪"` and `image_urls` from non-video media; return log + optional `shared_post`; return 400 if already complete
+    - _Requirements: 20.1–20.4_
+  - [x] 16.3 Add `DailyLogListView` to `backend/challenges/views.py` handling `GET`: return all logs for participant ordered by `day_number` ascending
+    - _Requirements: 19.6, 19.7_
+  - [x] 16.4 Add URL patterns to `backend/challenges/urls.py`: `GET/PATCH /api/challenges/<uuid:pk>/daily-log/` → `DailyLogView`; `POST /api/challenges/<uuid:pk>/daily-log/complete/` → `DailyLogCompleteView`; `GET /api/challenges/<uuid:pk>/daily-logs/` → `DailyLogListView`; all views use `IsAuthenticated`
+    - _Requirements: 19.1–19.7, 20.1–20.4_
+
+- [ ] 17. Backend — Daily log tests
+  - [ ]* 17.1 Add unit test TC-DL01: join challenge → GET `/daily-log/` → `day_number=1`, `task_items` matches `challenge.default_tasks`
+    - _Requirements: 19.1, 19.2_
+  - [ ]* 17.2 Add unit test TC-DL02: PATCH `task_items` → GET → returned values match
+    - _Requirements: 19.3_
+  - [ ]* 17.3 Add unit test TC-DL03: POST `complete/` → `is_complete=True`, `completed_at` non-null
+    - _Requirements: 20.1_
+  - [ ]* 17.4 Add unit test TC-DL04: POST `complete/` twice → second returns HTTP 400
+    - _Requirements: 20.2_
+  - [ ]* 17.5 Add unit test TC-DL05: POST `complete/` with `share_to_community=true` → `Post` created, response has `shared_post`
+    - _Requirements: 20.3, 20.4_
+  - [ ]* 17.6 Add unit test TC-DL06: POST `complete/` with `share_to_community=false` → no `Post` created
+    - _Requirements: 20.3_
+  - [ ]* 17.7 Add unit test TC-DL07: request to `/daily-log/` for unjoined challenge → HTTP 404
+    - _Requirements: 19.4_
+  - [ ]* 17.8 Write property test for Property 17: daily log round-trip — PATCH then GET returns same values
+    - **Property 17: Daily Log Round-Trip**
+    - **Validates: Requirements 25.1**
+  - [ ]* 17.9 Write property test for Property 18: idempotent PATCH — same payload N times yields same result
+    - **Property 18: Idempotent PATCH**
+    - **Validates: Requirements 25.2**
+  - [ ]* 17.10 Write property test for Property 19: day number invariant — `day_number >= 1` for all `joined_at` in past/present
+    - **Property 19: Day Number Invariant**
+    - **Validates: Requirements 25.3**
+  - [ ]* 17.11 Write property test for Property 20: completed log invariant — `is_complete=True` → `completed_at` non-null and `>= created_at`
+    - **Property 20: Completed Log Invariant**
+    - **Validates: Requirements 25.4**
+  - [ ]* 17.12 Write property test for Property 21: no duplicate day numbers per participant
+    - **Property 21: No Duplicate Day Numbers**
+    - **Validates: Requirements 25.5**
+
+- [x] 18. Frontend — Daily log Dart models and API service methods
+  - [x] 18.1 Add `DailyTaskItem`, `DailyMediaItem`, `ChallengeDailyLogModel` classes to `frontend/lib/Challenge_Community/challenge_api_service.dart` with `fromJson`/`toJson` methods
+    - _Requirements: 23.1–23.5_
+  - [x] 18.2 Add `fetchTodayLog(challengeId)` → `ChallengeDailyLogModel` (GET `/api/challenges/{id}/daily-log/`) to `ChallengeApiService`
+    - _Requirements: 23.1_
+  - [x] 18.3 Add `updateDailyLog(challengeId, taskItems, mediaUrls)` → `ChallengeDailyLogModel` (PATCH `/api/challenges/{id}/daily-log/`) to `ChallengeApiService`
+    - _Requirements: 23.3, 23.6_
+  - [x] 18.4 Add `completeDailyLog(challengeId, {shareToCommmunity: false})` → `Map` with `log` and optional `sharedPost` (POST `/api/challenges/{id}/daily-log/complete/`) to `ChallengeApiService`
+    - _Requirements: 24.1–24.7_
+  - [x] 18.5 Add `fetchAllDailyLogs(challengeId)` → `List<ChallengeDailyLogModel>` (GET `/api/challenges/{id}/daily-logs/`) to `ChallengeApiService`
+    - _Requirements: 23.9, 23.10_
+
+- [x] 19. Frontend — ChallengeProvider daily log state and methods
+  - [x] 19.1 Add `ChallengeDailyLogModel? todayLog` and `bool isDailyLogLoading` state fields to `frontend/lib/Challenge_Community/challenge_provider.dart`
+    - _Requirements: 23.1_
+  - [x] 19.2 Add `fetchTodayLog(challengeId)` — calls API, sets `todayLog`, notifies listeners
+    - _Requirements: 23.1_
+  - [x] 19.3 Add `toggleTask(challengeId, taskIndex)` — flips `task_items[index].completed`, calls `updateDailyLog`, notifies listeners
+    - _Requirements: 23.3_
+  - [x] 19.4 Add `attachMedia(challengeId, url, isVideo)` — appends to `todayLog.mediaUrls`, calls `updateDailyLog`, notifies listeners
+    - _Requirements: 23.6_
+  - [x] 19.5 Add `removeMedia(challengeId, index)` — removes from `todayLog.mediaUrls`, calls `updateDailyLog`, notifies listeners
+    - _Requirements: 23.7_
+  - [x] 19.6 Add `completeDailyLog(challengeId, {shareToCommmunity: false})` — calls complete endpoint, updates `todayLog`, notifies listeners
+    - _Requirements: 24.1, 24.7_
+
+- [x] 20. Frontend — Enhance ActiveChallengeScreen with daily log UI
+  - [x] 20.1 On `initState`, call `provider.fetchTodayLog(challengeId)`; show `CircularProgressIndicator` while `isDailyLogLoading`
+    - _Requirements: 23.1_
+  - [x] 20.2 Show day heading `"Day X"` (large bold, from `todayLog.dayNumber`) and render `CheckboxListTile` for each `task_items` entry wired to `provider.toggleTask`
+    - _Requirements: 23.2, 23.3_
+  - [x] 20.3 Show media attachment button (camera icon) opening a bottom sheet with "Take Photo", "Choose from Gallery", "Record Video" options; on selection upload via `POST /api/upload/` then call `provider.attachMedia`
+    - _Requirements: 23.5, 23.6_
+  - [x] 20.4 Show horizontal scrollable row of media thumbnails with remove buttons wired to `provider.removeMedia`
+    - _Requirements: 23.7_
+  - [x] 20.5 Show `"Complete Day X"` `ElevatedButton` enabled only when all tasks are checked (or `task_items` is empty); on tap call `provider.completeDailyLog(challengeId)` and show `DayCompletionOverlay`
+    - _Requirements: 23.8, 23.9_
+  - [x] 20.6 Show error message with retry button on API failure
+    - _Requirements: 23.10_
+  - _Requirements: 23.1–23.10_
+
+- [x] 21. Frontend — Create DayCompletionOverlay widget and share flow
+  - [x] 21.1 Create `frontend/lib/Challenge_Community/day_completion_overlay.dart` as a full-screen overlay accepting `dayNumber`, `challengeName`, `firstMediaUrl` (nullable), `challengeId` as parameters; show success animation and `"Day X Complete!"` heading
+    - _Requirements: 24.1, 24.2_
+  - [x] 21.2 Show preview of auto-generated post content `"I completed Day X of [Challenge Name]! 💪"` and first media thumbnail if available
+    - _Requirements: 24.3_
+  - [x] 21.3 Add `"Share to Community"` `ElevatedButton` (green `#4CAF50`) — calls `provider.completeDailyLog(challengeId, shareToCommmunity: true)`, shows `SnackBar("Posted to community!")`, then pops overlay; show loading indicator while API call in progress; show error `SnackBar` on failure keeping overlay visible for retry
+    - _Requirements: 24.4, 24.5, 24.6_
+  - [x] 21.4 Add `"Skip"` `TextButton` — pops overlay without sharing
+    - _Requirements: 24.7_
+
+- [x] 22. Backend — Update create challenge to support default_tasks
+  - [x] 22.1 Update `ChallengeSerializer` in `backend/challenges/serializers.py` to include `default_tasks` field
+    - _Requirements: 18.1_
+  - [x] 22.2 Update `CreateChallengeView` in `backend/challenges/views.py` to accept optional `default_tasks` list of `{"label": str}` objects; validate each item has a non-empty `label` string
+    - _Requirements: 18.1_
+  - [x] 22.3 Update the create challenge form in `frontend/lib/Challenge_Community/challenge_overview_screen.dart` (`_CreateChallengeSheet`) to allow adding/removing task items with a dynamic list of `TextField` inputs
+    - _Requirements: 18.1, 23.2_
+
+- [x] 23. Final checkpoint — daily log feature complete
+  - Ensure `python manage.py check` reports no errors
+  - Ensure all new backend tests pass
+  - Verify the daily log UI works end-to-end: join challenge → see Day 1 → tick tasks → attach media → complete → share prompt → share to community
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for faster MVP

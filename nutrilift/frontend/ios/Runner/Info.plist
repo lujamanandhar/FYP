@@ -45,5 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>NutriLift needs camera access to take photos and videos for your daily challenge log.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>NutriLift needs photo library access to attach images to your daily challenge log.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>NutriLift needs permission to save photos to your library.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>NutriLift needs microphone access to record videos for your daily challenge log.</string>
 </dict>
 </plist>

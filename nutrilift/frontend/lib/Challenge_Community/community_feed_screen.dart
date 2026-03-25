@@ -10,6 +10,7 @@ import 'community_provider.dart';
 import 'community_api_service.dart';
 import 'comments_screen.dart' show showCommentsSheet;
 import 'create_post_screen.dart';
+import 'user_profile_screen.dart';
 
 const Color _kRed = Color(0xFFE53935);
 const Color _kRedLight = Color(0xFFFFEBEE);
@@ -183,28 +184,42 @@ class _PostCardState extends State<_PostCard> {
             padding: const EdgeInsets.fromLTRB(12, 12, 4, 0),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: _kRedLight,
-                  backgroundImage:
-                      post.avatarUrl != null ? NetworkImage(post.avatarUrl!) : null,
-                  child: post.avatarUrl == null
-                      ? Text(
-                          post.username.isNotEmpty ? post.username[0].toUpperCase() : '?',
-                          style: const TextStyle(color: _kRed, fontWeight: FontWeight.bold),
-                        )
-                      : null,
+                GestureDetector(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => UserProfileScreen(userId: post.userId),
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 20,
+                    backgroundColor: _kRedLight,
+                    backgroundImage:
+                        post.avatarUrl != null ? NetworkImage(post.avatarUrl!) : null,
+                    child: post.avatarUrl == null
+                        ? Text(
+                            post.username.isNotEmpty ? post.username[0].toUpperCase() : '?',
+                            style: const TextStyle(color: _kRed, fontWeight: FontWeight.bold),
+                          )
+                        : null,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(post.username,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                      Text(_timeAgo(post.createdAt),
-                          style: TextStyle(color: Colors.grey[500], fontSize: 12)),
-                    ],
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => UserProfileScreen(userId: post.userId),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(post.username,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                        Text(_timeAgo(post.createdAt),
+                            style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                      ],
+                    ),
                   ),
                 ),
                 Consumer<CommunityProvider>(

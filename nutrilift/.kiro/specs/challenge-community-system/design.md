@@ -531,3 +531,324 @@ Flutter widget tests use `mockito` to mock `ChallengeApiService` and `CommunityA
 - Widget tests for `ChallengeOverviewScreen`: verify `CircularProgressIndicator` shown during load, error widget shown on failure, JOIN button triggers `joinChallenge`
 - Widget tests for `CommunityFeedScreen`: verify FAB navigates to `CreatePostScreen`, like button toggles icon state
 
+
+
+---
+
+## Daily Log Feature (Requirements 18–25)
+
+### Overview
+
+The daily log feature adds per-day task tracking and media attachment to active challenges. Each participant gets one `ChallengeDailyLog` per calendar day. On completion, an optional share flow auto-creates a community post. The frontend replaces the static info card in `ActiveChallengeScreen` with a live daily log UI.
+
+---
+
+### Architecture Addition
+
+```mermaid
+graph TD
+    subgraph Flutter Frontend - Daily Log
+        AC[ActiveChallengeScreen] --> DL[Daily Log UI]
+        DL --> CP2[ChallengeProvider]
+        CP2 --> CAS[ChallengeApiService]
+        DL --> DC[DayCompletionOverlay]
+        DC --> CAS
+    end
+
+    subgraph Django Backend - Daily Log
+        DLURL[api/challenges/{id}/daily-log/] --> DLV[DailyLogView]
+        DLSURL[api/challenges/{id}/daily-logs/] --> DLV
+        DLV --> DLM[ChallengeDailyLog model]
+        DLV --> PM[Post model - share flow]
+    end
+
+    CAS -->|JWT Bearer| DLURL
+    CAS -->|JWT Bearer| DLSURL
+```
+
+---
+
+### New Backend Components
+
+**`DailyLogView`** — handles `GET`, `PATCH`, and `POST complete/` for today's log. On `GET`, uses `get_or_create` with `day_number` computed as `(today - participant.joined_at.date()).days + 1`. On `POST complete/` with `share_to_community: true`, creates a `Post` and returns it under `shared_post`.
+
+**`DailyLogListView`** — handles `GET /api/challenges/{id}/daily-logs/` returning all logs for the participant ordered by `day_number` ascending.
+
+**New URL patterns** added to `challenges/urls.py`:
+```
+GET  /api/challenges/{id}/daily-log/          → DailyLogView
+PATCH /api/challenges/{id}/daily-log/         → DailyLogView
+POST /api/challenges/{id}/daily-log/complete/ → DailyLogCompleteView
+GET  /api/challenges/{id}/daily-logs/         → DailyLogListView
+```
+
+**`ChallengeDailyLogSerializer`** — serializes all fields including nested `task_items` and `media_urls` JSON arrays. The `complete/` response serializer adds an optional `shared_post` field using the existing `PostSerializer`.
+
+### New Frontend Components
+
+**`ChallengeApiService` additions**:
+- `fetchTodayLog(challengeId)` → `ChallengeDailyLogModel`
+- `updateDailyLog(challengeId, taskItems, mediaUrls)` → `ChallengeDailyLogModel`
+- `completeDailyLog(challengeId, {shareToCommmunity: false})` → `{log: ChallengeDailyLogModel, sharedPost?: PostModel}`
+- `fetchAllDailyLogs(challengeId)` → `List<ChallengeDailyLogModel>`
+
+**`ChallengeProvider` additions**:
+- `ChallengeDailyLogModel? todayLog`
+- `bool isDailyLogLoading`
+- `fetchTodayLog(challengeId)` — calls API, sets `todayLog`, notifies
+- `toggleTask(challengeId, taskIndex)` — flips `task_items[index].completed`, calls `updateDailyLog`, notifies
+- `attachMedia(challengeId, url, isVideo)` — appends to `todayLog.mediaUrls`, calls `updateDailyLog`, notifies
+- `removeMedia(challengeId, index)` — removes from `todayLog.mediaUrls`, calls `updateDailyLog`, notifies
+- `completeDailyLog(challengeId, {shareToCommmunity: false})` — calls complete endpoint, updates `todayLog`, notifies
+
+**`ActiveChallengeScreen` enhancement** — replaces static info card with:
+- Day heading: `"Day X"` (large bold text, sourced from `todayLog.dayNumber`)
+- Task checklist: `CheckboxListTile` per `task_items` entry, wired to `provider.toggleTask`
+- Media row: horizontal `ListView` of thumbnails + add button (camera icon bottom sheet)
+- `"Complete Day X"` `ElevatedButton` enabled when all tasks checked OR `task_items` is empty
+- On completion: transitions to `DayCompletionOverlay`
+
+**`DayCompletionOverlay`** (new widget/screen) — full-screen celebration:
+- Success animation + `"Day X Complete!"` heading
+- Preview of auto-generated post content + first media thumbnail
+- `"Share to Community"` button → calls `completeDailyLog(shareToCommmunity: true)`, shows `SnackBar("Posted to community!")`
+- `"Skip"` button → dismisses overlay, returns to `ActiveChallengeScreen`
+- Loading indicator on share button while API call is in progress
+
+### Updated Screen Enhancement Table
+
+| Screen | Change |
+|---|---|
+| `challenge_community_wrapper.dart` | Wire `_ChallengeTabContent` to `ChallengeProvider`; replace mock data |
+| `challenge_overview_screen.dart` | Add type badge chip, progress bar, remaining days, JOIN button wired to provider |
+| `challenge_details_screen.dart` | Add leaderboard ListView, circular progress, LEAVE button, API data |
+| `active_challenge_screen.dart` | Replace static card with daily log UI: day heading, task checklist, media row, Complete button, DayCompletionOverlay |
+| `challenge_progress_screen.dart` | Wire linear progress bar to real participant progress |
+| `community_feed_screen.dart` | Real API, infinite scroll, image carousel, like toggle, FAB |
+| `comments_screen.dart` | Real API, report option via 3-dot menu |
+| `create_post_screen.dart` | NEW — text field + image picker + POST button |
+| `user_profile_screen.dart` | NEW — avatar/stats + Follow button + Posts/Followers tabs |
+| `gamification_screen.dart` | NEW — streak card + badges GridView |
+
+---
+
+### Data Models Addition
+
+#### Backend: `ChallengeDailyLog` (`challenges/models.py`)
+
+```python
+class ChallengeDailyLog(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    participant = models.ForeignKey(
+        ChallengeParticipant, on_delete=models.CASCADE, related_name='daily_logs'
+    )
+    day_number = models.PositiveIntegerField()
+    # [{"label": str, "completed": bool}]
+    task_items = models.JSONField(default=list)
+    # [{"url": str, "is_video": bool}]
+    media_urls = models.JSONField(default=list)
+    is_complete = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [('participant', 'day_number')]
+```
+
+Day number calculation (used in `DailyLogView.get_or_create`):
+```python
+from django.utils import timezone
+today = timezone.now().date()
+day_number = (today - participant.joined_at.date()).days + 1
+```
+
+#### Backend: `Challenge` model addition
+
+```python
+# Added to existing Challenge model
+default_tasks = models.JSONField(default=list)  # [{"label": str}]
+```
+
+When a `ChallengeDailyLog` is created via `get_or_create`, `task_items` is populated from `challenge.default_tasks` by adding `"completed": False` to each entry. If `default_tasks` is empty, `task_items` is an empty list.
+
+#### Frontend Dart Models
+
+```dart
+class DailyTaskItem {
+  final String label;
+  bool completed;
+
+  DailyTaskItem({required this.label, required this.completed});
+
+  factory DailyTaskItem.fromJson(Map<String, dynamic> json) =>
+      DailyTaskItem(label: json['label'], completed: json['completed']);
+
+  Map<String, dynamic> toJson() => {'label': label, 'completed': completed};
+}
+
+class DailyMediaItem {
+  final String url;
+  final bool isVideo;
+
+  DailyMediaItem({required this.url, required this.isVideo});
+
+  factory DailyMediaItem.fromJson(Map<String, dynamic> json) =>
+      DailyMediaItem(url: json['url'], isVideo: json['is_video']);
+
+  Map<String, dynamic> toJson() => {'url': url, 'is_video': isVideo};
+}
+
+class ChallengeDailyLogModel {
+  final String id;
+  final int dayNumber;
+  final List<DailyTaskItem> taskItems;
+  final List<DailyMediaItem> mediaUrls;
+  final bool isComplete;
+  final DateTime? completedAt;
+
+  ChallengeDailyLogModel({
+    required this.id,
+    required this.dayNumber,
+    required this.taskItems,
+    required this.mediaUrls,
+    required this.isComplete,
+    this.completedAt,
+  });
+
+  factory ChallengeDailyLogModel.fromJson(Map<String, dynamic> json) =>
+      ChallengeDailyLogModel(
+        id: json['id'],
+        dayNumber: json['day_number'],
+        taskItems: (json['task_items'] as List)
+            .map((e) => DailyTaskItem.fromJson(e))
+            .toList(),
+        mediaUrls: (json['media_urls'] as List)
+            .map((e) => DailyMediaItem.fromJson(e))
+            .toList(),
+        isComplete: json['is_complete'],
+        completedAt: json['completed_at'] != null
+            ? DateTime.parse(json['completed_at'])
+            : null,
+      );
+}
+```
+
+---
+
+### New Correctness Properties (Properties 17–21)
+
+*These properties extend the existing correctness properties (1–16) for the daily log feature.*
+
+### Property 17: Daily Log Round-Trip
+
+*For any* participant and any valid `task_items` and `media_urls` payload sent via `PATCH /api/challenges/{id}/daily-log/`, a subsequent `GET /api/challenges/{id}/daily-log/` should return `task_items` and `media_urls` arrays that are structurally equal to the last-written values — no mutation, reordering, or data loss.
+
+**Validates: Requirements 19.2, 25.1**
+
+---
+
+### Property 18: Idempotent PATCH
+
+*For any* participant and any valid `task_items`/`media_urls` payload, applying `PATCH /api/challenges/{id}/daily-log/` with the same payload N times (N ≥ 1) should produce the same final `task_items` and `media_urls` state as applying it once — repeated patches with identical data are idempotent.
+
+**Validates: Requirements 25.2**
+
+---
+
+### Property 19: Day Number Invariant
+
+*For any* `ChallengeParticipant` whose `joined_at` is in the past or present, the computed `day_number` for today's log must satisfy `day_number >= 1`. Specifically, `day_number = (today - joined_at.date()).days + 1`, so the minimum value (when `joined_at` is today) is exactly 1.
+
+**Validates: Requirements 18.3, 25.3**
+
+---
+
+### Property 20: Completed Log Invariant
+
+*For any* `ChallengeDailyLog` where `is_complete = True`, the `completed_at` field must be non-null and `completed_at >= created_at`. This invariant must hold for all logs regardless of when or how they were completed.
+
+**Validates: Requirements 19.3, 25.4**
+
+---
+
+### Property 21: No Duplicate Day Numbers Per Participant
+
+*For any* participant, `GET /api/challenges/{id}/daily-logs/` must return a list ordered by ascending `day_number` where every `day_number` value is unique — no two logs for the same participant may share a `day_number`. This is enforced by the `unique_together = [('participant', 'day_number')]` constraint and must be reflected in all API responses.
+
+**Validates: Requirements 19.5, 25.5**
+
+---
+
+### Daily Log Error Handling
+
+| Scenario | HTTP Status | Response |
+|---|---|---|
+| Daily log endpoint, user not joined challenge | 404 | `{"detail": "Not found"}` |
+| POST complete/ on already-complete log | 400 | `{"detail": "Today's log is already complete"}` |
+| PATCH with invalid task_items structure | 400 | `{"task_items": ["Invalid format"]}` |
+| share_to_community=true, post creation fails | 500 | Log error; return completed log without shared_post |
+| Unauthenticated daily log request | 401 | `{"detail": "Authentication required"}` |
+
+---
+
+### Daily Log Testing Strategy
+
+**Property-Based Tests** (added to `backend/challenges/tests.py`, using `hypothesis`):
+
+```python
+# Feature: challenge-community-system, Property 17: Daily log round-trip
+@given(
+    task_items=st.lists(
+        st.fixed_dictionaries({'label': st.text(min_size=1, max_size=100), 'completed': st.booleans()}),
+        max_size=10
+    ),
+    media_urls=st.lists(
+        st.fixed_dictionaries({'url': st.text(min_size=1, max_size=500), 'is_video': st.booleans()}),
+        max_size=5
+    )
+)
+@settings(max_examples=100)
+def test_daily_log_round_trip(self, task_items, media_urls):
+    # PATCH with task_items/media_urls → GET → returned values == written values
+
+# Feature: challenge-community-system, Property 18: Idempotent PATCH
+@given(
+    task_items=st.lists(
+        st.fixed_dictionaries({'label': st.text(min_size=1), 'completed': st.booleans()}),
+        max_size=10
+    ),
+    n=st.integers(min_value=2, max_value=5)
+)
+@settings(max_examples=100)
+def test_patch_idempotent(self, task_items, n):
+    # Apply same PATCH n times → final state == state after first PATCH
+
+# Feature: challenge-community-system, Property 19: Day number invariant
+@given(days_ago=st.integers(min_value=0, max_value=365))
+@settings(max_examples=100)
+def test_day_number_invariant(self, days_ago):
+    # joined_at = today - days_ago → day_number == days_ago + 1 >= 1
+
+# Feature: challenge-community-system, Property 20: Completed log invariant
+@given(st.data())
+@settings(max_examples=100)
+def test_completed_log_invariant(self, data):
+    # After POST complete/ → is_complete=True, completed_at non-null, completed_at >= created_at
+
+# Feature: challenge-community-system, Property 21: No duplicate day numbers
+@given(day_count=st.integers(min_value=1, max_value=10))
+@settings(max_examples=100)
+def test_no_duplicate_day_numbers(self, day_count):
+    # Create day_count logs for one participant → GET /daily-logs/ → all day_numbers unique, ordered ascending
+```
+
+**Unit Tests** (specific examples):
+
+- TC-DL01: Join challenge → GET `/daily-log/` → returns log with `day_number=1`, `task_items` matching `challenge.default_tasks`
+- TC-DL02: PATCH task_items → GET → returned task_items match patched values
+- TC-DL03: POST `complete/` → `is_complete=True`, `completed_at` non-null
+- TC-DL04: POST `complete/` twice → second call returns HTTP 400
+- TC-DL05: POST `complete/` with `share_to_community=true` → `Post` created with correct content, response contains `shared_post`
+- TC-DL06: POST `complete/` with `share_to_community=false` → no new `Post` created
+- TC-DL07: Request to `/daily-log/` for unjoined challenge → HTTP 404

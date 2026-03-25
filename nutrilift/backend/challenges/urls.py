@@ -13,9 +13,14 @@ from . import views
 urlpatterns = [
     # --- Challenge endpoints (api/challenges/...) ---
     path('active/', views.ActiveChallengeListView.as_view(), name='challenge-active'),
+    path('create/', views.CreateChallengeView.as_view(), name='challenge-create'),
+    path('<uuid:pk>/', views.DeleteChallengeView.as_view(), name='challenge-delete'),
     path('<uuid:pk>/join/', views.JoinChallengeView.as_view(), name='challenge-join'),
     path('<uuid:pk>/leave/', views.LeaveChallengeView.as_view(), name='challenge-leave'),
     path('<uuid:pk>/leaderboard/', views.LeaderboardView.as_view(), name='challenge-leaderboard'),
+    path('<uuid:pk>/daily-log/', views.DailyLogView.as_view(), name='challenge-daily-log'),
+    path('<uuid:pk>/daily-log/complete/', views.DailyLogCompleteView.as_view(), name='challenge-daily-log-complete'),
+    path('<uuid:pk>/daily-logs/', views.DailyLogListView.as_view(), name='challenge-daily-logs'),
     path('badges/', views.BadgeView.as_view(), name='challenge-badges'),
     path('streak/', views.StreakView.as_view(), name='challenge-streak'),
 
@@ -31,4 +36,6 @@ urlpatterns = [
     path('users/<uuid:pk>/follow/', views.FollowView.as_view(), name='community-user-follow'),
     path('users/<uuid:pk>/posts/', views.UserPostsView.as_view(), name='community-user-posts'),
     path('users/<uuid:pk>/followers/', views.UserFollowersView.as_view(), name='community-user-followers'),
+    path('users/<uuid:pk>/following/', views.UserFollowingView.as_view(), name='community-user-following'),
+    path('users/<uuid:pk>/challenge-stats/', views.UserChallengeStatsView.as_view(), name='community-user-challenge-stats'),
 ]

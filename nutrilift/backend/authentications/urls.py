@@ -33,4 +33,8 @@ urlpatterns = [
     # GET /api/auth/profile/ - API documentation
     # PUT /api/auth/profile/ - Update profile
     path('profile/', views.update_profile, name='auth-profile-update'),
+
+    # Support ticket submission
+    # POST /api/auth/support/
+    path('support/', views.submit_support_ticket, name='auth-support'),
 ]

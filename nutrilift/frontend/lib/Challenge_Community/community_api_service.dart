@@ -86,6 +86,12 @@ class UserProfileModel {
   final int followingCount;
   final int postCount;
   bool isFollowingMe;
+  // Physical & fitness info
+  final String? gender;
+  final String? ageGroup;
+  final double? height;
+  final double? weight;
+  final String? fitnessLevel;
 
   UserProfileModel({
     required this.id,
@@ -95,6 +101,11 @@ class UserProfileModel {
     required this.followingCount,
     required this.postCount,
     required this.isFollowingMe,
+    this.gender,
+    this.ageGroup,
+    this.height,
+    this.weight,
+    this.fitnessLevel,
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
@@ -106,6 +117,11 @@ class UserProfileModel {
       followingCount: json['following_count'] as int? ?? 0,
       postCount: json['post_count'] as int? ?? 0,
       isFollowingMe: json['is_following_me'] as bool? ?? false,
+      gender: json['gender'] as String?,
+      ageGroup: json['age_group'] as String?,
+      height: (json['height'] as num?)?.toDouble(),
+      weight: (json['weight'] as num?)?.toDouble(),
+      fitnessLevel: json['fitness_level'] as String?,
     );
   }
 }
@@ -312,6 +328,31 @@ class CommunityApiService {
           .toList();
     } on DioException catch (e) {
       throw _handleError(e, 'Failed to fetch followers');
+    }
+  }
+
+  /// Fetch users that a user is following.
+  Future<List<UserProfileModel>> fetchFollowing(String id) async {
+    try {
+      final response = await _dio.get('/community/users/$id/following/');
+      final List<dynamic> data = response.data is List
+          ? response.data as List
+          : (response.data['results'] as List? ?? []);
+      return data
+          .map((e) => UserProfileModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw _handleError(e, 'Failed to fetch following');
+    }
+  }
+
+  /// Fetch challenge achievement stats for a user's profile.
+  Future<Map<String, dynamic>> fetchUserChallengeStats(String id) async {
+    try {
+      final response = await _dio.get('/community/users/$id/challenge-stats/');
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e, 'Failed to fetch challenge stats');
     }
   }
 

@@ -5,7 +5,7 @@ from rest_framework import status
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from django.db import transaction, IntegrityError
-from .models import User
+from .models import User, SupportTicket
 from .serializers import UserRegistrationSerializer, UserProfileSerializer, ProfileUpdateSerializer
 from .jwt_utils import generate_jwt_token
 from .exceptions import handle_authentication_error, handle_validation_error
@@ -408,3 +408,30 @@ def update_profile(request):
             'message': 'Failed to update profile',
             'errors': {'detail': 'Internal server error occurred. Please try again later.'}
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def submit_support_ticket(request):
+    """
+    POST /api/auth/support/
+    Authenticated users submit a support message.
+    """
+    data = request.data
+    subject = data.get('subject', '').strip()
+    message = data.get('message', '').strip()
+
+    if not subject or not message:
+        return Response({'detail': 'Subject and message are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = request.user
+    ticket = SupportTicket.objects.create(
+        user=user,
+        name=getattr(user, 'name', '') or user.email,
+        email=user.email,
+        subject=subject,
+        message=message,
+    )
+    return Response({'detail': 'Your message has been sent. We\'ll get back to you soon!', 'ticket_id': str(ticket.id)}, status=status.HTTP_201_CREATED)

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Challenge, ChallengeParticipant, Badge, UserBadge, Streak,
-    Post, Comment, Like, Report, Follow,
+    Post, Comment, Like, Report, Follow, ChallengeDailyLog,
 )
 
 
@@ -12,13 +12,17 @@ class ChallengeSerializer(serializers.ModelSerializer):
     Requirements: 3.1
     """
     participant_progress = serializers.SerializerMethodField()
+    created_by_username = serializers.SerializerMethodField()
+    created_by_id = serializers.SerializerMethodField()
+    is_joined = serializers.SerializerMethodField()
 
     class Meta:
         model = Challenge
         fields = [
             'id', 'name', 'description', 'challenge_type',
             'goal_value', 'unit', 'start_date', 'end_date',
-            'participant_progress',
+            'is_official', 'created_by_username', 'created_by_id',
+            'participant_progress', 'is_joined', 'default_tasks',
         ]
 
     def get_participant_progress(self, obj):
@@ -32,6 +36,25 @@ class ChallengeSerializer(serializers.ModelSerializer):
             return participant.progress
         except ChallengeParticipant.DoesNotExist:
             return 0
+
+    def get_is_joined(self, obj):
+        request = self.context.get('request')
+        if request is None or not request.user.is_authenticated:
+            return False
+        return ChallengeParticipant.objects.filter(
+            challenge=obj, user=request.user
+        ).exists()
+
+    def get_created_by_username(self, obj):
+        if obj.is_official or obj.created_by is None:
+            return 'NutriLift'
+        user = obj.created_by
+        return getattr(user, 'name', None) or user.email
+
+    def get_created_by_id(self, obj):
+        if obj.created_by is None:
+            return None
+        return str(obj.created_by.pk)
 
 
 class ChallengeParticipantSerializer(serializers.ModelSerializer):
@@ -54,10 +77,11 @@ class LeaderboardSerializer(serializers.ModelSerializer):
     user_id = serializers.SerializerMethodField()
     username = serializers.SerializerMethodField()
     avatar_url = serializers.SerializerMethodField()
+    current_streak = serializers.SerializerMethodField()
 
     class Meta:
         model = ChallengeParticipant
-        fields = ['rank', 'user_id', 'username', 'avatar_url', 'progress']
+        fields = ['rank', 'user_id', 'username', 'avatar_url', 'progress', 'current_streak']
 
     def get_user_id(self, obj):
         return str(obj.user_id)
@@ -70,6 +94,13 @@ class LeaderboardSerializer(serializers.ModelSerializer):
     def get_avatar_url(self, obj):
         # No avatar field on the User model; return None
         return getattr(obj.user, 'avatar_url', None)
+
+    def get_current_streak(self, obj):
+        try:
+            streak = Streak.objects.get(user=obj.user)
+            return streak.current_streak
+        except Streak.DoesNotExist:
+            return 0
 
 
 class BadgeSerializer(serializers.ModelSerializer):
@@ -180,3 +211,30 @@ class UserProfileSerializer(serializers.Serializer):
     following_count = serializers.IntegerField()
     post_count = serializers.IntegerField()
     is_following_me = serializers.BooleanField()
+
+
+class ChallengeDailyLogSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ChallengeDailyLog.
+    task_items: [{"label": str, "completed": bool}]
+    media_urls: [{"url": str, "is_video": bool}]
+    Requirements: 19.1–19.5
+    """
+
+    class Meta:
+        model = ChallengeDailyLog
+        fields = [
+            'id', 'day_number', 'task_items', 'media_urls',
+            'is_complete', 'completed_at', 'created_at', 'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class DailyLogCompleteResponseSerializer(serializers.Serializer):
+    """
+    Response serializer for the complete-day endpoint.
+    Includes the log and an optional shared_post.
+    Requirements: 20.3
+    """
+    log = ChallengeDailyLogSerializer()
+    shared_post = PostSerializer(allow_null=True, required=False)

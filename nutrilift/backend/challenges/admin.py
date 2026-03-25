@@ -1,14 +1,15 @@
 from django.contrib import admin
 from .models import (
     Challenge, ChallengeParticipant, Badge, UserBadge, Streak,
-    Post, Comment, Like, Report, Follow,
+    Post, Comment, Like, Report, Follow, ChallengeDailyLog,
 )
 
 
 @admin.register(Challenge)
 class ChallengeAdmin(admin.ModelAdmin):
-    list_display = ['name', 'challenge_type', 'goal_value', 'unit', 'start_date', 'end_date', 'is_active', 'created_by']
-    list_filter = ['challenge_type', 'is_active', 'unit']
+    list_display = ['name', 'challenge_type', 'goal_value', 'unit', 'start_date', 'end_date', 'is_official', 'is_active', 'created_by']
+    list_filter = ['challenge_type', 'is_active', 'is_official', 'unit']
+    list_editable = ['is_official', 'is_active']
     search_fields = ['name', 'description', 'created_by__email']
     ordering = ['-created_at']
 
@@ -85,4 +86,12 @@ class FollowAdmin(admin.ModelAdmin):
     list_display = ['follower', 'following', 'created_at']
     list_filter = ['created_at']
     search_fields = ['follower__email', 'following__email']
+    ordering = ['-created_at']
+
+
+@admin.register(ChallengeDailyLog)
+class ChallengeDailyLogAdmin(admin.ModelAdmin):
+    list_display = ['participant', 'day_number', 'is_complete', 'completed_at', 'created_at']
+    list_filter = ['is_complete', 'created_at']
+    search_fields = ['participant__user__email', 'participant__challenge__name']
     ordering = ['-created_at']

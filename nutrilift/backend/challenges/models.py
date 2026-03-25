@@ -17,8 +17,13 @@ class Challenge(models.Model):
     unit = models.CharField(max_length=10, choices=UNIT_CHOICES)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        null=True, blank=True, related_name='created_challenges'
+    )
+    is_official = models.BooleanField(default=False)  # True = admin/platform challenge
     is_active = models.BooleanField(default=True)
+    default_tasks = models.JSONField(default=list)  # list of {"label": str}
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -136,6 +141,27 @@ class Report(models.Model):
 
     def __str__(self):
         return f"Report by {self.reported_by} on {self.post}"
+
+
+class ChallengeDailyLog(models.Model):
+    """Daily log entry for a challenge participant. Requirements: 18.2, 18.3"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    participant = models.ForeignKey(
+        ChallengeParticipant, on_delete=models.CASCADE, related_name='daily_logs'
+    )
+    day_number = models.PositiveIntegerField()
+    task_items = models.JSONField(default=list)   # [{"label": str, "completed": bool}]
+    media_urls = models.JSONField(default=list)   # [{"url": str, "is_video": bool}]
+    is_complete = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [('participant', 'day_number')]
+
+    def __str__(self):
+        return f"Day {self.day_number} log for {self.participant}"
 
 
 class Follow(models.Model):

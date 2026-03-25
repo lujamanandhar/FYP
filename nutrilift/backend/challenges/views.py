@@ -8,15 +8,26 @@ from rest_framework.pagination import PageNumberPagination
 
 from .models import (
     Challenge, ChallengeParticipant, UserBadge, Streak,
-    Post, Comment, Like, Report, Follow,
+    Post, Comment, Like, Report, Follow, ChallengeDailyLog,
 )
 from .serializers import (
     ChallengeSerializer, LeaderboardSerializer, UserBadgeSerializer,
     StreakSerializer, PostSerializer, CommentSerializer,
-    UserProfileSerializer,
+    UserProfileSerializer, ChallengeDailyLogSerializer,
 )
 
 User = get_user_model()
+
+
+def _validated_default_tasks(raw):
+    """Validate and normalise default_tasks list. Each item must have a non-empty 'label'."""
+    if not isinstance(raw, list):
+        return []
+    result = []
+    for item in raw:
+        if isinstance(item, dict) and isinstance(item.get('label'), str) and item['label'].strip():
+            result.append({'label': item['label'].strip()})
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -44,9 +55,47 @@ class ActiveChallengeListView(APIView):
         challenges = Challenge.objects.filter(
             is_active=True,
             end_date__gt=timezone.now(),
-        )
+        ).order_by('-is_official', '-created_at')
         serializer = ChallengeSerializer(challenges, many=True, context={'request': request})
         return Response(serializer.data)
+
+
+class CreateChallengeView(APIView):
+    """
+    POST /api/challenges/create/
+    Any authenticated user can create a challenge. is_official=False by default.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        data = request.data
+        required = ['name', 'description', 'challenge_type', 'goal_value', 'unit', 'start_date', 'end_date']
+        for field in required:
+            if not data.get(field):
+                return Response({'detail': f'{field} is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if data['challenge_type'] not in ['nutrition', 'workout', 'mixed']:
+            return Response({'detail': 'Invalid challenge_type.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            challenge = Challenge.objects.create(
+                name=data['name'],
+                description=data['description'],
+                challenge_type=data['challenge_type'],
+                goal_value=float(data['goal_value']),
+                unit=data['unit'],
+                start_date=data['start_date'],
+                end_date=data['end_date'],
+                created_by=request.user,
+                is_official=False,
+                is_active=True,
+                default_tasks=_validated_default_tasks(data.get('default_tasks', [])),
+            )
+        except Exception as e:
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = ChallengeSerializer(challenge, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class JoinChallengeView(APIView):
@@ -68,6 +117,23 @@ class JoinChallengeView(APIView):
             )
         ChallengeParticipant.objects.create(challenge=challenge, user=request.user)
         return Response({'detail': 'Joined successfully.'}, status=status.HTTP_201_CREATED)
+
+
+class DeleteChallengeView(APIView):
+    """
+    DELETE /api/challenges/{id}/
+    Owner-only delete. Returns 204.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        challenge = Challenge.objects.filter(pk=pk).first()
+        if challenge is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        if challenge.created_by != request.user:
+            return Response({'detail': 'You do not have permission.'}, status=status.HTTP_403_FORBIDDEN)
+        challenge.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class LeaveChallengeView(APIView):
@@ -324,8 +390,7 @@ class ReportPostView(APIView):
 class UserProfileView(APIView):
     """
     GET /api/community/users/{id}/profile/
-    Returns user stats: id, username, avatar_url, follower_count, following_count,
-    post_count, is_following_me.
+    Returns user stats + physical/fitness info.
     Requirements: 7.1
     """
     permission_classes = [IsAuthenticated]
@@ -348,9 +413,14 @@ class UserProfileView(APIView):
             'following_count': following_count,
             'post_count': post_count,
             'is_following_me': is_following_me,
+            # Physical & fitness info
+            'gender': getattr(target, 'gender', None) or None,
+            'age_group': getattr(target, 'age_group', None) or None,
+            'height': getattr(target, 'height', None),
+            'weight': getattr(target, 'weight', None),
+            'fitness_level': getattr(target, 'fitness_level', None) or None,
         }
-        serializer = UserProfileSerializer(data)
-        return Response(serializer.data)
+        return Response(data)
 
 
 class FollowView(APIView):
@@ -418,3 +488,243 @@ class UserFollowersView(APIView):
                 'avatar_url': getattr(user, 'avatar_url', None),
             })
         return Response(data)
+
+
+class UserChallengeStatsView(APIView):
+    """
+    GET /api/community/users/{id}/challenge-stats/
+    Returns challenge participation stats for a user's profile achievements tab.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        target = User.objects.filter(pk=pk).first()
+        if target is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        participants = ChallengeParticipant.objects.filter(user=target).select_related('challenge')
+        total_joined = participants.count()
+        completed = participants.filter(completed=True).count()
+        total_days_logged = 0
+        challenge_list = []
+        for p in participants:
+            logs_done = ChallengeDailyLog.objects.filter(participant=p, is_complete=True).count()
+            total_days_logged += logs_done
+            challenge_list.append({
+                'name': p.challenge.name,
+                'challenge_type': p.challenge.challenge_type,
+                'progress': p.progress,
+                'goal_value': p.challenge.goal_value,
+                'unit': p.challenge.unit,
+                'completed': p.completed,
+                'days_logged': logs_done,
+            })
+
+        # Streak
+        streak_val = 0
+        try:
+            from .models import Streak
+            streak_val = Streak.objects.get(user=target).current_streak
+        except Exception:
+            pass
+
+        return Response({
+            'total_joined': total_joined,
+            'total_completed': completed,
+            'total_days_logged': total_days_logged,
+            'current_streak': streak_val,
+            'challenges': challenge_list,
+        })
+
+
+class UserFollowingView(APIView):
+    """
+    GET /api/community/users/{id}/following/
+    Lists users that the target user follows.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        target = User.objects.filter(pk=pk).first()
+        if target is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        following = Follow.objects.filter(follower=target).select_related('following')
+        data = []
+        for f in following:
+            user = f.following
+            data.append({
+                'id': user.pk,
+                'username': getattr(user, 'name', None) or user.email,
+                'avatar_url': getattr(user, 'avatar_url', None),
+            })
+        return Response(data)
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        target = User.objects.filter(pk=pk).first()
+        if target is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        followers = Follow.objects.filter(following=target).select_related('follower')
+        data = []
+        for f in followers:
+            user = f.follower
+            data.append({
+                'id': user.pk,
+                'username': getattr(user, 'name', None) or user.email,
+                'avatar_url': getattr(user, 'avatar_url', None),
+            })
+        return Response(data)
+
+
+# ---------------------------------------------------------------------------
+# Daily Log views
+# ---------------------------------------------------------------------------
+
+class DailyLogView(APIView):
+    """
+    GET  /api/challenges/<uuid:pk>/daily-log/
+         get_or_create today's log; day_number = (today - joined_at.date()).days + 1
+         Populates task_items from challenge.default_tasks on first creation.
+         Returns 404 if user has not joined the challenge.
+
+    PATCH /api/challenges/<uuid:pk>/daily-log/
+         Update task_items and/or media_urls for today's log.
+
+    Requirements: 19.1–19.5
+    """
+    permission_classes = [IsAuthenticated]
+
+    def _get_participant(self, request, pk):
+        return ChallengeParticipant.objects.filter(
+            challenge_id=pk, user=request.user
+        ).select_related('challenge').first()
+
+    def get(self, request, pk):
+        participant = self._get_participant(request, pk)
+        if participant is None:
+            return Response({'detail': 'Not joined this challenge.'}, status=status.HTTP_404_NOT_FOUND)
+
+        today = timezone.now().date()
+        day_number = (today - participant.joined_at.date()).days + 1
+
+        log, created = ChallengeDailyLog.objects.get_or_create(
+            participant=participant,
+            day_number=day_number,
+            defaults={
+                'task_items': [
+                    {'label': t.get('label', ''), 'completed': False}
+                    for t in (participant.challenge.default_tasks or [])
+                ],
+                'media_urls': [],
+            },
+        )
+        serializer = ChallengeDailyLogSerializer(log)
+        return Response(serializer.data)
+
+    def patch(self, request, pk):
+        participant = self._get_participant(request, pk)
+        if participant is None:
+            return Response({'detail': 'Not joined this challenge.'}, status=status.HTTP_404_NOT_FOUND)
+
+        today = timezone.now().date()
+        day_number = (today - participant.joined_at.date()).days + 1
+
+        log = ChallengeDailyLog.objects.filter(
+            participant=participant, day_number=day_number
+        ).first()
+        if log is None:
+            return Response({'detail': 'Log not found for today.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if 'task_items' in request.data:
+            log.task_items = request.data['task_items']
+        if 'media_urls' in request.data:
+            log.media_urls = request.data['media_urls']
+        log.save()
+        serializer = ChallengeDailyLogSerializer(log)
+        return Response(serializer.data)
+
+
+class DailyLogCompleteView(APIView):
+    """
+    POST /api/challenges/<uuid:pk>/daily-log/complete/
+    Marks today's log complete. Optionally shares to community feed.
+    Returns 400 if already complete.
+    Requirements: 20.1–20.4
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        participant = ChallengeParticipant.objects.filter(
+            challenge_id=pk, user=request.user
+        ).select_related('challenge').first()
+        if participant is None:
+            return Response({'detail': 'Not joined this challenge.'}, status=status.HTTP_404_NOT_FOUND)
+
+        today = timezone.now().date()
+        day_number = (today - participant.joined_at.date()).days + 1
+
+        log = ChallengeDailyLog.objects.filter(
+            participant=participant, day_number=day_number
+        ).first()
+        if log is None:
+            return Response({'detail': 'Log not found for today.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if log.is_complete:
+            return Response({'detail': 'Day already completed.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        log.is_complete = True
+        log.completed_at = timezone.now()
+        log.save()
+
+        # Increment participant progress by 1 completed day
+        participant.progress = participant.progress + 1
+        participant.save(update_fields=['progress'])
+
+        # Update streak for this user
+        from .signals import _update_streak, _award_badges
+        _update_streak(request.user)
+        _award_badges(request.user)
+
+        shared_post = None
+        share = request.data.get('share_to_community', False)
+        if share:
+            challenge_name = participant.challenge.name
+            content = f"I completed Day {day_number} of {challenge_name}! 💪"
+            # Only include non-video media as image_urls
+            image_urls = [
+                m['url'] for m in (log.media_urls or [])
+                if not m.get('is_video', False)
+            ]
+            shared_post = Post.objects.create(
+                user=request.user,
+                content=content,
+                image_urls=image_urls,
+            )
+
+        log_data = ChallengeDailyLogSerializer(log).data
+        post_data = PostSerializer(shared_post, context={'request': request}).data if shared_post else None
+        return Response({
+            'log': log_data,
+            'shared_post': post_data,
+            'participant_progress': participant.progress,
+        }, status=status.HTTP_200_OK)
+
+
+class DailyLogListView(APIView):
+    """
+    GET /api/challenges/<uuid:pk>/daily-logs/
+    Returns all logs for the participant ordered by day_number ascending.
+    Requirements: 19.6, 19.7
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        participant = ChallengeParticipant.objects.filter(
+            challenge_id=pk, user=request.user
+        ).first()
+        if participant is None:
+            return Response({'detail': 'Not joined this challenge.'}, status=status.HTTP_404_NOT_FOUND)
+
+        logs = ChallengeDailyLog.objects.filter(participant=participant).order_by('day_number')
+        serializer = ChallengeDailyLogSerializer(logs, many=True)
+        return Response(serializer.data)

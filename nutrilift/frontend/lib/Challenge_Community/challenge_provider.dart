@@ -13,6 +13,10 @@ class ChallengeProvider extends ChangeNotifier {
   List<BadgeModel> badges = [];
   String? _currentUserId;
 
+  // Daily log state
+  ChallengeDailyLogModel? todayLog;
+  bool isDailyLogLoading = false;
+
   ChallengeProvider(ChallengeApiService service) : _service = service {
     _loadCurrentUser();
   }
@@ -136,6 +140,7 @@ class ChallengeProvider extends ChangeNotifier {
     required String unit,
     required DateTime startDate,
     required DateTime endDate,
+    List<Map<String, String>> defaultTasks = const [],
   }) async {
     try {
       final challenge = await _service.createChallenge(
@@ -146,6 +151,7 @@ class ChallengeProvider extends ChangeNotifier {
         unit: unit,
         startDate: startDate,
         endDate: endDate,
+        defaultTasks: defaultTasks,
       );
       challenges.add(challenge);
       notifyListeners();
@@ -155,5 +161,110 @@ class ChallengeProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  // ── Daily Log methods ───────────────────────────────────────────────────
+
+  /// Fetch (or create) today's log for [challengeId]. Requirements: 23.1
+  Future<void> fetchTodayLog(String challengeId) async {
+    isDailyLogLoading = true;
+    notifyListeners();
+    try {
+      todayLog = await _service.fetchTodayLog(challengeId);
+      error = null;
+    } catch (e) {
+      error = e.toString();
+    } finally {
+      isDailyLogLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Toggle a task checkbox at [taskIndex]. Requirements: 23.3
+  Future<void> toggleTask(String challengeId, int taskIndex) async {
+    if (todayLog == null || taskIndex >= todayLog!.taskItems.length) return;
+    todayLog!.taskItems[taskIndex].completed =
+        !todayLog!.taskItems[taskIndex].completed;
+    notifyListeners();
+    try {
+      todayLog = await _service.updateDailyLog(
+        challengeId,
+        taskItems: todayLog!.taskItems,
+      );
+    } catch (e) {
+      // Revert on failure
+      todayLog!.taskItems[taskIndex].completed =
+          !todayLog!.taskItems[taskIndex].completed;
+      error = e.toString();
+    }
+    notifyListeners();
+  }
+
+  /// Attach a media item to today's log. Requirements: 23.6
+  Future<void> attachMedia(String challengeId, String url, bool isVideo) async {
+    if (todayLog == null) return;
+    todayLog!.mediaUrls.add(DailyMediaItem(url: url, isVideo: isVideo));
+    notifyListeners();
+    try {
+      todayLog = await _service.updateDailyLog(
+        challengeId,
+        mediaUrls: todayLog!.mediaUrls,
+      );
+    } catch (e) {
+      todayLog!.mediaUrls.removeLast();
+      error = e.toString();
+    }
+    notifyListeners();
+  }
+
+  /// Remove a media item at [index] from today's log. Requirements: 23.7
+  Future<void> removeMedia(String challengeId, int index) async {
+    if (todayLog == null || index >= todayLog!.mediaUrls.length) return;
+    final removed = todayLog!.mediaUrls.removeAt(index);
+    notifyListeners();
+    try {
+      todayLog = await _service.updateDailyLog(
+        challengeId,
+        mediaUrls: todayLog!.mediaUrls,
+      );
+    } catch (e) {
+      todayLog!.mediaUrls.insert(index, removed);
+      error = e.toString();
+    }
+    notifyListeners();
+  }
+
+  /// Complete today's log, optionally sharing to community. Requirements: 24.1, 24.7
+  /// Also refreshes the challenge list so participantProgress is up to date.
+  Future<Map<String, dynamic>> completeDailyLog(
+    String challengeId, {
+    bool shareToCommunity = false,
+  }) async {
+    final result = await _service.completeDailyLog(
+      challengeId,
+      shareToCommunity: shareToCommunity,
+    );
+    if (result['log'] != null) {
+      todayLog = ChallengeDailyLogModel.fromJson(
+          result['log'] as Map<String, dynamic>);
+    }
+    // Use the server-returned progress value directly — no guessing
+    final newProgress = (result['participant_progress'] as num?)?.toDouble();
+    final idx = challenges.indexWhere((c) => c.id == challengeId);
+    if (idx != -1) {
+      if (newProgress != null) {
+        challenges[idx].participantProgress = newProgress;
+      } else {
+        // Fallback: optimistic increment
+        challenges[idx].participantProgress += 1;
+      }
+    }
+    notifyListeners();
+    // Background refresh to sync any other fields (non-blocking)
+    _service.fetchActiveChallenges().then((updated) {
+      challenges = updated;
+      notifyListeners();
+    }).catchError((_) {});
+    return result;
   }
 }

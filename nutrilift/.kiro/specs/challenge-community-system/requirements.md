@@ -32,6 +32,9 @@ The frontend builds on existing scaffold files in `frontend/lib/Challenge_Commun
 - **DioClient**: The existing authenticated HTTP client used by all Flutter API services.
 - **NutriLiftScaffold**: The existing Flutter scaffold widget providing the app bar, drawer, and consistent layout.
 - **Provider**: The Flutter state management package used across the app.
+- **ChallengeDailyLog**: A model recording a participant's task completion, media attachments, and completion status for a single calendar day within a challenge.
+- **Daily_Log_Screen**: The Flutter screen inside an active challenge where the user checks off tasks and attaches media for the current day.
+- **Share_Prompt**: The full-screen celebration UI shown after a day is completed, offering the user the option to post their progress to the community feed.
 
 ---
 
@@ -241,3 +244,102 @@ The frontend builds on existing scaffold files in `frontend/lib/Challenge_Commun
 2. THE Community_System SHALL provide a `CommunityProvider` using the `provider` package that exposes: `posts` list, `isLoading` boolean, `error` string, `fetchFeed()`, `createPost(content, imageUrls)`, `toggleLike(postId)`, and `loadMore()` methods.
 3. WHEN `ChallengeProvider.joinChallenge(id)` is called successfully, THE Challenge_System SHALL update the matching challenge in the `challenges` list to reflect the joined state without requiring a full list refresh.
 4. WHEN `CommunityProvider.toggleLike(postId)` is called, THE Community_System SHALL optimistically update the `like_count` and `is_liked_by_me` fields in the local `posts` list before the API call completes.
+
+### Requirement 18: Daily Log Data Model (Backend)
+
+**User Story:** As a backend developer, I want a `ChallengeDailyLog` model to track per-day completion, so that each participant's daily activity and media attachments are stored persistently.
+
+#### Acceptance Criteria
+
+1. THE Challenge_System SHALL define a `ChallengeDailyLog` model with fields: `id` (UUID primary key), `participant` (ForeignKey to ChallengeParticipant on_delete CASCADE), `day_number` (PositiveIntegerField), `task_items` (JSONField default list — each item is `{"label": str, "completed": bool}`), `media_urls` (JSONField default list — each item is `{"url": str, "is_video": bool}`), `is_complete` (BooleanField default False), `completed_at` (DateTimeField null/blank), `created_at` (DateTimeField auto_now_add), `updated_at` (DateTimeField auto_now), with a unique constraint on `(participant, day_number)`.
+2. WHEN a Django migration is run, THE Challenge_System SHALL create the `ChallengeDailyLog` table without errors.
+3. THE Challenge_System SHALL define the `day_number` as the 1-based count of calendar days since the participant's `joined_at` date (day 1 = join date, day 2 = next calendar day, etc.).
+
+### Requirement 19: Daily Log API Endpoints (Backend)
+
+**User Story:** As a mobile developer, I want REST API endpoints for daily logs, so that the Flutter app can retrieve, update, and complete a participant's daily log entry.
+
+#### Acceptance Criteria
+
+1. WHEN an authenticated user sends `GET /api/challenges/{id}/daily-log/`, THE Challenge_System SHALL return the `ChallengeDailyLog` record for today's `day_number` for that participant. IF no record exists for today, THE Challenge_System SHALL create and return one with the challenge's default `task_items` and empty `media_urls`.
+2. WHEN an authenticated user sends `PATCH /api/challenges/{id}/daily-log/`, THE Challenge_System SHALL update the `task_items` array (individual task completion toggles) and `media_urls` for today's log and return the updated record.
+3. WHEN an authenticated user sends `POST /api/challenges/{id}/daily-log/complete/`, THE Challenge_System SHALL set `is_complete = True` and `completed_at` to the current datetime on today's `ChallengeDailyLog`, then return HTTP 200 with the completed log.
+4. IF `POST /api/challenges/{id}/daily-log/complete/` is called and today's log is already marked `is_complete = True`, THEN THE Challenge_System SHALL return HTTP 400 with the message `"Today's log is already complete"`.
+5. WHEN an authenticated user sends `GET /api/challenges/{id}/daily-logs/`, THE Challenge_System SHALL return all `ChallengeDailyLog` records for that participant ordered by ascending `day_number`.
+6. IF an unauthenticated request is made to any daily log endpoint, THEN THE Challenge_System SHALL return HTTP 401.
+7. IF a request is made to a daily log endpoint for a challenge the user has not joined, THEN THE Challenge_System SHALL return HTTP 404.
+
+### Requirement 20: Share to Community on Day Completion (Backend)
+
+**User Story:** As a user, I want the option to auto-create a community post when I complete a day, so that I can share my progress without leaving the challenge flow.
+
+#### Acceptance Criteria
+
+1. WHEN `POST /api/challenges/{id}/daily-log/complete/` is called with `share_to_community: true` in the request body, THE Challenge_System SHALL create a `Post` record with `content` set to `"I completed Day {day_number} of {challenge_name}! 💪"` and `image_urls` set to the non-video media URLs from the completed log.
+2. WHEN `POST /api/challenges/{id}/daily-log/complete/` is called with `share_to_community: false` or the field is omitted, THE Challenge_System SHALL complete the log without creating a community post.
+3. WHEN a community post is auto-created on day completion, THE Challenge_System SHALL return the created `Post` object nested under a `shared_post` key in the response alongside the completed log data.
+4. IF the auto-created post content would exceed 1000 characters, THEN THE Challenge_System SHALL truncate the challenge name so the full content string stays within the 1000-character limit.
+
+### Requirement 21: Challenge Description Visibility (Frontend)
+
+**User Story:** As a user, I want to see a challenge's full description before joining, so that I can make an informed decision about participating.
+
+#### Acceptance Criteria
+
+1. WHEN the challenge detail screen opens, THE Challenge_System SHALL display the full `description` field in a scrollable text area positioned above the leaderboard section.
+2. THE Challenge_System SHALL render the description with a minimum of 3 visible lines and allow vertical expansion up to the full text length.
+3. WHEN the description text exceeds the visible area, THE Challenge_System SHALL display a "Show more" / "Show less" toggle link.
+
+### Requirement 22: Challenge Activation on Join (Frontend)
+
+**User Story:** As a user, I want the challenge to become "active" immediately after I tap JOIN, so that I can start logging my daily activity right away.
+
+#### Acceptance Criteria
+
+1. WHEN the `JOIN` button is tapped and `POST /api/challenges/{id}/join/` returns HTTP 201, THE Challenge_System SHALL mark the challenge as active in the local `ChallengeProvider` state and navigate the user to the Active Challenge screen.
+2. WHILE the join API call is in progress, THE Challenge_System SHALL display a loading indicator on the `JOIN` button and disable further taps.
+3. IF the join API call fails, THE Challenge_System SHALL display a `SnackBar` with the error message and leave the challenge in its pre-join state.
+4. THE Challenge_System SHALL add an `isActive` boolean field to the challenge state in `ChallengeProvider`, set to `true` when the user has a `ChallengeParticipant` record for that challenge.
+
+### Requirement 23: Active Challenge Daily Log Screen (Frontend)
+
+**User Story:** As a user, I want a daily log view inside an active challenge, so that I can check off tasks and attach media proof for each day.
+
+#### Acceptance Criteria
+
+1. WHEN the Active Challenge screen opens, THE Challenge_System SHALL call `GET /api/challenges/{id}/daily-log/` and display today's day number as a heading (e.g., "Day 3").
+2. THE Challenge_System SHALL render each item in `task_items` as a `CheckboxListTile` showing the task label, with the checkbox reflecting the item's `completed` boolean.
+3. WHEN a `CheckboxListTile` is toggled, THE Challenge_System SHALL call `PATCH /api/challenges/{id}/daily-log/` with the updated `task_items` array and reflect the new state in the UI.
+4. THE Challenge_System SHALL display a media attachment button (camera icon) that opens a bottom sheet with options: "Take Photo", "Choose from Gallery", and "Record Video".
+5. WHEN a media file is selected or captured, THE Challenge_System SHALL upload it via `POST /api/upload/` and append the returned `{url, is_video}` object to the log's `media_urls` via `PATCH /api/challenges/{id}/daily-log/`.
+6. THE Challenge_System SHALL display attached media as a horizontal scrollable row of thumbnails (image preview or video play icon overlay), each with a remove button.
+7. THE Challenge_System SHALL display a "Complete Day X" `ElevatedButton` that is enabled only when all items in `task_items` have `completed: true`.
+8. WHEN the "Complete Day X" button is tapped, THE Challenge_System SHALL call `POST /api/challenges/{id}/daily-log/complete/` and transition to the day completion success state.
+9. WHILE the daily log is loading, THE Challenge_System SHALL display a `CircularProgressIndicator`.
+10. IF the daily log API call fails, THE Challenge_System SHALL display an error message with a retry button.
+
+### Requirement 24: Day Completion and Share Flow (Frontend)
+
+**User Story:** As a user, I want a share prompt after completing a day (similar to Duolingo's lesson completion), so that I can celebrate and post my progress to the community feed.
+
+#### Acceptance Criteria
+
+1. WHEN `POST /api/challenges/{id}/daily-log/complete/` returns HTTP 200, THE Challenge_System SHALL display a full-screen celebration state with a success animation, the message "Day X Complete!", and two action buttons: "Share to Community" and "Skip".
+2. THE Challenge_System SHALL pre-fill the share preview with the auto-generated content string `"I completed Day {day_number} of {challenge_name}! 💪"` and show a thumbnail of the first attached media item (if any).
+3. WHEN the "Share to Community" button is tapped, THE Challenge_System SHALL call `POST /api/challenges/{id}/daily-log/complete/` with `share_to_community: true` (or a dedicated share endpoint) and display a `SnackBar` confirming "Posted to community!".
+4. WHEN the "Skip" button is tapped, THE Challenge_System SHALL dismiss the celebration state and return the user to the Active Challenge screen without creating a community post.
+5. WHILE the share API call is in progress, THE Challenge_System SHALL display a loading indicator on the "Share to Community" button and disable further taps.
+6. IF the share API call fails, THE Challenge_System SHALL display a `SnackBar` with the error message and keep the share prompt visible so the user can retry.
+7. THE Challenge_System SHALL update the `ChallengeProvider` state to reflect the completed day so the Active Challenge screen shows the correct day number on next open.
+
+### Requirement 25: Daily Log Correctness Properties (Backend)
+
+**User Story:** As a developer, I want property-based tests for the daily log system, so that edge cases in day numbering, idempotency, and round-trip serialization are caught automatically.
+
+#### Acceptance Criteria
+
+1. FOR ALL valid `ChallengeDailyLog` records created and then fetched via `GET /api/challenges/{id}/daily-log/`, THE Challenge_System SHALL return `task_items` and `media_urls` arrays that are equal to the values last written via `PATCH` (round-trip property).
+2. FOR ALL sequences of `PATCH /api/challenges/{id}/daily-log/` calls with the same payload, THE Challenge_System SHALL produce the same final `task_items` state regardless of how many times the patch is applied (idempotence property).
+3. WHEN `day_number` is computed for a participant, THE Challenge_System SHALL satisfy the invariant `day_number >= 1` for all participants whose `joined_at` is in the past or present.
+4. FOR ALL completed daily logs, THE Challenge_System SHALL satisfy the invariant that `completed_at` is not null and `completed_at >= created_at`.
+5. WHEN `GET /api/challenges/{id}/daily-logs/` is called, THE Challenge_System SHALL return logs ordered by ascending `day_number` with no duplicate `day_number` values for the same participant (unique constraint property).
