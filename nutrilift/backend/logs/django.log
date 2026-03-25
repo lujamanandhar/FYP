@@ -15529,3 +15529,35 @@ INFO 2026-03-25 11:29:02,399 basehttp 9280 19332 "GET /api/auth/me/ HTTP/1.1" 20
 INFO 2026-03-25 11:29:07,095 basehttp 9280 19332 "GET /api/community/users/42bfed85-ecd6-42db-89ba-03ba78c0fa40/profile/ HTTP/1.1" 200 245
 INFO 2026-03-25 11:31:11,107 autoreload 9280 14964 F:\Herald Level 6\FYP\nutrilift\backend\challenges\views.py changed, reloading.
 INFO 2026-03-25 11:31:12,412 autoreload 24396 21740 Watching for file changes with StatReloader
+INFO 2026-03-25 11:32:09,412 basehttp 24396 28668 "GET /api/community/users/42bfed85-ecd6-42db-89ba-03ba78c0fa40/profile/ HTTP/1.1" 200 341
+INFO 2026-03-25 11:35:02,259 basehttp 24396 28668 "POST /api/auth/login/ HTTP/1.1" 200 652
+INFO 2026-03-25 11:35:02,579 basehttp 24396 28668 "GET /api/auth/me/ HTTP/1.1" 200 414
+INFO 2026-03-25 11:35:29,177 basehttp 24396 28668 "GET /api/community/feed/?page=1 HTTP/1.1" 200 3443
+INFO 2026-03-25 11:35:29,280 basehttp 24396 28668 "GET /api/community/feed/?page=1 HTTP/1.1" 200 3443
+INFO 2026-03-25 11:35:31,705 basehttp 24396 28668 "GET /api/community/users/89b9e487-7367-409d-bfe7-add8aec66fc0/profile/ HTTP/1.1" 200 340
+INFO 2026-03-25 11:35:31,712 basehttp 24396 28228 "GET /api/community/users/89b9e487-7367-409d-bfe7-add8aec66fc0/posts/ HTTP/1.1" 200 1298
+INFO 2026-03-25 11:35:31,722 basehttp 24396 2840 "GET /api/community/users/89b9e487-7367-409d-bfe7-add8aec66fc0/challenge-stats/ HTTP/1.1" 200 946
+INFO 2026-03-25 11:35:38,114 basehttp 24396 11356 "GET /media/uploads/659c441ef4ae44e7b0146bb4dec4c258.mp4 HTTP/1.1" 200 2670839
+INFO 2026-03-25 11:35:42,186 basehttp 24396 2840 "GET /api/community/users/42bfed85-ecd6-42db-89ba-03ba78c0fa40/profile/ HTTP/1.1" 200 341
+INFO 2026-03-25 11:35:42,205 basehttp 24396 28228 "GET /api/community/users/42bfed85-ecd6-42db-89ba-03ba78c0fa40/posts/ HTTP/1.1" 200 2096
+INFO 2026-03-25 11:35:42,208 basehttp 24396 28668 "GET /api/community/users/42bfed85-ecd6-42db-89ba-03ba78c0fa40/challenge-stats/ HTTP/1.1" 200 662
+INFO 2026-03-25 11:35:42,411 basehttp 24396 28668 "GET /media/uploads/659c441ef4ae44e7b0146bb4dec4c258.mp4 HTTP/1.1" 200 2670839
+INFO 2026-03-25 11:35:43,310 basehttp 24396 28228 "GET /media/uploads/f9767645286d4cd3a31e06e4d37b0463.mp4 HTTP/1.1" 200 49129261
+INFO 2026-03-25 11:36:32,820 basehttp 24396 11356 "GET /media/uploads/f9767645286d4cd3a31e06e4d37b0463.mp4 HTTP/1.1" 200 49129261
+INFO 2026-03-25 11:36:38,799 basehttp 24396 28228 "GET /api/community/users/89b9e487-7367-409d-bfe7-add8aec66fc0/profile/ HTTP/1.1" 200 340
+INFO 2026-03-25 11:36:38,804 basehttp 24396 28668 "GET /api/community/users/89b9e487-7367-409d-bfe7-add8aec66fc0/posts/ HTTP/1.1" 200 1298
+INFO 2026-03-25 11:36:38,926 basehttp 24396 2840 "GET /api/community/users/89b9e487-7367-409d-bfe7-add8aec66fc0/challenge-stats/ HTTP/1.1" 200 946
+INFO 2026-03-25 11:36:39,044 basehttp 24396 11356 - Broken pipe from ('127.0.0.1', 59670)
+INFO 2026-03-25 11:40:25,780 basehttp 24396 2840 "POST /api/auth/login/ HTTP/1.1" 200 652
+INFO 2026-03-25 11:40:26,108 basehttp 24396 2840 "GET /api/auth/me/ HTTP/1.1" 200 414
+INFO 2026-03-25 11:40:27,331 basehttp 24396 2840 "GET /api/community/feed/?page=1 HTTP/1.1" 200 3443
+INFO 2026-03-25 11:40:27,441 basehttp 24396 2840 "GET /api/community/feed/?page=1 HTTP/1.1" 200 3443
+INFO 2026-03-25 11:40:28,594 basehttp 24396 2840 "GET /api/community/users/89b9e487-7367-409d-bfe7-add8aec66fc0/profile/ HTTP/1.1" 200 340
+INFO 2026-03-25 11:40:28,609 basehttp 24396 28668 "GET /api/community/users/89b9e487-7367-409d-bfe7-add8aec66fc0/posts/ HTTP/1.1" 200 1298
+INFO 2026-03-25 11:40:28,618 basehttp 24396 28228 "GET /api/community/users/89b9e487-7367-409d-bfe7-add8aec66fc0/challenge-stats/ HTTP/1.1" 200 946
+INFO 2026-03-25 11:40:36,395 basehttp 24396 16600 "GET /media/uploads/659c441ef4ae44e7b0146bb4dec4c258.mp4 HTTP/1.1" 200 2670839
+INFO 2026-03-25 11:40:38,671 basehttp 24396 28228 "GET /api/community/users/42bfed85-ecd6-42db-89ba-03ba78c0fa40/profile/ HTTP/1.1" 200 341
+INFO 2026-03-25 11:40:38,690 basehttp 24396 2840 "GET /api/community/users/42bfed85-ecd6-42db-89ba-03ba78c0fa40/challenge-stats/ HTTP/1.1" 200 662
+INFO 2026-03-25 11:40:38,691 basehttp 24396 28668 "GET /api/community/users/42bfed85-ecd6-42db-89ba-03ba78c0fa40/posts/ HTTP/1.1" 200 2096
+INFO 2026-03-25 11:40:38,925 basehttp 24396 28668 "GET /media/uploads/659c441ef4ae44e7b0146bb4dec4c258.mp4 HTTP/1.1" 200 2670839
+INFO 2026-03-25 11:40:39,764 basehttp 24396 2840 "GET /media/uploads/f9767645286d4cd3a31e06e4d37b0463.mp4 HTTP/1.1" 200 49129261
