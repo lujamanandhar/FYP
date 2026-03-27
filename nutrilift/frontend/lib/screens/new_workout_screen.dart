@@ -6,15 +6,18 @@ import '../models/workout_log.dart' as wl;
 import '../providers/new_workout_provider.dart';
 import '../providers/exercise_library_provider.dart';
 import '../widgets/nutrilift_header.dart';
+import '../widgets/rest_timer_dialog.dart';
 
 /// New Workout Screen
 /// 
 /// Allows users to log new workouts with exercises, sets, reps, and weights.
 /// Supports template selection, exercise search, and form validation.
+/// Pass [repeatFrom] to pre-populate from a previous workout.
 /// 
 /// Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 8.2, 9.4, 9.5
 class NewWorkoutScreen extends ConsumerStatefulWidget {
-  const NewWorkoutScreen({Key? key}) : super(key: key);
+  final wl.WorkoutLog? repeatFrom;
+  const NewWorkoutScreen({Key? key, this.repeatFrom}) : super(key: key);
 
   @override
   ConsumerState<NewWorkoutScreen> createState() => _NewWorkoutScreenState();
@@ -37,6 +40,35 @@ class _NewWorkoutScreenState extends ConsumerState<NewWorkoutScreen> {
     Future.microtask(() {
       ref.read(exerciseLibraryProvider.notifier).loadExercises();
     });
+
+    // Pre-populate from a previous workout if repeating
+    if (widget.repeatFrom != null) {
+      final prev = widget.repeatFrom!;
+      _workoutNameController.text = prev.workoutName ?? '';
+      _durationController.text = '${prev.duration}';
+      _notesController.text = prev.notes ?? '';
+      Future.microtask(() {
+        final notifier = ref.read(newWorkoutProvider.notifier);
+        notifier.setWorkoutName(prev.workoutName ?? '');
+        notifier.setDuration(prev.duration);
+        if (prev.notes != null) notifier.setNotes(prev.notes);
+        // Re-add exercises from previous workout
+        for (final e in prev.exercises) {
+          // Build a minimal Exercise object from the workout exercise
+          final exercise = ex.Exercise(
+            id: e.exerciseId ?? 0,
+            name: e.exerciseName ?? 'Exercise',
+            description: '',
+            category: 'STRENGTH',
+            muscleGroup: 'FULL_BODY',
+            equipment: 'BODYWEIGHT',
+            difficulty: 'BEGINNER',
+            instructions: '',
+          );
+          notifier.addExercise(exercise, defaultSets: e.sets ?? 3);
+        }
+      });
+    }
   }
 
   @override
@@ -951,6 +983,26 @@ class _ExerciseInputWidgetState extends ConsumerState<ExerciseInputWidget> {
                 ),
               ),
               
+              // Done set button (triggers rest timer)
+              IconButton(
+                icon: Icon(
+                  set.completed ? Icons.check_circle : Icons.check_circle_outline,
+                  size: 20,
+                  color: set.completed ? Colors.green : Colors.grey,
+                ),
+                onPressed: () {
+                  ref.read(newWorkoutProvider.notifier).updateSet(
+                    widget.exerciseIndex,
+                    setIndex,
+                    completed: !set.completed,
+                  );
+                  if (!set.completed) {
+                    // Show rest timer when marking set as done
+                    showRestTimer(context);
+                  }
+                },
+              ),
+
               // Delete set button
               IconButton(
                 icon: const Icon(Icons.remove_circle_outline, size: 20),

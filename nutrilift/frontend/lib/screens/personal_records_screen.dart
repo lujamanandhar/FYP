@@ -6,6 +6,7 @@ import '../widgets/nutrilift_header.dart';
 import '../widgets/pr_card.dart';
 import '../providers/personal_records_provider.dart';
 import '../models/personal_record.dart';
+import 'pr_progress_screen.dart';
 
 /// Personal Records Screen
 /// 
@@ -180,14 +181,10 @@ class PersonalRecordsScreen extends ConsumerWidget {
   /// 
   /// Validates: Requirements 4.4
   void _navigateToWorkoutHistory(BuildContext context, PersonalRecord record) {
-    // Navigate to workout history screen
-    // The workout history screen will need to support exercise filtering
-    Navigator.of(context).pushNamed(
-      '/workout-history',
-      arguments: {
-        'exerciseId': record.exerciseId,
-        'exerciseName': record.exerciseName,
-      },
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PRProgressScreen(record: record),
+      ),
     );
   }
 

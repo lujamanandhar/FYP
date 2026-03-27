@@ -14,17 +14,19 @@ _$WorkoutLogImpl _$$WorkoutLogImplFromJson(Map<String, dynamic> json) =>
       workoutName: json['workout_name'] as String?,
       gym: (json['gym'] as num?)?.toInt(),
       gymName: json['gym_name'] as String?,
-      date: DateTime.parse(json['date'] as String),
-      duration: (json['duration'] as num).toInt(),
+      // Backend returns 'date' (aliased from logged_at) and 'duration' (aliased from duration_minutes)
+      date: DateTime.parse(((json['date'] ?? json['logged_at']) as String)),
+      duration: ((json['duration'] ?? json['duration_minutes']) as num).toInt(),
       caloriesBurned: (json['calories_burned'] as num).toDouble(),
       notes: json['notes'] as String?,
-      exercises: (json['exercises'] as List<dynamic>)
+      // Backend returns exercises under 'workout_exercises'
+      exercises: ((json['workout_exercises'] ?? json['exercises'] ?? const []) as List<dynamic>)
           .map((e) => WorkoutExercise.fromJson(e as Map<String, dynamic>))
           .toList(),
-      hasNewPrs: json['has_new_prs'] as bool,
-      createdAt: json['created_at'] == null
+      hasNewPrs: json['has_new_prs'] as bool? ?? false,
+      createdAt: json['logged_at'] == null
           ? null
-          : DateTime.parse(json['created_at'] as String),
+          : DateTime.parse(json['logged_at'] as String),
       updatedAt: json['updated_at'] == null
           ? null
           : DateTime.parse(json['updated_at'] as String),
@@ -42,8 +44,8 @@ Map<String, dynamic> _$$WorkoutLogImplToJson(_$WorkoutLogImpl instance) =>
       'duration': instance.duration,
       'calories_burned': instance.caloriesBurned,
       'notes': instance.notes,
-      'exercises': instance.exercises,
+      'workout_exercises': instance.exercises,
       'has_new_prs': instance.hasNewPrs,
-      'created_at': instance.createdAt?.toIso8601String(),
+      'logged_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
     };

@@ -7,6 +7,7 @@ import '../widgets/date_range_filter_dialog.dart';
 import '../providers/workout_history_provider.dart';
 import '../models/workout_log.dart';
 import 'new_workout_screen.dart';
+import 'workout_detail_screen.dart';
 
 /// Workout History Screen
 /// 
@@ -355,11 +356,10 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
 
   /// Navigate to workout detail
   void _navigateToWorkoutDetail(WorkoutLog workout) {
-    // TODO: Navigate to workout detail screen when implemented
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Viewing workout: ${workout.workoutName ?? 'Workout'}'),
-        backgroundColor: const Color(0xFFE53935),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WorkoutDetailScreen(workout: workout),
       ),
     );
   }

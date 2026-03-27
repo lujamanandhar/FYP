@@ -124,7 +124,11 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
     gym_name = serializers.CharField(source='gym.name', read_only=True)
     workout_name_display = serializers.CharField(source='custom_workout.name', read_only=True)
     has_new_prs = serializers.SerializerMethodField()
-    
+
+    # Flutter frontend expects 'date' (mapped from logged_at) and 'duration' (mapped from duration_minutes)
+    date = serializers.DateTimeField(source='logged_at', read_only=True)
+    duration = serializers.IntegerField(source='duration_minutes', read_only=True)
+
     # Keep backward compatibility with existing 'exercises' field
     exercises = WorkoutLogExerciseSerializer(many=True, required=False)
     gym = GymSerializer(read_only=True)
@@ -147,11 +151,11 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user', 'workout_name', 'custom_workout', 'workout_name_display',
             'gym', 'gym_id', 'gym_name',
-            'duration_minutes', 'calories_burned', 
+            'duration_minutes', 'duration', 'calories_burned',
             'workout_exercises', 'exercises', 'notes',
-            'has_new_prs', 'logged_at', 'updated_at'
+            'has_new_prs', 'logged_at', 'date', 'updated_at'
         ]
-        read_only_fields = ['id', 'calories_burned', 'has_new_prs', 'logged_at', 'updated_at']
+        read_only_fields = ['id', 'calories_burned', 'has_new_prs', 'logged_at', 'updated_at', 'date', 'duration']
 
     def get_has_new_prs(self, obj):
         """Check if any exercises in this workout resulted in new PRs"""
