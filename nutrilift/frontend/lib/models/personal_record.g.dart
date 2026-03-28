@@ -11,12 +11,14 @@ _$PersonalRecordImpl _$$PersonalRecordImplFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       exerciseId: (json['exercise'] as num).toInt(),
       exerciseName: json['exercise_name'] as String,
-      maxWeight: (json['max_weight'] as num).toDouble(),
+      // max_weight, max_volume may come as strings from Django DecimalField
+      maxWeight: double.parse(json['max_weight'].toString()),
       maxReps: (json['max_reps'] as num).toInt(),
-      maxVolume: (json['max_volume'] as num).toDouble(),
+      maxVolume: double.parse(json['max_volume'].toString()),
       achievedDate: DateTime.parse(json['achieved_date'] as String),
-      improvementPercentage: (json['improvement_percentage'] as num?)
-          ?.toDouble(),
+      improvementPercentage: json['improvement_percentage'] == null
+          ? null
+          : double.parse(json['improvement_percentage'].toString()),
       workoutLogId: (json['workout_log'] as num?)?.toInt(),
       createdAt: json['created_at'] == null
           ? null

@@ -13,6 +13,7 @@ import '../providers/workout_history_provider.dart';
 import '../providers/personal_records_provider.dart';
 import '../providers/exercise_library_provider.dart';
 import '../providers/repository_providers.dart';
+import '../services/dashboard_service.dart';
 import '../models/workout_log.dart';
 import '../models/workout_models.dart' show CreateWorkoutLogRequest, ExerciseSetRequest, WorkoutSetRequest;
 import '../models/personal_record.dart';
@@ -79,20 +80,61 @@ class WorkoutTrackingHome extends ConsumerStatefulWidget {
   ConsumerState<WorkoutTrackingHome> createState() => _WorkoutTrackingHomeState();
 }
 
-class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> {
+class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with WidgetsBindingObserver {
   DateTime _selectedDate = DateTime.now();
   String? _selectedMuscleGroup; // null = nothing selected
+  int _currentStreak = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // Delay provider modifications until after the widget tree is built
     Future.microtask(() {
-      ref.read(exerciseLibraryProvider.notifier).loadExercises();
+      if (mounted) _refreshData();
     });
+    _loadStreak();
   }
 
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
+  void _refreshData() {
+    ref.read(exerciseLibraryProvider.notifier).loadExercises();
+    ref.read(workoutHistoryProvider.notifier).refresh();
+    ref.read(personalRecordsProvider.notifier).refresh();
+    _loadStreak();
+  }
+
+  Future<void> _loadStreak() async {
+    try {
+      final dashboardService = DashboardService();
+      final streak = await dashboardService.getCurrentStreak();
+      if (mounted) {
+        setState(() {
+          _currentStreak = streak;
+        });
+      }
+    } catch (e) {
+      print('Error loading streak: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshData();
+    }
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    final aLocal = a.toLocal();
+    final bLocal = b.toLocal();
+    return aLocal.year == bLocal.year && aLocal.month == bLocal.month && aLocal.day == bLocal.day;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,6 +167,7 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> {
     );
 
     return NutriLiftScaffold(
+      streakCount: _currentStreak,
       title: 'Workout',
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
@@ -978,8 +1021,11 @@ class _WorkoutHistoryCalendarScreenState
     _selectedDate = DateTime.now();
   }
 
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
+  bool _isSameDay(DateTime a, DateTime b) {
+    final aLocal = a.toLocal();
+    final bLocal = b.toLocal();
+    return aLocal.year == bLocal.year && aLocal.month == bLocal.month && aLocal.day == bLocal.day;
+  }
 
   List<WorkoutLog> get _selectedWorkouts => widget.allWorkouts
       .where((w) => _isSameDay(w.date, _selectedDate))
@@ -1849,7 +1895,10 @@ class _WorkoutCompletionScreenState
       final repo = ref.read(workoutRepositoryProvider);
       final durationMinutes = (widget.durationSeconds / 60).ceil().clamp(1, 600);
 
+      print('DEBUG: Creating exercise requests for ${widget.exercises.length} exercises');
+      
       final exerciseRequests = widget.exercises.asMap().entries.map((entry) {
+        print('DEBUG: Exercise ${entry.key}: id=${entry.value.id}, name=${entry.value.name}');
         return ExerciseSetRequest(
           exerciseId: '${entry.value.id}',
           order: entry.key,
@@ -1857,13 +1906,15 @@ class _WorkoutCompletionScreenState
             WorkoutSetRequest(
               setNumber: 1,
               reps: 10,
-              weight: 0.0,
+              weight: 0.5, // minimum valid weight (bodyweight exercises)
               completed: true,
             ),
           ],
           notes: entry.value.name,
         );
       }).toList();
+
+      print('DEBUG: Created ${exerciseRequests.length} exercise requests');
 
       final request = CreateWorkoutLogRequest(
         workoutName: widget.title,
@@ -1872,11 +1923,17 @@ class _WorkoutCompletionScreenState
         exercises: exerciseRequests,
       );
 
+      print('DEBUG: Submitting workout: ${request.workoutName}');
       await repo.logWorkout(request);
+      print('DEBUG: Workout saved successfully');
+      
       ref.read(workoutHistoryProvider.notifier).refresh();
+      ref.read(personalRecordsProvider.notifier).refresh();
 
       if (mounted) setState(() { _saving = false; _saved = true; });
-    } catch (_) {
+    } catch (e, stackTrace) {
+      print('WorkoutCompletionScreen save error: $e');
+      print('Stack trace: $stackTrace');
       if (mounted) setState(() { _saving = false; _saved = false; });
     }
   }
@@ -1992,6 +2049,10 @@ class _WorkoutCompletionScreenState
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
+                    // Invalidate providers to force fresh data load
+                    ref.invalidate(workoutHistoryProvider);
+                    ref.invalidate(personalRecordsProvider);
+                    
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   style: ElevatedButton.styleFrom(
