@@ -67,6 +67,17 @@ class WorkoutApiService implements WorkoutRepository {
     }
   }
 
+  /// Fetch user's custom workout templates
+  Future<List<Map<String, dynamic>>> getCustomWorkouts() async {
+    try {
+      final response = await _dio.get('/workouts/custom-workouts/');
+      final List<dynamic> data = response.data as List;
+      return data.cast<Map<String, dynamic>>();
+    } on DioException catch (e) {
+      throw _handleDioError(e, 'Failed to load custom workouts');
+    }
+  }
+
   @override
   Future<Map<String, dynamic>> getStatistics({
     DateTime? dateFrom,
@@ -97,19 +108,22 @@ class WorkoutApiService implements WorkoutRepository {
     // Convert the request format to match the backend API expectations
     // The backend expects: workout_name, custom_workout, gym_id, duration_minutes, notes, workout_exercises[]
     // Each exercise should have: exercise (id), sets (count), reps, weight, order
-    // Note: The backend uses a simplified format where each exercise has a single sets/reps/weight value
     
     final exercises = <Map<String, dynamic>>[];
     for (var exerciseSet in request.exercises) {
       if (exerciseSet.sets.isNotEmpty) {
         // Use the first set's values as representative values
-        // In a real app, you might want to use average or max values
         final firstSet = exerciseSet.sets.first;
+        final reps = firstSet.reps ?? 1;
+        // Backend requires weight >= 0.1; use 0.1 as minimum for bodyweight exercises
+        final weight = (firstSet.weight != null && firstSet.weight! >= 0.1)
+            ? firstSet.weight!
+            : 0.1;
         exercises.add({
           'exercise': int.parse(exerciseSet.exerciseId),
           'sets': exerciseSet.sets.length,
-          'reps': firstSet.reps ?? 0,
-          'weight': firstSet.weight ?? 0.0,
+          'reps': reps.clamp(1, 100),
+          'weight': weight,
           'order': exerciseSet.order,
         });
       }
@@ -121,14 +135,33 @@ class WorkoutApiService implements WorkoutRepository {
       'workout_exercises': exercises,
     };
 
-    if (request.customWorkoutId != null) {
-      data['custom_workout'] = int.parse(request.customWorkoutId!);
+    // Include calories_burned if provided (e.g. guided workouts estimate)
+    if (request.caloriesBurned > 0) {
+      data['calories_burned'] = request.caloriesBurned;
     }
-    if (request.gymId != null) {
-      data['gym_id'] = int.parse(request.gymId!);
+
+    // Only include custom_workout if it's provided and valid
+    if (request.customWorkoutId != null && request.customWorkoutId!.isNotEmpty) {
+      try {
+        data['custom_workout'] = int.parse(request.customWorkoutId!);
+      } catch (e) {
+        // Invalid custom workout ID, skip it
+        print('DEBUG: Skipping invalid custom_workout_id: ${request.customWorkoutId}');
+      }
     }
+    
+    // Only include gym_id if it's provided and valid
+    if (request.gymId != null && request.gymId!.isNotEmpty) {
+      try {
+        data['gym_id'] = int.parse(request.gymId!);
+      } catch (e) {
+        // Invalid gym ID, skip it
+        print('DEBUG: Skipping invalid gym_id: ${request.gymId}');
+      }
+    }
+    
     if (request.notes != null && request.notes!.isNotEmpty) {
-      data['notes'] = request.notes!;  // Add ! to assert non-null
+      data['notes'] = request.notes!;
     }
 
     return data;

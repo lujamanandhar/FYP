@@ -14,8 +14,9 @@ _$WorkoutExerciseImpl _$$WorkoutExerciseImplFromJson(
   exerciseName: json['exercise_name'] as String,
   sets: (json['sets'] as num).toInt(),
   reps: (json['reps'] as num).toInt(),
-  weight: (json['weight'] as num).toDouble(),
-  volume: (json['volume'] as num).toDouble(),
+  // weight and volume may come as strings from Django DecimalField
+  weight: double.parse(json['weight'].toString()),
+  volume: double.parse(json['volume'].toString()),
   order: (json['order'] as num).toInt(),
 );
 

@@ -9,7 +9,7 @@ part of 'workout_log.dart';
 _$WorkoutLogImpl _$$WorkoutLogImplFromJson(Map<String, dynamic> json) =>
     _$WorkoutLogImpl(
       id: (json['id'] as num?)?.toInt(),
-      user: (json['user'] as num?)?.toInt(),
+      user: json['user'] == null ? null : (json['user'] is num ? (json['user'] as num).toInt() : null),
       customWorkoutId: (json['custom_workout'] as num?)?.toInt(),
       workoutName: json['workout_name'] as String?,
       gym: (json['gym'] as num?)?.toInt(),
@@ -17,7 +17,8 @@ _$WorkoutLogImpl _$$WorkoutLogImplFromJson(Map<String, dynamic> json) =>
       // Backend returns 'date' (aliased from logged_at) and 'duration' (aliased from duration_minutes)
       date: DateTime.parse(((json['date'] ?? json['logged_at']) as String)),
       duration: ((json['duration'] ?? json['duration_minutes']) as num).toInt(),
-      caloriesBurned: (json['calories_burned'] as num).toDouble(),
+      // calories_burned may come as a string from Django DecimalField serialization
+      caloriesBurned: double.parse(json['calories_burned'].toString()),
       notes: json['notes'] as String?,
       // Backend returns exercises under 'workout_exercises'
       exercises: ((json['workout_exercises'] ?? json['exercises'] ?? const []) as List<dynamic>)

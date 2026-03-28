@@ -5,6 +5,9 @@ import '../models/exercise.dart' as ex;
 import '../models/workout_log.dart' as wl;
 import '../providers/new_workout_provider.dart';
 import '../providers/exercise_library_provider.dart';
+import '../providers/workout_history_provider.dart';
+import '../providers/personal_records_provider.dart';
+import '../providers/repository_providers.dart';
 import '../widgets/nutrilift_header.dart';
 import '../widgets/rest_timer_dialog.dart';
 
@@ -279,9 +282,6 @@ class _NewWorkoutScreenState extends ConsumerState<NewWorkoutScreen> {
           ),
           items: const [
             DropdownMenuItem(value: null, child: Text('No gym selected')),
-            // TODO: Load gyms from API
-            DropdownMenuItem(value: '1', child: Text('Home Gym')),
-            DropdownMenuItem(value: '2', child: Text('Gold\'s Gym')),
           ],
           onChanged: (value) {
             ref.read(newWorkoutProvider.notifier).setGymId(value);
@@ -292,6 +292,7 @@ class _NewWorkoutScreenState extends ConsumerState<NewWorkoutScreen> {
   }
 
   Widget _buildTemplateSelection(NewWorkoutState workoutState) {
+    final customWorkoutsAsync = ref.watch(customWorkoutsProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -303,25 +304,37 @@ class _NewWorkoutScreenState extends ConsumerState<NewWorkoutScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          value: workoutState.customWorkoutId,
-          decoration: InputDecoration(
-            hintText: 'Select template',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+        customWorkoutsAsync.when(
+          loading: () => const SizedBox(
+            height: 56,
+            child: Center(child: LinearProgressIndicator()),
           ),
-          items: const [
-            DropdownMenuItem(value: null, child: Text('No template')),
-            // TODO: Load templates from API
-            DropdownMenuItem(value: '1', child: Text('Push Day')),
-            DropdownMenuItem(value: '2', child: Text('Pull Day')),
-            DropdownMenuItem(value: '3', child: Text('Leg Day')),
-          ],
-          onChanged: (value) {
-            ref.read(newWorkoutProvider.notifier).setCustomWorkoutId(value);
-            // TODO: Load template exercises when selected
-          },
+          error: (_, __) => DropdownButtonFormField<String>(
+            value: null,
+            decoration: InputDecoration(
+              hintText: 'No templates available',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            items: const [],
+            onChanged: null,
+          ),
+          data: (templates) => DropdownButtonFormField<String>(
+            value: workoutState.customWorkoutId,
+            decoration: InputDecoration(
+              hintText: 'Select template',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            items: [
+              const DropdownMenuItem(value: null, child: Text('No template')),
+              ...templates.map((t) => DropdownMenuItem(
+                value: t['id'].toString(),
+                child: Text(t['name'] as String? ?? 'Workout'),
+              )),
+            ],
+            onChanged: (value) {
+              ref.read(newWorkoutProvider.notifier).setCustomWorkoutId(value);
+            },
+          ),
         ),
       ],
     );
@@ -660,8 +673,14 @@ class _NewWorkoutScreenState extends ConsumerState<NewWorkoutScreen> {
           _showPRNotification(context);
         }
         
+        // Invalidate providers to force fresh data load
+        ref.invalidate(workoutHistoryProvider);
+        ref.invalidate(personalRecordsProvider);
+        
         // Navigate back
-        Navigator.pop(context);
+        if (mounted) {
+          Navigator.pop(context);
+        }
       }
     } catch (e) {
       if (mounted) {
