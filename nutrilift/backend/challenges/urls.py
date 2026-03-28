@@ -9,6 +9,7 @@ So the same views serve both /api/challenges/... and /api/community/... prefixes
 """
 from django.urls import path
 from . import views
+from . import reward_views
 
 urlpatterns = [
     # --- Challenge endpoints (api/challenges/...) ---
@@ -23,6 +24,13 @@ urlpatterns = [
     path('<uuid:pk>/daily-logs/', views.DailyLogListView.as_view(), name='challenge-daily-logs'),
     path('badges/', views.BadgeView.as_view(), name='challenge-badges'),
     path('streak/', views.StreakView.as_view(), name='challenge-streak'),
+
+    # --- Reward endpoints (api/rewards/...) ---
+    path('rewards/points/', reward_views.UserPointsView.as_view(), name='rewards-points'),
+    path('rewards/transactions/', reward_views.PointTransactionHistoryView.as_view(), name='rewards-transactions'),
+    path('rewards/achievements/', reward_views.AchievementListView.as_view(), name='rewards-achievements'),
+    path('rewards/my-achievements/', reward_views.UserAchievementsView.as_view(), name='rewards-my-achievements'),
+    path('rewards/leaderboard/', reward_views.LeaderboardPointsView.as_view(), name='rewards-leaderboard'),
 
     # --- Community endpoints (api/community/...) ---
     path('feed/', views.FeedView.as_view(), name='community-feed'),
