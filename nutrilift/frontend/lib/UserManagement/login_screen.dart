@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'signup_screen.dart';
 import 'main_navigation.dart';
+import '../Admin/admin_main_navigation.dart';
 import '../services/auth_service.dart';
 import '../services/api_client.dart';
 import '../services/error_handler.dart';
@@ -73,15 +74,27 @@ class _LoginScreenState extends State<LoginScreen> with ErrorHandlingMixin {
       final result = await _authService.login(loginRequest);
       
       if (result?.token != null) {
+        // Get user profile to check if admin
+        final profile = await _authService.getProfile();
+        
         // Show success message
         showSuccessMessage('Welcome back! Login successful.');
         
-        // Navigate to MainNavigation on successful login
+        // Navigate based on user role
         if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MainNavigation()),
-          );
+          if (profile.isStaff) {
+            // Admin user - go to admin interface
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const AdminMainNavigation()),
+            );
+          } else {
+            // Regular user - go to normal interface
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MainNavigation()),
+            );
+          }
         }
       }
     } on ApiException catch (e) {

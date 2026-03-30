@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 import '../widgets/nutrilift_header.dart';
 import '../widgets/pr_card.dart';
 import '../providers/personal_records_provider.dart';
 import '../models/personal_record.dart';
+import '../services/dashboard_refresh_service.dart';
 import 'pr_progress_screen.dart';
 
 /// Personal Records Screen
@@ -19,30 +21,63 @@ import 'pr_progress_screen.dart';
 /// - Navigation to workout history filtered by exercise
 /// 
 /// Validates: Requirements 4.1
-class PersonalRecordsScreen extends ConsumerWidget {
+class PersonalRecordsScreen extends ConsumerStatefulWidget {
   const PersonalRecordsScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PersonalRecordsScreen> createState() => _PersonalRecordsScreenState();
+}
+
+class _PersonalRecordsScreenState extends ConsumerState<PersonalRecordsScreen> {
+  final DashboardRefreshService _refreshService = DashboardRefreshService();
+  StreamSubscription<void>? _refreshSubscription;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Refresh PRs when screen is opened to ensure latest data
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(personalRecordsProvider.notifier).refresh();
+      }
+    });
+    
+    // Listen for workout completion events to refresh PRs in real-time
+    _refreshSubscription = _refreshService.refreshStream.listen((_) {
+      print('🏆 PR Screen: Refresh event received, updating PRs...');
+      if (mounted) {
+        ref.read(personalRecordsProvider.notifier).refresh();
+      }
+    });
+  }
+  
+  @override
+  void dispose() {
+    _refreshSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final personalRecordsState = ref.watch(personalRecordsProvider);
 
     return NutriLiftScaffold(
       title: 'Personal Records',
       showBackButton: true,
       body: RefreshIndicator(
-        onRefresh: () => _handleRefresh(ref),
+        onRefresh: () => _handleRefresh(),
         color: const Color(0xFFE53935),
         child: personalRecordsState.when(
-          data: (records) => _buildRecordsGrid(context, ref, records),
+          data: (records) => _buildRecordsGrid(context, records),
           loading: () => _buildLoadingState(),
-          error: (error, stack) => _buildErrorState(context, ref, error),
+          error: (error, stack) => _buildErrorState(context, error),
         ),
       ),
     );
   }
 
   /// Build personal records grid
-  Widget _buildRecordsGrid(BuildContext context, WidgetRef ref, List<PersonalRecord> records) {
+  Widget _buildRecordsGrid(BuildContext context, List<PersonalRecord> records) {
     if (records.isEmpty) {
       return _buildEmptyState(context);
     }
@@ -116,7 +151,7 @@ class PersonalRecordsScreen extends ConsumerWidget {
   }
 
   /// Build error state
-  Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
+  Widget _buildErrorState(BuildContext context, Object error) {
     return Center(
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -150,7 +185,7 @@ class PersonalRecordsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
-                onPressed: () => _handleRefresh(ref),
+                onPressed: () => _handleRefresh(),
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
                 style: ElevatedButton.styleFrom(
@@ -170,7 +205,7 @@ class PersonalRecordsScreen extends ConsumerWidget {
   }
 
   /// Handle pull-to-refresh
-  Future<void> _handleRefresh(WidgetRef ref) async {
+  Future<void> _handleRefresh() async {
     await ref.read(personalRecordsProvider.notifier).refresh();
   }
 

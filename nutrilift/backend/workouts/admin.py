@@ -3,6 +3,7 @@ from .models import (
     Gym, Exercise, CustomWorkout, CustomWorkoutExercise,
     WorkoutLog, WorkoutLogExercise, WorkoutSet, PersonalRecord
 )
+from .rep_counting_models import RepSession, RepEvent
 
 
 @admin.register(Gym)
@@ -63,3 +64,33 @@ class PersonalRecordAdmin(admin.ModelAdmin):
     list_filter = ['achieved_date']
     search_fields = ['user__email', 'exercise__name']
     ordering = ['-achieved_date']
+
+
+
+class RepEventInline(admin.TabularInline):
+    model = RepEvent
+    extra = 0
+    fields = ['rep_number', 'timestamp', 'confidence', 'angle_data']
+    readonly_fields = ['timestamp']
+
+
+@admin.register(RepSession)
+class RepSessionAdmin(admin.ModelAdmin):
+    list_display = ['user', 'exercise_type', 'total_reps', 'confidence_avg', 'is_converted', 'start_time', 'end_time']
+    list_filter = ['exercise_type', 'is_converted', 'start_time']
+    search_fields = ['user__email', 'exercise_type']
+    inlines = [RepEventInline]
+    ordering = ['-start_time']
+    readonly_fields = ['start_time', 'created_at', 'updated_at']
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user', 'exercise', 'workout_log')
+
+
+@admin.register(RepEvent)
+class RepEventAdmin(admin.ModelAdmin):
+    list_display = ['session', 'rep_number', 'confidence', 'timestamp']
+    list_filter = ['timestamp']
+    search_fields = ['session__user__email']
+    ordering = ['session', 'rep_number']
+    readonly_fields = ['timestamp']

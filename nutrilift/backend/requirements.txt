@@ -5,3 +5,4 @@ django-cors-headers==4.6.0
 python-decouple==3.8
 psycopg2-binary==2.9.10
 hypothesis==6.92.1
+requests==2.32.3

@@ -85,3 +85,13 @@ final personalRecordRepositoryProvider = Provider<PersonalRecordRepository>((ref
     return PersonalRecordApiService(dioClient);
   }
 });
+
+/// Provider for fetching user's custom workout templates from the API.
+/// Returns a list of maps with 'id' and 'name' keys.
+final customWorkoutsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final useMockData = ref.watch(useMockDataProvider);
+  if (useMockData) return [];
+  final dioClient = ref.watch(dioClientProvider);
+  final service = WorkoutApiService(dioClient);
+  return service.getCustomWorkouts();
+});

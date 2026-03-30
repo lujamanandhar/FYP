@@ -80,7 +80,7 @@ class WorkoutCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              
+
               // Date and duration row
               Row(
                 children: [
@@ -114,7 +114,7 @@ class WorkoutCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              
+
               // Calories burned row
               Row(
                 children: [
@@ -133,7 +133,7 @@ class WorkoutCard extends StatelessWidget {
                   ),
                 ],
               ),
-              
+
               // Gym name row (if available)
               if (workout.gymName != null) ...[
                 const SizedBox(height: 8),
@@ -168,7 +168,9 @@ class WorkoutCard extends StatelessWidget {
   /// Format date for display
   /// 
   /// Shows date in format: "Jan 15, 2024 at 10:30 AM"
+  /// Converts UTC time to local time before formatting
   String _formatDate(DateTime date) {
-    return DateFormat('MMM dd, yyyy \'at\' h:mm a').format(date);
+    final localDate = date.toLocal();
+    return DateFormat('MMM dd, yyyy \'at\' h:mm a').format(localDate);
   }
 }

@@ -7,4 +7,6 @@ class ChallengesConfig(AppConfig):
 
     def ready(self):
         import challenges.signals  # noqa
+        import challenges.reward_signals  # noqa
         challenges.signals.connect_signals()
+        challenges.reward_signals.connect_reward_signals()

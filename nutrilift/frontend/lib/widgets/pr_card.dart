@@ -59,7 +59,7 @@ class PRCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              
+
               // Exercise name
               Text(
                 personalRecord.exerciseName,
@@ -71,7 +71,7 @@ class PRCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 12),
-              
+
               // Max weight
               _buildStatRow(
                 icon: Icons.fitness_center,
@@ -79,7 +79,7 @@ class PRCard extends StatelessWidget {
                 value: '${personalRecord.maxWeight.toStringAsFixed(1)} kg',
               ),
               const SizedBox(height: 8),
-              
+
               // Max reps
               _buildStatRow(
                 icon: Icons.repeat,
@@ -87,7 +87,7 @@ class PRCard extends StatelessWidget {
                 value: '${personalRecord.maxReps}',
               ),
               const SizedBox(height: 8),
-              
+
               // Max volume
               _buildStatRow(
                 icon: Icons.trending_up,
@@ -95,7 +95,7 @@ class PRCard extends StatelessWidget {
                 value: '${personalRecord.maxVolume.toStringAsFixed(0)} kg',
               ),
               const SizedBox(height: 12),
-              
+
               // Date achieved
               Text(
                 'Achieved: ${_formatDate(personalRecord.achievedDate)}',
@@ -104,7 +104,7 @@ class PRCard extends StatelessWidget {
                   color: Colors.grey[600],
                 ),
               ),
-              
+
               // Progress indicator if improvement exists
               if (personalRecord.improvementPercentage != null &&
                   personalRecord.improvementPercentage! > 0) ...[
@@ -153,7 +153,7 @@ class PRCard extends StatelessWidget {
   }
 
   /// Build progress indicator showing improvement percentage
-  /// 
+  ///
   /// Validates: Requirements 4.3
   Widget _buildProgressIndicator(double improvementPercentage) {
     return Column(
@@ -194,7 +194,9 @@ class PRCard extends StatelessWidget {
   }
 
   /// Format date for display
+  /// Converts UTC time to local time before formatting
   String _formatDate(DateTime date) {
-    return DateFormat('MMM dd, yyyy').format(date);
+    final localDate = date.toLocal();
+    return DateFormat('MMM dd, yyyy').format(localDate);
   }
 }

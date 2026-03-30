@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'api_client.dart';
 import 'dio_client.dart';
 import 'token_service.dart';
@@ -132,6 +133,9 @@ class AuthService {
   Future<void> logout() async {
     _apiClient.setAuthToken(null);
     await _tokenService.clearTokens();
+    // Reset active time so it starts from 0 on next login
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('active_time_session');
   }
 
   // Check if user is currently authenticated
@@ -364,6 +368,7 @@ class UserProfile {
   final String? fitnessLevel;
   final DateTime? createdAt;
   final String? avatarUrl;
+  final bool isStaff;
 
   UserProfile({
     required this.id,
@@ -376,6 +381,7 @@ class UserProfile {
     this.fitnessLevel,
     this.createdAt,
     this.avatarUrl,
+    this.isStaff = false,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -390,6 +396,7 @@ class UserProfile {
       fitnessLevel: json['fitness_level'] as String?,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
       avatarUrl: json['avatar_url'] as String?,
+      isStaff: json['is_staff'] ?? false,
     );
   }
 
@@ -405,6 +412,7 @@ class UserProfile {
       'fitness_level': fitnessLevel,
       'created_at': createdAt?.toIso8601String(),
       'avatar_url': avatarUrl,
+      'is_staff': isStaff,
     };
   }
 

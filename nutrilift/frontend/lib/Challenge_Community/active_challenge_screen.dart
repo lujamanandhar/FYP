@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../services/dio_client.dart';
+import '../services/dashboard_service.dart';
 import '../widgets/nutrilift_header.dart';
 import 'challenge_api_service.dart';
 import 'challenge_provider.dart';
@@ -19,10 +20,12 @@ class ActiveChallengeScreen extends StatefulWidget {
 
 class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
   bool _isUploading = false;
+  int _currentStreak = 0;
 
   @override
   void initState() {
     super.initState();
+    _loadStreak();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ChallengeProvider>();
       if (provider.challenges.isEmpty) {
@@ -31,6 +34,20 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
         _fetchLog();
       }
     });
+  }
+
+  Future<void> _loadStreak() async {
+    try {
+      final dashboardService = DashboardService();
+      final streak = await dashboardService.getCurrentStreak();
+      if (mounted) {
+        setState(() {
+          _currentStreak = streak;
+        });
+      }
+    } catch (e) {
+      print('Error loading streak: $e');
+    }
   }
 
   void _fetchLog() {
@@ -157,6 +174,7 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
       builder: (context, provider, _) {
         if (provider.isLoading) {
           return NutriLiftScaffold(
+            streakCount: _currentStreak,
             title: 'Active Challenge',
             showBackButton: true,
             showDrawer: false,
@@ -177,6 +195,7 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
 
         if (challenge == null) {
           return NutriLiftScaffold(
+            streakCount: _currentStreak,
             title: 'Active Challenge',
             showBackButton: true,
             showDrawer: false,
@@ -191,6 +210,7 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
         final log = provider.todayLog;
 
         return NutriLiftScaffold(
+          streakCount: _currentStreak,
           title: 'Active Challenge',
           showBackButton: true,
           showDrawer: false,

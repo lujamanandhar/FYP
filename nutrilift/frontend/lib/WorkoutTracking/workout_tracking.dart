@@ -58,12 +58,12 @@ const _kStretchPlan = GuidedPlan(
 
 // ── Body focus filter data ─────────────────────────────────────────────────────
 const _kBodyFocusFilters = [
-  {'label': 'Abs', 'value': 'CORE', 'emoji': '🔥'},
-  {'label': 'Arms', 'value': 'ARMS', 'emoji': '💪'},
-  {'label': 'Chest', 'value': 'CHEST', 'emoji': '🏋️'},
-  {'label': 'Legs', 'value': 'LEGS', 'emoji': '🦵'},
-  {'label': 'Shoulders', 'value': 'SHOULDERS', 'emoji': '🤸'},
-  {'label': 'Back', 'value': 'BACK', 'emoji': '🧗'},
+  {'label': 'Abs', 'value': 'CORE', 'emoji': ''},
+  {'label': 'Arms', 'value': 'ARMS', 'emoji': ''},
+  {'label': 'Chest', 'value': 'CHEST', 'emoji': ''},
+  {'label': 'Legs', 'value': 'LEGS', 'emoji': ''},
+  {'label': 'Shoulders', 'value': 'SHOULDERS', 'emoji': ''},
+  {'label': 'Back', 'value': 'BACK', 'emoji': ''},
 ];
 
 class WorkoutTracking extends StatelessWidget {
@@ -243,7 +243,7 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
         color: _kRed,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen()),
+          MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen(todayOnly: true)),
         ),
       ),
       const SizedBox(width: 10),
@@ -929,7 +929,8 @@ class _MyWorkoutTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final exerciseCount = workout.exercises.length;
-    final dateStr = DateFormat('MMM d, yyyy').format(workout.date);
+    final localDate = workout.date.toLocal();
+    final dateStr = DateFormat('MMM d, yyyy').format(localDate);
 
     return GestureDetector(
       onTap: onTap,
@@ -1604,7 +1605,7 @@ class _ManualWorkoutPlayerScreenState
         widget.exercises.length;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(children: [
           // Top bar
@@ -1616,11 +1617,11 @@ class _ManualWorkoutPlayerScreenState
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white12,
+                    color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.close_rounded,
-                      color: Colors.white, size: 20),
+                  child: Icon(Icons.close_rounded,
+                      color: Colors.grey[700], size: 20),
                 ),
               ),
               const SizedBox(width: 12),
@@ -1629,12 +1630,12 @@ class _ManualWorkoutPlayerScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(widget.title,
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 12)),
+                        style: TextStyle(
+                            color: Colors.grey[600], fontSize: 12)),
                     Text(
                       '${_currentIndex + 1} / ${widget.exercises.length}',
                       style: const TextStyle(
-                          color: Colors.white,
+                          color: Colors.black87,
                           fontWeight: FontWeight.bold,
                           fontSize: 14),
                     ),
@@ -1643,7 +1644,7 @@ class _ManualWorkoutPlayerScreenState
               ),
               Text(
                 'Set $_currentSet / $_totalSets',
-                style: const TextStyle(color: Colors.white54, fontSize: 13),
+                style: TextStyle(color: Colors.grey[600], fontSize: 13),
               ),
             ]),
           ),
@@ -1656,7 +1657,7 @@ class _ManualWorkoutPlayerScreenState
               child: LinearProgressIndicator(
                 value: progress.clamp(0.0, 1.0),
                 minHeight: 4,
-                backgroundColor: Colors.white12,
+                backgroundColor: Colors.grey[200],
                 valueColor: AlwaysStoppedAnimation<Color>(
                     widget.difficultyColor),
               ),
@@ -1672,7 +1673,7 @@ class _ManualWorkoutPlayerScreenState
               ex.name,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                  color: Colors.white,
+                  color: Colors.black87,
                   fontWeight: FontWeight.bold,
                   fontSize: 28),
             ),
@@ -1681,8 +1682,9 @@ class _ManualWorkoutPlayerScreenState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: widget.difficultyColor.withOpacity(0.2),
+              color: widget.difficultyColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: widget.difficultyColor.withOpacity(0.3)),
             ),
             child: Text(ex.muscleGroup,
                 style: TextStyle(
@@ -1701,9 +1703,9 @@ class _ManualWorkoutPlayerScreenState
                   fontWeight: FontWeight.bold,
                   fontSize: 80),
             ),
-            const Text('REPS',
+            Text('REPS',
                 style: TextStyle(
-                    color: Colors.white38,
+                    color: Colors.grey[600],
                     fontSize: 14,
                     letterSpacing: 2,
                     fontWeight: FontWeight.w600)),
@@ -1711,14 +1713,14 @@ class _ManualWorkoutPlayerScreenState
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               IconButton(
                 onPressed: () => setState(() => _reps = (_reps - 1).clamp(1, 100)),
-                icon: const Icon(Icons.remove_circle_outline_rounded,
-                    color: Colors.white54, size: 32),
+                icon: Icon(Icons.remove_circle_outline_rounded,
+                    color: Colors.grey[600], size: 32),
               ),
               const SizedBox(width: 16),
               IconButton(
                 onPressed: () => setState(() => _reps = (_reps + 1).clamp(1, 100)),
-                icon: const Icon(Icons.add_circle_outline_rounded,
-                    color: Colors.white54, size: 32),
+                icon: Icon(Icons.add_circle_outline_rounded,
+                    color: Colors.grey[600], size: 32),
               ),
             ]),
           ]),
@@ -1731,8 +1733,8 @@ class _ManualWorkoutPlayerScreenState
             child: Text(
               ex.instructions.split('\n').take(2).join(' '),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                  color: Colors.white38, fontSize: 12, height: 1.5),
+              style: TextStyle(
+                  color: Colors.grey[600], fontSize: 12, height: 1.5),
             ),
           ),
 
@@ -1756,10 +1758,10 @@ class _ManualWorkoutPlayerScreenState
                   ),
                   child: Text(
                     _isLastSet && _isLast
-                        ? '✓ Finish Workout'
+                        ? 'Finish Workout'
                         : _isLastSet
-                            ? 'Next Exercise →'
-                            : 'Set Done ✓',
+                            ? 'Next Exercise'
+                            : 'Set Done',
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 16),
                   ),
@@ -1773,7 +1775,7 @@ class _ManualWorkoutPlayerScreenState
                     onPressed: _currentIndex > 0 ? _prevExercise : null,
                     icon: const Icon(Icons.skip_previous_rounded, size: 18),
                     label: const Text('Prev'),
-                    style: TextButton.styleFrom(foregroundColor: Colors.white54),
+                    style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
                   ),
                   TextButton.icon(
                     onPressed: () => setState(() => _paused = !_paused),
@@ -1781,13 +1783,13 @@ class _ManualWorkoutPlayerScreenState
                         _paused ? Icons.play_arrow_rounded : Icons.pause_rounded,
                         size: 18),
                     label: Text(_paused ? 'Resume' : 'Pause'),
-                    style: TextButton.styleFrom(foregroundColor: Colors.white54),
+                    style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
                   ),
                   TextButton.icon(
                     onPressed: _isLast ? null : _nextExercise,
                     icon: const Icon(Icons.skip_next_rounded, size: 18),
                     label: const Text('Skip'),
-                    style: TextButton.styleFrom(foregroundColor: Colors.white54),
+                    style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -1800,19 +1802,20 @@ class _ManualWorkoutPlayerScreenState
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.06),
+                color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[300]!),
               ),
               child: Row(children: [
-                const Icon(Icons.arrow_forward_rounded,
-                    color: Colors.white38, size: 16),
+                Icon(Icons.arrow_forward_rounded,
+                    color: Colors.grey[600], size: 16),
                 const SizedBox(width: 8),
-                const Text('Next: ',
-                    style: TextStyle(color: Colors.white38, fontSize: 12)),
+                Text('Next: ',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                 Text(
                   widget.exercises[_currentIndex + 1].name,
                   style: const TextStyle(
-                      color: Colors.white60,
+                      color: Colors.black87,
                       fontSize: 12,
                       fontWeight: FontWeight.w600),
                 ),

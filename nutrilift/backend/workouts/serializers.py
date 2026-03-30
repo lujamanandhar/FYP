@@ -146,6 +146,12 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
         required=False  # Can be set from context in views
     )
 
+    # calories_burned is optional — backend calculates it from exercises when present,
+    # or uses the client-provided estimate (e.g. guided workouts)
+    calories_burned = serializers.DecimalField(
+        max_digits=7, decimal_places=2, required=False, default=Decimal('0.0')
+    )
+
     class Meta:
         model = WorkoutLog
         fields = [
@@ -155,7 +161,7 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
             'workout_exercises', 'exercises', 'notes',
             'has_new_prs', 'logged_at', 'date', 'updated_at'
         ]
-        read_only_fields = ['id', 'calories_burned', 'has_new_prs', 'logged_at', 'updated_at', 'date', 'duration']
+        read_only_fields = ['id', 'has_new_prs', 'logged_at', 'updated_at', 'date', 'duration']
 
     def get_has_new_prs(self, obj):
         """Check if any exercises in this workout resulted in new PRs"""
@@ -205,7 +211,7 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
         Requirements: 9.4, 9.5, 9.7
         """
         if not value or len(value) == 0:
-            raise serializers.ValidationError("At least one exercise is required.")
+            return value  # Empty exercises allowed for guided/bodyweight workouts
         
         # Validate each exercise
         for idx, exercise_data in enumerate(value):
@@ -273,15 +279,11 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
                 'logged_at': 'Workout date cannot be in the future.'
             })
         
-        # Validate that at least one exercise is provided
-        workout_exercises = data.get('workout_exercises', [])
-        exercises = data.get('exercises', [])
-        
-        if not workout_exercises and not exercises:
-            raise serializers.ValidationError({
-                'workout_exercises': 'At least one exercise is required.',
-                'exercises': 'At least one exercise is required.'
-            })
+        # Validate that at least one exercise is provided (optional for guided workouts)
+        # workout_exercises = data.get('workout_exercises', [])
+        # exercises = data.get('exercises', [])
+        # if not workout_exercises and not exercises:
+        #     raise serializers.ValidationError({...})
         
         return data
 
@@ -325,6 +327,9 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
         workout_exercises_data = validated_data.pop('workout_exercises', [])
         exercises_data = validated_data.pop('exercises', [])
         
+        # Store the client-provided calories (e.g. from guided workouts)
+        provided_calories = validated_data.get('calories_burned')
+        
         # Ensure calories_burned has a default value if not provided
         if 'calories_burned' not in validated_data or validated_data['calories_burned'] is None:
             validated_data['calories_burned'] = Decimal('0.0')
@@ -356,10 +361,14 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
                             **set_data
                         )
                 
-                # Calculate and save calories
+                # Calculate calories: use exercise-based calculation when exercises exist,
+                # otherwise keep the client-provided value (e.g. guided workouts estimate)
                 if workout_exercises_data:
                     workout_log.calories_burned = self.calculate_calories(workout_log, workout_exercises_data)
                     workout_log.save()
+                elif provided_calories and float(provided_calories) > 0:
+                    # Keep the client-provided calories for guided/bodyweight workouts
+                    pass  # already set via validated_data
                 
                 # Create audit log entry
                 if user:

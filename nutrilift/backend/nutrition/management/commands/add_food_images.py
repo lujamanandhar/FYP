@@ -9,6 +9,9 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write('Adding image URLs to all food items...')
         
+        # Track used URLs to prevent duplicates
+        used_urls = set()
+        
         # Get all food items
         all_foods = FoodItem.objects.all()
         total_count = all_foods.count()
@@ -17,15 +20,27 @@ class Command(BaseCommand):
         
         updated_count = 0
         skipped_count = 0
+        duplicate_url_count = 0
         
         for food in all_foods:
             # Skip if already has an image
             if food.image_url and food.image_url.strip():
+                used_urls.add(food.image_url)
                 skipped_count += 1
                 continue
             
             # Get image URL based on food category
             image_url = self.get_food_image_url(food.name)
+            
+            # Check if URL is already used
+            if image_url in used_urls:
+                duplicate_url_count += 1
+                # Still assign it but log the duplicate
+                self.stdout.write(self.style.WARNING(
+                    f'Duplicate URL for "{food.name}": {image_url}'
+                ))
+            
+            used_urls.add(image_url)
             food.image_url = image_url
             food.save()
             updated_count += 1
@@ -36,6 +51,8 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Successfully updated {updated_count} food items with images'))
         if skipped_count > 0:
             self.stdout.write(self.style.WARNING(f'Skipped {skipped_count} items that already had images'))
+        if duplicate_url_count > 0:
+            self.stdout.write(self.style.WARNING(f'Found {duplicate_url_count} duplicate URLs'))
     
     def get_food_image_url(self, food_name):
         """
@@ -120,6 +137,28 @@ class Command(BaseCommand):
             'peanut': 'https://images.unsplash.com/photo-1582037928769-181f2644ecb7?w=200',
             'cashew': 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=200',
             'seed': 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=200',
+            
+            # Nepali Foods
+            'dal bhat': 'https://images.unsplash.com/photo-1585937421612-70e008356f33?w=200',
+            'momo': 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=200',
+            'sel roti': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=200',
+            'dhido': 'https://images.unsplash.com/photo-1516684732162-798a0062be99?w=200',
+            'gundruk': 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=200',
+            'aloo tama': 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=200',
+            'chatamari': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200',
+            'samosa': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=200',
+            'chana masala': 'https://images.unsplash.com/photo-1585937421612-70e008356f33?w=200',
+            'paneer': 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=200',
+            'roti': 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=200',
+            'naan': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=200',
+            'lassi': 'https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?w=200',
+            'dahi': 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=200',
+            'curd': 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=200',
+            'chiura': 'https://images.unsplash.com/photo-1516684732162-798a0062be99?w=200',
+            'paratha': 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=200',
+            'thukpa': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=200',
+            'yomari': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=200',
+            'bara': 'https://images.unsplash.com/photo-1630383249896-424e482df921?w=200',
         }
         
         # Check for specific matches first

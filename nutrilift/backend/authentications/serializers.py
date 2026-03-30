@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
-from .models import User
+from .models import User, SupportTicket
 import re
 
 
@@ -96,9 +96,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'email', 'name', 'gender', 'age_group',
-            'height', 'weight', 'fitness_level', 'created_at', 'avatar_url'
+            'height', 'weight', 'fitness_level', 'created_at', 'avatar_url', 'is_staff'
         ]
-        read_only_fields = ['id', 'email', 'created_at']
+        read_only_fields = ['id', 'email', 'created_at', 'is_staff']
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
@@ -177,3 +177,13 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         return super().update(instance, validated_data)
+
+
+class SupportTicketSerializer(serializers.ModelSerializer):
+    """Serializer for support tickets"""
+    user_email = serializers.EmailField(source='user.email', read_only=True)
+    
+    class Meta:
+        model = SupportTicket
+        fields = ['id', 'user', 'user_email', 'name', 'email', 'subject', 'message', 'status', 'admin_notes', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'user_email']

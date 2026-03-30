@@ -15,6 +15,17 @@ class FoodItemAdmin(admin.ModelAdmin):
     search_fields = ['name', 'brand', 'created_by__email']
     ordering = ['name']
     readonly_fields = ['created_at', 'updated_at']
+    actions = ['mark_as_system', 'mark_as_custom']
+    
+    @admin.action(description='Mark selected foods as system foods')
+    def mark_as_system(self, request, queryset):
+        updated = queryset.update(is_custom=False, created_by=None)
+        self.message_user(request, f'{updated} food(s) marked as system foods.')
+    
+    @admin.action(description='Mark selected foods as custom foods')
+    def mark_as_custom(self, request, queryset):
+        updated = queryset.update(is_custom=True)
+        self.message_user(request, f'{updated} food(s) marked as custom foods.')
 
 
 @admin.register(IntakeLog)

@@ -64,7 +64,8 @@ class _PRProgressScreenState extends State<PRProgressScreen> {
   @override
   Widget build(BuildContext context) {
     final pr = widget.record;
-    final dateStr = DateFormat('MMM d, yyyy').format(pr.achievedDate);
+    final localDate = pr.achievedDate.toLocal();
+    final dateStr = DateFormat('MMM d, yyyy').format(localDate);
 
     return NutriLiftScaffold(
       title: pr.exerciseName,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/nutrilift_header.dart';
+import '../services/dashboard_service.dart';
+import '../services/dashboard_refresh_service.dart';
 import 'providers/nutrition_providers.dart';
 import 'models/nutrition_progress.dart';
 import 'models/intake_log.dart';
@@ -27,16 +29,41 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
   int _selectedIndex = 0; 
   DateTime selectedDate = DateTime.now();
   bool _showAddMealScreen = false;
+  String _selectedMealTypeForAdd = 'Breakfast';
   bool _isInMealSection = true; 
-  String? _selectedMacro; 
+  String? _selectedMacro;
+  int _currentStreak = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStreak();
+  }
+
+  Future<void> _loadStreak() async {
+    try {
+      final dashboardService = DashboardService();
+      final streak = await dashboardService.getCurrentStreak();
+      if (mounted) {
+        setState(() {
+          _currentStreak = streak;
+        });
+      }
+    } catch (e) {
+      print('Error loading streak: $e');
+    }
+  } 
 
   Widget _getCurrentScreen() {
     if (_showAddMealScreen) {
-      return AddMealScreen(onBack: () {
-        setState(() {
-          _showAddMealScreen = false;
-        });
-      });
+      return AddMealScreen(
+        onBack: () {
+          setState(() {
+            _showAddMealScreen = false;
+          });
+        },
+        initialMealType: _selectedMealTypeForAdd,
+      );
     }
     
     switch (_selectedIndex) {
@@ -378,6 +405,7 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
             GestureDetector(
               onTap: () {
                 setState(() {
+                  _selectedMealTypeForAdd = title == 'Snacks' ? 'Snack' : title;
                   _showAddMealScreen = true;
                 });
               },
@@ -526,6 +554,9 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
         // Invalidate providers to refresh data
         ref.invalidate(intakeLogsProvider);
         ref.invalidate(dailyProgressProvider);
+        
+        // Notify home page to refresh dashboard
+        DashboardRefreshService().notifyRefresh();
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -565,6 +596,9 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
       // Invalidate providers to refresh data
       ref.invalidate(intakeLogsProvider);
       ref.invalidate(dailyProgressProvider);
+      
+      // Notify home page to refresh dashboard
+      DashboardRefreshService().notifyRefresh();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -998,6 +1032,7 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
   @override
   Widget build(BuildContext context) {
     return NutriLiftScaffold(
+      streakCount: _currentStreak,
       body: _getCurrentScreen(),
     );
   }
@@ -1856,8 +1891,9 @@ class DonutChartPainter extends CustomPainter {
 
 class AddMealScreen extends ConsumerStatefulWidget {
   final VoidCallback onBack;
+  final String initialMealType;
   
-  const AddMealScreen({Key? key, required this.onBack}) : super(key: key);
+  const AddMealScreen({Key? key, required this.onBack, this.initialMealType = 'Breakfast'}) : super(key: key);
 
   @override
   ConsumerState<AddMealScreen> createState() => _AddMealScreenState();
@@ -2045,6 +2081,9 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
 
       await logMeal(log);
 
+      // Notify home page to refresh dashboard
+      DashboardRefreshService().notifyRefresh();
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -2078,8 +2117,8 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
   Widget _buildQuantityDialog(String foodName) {
     final TextEditingController quantityController = TextEditingController(text: '100');
     String selectedUnit = 'g';
-    String selectedMealType = 'Breakfast';
-    String selectedEntryType = 'meal';
+    String selectedMealType = widget.initialMealType;
+    String selectedEntryType = widget.initialMealType == 'Snack' ? 'snack' : 'meal';
 
     return StatefulBuilder(
       builder: (context, setDialogState) {
@@ -2470,8 +2509,8 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
     final TextEditingController quantityController = TextEditingController(text: '100');
     
     String selectedUnit = 'g';
-    String selectedMealType = 'Breakfast';
-    String selectedEntryType = 'meal';
+    String selectedMealType = widget.initialMealType;
+    String selectedEntryType = widget.initialMealType == 'Snack' ? 'snack' : 'meal';
     bool isLoading = false;
     String? errorMessage;
 
@@ -2570,6 +2609,9 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
               );
 
               await logMeal(log);
+              
+              // Notify home page to refresh dashboard
+              DashboardRefreshService().notifyRefresh();
               
               // Show success message
               if (mounted) {

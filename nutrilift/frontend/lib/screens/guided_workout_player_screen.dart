@@ -5,6 +5,7 @@ import '../widgets/nutrilift_header.dart';
 import '../models/workout_models.dart';
 import '../providers/repository_providers.dart';
 import '../providers/workout_history_provider.dart';
+import '../providers/personal_records_provider.dart';
 import 'guided_workout_plans.dart';
 
 const Color _kRed = Color(0xFFE53935);
@@ -143,7 +144,7 @@ class _GuidedWorkoutPlayerScreenState
     final progress = _currentIndex / widget.plan.exercises.length;
 
     return Scaffold(
-      backgroundColor: isRest ? const Color(0xFF1B5E20) : const Color(0xFF1A1A2E),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -157,11 +158,11 @@ class _GuidedWorkoutPlayerScreenState
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white12,
+                        color: Colors.grey[200],
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.close_rounded,
-                          color: Colors.white, size: 20),
+                      child: Icon(Icons.close_rounded,
+                          color: Colors.grey[700], size: 20),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -170,12 +171,12 @@ class _GuidedWorkoutPlayerScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(widget.plan.name,
-                            style: const TextStyle(
-                                color: Colors.white70, fontSize: 12)),
+                            style: TextStyle(
+                                color: Colors.grey[600], fontSize: 12)),
                         Text(
                           '${_currentIndex + 1} / ${widget.plan.exercises.length}',
                           style: const TextStyle(
-                              color: Colors.white,
+                              color: Colors.black87,
                               fontWeight: FontWeight.bold,
                               fontSize: 14),
                         ),
@@ -183,8 +184,8 @@ class _GuidedWorkoutPlayerScreenState
                     ),
                   ),
                   Text(_formatTime(_totalElapsed),
-                      style: const TextStyle(
-                          color: Colors.white54, fontSize: 13)),
+                      style: TextStyle(
+                          color: Colors.grey[600], fontSize: 13)),
                 ],
               ),
             ),
@@ -197,7 +198,7 @@ class _GuidedWorkoutPlayerScreenState
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 4,
-                  backgroundColor: Colors.white12,
+                  backgroundColor: Colors.grey[200],
                   valueColor: AlwaysStoppedAnimation<Color>(
                       isRest ? _kGreen : _kRed),
                 ),
@@ -210,7 +211,7 @@ class _GuidedWorkoutPlayerScreenState
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: Text(
-                isRest ? '😮‍💨 Rest' : '💪 Exercise',
+                isRest ? 'Rest' : 'Exercise',
                 key: ValueKey(isRest),
                 style: TextStyle(
                   color: isRest ? _kGreen : _kRed,
@@ -230,7 +231,7 @@ class _GuidedWorkoutPlayerScreenState
                 key: ValueKey('$_currentIndex-$isRest'),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Colors.black87,
                   fontWeight: FontWeight.bold,
                   fontSize: 28,
                 ),
@@ -244,8 +245,9 @@ class _GuidedWorkoutPlayerScreenState
                 padding: const EdgeInsets.symmetric(
                     horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _kRed.withOpacity(0.2),
+                  color: _kRed.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: _kRed.withOpacity(0.3)),
                 ),
                 child: Text(ex.muscleGroup,
                     style: const TextStyle(
@@ -276,8 +278,8 @@ class _GuidedWorkoutPlayerScreenState
                 child: Text(
                   ex.instruction,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      color: Colors.white54, fontSize: 13, height: 1.5),
+                  style: TextStyle(
+                      color: Colors.grey[600], fontSize: 13, height: 1.5),
                 ),
               ),
 
@@ -309,7 +311,7 @@ class _GuidedWorkoutPlayerScreenState
                         boxShadow: [
                           BoxShadow(
                             color: (isRest ? _kGreen : _kRed)
-                                .withOpacity(0.4),
+                                .withOpacity(0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 4),
                           ),
@@ -345,20 +347,21 @@ class _GuidedWorkoutPlayerScreenState
                 margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.06),
+                  color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[300]!),
                 ),
                 child: Row(children: [
-                  const Icon(Icons.arrow_forward_rounded,
-                      color: Colors.white38, size: 16),
+                  Icon(Icons.arrow_forward_rounded,
+                      color: Colors.grey[600], size: 16),
                   const SizedBox(width: 8),
                   Text('Next: ',
-                      style: const TextStyle(
-                          color: Colors.white38, fontSize: 12)),
+                      style: TextStyle(
+                          color: Colors.grey[600], fontSize: 12)),
                   Text(
                     widget.plan.exercises[_currentIndex + 1].name,
                     style: const TextStyle(
-                        color: Colors.white60,
+                        color: Colors.black87,
                         fontSize: 12,
                         fontWeight: FontWeight.w600),
                   ),
@@ -430,7 +433,7 @@ class _CircularTimer extends StatelessWidget {
             child: CircularProgressIndicator(
               value: progress,
               strokeWidth: 10,
-              backgroundColor: Colors.white12,
+              backgroundColor: Colors.grey[200],
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
           ),
@@ -441,9 +444,9 @@ class _CircularTimer extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: 38)),
             if (paused)
-              const Text('PAUSED',
+              Text('PAUSED',
                   style: TextStyle(
-                      color: Colors.white38,
+                      color: Colors.grey[600],
                       fontSize: 11,
                       letterSpacing: 1)),
           ]),
@@ -466,9 +469,9 @@ class _RepsDisplay extends StatelessWidget {
               color: _kRed,
               fontWeight: FontWeight.bold,
               fontSize: 72)),
-      const Text('REPS',
+      Text('REPS',
           style: TextStyle(
-              color: Colors.white38,
+              color: Colors.grey[600],
               fontSize: 14,
               letterSpacing: 2,
               fontWeight: FontWeight.w600)),
@@ -500,16 +503,19 @@ class _ControlBtn extends StatelessWidget {
           width: size,
           height: size,
           decoration: BoxDecoration(
-            color: enabled ? Colors.white12 : Colors.white.withOpacity(0.04),
+            color: enabled ? Colors.grey[200] : Colors.grey[100],
             borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: enabled ? Colors.grey[300]! : Colors.grey[200]!,
+            ),
           ),
           child: Icon(icon,
-              color: enabled ? Colors.white : Colors.white24, size: 26),
+              color: enabled ? Colors.black87 : Colors.grey[400], size: 26),
         ),
         const SizedBox(height: 4),
         Text(label,
             style: TextStyle(
-                color: enabled ? Colors.white54 : Colors.white24,
+                color: enabled ? Colors.grey[700] : Colors.grey[400],
                 fontSize: 11)),
       ]),
     );
@@ -548,41 +554,26 @@ class _WorkoutCompleteScreenState
       final durationMinutes =
           (widget.totalSeconds / 60).ceil().clamp(1, 600);
 
-      // Build exercise requests — one entry per exercise in the plan
-      final exercises = widget.plan.exercises.asMap().entries.map((entry) {
-        final i = entry.key;
-        final ex = entry.value;
-        return ExerciseSetRequest(
-          exerciseId: '0', // bodyweight — no DB exercise ID needed
-          order: i,
-          sets: [
-            WorkoutSetRequest(
-              setNumber: 1,
-              reps: ex.reps > 0 ? ex.reps : null,
-              weight: 0.0,
-              durationSeconds:
-                  ex.durationSeconds > 0 ? ex.durationSeconds : null,
-              completed: true,
-            ),
-          ],
-          notes: ex.name,
-        );
-      }).toList();
-
+      // Guided workouts are bodyweight — send empty exercises list.
+      // The workout is logged by name/duration/calories only.
+      // PRs are not tracked for guided workouts since they use bodyweight only.
       final request = CreateWorkoutLogRequest(
         workoutName: widget.plan.name,
         durationMinutes: durationMinutes,
         caloriesBurned: _estimatedCalories.toDouble(),
-        exercises: exercises,
+        exercises: [],
+        notes: '${widget.plan.totalExercises} exercises completed via guided workout',
       );
 
       await repo.logWorkout(request);
 
-      // Refresh workout history so dashboard stats update
-      ref.read(workoutHistoryProvider.notifier).refresh();
+      // Invalidate providers so the home screen refreshes when we pop back
+      ref.invalidate(workoutHistoryProvider);
+      ref.invalidate(personalRecordsProvider);
 
       if (mounted) setState(() { _saving = false; _saved = true; });
-    } catch (_) {
+    } catch (e) {
+      print('GuidedWorkout save error: $e');
       if (mounted) setState(() { _saving = false; _saved = false; });
     }
   }
@@ -605,24 +596,36 @@ class _WorkoutCompleteScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('🎉', style: TextStyle(fontSize: 64)),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: _kRed.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: _kRed.withOpacity(0.3), width: 2),
+                ),
+                child: const Icon(
+                  Icons.check_circle,
+                  size: 64,
+                  color: _kRed,
+                ),
+              ),
               const SizedBox(height: 16),
               const Text('Workout Complete!',
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.black87,
                       fontWeight: FontWeight.bold,
                       fontSize: 28)),
               const SizedBox(height: 8),
               Text(widget.plan.name,
-                  style: const TextStyle(
-                      color: Colors.white54, fontSize: 15)),
+                  style: TextStyle(
+                      color: Colors.grey[600], fontSize: 15)),
               const SizedBox(height: 8),
               // Save status
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -631,10 +634,10 @@ class _WorkoutCompleteScreenState
                       width: 14,
                       height: 14,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white38)),
+                          strokeWidth: 2, color: _kRed)),
                   const SizedBox(width: 8),
-                  const Text('Saving to history...',
-                      style: TextStyle(color: Colors.white38, fontSize: 12)),
+                  Text('Saving to history...',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                 ] else if (_saved) ...[
                   const Icon(Icons.check_circle_rounded,
                       color: _kGreen, size: 16),
@@ -678,9 +681,11 @@ class _WorkoutCompleteScreenState
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context)
-                      ..pop()
-                      ..pop();
+                    // Invalidate providers to force fresh data load
+                    ref.invalidate(workoutHistoryProvider);
+                    ref.invalidate(personalRecordsProvider);
+                    
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _kRed,
@@ -696,9 +701,14 @@ class _WorkoutCompleteScreenState
               ),
               const SizedBox(height: 12),
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Do Another Workout',
-                    style: TextStyle(color: Colors.white54)),
+                onPressed: () {
+                  ref.invalidate(workoutHistoryProvider);
+                  ref.invalidate(personalRecordsProvider);
+                  
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+                child: Text('Do Another Workout',
+                    style: TextStyle(color: Colors.grey[600])),
               ),
             ],
           ),
@@ -727,8 +737,9 @@ class _CompleteStat extends StatelessWidget {
       Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.15),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.3)),
         ),
         child: Icon(icon, color: color, size: 24),
       ),
@@ -737,7 +748,7 @@ class _CompleteStat extends StatelessWidget {
           style: TextStyle(
               color: color, fontWeight: FontWeight.bold, fontSize: 16)),
       Text(label,
-          style: const TextStyle(color: Colors.white38, fontSize: 11)),
+          style: TextStyle(color: Colors.grey[600], fontSize: 11)),
     ]);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'gym_details_screen.dart';
 import '../widgets/nutrilift_header.dart';
+import '../services/dashboard_service.dart';
 
 class GymFindingScreen extends StatefulWidget {
   @override
@@ -10,6 +11,27 @@ class GymFindingScreen extends StatefulWidget {
 class _GymFindingScreenState extends State<GymFindingScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedFilter = 'All';
+  int _currentStreak = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStreak();
+  }
+
+  Future<void> _loadStreak() async {
+    try {
+      final dashboardService = DashboardService();
+      final streak = await dashboardService.getCurrentStreak();
+      if (mounted) {
+        setState(() {
+          _currentStreak = streak;
+        });
+      }
+    } catch (e) {
+      print('Error loading streak: $e');
+    }
+  }
 
   final List<Map<String, dynamic>> gyms = [
     {
@@ -246,16 +268,7 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
   Widget build(BuildContext context) {
     return NutriLiftScaffold(
       title: 'Find Gyms',
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.map, color: Colors.black),
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Map view coming soon!')),
-            );
-          },
-        ),
-      ],
+      streakCount: _currentStreak,
       body: RefreshIndicator(
         onRefresh: () async {
           // Simulate refresh
@@ -268,33 +281,54 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Search Bar
-                TextField(
-                  controller: _searchController,
-                  onChanged: (value) => setState(() {}),
-                  decoration: InputDecoration(
-                    hintText: 'Search gyms, facilities...',
-                    prefixIcon: Icon(Icons.search, color: Colors.red[700]),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() {});
-                            },
-                          )
-                        : null,
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                // Search Bar with Location Button
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) => setState(() {}),
+                        decoration: InputDecoration(
+                          hintText: 'Search gyms, facilities...',
+                          prefixIcon: Icon(Icons.search, color: Colors.red[700]),
+                          suffixIcon: _searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() {});
+                                  },
+                                )
+                              : null,
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.red[700]!, width: 2),
+                          ),
+                        ),
+                      ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.red[700]!, width: 2),
+                    const SizedBox(width: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE53935),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.location_on, color: Colors.white),
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Map view coming soon!')),
+                          );
+                        },
+                      ),
                     ),
-                  ),
+                  ],
                 ),
                 const SizedBox(height: 20),
 

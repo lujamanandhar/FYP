@@ -16,6 +16,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from admin import views as admin_views
 
 urlpatterns = [
     # Django admin interface
@@ -36,6 +37,15 @@ urlpatterns = [
     # Challenge & Community endpoints
     path('api/challenges/', include('challenges.urls')),
     path('api/community/', include('challenges.urls')),
+    
+    # Admin API endpoints
+    path('api/admin/', include('admin.urls', namespace='admin_api')),
+    
+    # Gym comparison endpoints
+    path('api/gyms/', include('gyms.urls', namespace='gyms')),
+    
+    # Public FAQ endpoint (uses same view but without admin permission)
+    path('api/faqs/', admin_views.FAQListView.as_view(), name='public-faqs'),
     
     # Media upload endpoint
     path('api/', include('challenges.upload_urls')),

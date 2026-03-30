@@ -20,7 +20,9 @@ import 'workout_detail_screen.dart';
 /// 
 /// Validates: Requirements 1.1, 1.5, 1.6
 class WorkoutHistoryScreen extends ConsumerStatefulWidget {
-  const WorkoutHistoryScreen({Key? key}) : super(key: key);
+  final bool todayOnly;
+  
+  const WorkoutHistoryScreen({Key? key, this.todayOnly = false}) : super(key: key);
 
   @override
   ConsumerState<WorkoutHistoryScreen> createState() => _WorkoutHistoryScreenState();
@@ -36,6 +38,25 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    
+    // If todayOnly mode, filter to show only today's workouts
+    if (widget.todayOnly) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final today = DateTime.now();
+        final startOfDay = DateTime(today.year, today.month, today.day);
+        final endOfDay = DateTime(today.year, today.month, today.day, 23, 59, 59);
+        
+        setState(() {
+          _selectedDateFrom = startOfDay;
+          _selectedDateTo = endOfDay;
+        });
+        
+        ref.read(workoutHistoryProvider.notifier).filterByDateRange(
+          startOfDay,
+          endOfDay,
+        );
+      });
+    }
   }
 
   @override
@@ -90,16 +111,16 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     final workoutHistoryState = ref.watch(workoutHistoryProvider);
 
     return NutriLiftScaffold(
-      title: 'Workout History',
+      title: widget.todayOnly ? "Today's Workouts" : 'Workout History',
       showBackButton: true,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: widget.todayOnly ? null : FloatingActionButton(
         onPressed: _navigateToNewWorkout,
         backgroundColor: const Color(0xFFE53935),
         child: const Icon(Icons.add, color: Colors.white),
       ),
       body: Column(
         children: [
-          _buildDateFilterButton(),
+          if (!widget.todayOnly) _buildDateFilterButton(),
           Expanded(
             child: RefreshIndicator(
               onRefresh: _handleRefresh,

@@ -6,6 +6,7 @@ Requirements: 7.1, 7.2, 7.3, 7.4
 """
 from django.urls import path
 from . import views
+from . import admin_views
 
 # URL namespace for authentication endpoints
 app_name = 'authentications'
@@ -37,4 +38,13 @@ urlpatterns = [
     # Support ticket submission
     # POST /api/auth/support/
     path('support/', views.submit_support_ticket, name='auth-support'),
+
+    # Admin endpoints
+    path('admin/dashboard/', admin_views.AdminDashboardView.as_view(), name='admin-dashboard'),
+    path('admin/users/', admin_views.AdminUserListView.as_view(), name='admin-users'),
+    path('admin/users/<uuid:user_id>/', admin_views.AdminUserDetailView.as_view(), name='admin-user-detail'),
+    path('admin/challenges/', admin_views.AdminChallengeListView.as_view(), name='admin-challenges'),
+    path('admin/challenges/<uuid:challenge_id>/', admin_views.AdminChallengeUpdateView.as_view(), name='admin-challenge-update'),
+    path('admin/support-tickets/', admin_views.AdminSupportTicketListView.as_view(), name='admin-support-tickets'),
+    path('admin/support-tickets/<uuid:ticket_id>/', admin_views.AdminSupportTicketUpdateView.as_view(), name='admin-support-ticket-update'),
 ]

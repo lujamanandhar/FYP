@@ -202,15 +202,33 @@ class StreakView(APIView):
     """
     GET /api/challenges/streak/
     Returns the Streak for the requesting user, or zeros if none exists.
+    If the user missed yesterday, returns 0 for current_streak.
     Requirements: 4.2
     """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        from django.utils import timezone
+        
         try:
             streak = Streak.objects.get(user=request.user)
-            serializer = StreakSerializer(streak)
-            return Response(serializer.data)
+            
+            # Check if streak is still valid
+            today = timezone.now().date()
+            yesterday = today - timezone.timedelta(days=1)
+            
+            # If last active was today or yesterday, streak is valid
+            if streak.last_active_date in (today, yesterday):
+                current_streak = streak.current_streak
+            else:
+                # Missed a day - streak is broken, return 0
+                current_streak = 0
+            
+            return Response({
+                'current_streak': current_streak,
+                'longest_streak': streak.longest_streak,
+                'last_active_date': streak.last_active_date,
+            })
         except Streak.DoesNotExist:
             return Response({
                 'current_streak': 0,

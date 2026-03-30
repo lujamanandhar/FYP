@@ -194,13 +194,22 @@ class _CameraRepCounterScreenState extends State<CameraRepCounterScreen> {
   Widget build(BuildContext context) {
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
       return Scaffold(
-        appBar: AppBar(title: Text(widget.exerciseName)),
-        body: const Center(child: CircularProgressIndicator()),
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text(widget.exerciseName),
+          backgroundColor: const Color(0xFFE53935),
+          foregroundColor: Colors.white,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE53935)),
+          ),
+        ),
       );
     }
     
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
           children: [
@@ -217,8 +226,15 @@ class _CameraRepCounterScreenState extends State<CameraRepCounterScreen> {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
+                  color: Colors.white.withOpacity(0.95),
                   borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -226,7 +242,7 @@ class _CameraRepCounterScreenState extends State<CameraRepCounterScreen> {
                     Text(
                       widget.exerciseName,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: Color(0xFFE53935),
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -242,8 +258,15 @@ class _CameraRepCounterScreenState extends State<CameraRepCounterScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
+                  color: const Color(0xFFE53935),
                   borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 12,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: Text(
                   '${_repCounter?.repCount ?? 0}',
@@ -276,7 +299,7 @@ class _CameraRepCounterScreenState extends State<CameraRepCounterScreen> {
                   _buildControlButton(
                     icon: Icons.stop,
                     label: 'Stop',
-                    color: Colors.red,
+                    color: const Color(0xFFE53935),
                     onPressed: _endSession,
                   ),
                 ],
@@ -293,9 +316,9 @@ class _CameraRepCounterScreenState extends State<CameraRepCounterScreen> {
     if (_confidence > 0.8) {
       color = Colors.green;
     } else if (_confidence > 0.6) {
-      color = Colors.yellow;
+      color = Colors.orange;
     } else {
-      color = Colors.red;
+      color = const Color(0xFFE53935);
     }
     
     return Row(
@@ -312,8 +335,9 @@ class _CameraRepCounterScreenState extends State<CameraRepCounterScreen> {
         Text(
           '${(_confidence * 100).toInt()}%',
           style: const TextStyle(
-            color: Colors.white,
+            color: Colors.black87,
             fontSize: 14,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -326,16 +350,19 @@ class _CameraRepCounterScreenState extends State<CameraRepCounterScreen> {
     required VoidCallback onPressed,
     Color? color,
   }) {
+    final buttonColor = color ?? Colors.white;
+    final iconColor = color != null ? Colors.white : const Color(0xFFE53935);
+    
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           decoration: BoxDecoration(
-            color: color ?? Colors.white,
+            color: buttonColor,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withOpacity(0.2),
                 blurRadius: 8,
                 spreadRadius: 2,
               ),
@@ -344,17 +371,24 @@ class _CameraRepCounterScreenState extends State<CameraRepCounterScreen> {
           child: IconButton(
             icon: Icon(icon),
             iconSize: 32,
-            color: color != null ? Colors.white : Colors.black,
+            color: iconColor,
             onPressed: onPressed,
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Colors.black87,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],

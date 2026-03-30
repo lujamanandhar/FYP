@@ -4,6 +4,32 @@ import 'package:dio/dio.dart';
 import '../widgets/nutrilift_header.dart';
 import '../services/dio_client.dart';
 
+class FAQ {
+  final String id;
+  final String category;
+  final String question;
+  final String answer;
+  final int order;
+
+  FAQ({
+    required this.id,
+    required this.category,
+    required this.question,
+    required this.answer,
+    required this.order,
+  });
+
+  factory FAQ.fromJson(Map<String, dynamic> json) {
+    return FAQ(
+      id: json['id'],
+      category: json['category'],
+      question: json['question'],
+      answer: json['answer'],
+      order: json['order'],
+    );
+  }
+}
+
 class HelpSupportScreen extends StatefulWidget {
   const HelpSupportScreen({Key? key}) : super(key: key);
 
@@ -16,6 +42,30 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
   final _subjectCtrl = TextEditingController();
   final _messageCtrl = TextEditingController();
   bool _sending = false;
+  List<FAQ> _faqs = [];
+  bool _loadingFAQs = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFAQs();
+  }
+
+  Future<void> _loadFAQs() async {
+    setState(() => _loadingFAQs = true);
+    try {
+      final dio = DioClient().dio;
+      final response = await dio.get('/faqs/');
+      final List<dynamic> data = response.data;
+      setState(() {
+        _faqs = data.map((json) => FAQ.fromJson(json)).toList();
+        _loadingFAQs = false;
+      });
+    } catch (e) {
+      setState(() => _loadingFAQs = false);
+      debugPrint('Error loading FAQs: $e');
+    }
+  }
 
   @override
   void dispose() {
@@ -60,18 +110,22 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      debugPrint('Could not launch $url');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open $url')),
+        );
+      }
     }
   }
 
-  Future<void> _launchEmail(String email, String subject) async {
-    final Uri emailUri = Uri(
-      scheme: 'mailto',
-      path: email,
-      query: 'subject=${Uri.encodeComponent(subject)}',
-    );
-    if (!await launchUrl(emailUri)) {
-      debugPrint('Could not launch email client');
+  Future<void> _launchPhone(String phone) async {
+    final Uri phoneUri = Uri.parse('tel:$phone');
+    if (!await launchUrl(phoneUri)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not dial $phone')),
+        );
+      }
     }
   }
 
@@ -178,39 +232,23 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            // Quick Help Section
-            const Text(
-              'Quick Help',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2D2D2D),
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            _buildHelpCard(
-              icon: Icons.quiz,
-              title: 'Frequently Asked Questions',
-              description: 'Find answers to common questions about NutriLift',
-              onTap: () => _showFAQDialog(context),
-            ),
+
+            // FAQs Section
+            const Text('Frequently Asked Questions',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF2D2D2D))),
             const SizedBox(height: 12),
-            
-            _buildHelpCard(
-              icon: Icons.fitness_center,
-              title: 'Getting Started Guide',
-              description: 'Learn how to set up your profile and start your fitness journey',
-              onTap: () => _showGettingStartedDialog(context),
-            ),
-            const SizedBox(height: 12),
-            
-            _buildHelpCard(
-              icon: Icons.restaurant,
-              title: 'Nutrition Tracking Help',
-              description: 'Learn how to track your meals and manage your nutrition',
-              onTap: () => _showNutritionHelpDialog(context),
-            ),
+            _loadingFAQs
+                ? const Center(child: CircularProgressIndicator())
+                : _faqs.isEmpty
+                    ? const Card(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Text('No FAQs available at the moment.'),
+                        ),
+                      )
+                    : Column(
+                        children: _buildFAQsByCategory(),
+                      ),
             const SizedBox(height: 24),
 
             // Contact Support Section
@@ -225,33 +263,15 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             const SizedBox(height: 16),
             
             _buildContactCard(
-              icon: Icons.email,
-              title: 'Email Support',
-              description: 'support@nutrilift.com',
-              subtitle: 'We typically respond within 24 hours',
-              onTap: () => _launchEmail('support@nutrilift.com', 'NutriLift Support Request'),
-            ),
-            const SizedBox(height: 12),
-            
-            _buildContactCard(
               icon: Icons.phone,
               title: 'Phone Support',
-              description: '+1 (555) 123-4567',
-              subtitle: 'Mon-Fri, 9 AM - 6 PM EST',
-              onTap: () => _launchURL('tel:+15551234567'),
-            ),
-            const SizedBox(height: 12),
-            
-            _buildContactCard(
-              icon: Icons.chat,
-              title: 'Live Chat',
-              description: 'Chat with our support team',
-              subtitle: 'Available 24/7',
-              onTap: () => _showChatDialog(context),
+              description: '+977 9840883856',
+              subtitle: 'Tap to call (Nepal)',
+              onTap: () => _launchPhone('+9779840883856'),
             ),
             const SizedBox(height: 24),
 
-            // Social Media & Resources
+            // Social Media
             const Text(
               'Connect With Us',
               style: TextStyle(
@@ -281,27 +301,13 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                     onTap: () => _launchURL('https://instagram.com/nutrilift'),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            
-            Row(
-              children: [
+                const SizedBox(width: 12),
                 Expanded(
                   child: _buildSocialCard(
                     icon: Icons.play_arrow,
                     title: 'YouTube',
                     color: const Color(0xFFFF0000),
                     onTap: () => _launchURL('https://youtube.com/nutrilift'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildSocialCard(
-                    icon: Icons.language,
-                    title: 'Website',
-                    color: const Color(0xFF2D2D2D),
-                    onTap: () => _launchURL('https://nutrilift.com'),
                   ),
                 ),
               ],
@@ -352,63 +358,49 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     );
   }
 
-  Widget _buildHelpCard({
-    required IconData icon,
-    required String title,
-    required String description,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFEBEE),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: Colors.red, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF2D2D2D),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      description,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF666666),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(
-                Icons.chevron_right,
-                color: Color(0xFF999999),
-              ),
-            ],
+  List<Widget> _buildFAQsByCategory() {
+    final categories = {
+      'getting_started': 'Getting Started',
+      'nutrition': 'Nutrition Tracking',
+      'workout': 'Workout Tracking',
+      'challenges': 'Challenges',
+    };
+
+    List<Widget> widgets = [];
+    
+    for (var entry in categories.entries) {
+      final categoryFAQs = _faqs.where((faq) => faq.category == entry.key).toList();
+      if (categoryFAQs.isEmpty) continue;
+
+      widgets.add(
+        ExpansionTile(
+          title: Text(
+            entry.value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
+          leading: const Icon(Icons.help_outline, color: Color(0xFFE53935)),
+          children: categoryFAQs.map((faq) {
+            return ExpansionTile(
+              title: Text(
+                faq.question,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    faq.answer,
+                    style: const TextStyle(fontSize: 14, color: Color(0xFF666666)),
+                  ),
+                ),
+              ],
+            );
+          }).toList(),
         ),
-      ),
-    );
+      );
+    }
+
+    return widgets;
   }
 
   Widget _buildContactCard({
@@ -516,158 +508,6 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showFAQDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Frequently Asked Questions'),
-        content: const SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Q: How do I track my meals?',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text('A: Go to the Nutrition tab and tap "Add Food" to log your meals.'),
-              SizedBox(height: 16),
-              Text(
-                'Q: How do I start a workout?',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text('A: Visit the Workout tab, select a workout, and tap "Start Workout".'),
-              SizedBox(height: 16),
-              Text(
-                'Q: Can I edit my profile?',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text('A: Yes! Tap "Profile View" in the menu or edit from the Home screen.'),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showGettingStartedDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Getting Started'),
-        content: const SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '1. Complete Your Profile',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text('Set up your personal information, fitness goals, and preferences.'),
-              SizedBox(height: 12),
-              Text(
-                '2. Track Your Nutrition',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text('Log your meals and monitor your daily nutrition intake.'),
-              SizedBox(height: 12),
-              Text(
-                '3. Start Working Out',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text('Choose from various workout programs tailored to your fitness level.'),
-              SizedBox(height: 12),
-              Text(
-                '4. Join the Community',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text('Connect with others and participate in fitness challenges.'),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showNutritionHelpDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Nutrition Tracking Help'),
-        content: const SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Adding Foods:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text('• Tap "Add Food" in any meal section\n• Search for foods in our database\n• Add custom foods if not found'),
-              SizedBox(height: 12),
-              Text(
-                'Tracking Macros:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text('• View protein, carbs, and fats at the top\n• Tap any macro card for detailed breakdown\n• Adjust targets in the macro overview'),
-              SizedBox(height: 12),
-              Text(
-                'Daily Navigation:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text('• Use arrows to navigate between dates\n• View past meals for reference\n• Plan future meals in advance'),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showChatDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Live Chat'),
-        content: const Text('Live chat feature is coming soon! For immediate assistance, please use email or phone support.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
   }

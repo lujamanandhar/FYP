@@ -14,9 +14,8 @@ class WorkoutDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final exercises = workout.exercises;
-    final dateStr = DateFormat('EEEE, MMM d yyyy • h:mm a').format(
-      workout.createdAt ?? DateTime.now(),
-    );
+    final workoutDate = (workout.createdAt ?? DateTime.now()).toLocal();
+    final dateStr = DateFormat('EEEE, MMM d yyyy • h:mm a').format(workoutDate);
 
     return NutriLiftScaffold(
       title: workout.workoutName ?? 'Workout',

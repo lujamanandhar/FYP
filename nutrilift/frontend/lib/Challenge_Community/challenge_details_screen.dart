@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/nutrilift_header.dart';
+import '../services/dashboard_service.dart';
 import 'challenge_provider.dart';
 import 'challenge_api_service.dart';
 import 'active_challenge_screen.dart';
@@ -18,11 +19,27 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
   List<ChallengeParticipantModel> _leaderboard = [];
   bool _leaderboardLoading = false;
   String? _leaderboardError;
+  int _currentStreak = 0;
 
   @override
   void initState() {
     super.initState();
     _fetchLeaderboard();
+    _loadStreak();
+  }
+
+  Future<void> _loadStreak() async {
+    try {
+      final dashboardService = DashboardService();
+      final streak = await dashboardService.getCurrentStreak();
+      if (mounted) {
+        setState(() {
+          _currentStreak = streak;
+        });
+      }
+    } catch (e) {
+      print('Error loading streak: $e');
+    }
   }
 
   Future<void> _fetchLeaderboard() async {
@@ -71,6 +88,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
     final typeColor = _typeColor(challenge.challengeType);
 
     return NutriLiftScaffold(
+      streakCount: _currentStreak,
       title: 'Challenge Details',
       showBackButton: true,
       showDrawer: false,

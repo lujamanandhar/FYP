@@ -10,6 +10,7 @@ import '../providers/personal_records_provider.dart';
 import '../providers/repository_providers.dart';
 import '../widgets/nutrilift_header.dart';
 import '../widgets/rest_timer_dialog.dart';
+import '../services/dashboard_refresh_service.dart';
 
 /// New Workout Screen
 /// 
@@ -676,6 +677,15 @@ class _NewWorkoutScreenState extends ConsumerState<NewWorkoutScreen> {
         // Invalidate providers to force fresh data load
         ref.invalidate(workoutHistoryProvider);
         ref.invalidate(personalRecordsProvider);
+        
+        // Notify home page to refresh dashboard
+        DashboardRefreshService().notifyRefresh();
+        
+        // Small delay to ensure backend signals have processed
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        // Force refresh of PRs to show new records immediately
+        await ref.read(personalRecordsProvider.notifier).refresh();
         
         // Navigate back
         if (mounted) {

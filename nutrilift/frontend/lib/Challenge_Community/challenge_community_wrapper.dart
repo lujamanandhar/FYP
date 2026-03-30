@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/nutrilift_header.dart';
+import '../services/dashboard_service.dart';
 import 'challenge_provider.dart';
 import 'challenge_overview_screen.dart';
 import 'community_provider.dart';
@@ -18,13 +19,29 @@ class ChallengeCommunityWrapper extends StatefulWidget {
 
 class _ChallengeCommunityWrapperState extends State<ChallengeCommunityWrapper> {
   int _selectedTab = 1;
+  int _currentStreak = 0;
 
   @override
   void initState() {
     super.initState();
+    _loadStreak();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CommunityProvider>().fetchFeed();
     });
+  }
+
+  Future<void> _loadStreak() async {
+    try {
+      final dashboardService = DashboardService();
+      final streak = await dashboardService.getCurrentStreak();
+      if (mounted) {
+        setState(() {
+          _currentStreak = streak;
+        });
+      }
+    } catch (e) {
+      // Silently handle error
+    }
   }
 
   void _switchTab(int index) {
@@ -39,6 +56,7 @@ class _ChallengeCommunityWrapperState extends State<ChallengeCommunityWrapper> {
   @override
   Widget build(BuildContext context) {
     return NutriLiftScaffold(
+      streakCount: _currentStreak,
       body: Column(
         children: [
           Padding(

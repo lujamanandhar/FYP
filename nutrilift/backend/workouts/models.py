@@ -492,3 +492,7 @@ class AuditLog(models.Model):
     def __str__(self):
         return f"{self.user.email} - {self.action} {self.model_name} #{self.object_id} at {self.timestamp}"
 
+
+
+# Import rep counting models to register them with Django
+from .rep_counting_models import RepSession, RepEvent

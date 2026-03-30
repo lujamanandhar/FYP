@@ -201,10 +201,11 @@ class WorkoutLogViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """
         Optimized queryset with select_related and prefetch_related.
+        Excludes soft-deleted workouts.
         
-        Requirements: 12.5
+        Requirements: 12.5, 14.9
         """
-        queryset = WorkoutLog.objects.filter(user=self.request.user)
+        queryset = WorkoutLog.objects.filter(user=self.request.user, is_deleted=False)
         
         # Optimize queries with select_related for ForeignKey relationships
         queryset = queryset.select_related('user', 'custom_workout', 'gym')

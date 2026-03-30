@@ -51,7 +51,7 @@ const List<GuidedPlan> kGuidedPlans = [
     difficulty: 'Beginner',
     category: 'Full Body',
     estimatedMinutes: 10,
-    emoji: '🌟',
+    emoji: '',
     exercises: [
       GuidedExercise(name: 'Jumping Jacks', muscleGroup: 'Full Body', durationSeconds: 30, restSeconds: 10, instruction: 'Jump feet wide while raising arms overhead. Keep a steady rhythm.'),
       GuidedExercise(name: 'Push-ups', muscleGroup: 'Chest', durationSeconds: 0, reps: 10, restSeconds: 15, instruction: 'Keep body straight. Lower chest to ground, push back up.'),
@@ -69,7 +69,7 @@ const List<GuidedPlan> kGuidedPlans = [
     difficulty: 'Intermediate',
     category: 'Core',
     estimatedMinutes: 8,
-    emoji: '🔥',
+    emoji: '',
     exercises: [
       GuidedExercise(name: 'Crunches', muscleGroup: 'Abs', durationSeconds: 0, reps: 20, restSeconds: 10, instruction: 'Lie on back, hands behind head. Curl shoulders toward knees.'),
       GuidedExercise(name: 'Bicycle Crunches', muscleGroup: 'Abs', durationSeconds: 40, restSeconds: 15, instruction: 'Alternate elbow to opposite knee in a cycling motion.'),
@@ -87,7 +87,7 @@ const List<GuidedPlan> kGuidedPlans = [
     difficulty: 'Intermediate',
     category: 'Upper',
     estimatedMinutes: 15,
-    emoji: '💪',
+    emoji: '',
     exercises: [
       GuidedExercise(name: 'Push-ups', muscleGroup: 'Chest', durationSeconds: 0, reps: 15, restSeconds: 20, instruction: 'Standard push-up. Keep elbows at 45° from body.'),
       GuidedExercise(name: 'Wide Push-ups', muscleGroup: 'Chest', durationSeconds: 0, reps: 12, restSeconds: 20, instruction: 'Hands wider than shoulders. Targets outer chest.'),
@@ -105,7 +105,7 @@ const List<GuidedPlan> kGuidedPlans = [
     difficulty: 'Intermediate',
     category: 'Lower',
     estimatedMinutes: 12,
-    emoji: '🦵',
+    emoji: '',
     exercises: [
       GuidedExercise(name: 'Bodyweight Squats', muscleGroup: 'Quads', durationSeconds: 0, reps: 20, restSeconds: 15, instruction: 'Feet shoulder-width. Squat deep, drive through heels.'),
       GuidedExercise(name: 'Jump Squats', muscleGroup: 'Quads', durationSeconds: 0, reps: 12, restSeconds: 20, instruction: 'Squat down then explode upward. Land softly.'),
@@ -123,7 +123,7 @@ const List<GuidedPlan> kGuidedPlans = [
     difficulty: 'Advanced',
     category: 'Cardio',
     estimatedMinutes: 20,
-    emoji: '⚡',
+    emoji: '',
     exercises: [
       GuidedExercise(name: 'Burpees', muscleGroup: 'Full Body', durationSeconds: 0, reps: 10, restSeconds: 20, instruction: 'Squat, jump back to plank, push-up, jump forward, jump up.'),
       GuidedExercise(name: 'High Knees', muscleGroup: 'Cardio', durationSeconds: 40, restSeconds: 20, instruction: 'Sprint in place, knees to hip height. Pump arms.'),

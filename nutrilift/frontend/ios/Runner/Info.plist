@@ -53,5 +53,9 @@
 	<string>NutriLift needs permission to save photos to your library.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>NutriLift needs microphone access to record videos for your daily challenge log.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>NutriLift needs your location to find nearby gyms and fitness centers.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>NutriLift needs your location to find nearby gyms and fitness centers.</string>
 </dict>
 </plist>

@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'workouts',
     'nutrition',
     'challenges',
+    'gyms',
+    'admin.apps.AdminConfig',  # Custom admin app
 ]
 
 MIDDLEWARE = [
@@ -179,11 +181,11 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'authentications.exceptions.custom_exception_handler',
     # Rate limiting configuration
     'DEFAULT_THROTTLE_RATES': {
-        'workout_user': '100/hour',  # Authenticated users: 100 requests per hour
-        'workout_anon': '20/hour',   # Anonymous users: 20 requests per hour
-        'exercise_user': '200/hour', # Exercise browsing: 200 requests per hour
-        'exercise_anon': '50/hour',  # Anonymous exercise browsing: 50 requests per hour
-        'pr_user': '100/hour',       # Personal records: 100 requests per hour
+        'workout_user': '1000/hour',  # Authenticated users: 1000 requests per hour
+        'workout_anon': '100/hour',   # Anonymous users: 100 requests per hour
+        'exercise_user': '1000/hour', # Exercise browsing: 1000 requests per hour
+        'exercise_anon': '200/hour',  # Anonymous exercise browsing: 200 requests per hour
+        'pr_user': '1000/hour',       # Personal records: 1000 requests per hour
     },
 }
 
@@ -275,3 +277,5 @@ LOGGING = {
     },
 }
 
+
+# OpenStreetMap Overpass API - No configuration needed (100% FREE)

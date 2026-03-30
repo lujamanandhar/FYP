@@ -179,3 +179,8 @@ class Follow(models.Model):
 
     def __str__(self):
         return f"{self.follower} follows {self.following}"
+
+
+# Import reward and payment models to register with Django
+from .reward_models import UserPoints, PointTransaction, Achievement, UserAchievement
+from .payment_models import PaymentPlan, ChallengePayment, Subscription
