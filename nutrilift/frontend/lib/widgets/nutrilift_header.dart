@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart' as provider_pkg;
 import '../services/auth_service.dart';
 import '../services/error_handler.dart';
+import '../services/notification_service.dart';
+import '../services/streak_service.dart';
 import '../UserManagement/profile_edit_screen.dart';
 import '../UserManagement/login_screen.dart';
 import '../Support/help_support_screen.dart';
 import '../Settings/settings_screen.dart';
 import '../Admin/admin_dashboard_screen.dart';
+import 'notification_panel.dart';
+import 'streak_overview_widget.dart';
 
 class NutriLiftHeader extends StatefulWidget implements PreferredSizeWidget {
   final String? title;
@@ -13,6 +18,7 @@ class NutriLiftHeader extends StatefulWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final bool showDrawer;
   final VoidCallback? onNotificationTap;
+  final VoidCallback? onStreakTap;
   final int? streakCount;
 
   const NutriLiftHeader({
@@ -22,6 +28,7 @@ class NutriLiftHeader extends StatefulWidget implements PreferredSizeWidget {
     this.actions,
     this.showDrawer = true,
     this.onNotificationTap,
+    this.onStreakTap,
     this.streakCount,
   }) : super(key: key);
 
@@ -33,6 +40,36 @@ class NutriLiftHeader extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _NutriLiftHeaderState extends State<NutriLiftHeader> with ErrorHandlingMixin {
+  int _selfStreak = 0;
+  AllStreaks _allStreaks = const AllStreaks();
+
+  @override
+  void initState() {
+    super.initState();
+    // If no streakCount is passed by the parent, fetch it ourselves
+    if (widget.streakCount == null) {
+      _fetchStreak();
+    }
+  }
+
+  Future<void> _fetchStreak() async {
+    try {
+      final streaks = await StreakService().fetchAllStreaks();
+      if (mounted) {
+        setState(() {
+          _allStreaks = streaks;
+          // Use the highest of the three streaks as the display value
+          _selfStreak = [
+            streaks.workout.currentStreak,
+            streaks.nutrition.currentStreak,
+            streaks.challenge.currentStreak,
+          ].reduce((a, b) => a > b ? a : b);
+        });
+      }
+    } catch (_) {}
+  }
+
+  int get _displayStreak => widget.streakCount ?? _selfStreak;
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -67,12 +104,16 @@ class _NutriLiftHeaderState extends State<NutriLiftHeader> with ErrorHandlingMix
       actions: [
         // Streak counter with fire icon - always show
         GestureDetector(
-          onTap: () => _showStreakCalendar(context),
+          onTap: () => widget.onStreakTap != null
+              ? widget.onStreakTap!()
+              : widget.streakCount != null
+                  ? _showStreakCalendar(context)
+                  : showStreakOverview(context, _allStreaks),
           child: Container(
             margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              gradient: widget.streakCount != null && widget.streakCount! > 0
+              gradient: _displayStreak > 0
                   ? const LinearGradient(
                       colors: [Color(0xFFFF6F00), Color(0xFFFF8F00)],
                     )
@@ -82,7 +123,7 @@ class _NutriLiftHeaderState extends State<NutriLiftHeader> with ErrorHandlingMix
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: widget.streakCount != null && widget.streakCount! > 0
+                  color: _displayStreak > 0
                       ? Colors.orange.withOpacity(0.3)
                       : Colors.grey.withOpacity(0.2),
                   blurRadius: 4,
@@ -100,7 +141,7 @@ class _NutriLiftHeaderState extends State<NutriLiftHeader> with ErrorHandlingMix
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '${widget.streakCount ?? 0}',
+                  '$_displayStreak',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
@@ -112,45 +153,56 @@ class _NutriLiftHeaderState extends State<NutriLiftHeader> with ErrorHandlingMix
           ),
         ),
         IconButton(
-          icon: Stack(
-            children: [
-              const Icon(
-                Icons.notifications_outlined,
-                color: Colors.black,
-                size: 24,
-              ),
-              Positioned(
-                right: 0,
-                top: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 12,
-                    minHeight: 12,
-                  ),
-                  child: const Text(
-                    '3',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
+          icon: provider_pkg.Consumer<NotificationService>(
+            builder: (ctx, notifService, _) {
+              final count = notifService.unreadCount;
+              return Stack(
+                children: [
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: Icon(
+                      count > 0
+                          ? Icons.notifications
+                          : Icons.notifications_outlined,
+                      key: ValueKey(count > 0),
+                      color: Colors.black,
+                      size: 24,
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                ),
-              ),
-            ],
+                  if (count > 0)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+                        child: Text(
+                          count > 99 ? '99+' : '$count',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
-          onPressed: widget.onNotificationTap ?? () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Notifications coming soon!'),
-              ),
-            );
+          onPressed: () {
+            final notifService = provider_pkg.Provider.of<NotificationService>(
+                context, listen: false);
+            if (widget.onNotificationTap != null) {
+              widget.onNotificationTap!();
+            } else {
+              showNotificationPanel(context, notifService);
+            }
           },
         ),
         if (widget.actions != null) ...widget.actions!,
@@ -183,7 +235,7 @@ class _NutriLiftHeaderState extends State<NutriLiftHeader> with ErrorHandlingMix
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Current Streak: ${widget.streakCount ?? 0} days',
+                  'Current Streak: $_displayStreak days',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -221,9 +273,9 @@ class _NutriLiftHeaderState extends State<NutriLiftHeader> with ErrorHandlingMix
                         ],
                       ),
                       SizedBox(height: 12),
-                      _buildMilestone(7, widget.streakCount ?? 0),
-                      _buildMilestone(30, widget.streakCount ?? 0),
-                      _buildMilestone(100, widget.streakCount ?? 0),
+                      _buildMilestone(7, _displayStreak),
+                      _buildMilestone(30, _displayStreak),
+                      _buildMilestone(100, _displayStreak),
                     ],
                   ),
                 ),
@@ -517,6 +569,7 @@ class NutriLiftScaffold extends StatelessWidget {
   final List<Widget>? actions;
   final bool showDrawer;
   final VoidCallback? onNotificationTap;
+  final VoidCallback? onStreakTap;
   final Widget? bottomNavigationBar;
   final Widget? floatingActionButton;
   final int? streakCount;
@@ -529,6 +582,7 @@ class NutriLiftScaffold extends StatelessWidget {
     this.actions,
     this.showDrawer = true,
     this.onNotificationTap,
+    this.onStreakTap,
     this.bottomNavigationBar,
     this.floatingActionButton,
     this.streakCount,
@@ -543,6 +597,7 @@ class NutriLiftScaffold extends StatelessWidget {
         actions: actions,
         showDrawer: showDrawer,
         onNotificationTap: onNotificationTap,
+        onStreakTap: onStreakTap,
         streakCount: streakCount,
       ),
       endDrawer: showDrawer ? const NutriLiftDrawer() : null,

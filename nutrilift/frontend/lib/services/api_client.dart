@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'token_service.dart';
+import 'app_config.dart';
 
 class ApiClient {
-  static const String _baseUrl = 'http://127.0.0.1:8000/api';
+  static String get _baseUrl => AppConfig.baseUrl;
   static const Duration _timeout = Duration(seconds: 30);
   static const int _maxRetries = 3;
 

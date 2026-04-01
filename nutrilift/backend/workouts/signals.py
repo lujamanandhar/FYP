@@ -10,16 +10,18 @@ from .models import WorkoutLog, PersonalRecord
 @receiver(post_save, sender=WorkoutLog)
 def check_personal_records(sender, instance, created, **kwargs):
     """
-    Signal handler that triggers PR detection when a WorkoutLog is created.
-    
-    This handler is called after a WorkoutLog is saved. If it's a new workout
-    (created=True), it checks all exercises in the workout to see if any
-    personal records were broken.
+    Signal handler for PR detection on WorkoutLog save.
+    NOTE: For workouts created via the API (with exercises in the same request),
+    PR detection is handled directly in WorkoutLogSerializer.create() to avoid
+    the race condition where exercises don't exist yet at signal time.
+    This signal only handles edge cases (e.g. admin-created logs).
     """
     if created:
-        # Process all workout exercises to check for PRs
-        for workout_exercise in instance.workout_exercises.all():
-            update_personal_record(instance.user, workout_exercise, instance)
+        # Only run if exercises already exist (i.e. not created via the serializer)
+        exercises = list(instance.workout_exercises.all())
+        if exercises:
+            for workout_exercise in exercises:
+                update_personal_record(instance.user, workout_exercise, instance)
 
 
 def update_personal_record(user, workout_exercise, workout_log):
@@ -49,7 +51,7 @@ def update_personal_record(user, workout_exercise, workout_log):
             'max_weight': workout_exercise.weight,
             'max_reps': workout_exercise.reps,
             'max_volume': volume,
-            'achieved_date': workout_log.logged_at,
+            'achieved_date': timezone.localtime(workout_log.logged_at),
             'workout_log': workout_log
         }
     )
@@ -78,6 +80,6 @@ def update_personal_record(user, workout_exercise, workout_log):
         
         # If any PR was broken, update the achieved date and workout log reference
         if updated:
-            pr.achieved_date = workout_log.logged_at
+            pr.achieved_date = timezone.localtime(workout_log.logged_at)
             pr.workout_log = workout_log
             pr.save()

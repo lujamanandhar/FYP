@@ -24,6 +24,16 @@ urlpatterns = [
     path('<uuid:pk>/daily-logs/', views.DailyLogListView.as_view(), name='challenge-daily-logs'),
     path('badges/', views.BadgeView.as_view(), name='challenge-badges'),
     path('streak/', views.StreakView.as_view(), name='challenge-streak'),
+    path('streaks/all/', views.AllStreaksView.as_view(), name='challenge-streaks-all'),
+
+    # Payment endpoints
+    path('<uuid:pk>/pay/initiate/', views.EsewaInitiateView.as_view(), name='esewa-initiate'),
+    path('<uuid:pk>/pay/verify/', views.EsewaVerifyView.as_view(), name='esewa-verify'),
+    path('<uuid:pk>/pay/failure/', views.EsewaFailureView.as_view(), name='esewa-failure'),
+    path('<uuid:pk>/pay/success/', views.EsewaPaymentSuccessView.as_view(), name='esewa-success'),
+
+    # Certificate endpoints
+    path('completions/', views.ChallengeCompletionListView.as_view(), name='challenge-completions'),
 
     # --- Reward endpoints (api/rewards/...) ---
     path('rewards/points/', reward_views.UserPointsView.as_view(), name='rewards-points'),

@@ -386,6 +386,20 @@ class _ChallengeCard extends StatelessWidget {
                         Text('@${challenge.createdByUsername}',
                             style: const TextStyle(color: Colors.white70, fontSize: 11)),
                       ],
+                      if (challenge.isPaid) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.25),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '${challenge.currency} ${challenge.price.toStringAsFixed(0)}',
+                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ]),
                   ]),
                 ),
@@ -461,50 +475,40 @@ class _ChallengeCard extends StatelessWidget {
                 ]),
                 const SizedBox(height: 12),
 
-                // Action button
-                if (!challenge.isJoined)
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: onJoin,
-                      icon: const Icon(Icons.emoji_events_rounded, size: 16),
-                      label: const Text('Join Challenge', style: TextStyle(fontWeight: FontWeight.bold)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _kRed,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 11),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        elevation: 0,
-                      ),
+                // Action button — always navigate to details first
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: onTap,
+                    icon: Icon(
+                      challenge.isJoined
+                          ? Icons.today_rounded
+                          : (challenge.isPaid && !challenge.hasPaid
+                              ? Icons.lock_rounded
+                              : Icons.info_outline_rounded),
+                      size: 16,
                     ),
-                  )
-                else
-                  Row(children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: onTap,
-                        icon: const Icon(Icons.today_rounded, size: 15),
-                        label: const Text('View', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: _kRed,
-                          side: BorderSide(color: _kRed.withOpacity(0.5)),
-                          padding: const EdgeInsets.symmetric(vertical: 9),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
+                    label: Text(
+                      challenge.isJoined
+                          ? 'View Details'
+                          : (challenge.isPaid && !challenge.hasPaid
+                              ? '${challenge.currency} ${challenge.price.toStringAsFixed(0)} — View Details'
+                              : 'View Details'),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(width: 8),
-                    OutlinedButton(
-                      onPressed: onLeave,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: _kRed,
-                        side: BorderSide(color: _kRed.withOpacity(0.4)),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text('Leave', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: challenge.isJoined
+                          ? _kGreen
+                          : (challenge.isPaid && !challenge.hasPaid
+                              ? const Color(0xFF60BB46)
+                              : _kRed),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      elevation: 0,
                     ),
-                  ]),
+                  ),
+                ),
               ]),
             ),
           ]),

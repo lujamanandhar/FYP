@@ -55,11 +55,48 @@ class AdminService {
     return response.data;
   }
 
-  Future<void> updateChallenge(String challengeId, {bool? isOfficial, bool? isActive}) async {
+  Future<void> updateChallenge(String challengeId, {bool? isOfficial, bool? isActive, bool? isPaid, double? price, String? currency, String? prizeDescription}) async {
     final dio = _dioClient.dio;
     await dio.put('/admin/challenges/$challengeId/', data: {
       if (isOfficial != null) 'is_official': isOfficial,
       if (isActive != null) 'is_active': isActive,
+      if (isPaid != null) 'is_paid': isPaid,
+      if (price != null) 'price': price,
+      if (currency != null) 'currency': currency,
+      if (prizeDescription != null) 'prize_description': prizeDescription,
+    });
+  }
+
+  Future<void> createChallenge({
+    required String name,
+    required String description,
+    required String challengeType,
+    required double goalValue,
+    required String unit,
+    required String startDate,
+    required String endDate,
+    bool isOfficial = true,
+    bool isPaid = false,
+    double price = 0,
+    String currency = 'NPR',
+    String prizeDescription = '',
+    List<String> tasks = const [],
+  }) async {
+    final dio = _dioClient.dio;
+    await dio.post('/admin/challenges/create/', data: {
+      'name': name,
+      'description': description,
+      'challenge_type': challengeType,
+      'goal_value': goalValue,
+      'unit': unit,
+      'start_date': startDate,
+      'end_date': endDate,
+      'is_official': isOfficial,
+      'is_paid': isPaid,
+      'price': price,
+      'currency': currency,
+      'prize_description': prizeDescription,
+      'tasks': tasks,
     });
   }
 

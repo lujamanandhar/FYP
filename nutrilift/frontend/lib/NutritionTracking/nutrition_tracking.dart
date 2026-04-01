@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/nutrilift_header.dart';
+import '../widgets/streak_overview_widget.dart';
 import '../services/dashboard_service.dart';
 import '../services/dashboard_refresh_service.dart';
+import '../services/streak_service.dart';
 import 'providers/nutrition_providers.dart';
 import 'models/nutrition_progress.dart';
 import 'models/intake_log.dart';
@@ -33,6 +35,8 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
   bool _isInMealSection = true; 
   String? _selectedMacro;
   int _currentStreak = 0;
+  AllStreaks _allStreaks = const AllStreaks();
+  final StreakService _streakService = StreakService();
 
   @override
   void initState() {
@@ -42,11 +46,11 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
 
   Future<void> _loadStreak() async {
     try {
-      final dashboardService = DashboardService();
-      final streak = await dashboardService.getCurrentStreak();
+      final streaks = await _streakService.fetchAllStreaks();
       if (mounted) {
         setState(() {
-          _currentStreak = streak;
+          _allStreaks = streaks;
+          _currentStreak = streaks.nutrition.currentStreak;
         });
       }
     } catch (e) {
@@ -1033,6 +1037,8 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
   Widget build(BuildContext context) {
     return NutriLiftScaffold(
       streakCount: _currentStreak,
+      onStreakTap: () => showStreakOverview(context, _allStreaks),
+      title: 'Nutrition',
       body: _getCurrentScreen(),
     );
   }

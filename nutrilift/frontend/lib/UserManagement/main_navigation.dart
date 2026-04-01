@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart' as provider_pkg;
 import '../Hompage/home_page.dart';
 import '../NutritionTracking/nutrition_tracking.dart';
 import '../WorkoutTracking/workout_tracking.dart';
 import '../Challenge_Community/challenge_community_wrapper.dart';
 import '../Gym Finder/gym_comparison_screen.dart';
+import '../services/tab_navigation_service.dart';
+import '../services/notification_service.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({Key? key}) : super(key: key);
@@ -15,16 +18,39 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
   int _workoutTabRefreshKey = 0; // incremented to force workout page rebuild
+  final TabNavigationService _tabNavService = TabNavigationService();
+
+  @override
+  void initState() {
+    super.initState();
+    _tabNavService.registerTabSwitcher(_switchToTab);
+    // Start notification polling when user enters main navigation
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      provider_pkg.Provider.of<NotificationService>(context, listen: false)
+          .startPolling(intervalSeconds: 15);
+    });
+  }
+
+  @override
+  void dispose() {
+    provider_pkg.Provider.of<NotificationService>(context, listen: false).stopPolling();
+    super.dispose();
+  }
+
+  void _switchToTab(int index) {
+    if (mounted) {
+      setState(() {
+        if (index == 1) {
+          _workoutTabRefreshKey++;
+        }
+        _selectedIndex = index;
+      });
+    }
+  }
 
   void _onItemTapped(int index) {
     print('📱 MainNavigation: Tab tapped - index: $index');
-    setState(() {
-      // If tapping the workout tab (index 1), force a rebuild to refresh stats
-      if (index == 1) {
-        _workoutTabRefreshKey++;
-      }
-      _selectedIndex = index;
-    });
+    _switchToTab(index);
     print('📱 MainNavigation: Selected index updated to: $_selectedIndex');
   }
 
@@ -67,7 +93,7 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.location_on),
-            label: 'Gym Finder',
+            label: 'Gym Compare',
           ),
         ],
       ),

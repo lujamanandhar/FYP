@@ -6,8 +6,11 @@ import 'gym_details_screen.dart';
 import 'gym_map_view.dart';
 import 'area_selector_map.dart';
 import '../widgets/nutrilift_header.dart';
-import '../services/dashboard_service.dart';
+import '../widgets/streak_overview_widget.dart';
+import '../services/streak_service.dart';
+import '../services/dashboard_refresh_service.dart';
 import '../services/gym_service.dart';
+import 'dart:async';
 
 class GymComparisonScreen extends StatefulWidget {
   @override
@@ -19,6 +22,8 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
   final GymService _gymService = GymService();
   String _selectedFilter = 'All';
   int _currentStreak = 0;
+  AllStreaks _allStreaks = const AllStreaks();
+  StreamSubscription<void>? _refreshSubscription;
   List<GymPlace> _gyms = [];
   bool _isLoading = false;
   Position? _currentPosition;
@@ -32,14 +37,26 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
     debugPrint('=== GymComparisonScreen: initState called ===');
     _loadStreak();
     _getCurrentLocation();
+    _refreshSubscription = DashboardRefreshService().refreshStream.listen((_) {
+      if (mounted) _loadStreak();
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshSubscription?.cancel();
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadStreak() async {
     try {
-      final dashboardService = DashboardService();
-      final streak = await dashboardService.getCurrentStreak();
+      final streaks = await StreakService().fetchAllStreaks();
       if (mounted) {
-        setState(() => _currentStreak = streak);
+        setState(() {
+          _allStreaks = streaks;
+          _currentStreak = streaks.workout.currentStreak;
+        });
       }
     } catch (e) {
       debugPrint('Error loading streak: $e');
@@ -286,6 +303,7 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
     return NutriLiftScaffold(
       title: 'Gym Comparison',
       streakCount: _currentStreak,
+      onStreakTap: () => showStreakOverview(context, _allStreaks),
       body: RefreshIndicator(
         onRefresh: _searchGyms,
         child: SingleChildScrollView(

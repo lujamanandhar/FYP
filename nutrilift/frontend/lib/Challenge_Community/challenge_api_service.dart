@@ -17,6 +17,11 @@ class ChallengeModel {
   final String createdByUsername;
   final String? createdById;
   bool isJoined;
+  final bool isPaid;
+  final double price;
+  final String currency;
+  final String prizeDescription;
+  final bool hasPaid;
 
   ChallengeModel({
     required this.id,
@@ -32,6 +37,11 @@ class ChallengeModel {
     required this.createdByUsername,
     this.createdById,
     required this.isJoined,
+    this.isPaid = false,
+    this.price = 0,
+    this.currency = 'NPR',
+    this.prizeDescription = '',
+    this.hasPaid = true,
   });
 
   factory ChallengeModel.fromJson(Map<String, dynamic> json) {
@@ -49,6 +59,11 @@ class ChallengeModel {
       createdByUsername: json['created_by_username'] as String? ?? 'NutriLift',
       createdById: json['created_by_id'] as String?,
       isJoined: json['is_joined'] as bool? ?? false,
+      isPaid: json['is_paid'] as bool? ?? false,
+      price: double.tryParse(json['price']?.toString() ?? '0') ?? 0,
+      currency: json['currency'] as String? ?? 'NPR',
+      prizeDescription: json['prize_description'] as String? ?? '',
+      hasPaid: json['has_paid'] as bool? ?? true,
     );
   }
 }
@@ -199,6 +214,50 @@ class ChallengeDailyLogModel {
 
   bool get allTasksComplete =>
       taskItems.isEmpty || taskItems.every((t) => t.completed);
+}
+
+class ChallengeCompletionModel {
+  final String id;
+  final String certificateNumber;
+  final String challengeId;
+  final String challengeName;
+  final String challengeType;
+  final int daysTaken;
+  final int? rank;
+  final int totalParticipants;
+  final DateTime completedAt;
+  final String prizeDescription;
+  final bool isOfficial;
+
+  ChallengeCompletionModel({
+    required this.id,
+    required this.certificateNumber,
+    required this.challengeId,
+    required this.challengeName,
+    required this.challengeType,
+    required this.daysTaken,
+    this.rank,
+    required this.totalParticipants,
+    required this.completedAt,
+    required this.prizeDescription,
+    required this.isOfficial,
+  });
+
+  factory ChallengeCompletionModel.fromJson(Map<String, dynamic> json) {
+    return ChallengeCompletionModel(
+      id: json['id'] as String,
+      certificateNumber: json['certificate_number'] as String,
+      challengeId: json['challenge_id'] as String,
+      challengeName: json['challenge_name'] as String,
+      challengeType: json['challenge_type'] as String,
+      daysTaken: json['days_taken'] as int? ?? 0,
+      rank: json['rank'] as int?,
+      totalParticipants: json['total_participants'] as int? ?? 0,
+      completedAt: DateTime.parse(json['completed_at'] as String),
+      prizeDescription: json['prize_description'] as String? ?? '',
+      isOfficial: json['is_official'] as bool? ?? false,
+    );
+  }
 }
 
 // ==================== Service ====================
@@ -400,6 +459,31 @@ class ChallengeApiService {
           .toList();
     } on DioException catch (e) {
       throw _handleError(e, 'Failed to fetch daily logs');
+    }
+  }
+
+  /// Initiate eSewa payment for a paid challenge.
+  Future<Map<String, dynamic>> initiateEsewaPayment(String challengeId) async {
+    try {
+      final response = await _dio.post('/challenges/$challengeId/pay/initiate/');
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e, 'Failed to initiate payment');
+    }
+  }
+
+  /// Fetch all challenge completion certificates for the current user.
+  Future<List<ChallengeCompletionModel>> fetchCompletions() async {
+    try {
+      final response = await _dio.get('/challenges/completions/');
+      final List<dynamic> data = response.data is List
+          ? response.data as List
+          : (response.data['results'] as List? ?? []);
+      return data
+          .map((e) => ChallengeCompletionModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw _handleError(e, 'Failed to fetch completions');
     }
   }
 

@@ -370,12 +370,34 @@ class _DailyLogBody extends StatelessWidget {
 
           // ── Day heading ────────────────────────────────────────────
           if (alreadyComplete)
-            const Padding(
-              padding: EdgeInsets.only(bottom: 12),
-              child: Chip(
-                label: Text('Day Completed ✓'),
-                backgroundColor: Color(0xFF4CAF50),
-                labelStyle: TextStyle(color: Colors.white),
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F5E9),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF4CAF50)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Color(0xFF4CAF50), size: 28),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Day $dayNum Completed! ✅',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: Color(0xFF2E7D32))),
+                        const Text('Come back tomorrow for the next day.',
+                            style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
 

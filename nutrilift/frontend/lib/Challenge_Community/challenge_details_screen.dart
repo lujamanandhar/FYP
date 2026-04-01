@@ -5,6 +5,7 @@ import '../services/dashboard_service.dart';
 import 'challenge_provider.dart';
 import 'challenge_api_service.dart';
 import 'active_challenge_screen.dart';
+import 'esewa_payment_screen.dart';
 
 class ChallengeDetailsScreen extends StatefulWidget {
   final ChallengeModel challenge;
@@ -379,27 +380,49 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                     ),
                   ]);
                 }
-                // Not joined — show JOIN button
+                // Not joined — show JOIN button (with payment check)
                 return SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () async {
-                      await provider.joinChallenge(challenge.id);
-                      if (context.mounted) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => ActiveChallengeScreen(
-                                  challengeId: challenge.id)),
-                        );
+                      if (current.isPaid && !current.hasPaid) {
+                        // Show payment sheet
+                        showPaymentSheet(context, current, () async {
+                          await provider.fetchChallenges();
+                          if (context.mounted) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => ActiveChallengeScreen(
+                                      challengeId: challenge.id)),
+                            );
+                          }
+                        });
+                      } else {
+                        await provider.joinChallenge(challenge.id);
+                        if (context.mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => ActiveChallengeScreen(
+                                    challengeId: challenge.id)),
+                          );
+                        }
                       }
                     },
-                    icon: const Icon(Icons.emoji_events),
-                    label: const Text('Join Challenge',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    icon: Icon(current.isPaid && !current.hasPaid
+                        ? Icons.lock
+                        : Icons.emoji_events),
+                    label: Text(
+                      current.isPaid && !current.hasPaid
+                          ? 'Pay ${current.currency} ${current.price.toStringAsFixed(0)} to Join'
+                          : 'Join Challenge',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE53935),
+                      backgroundColor: current.isPaid && !current.hasPaid
+                          ? const Color(0xFF60BB46)
+                          : const Color(0xFFE53935),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(

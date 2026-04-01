@@ -13,6 +13,7 @@ urlpatterns = [
     
     # Challenge Management
     path('challenges/', views.AdminChallengeListView.as_view(), name='challenges'),
+    path('challenges/create/', views.AdminChallengeCreateView.as_view(), name='challenge-create'),
     path('challenges/<uuid:challenge_id>/', views.AdminChallengeUpdateView.as_view(), name='challenge-update'),
     
     # Support Ticket Management

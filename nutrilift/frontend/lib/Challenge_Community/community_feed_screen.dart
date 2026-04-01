@@ -1,8 +1,4 @@
 import 'dart:typed_data';
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:ui_web' as ui_web;
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/token_service.dart';
@@ -584,179 +580,35 @@ class _VideoThumbnailState extends State<_VideoThumbnail> {
   }
 
   void _registerView() {
-    ui_web.platformViewRegistry.registerViewFactory(_viewId, (int id) {
-      final vid = _viewId;
-      final videoUrl = widget.url;
-
-      // ── Inject CSS once ──────────────────────────────────────────
-      const styleId = 'vp-style-v15';
-      if (html.document.getElementById(styleId) == null) {
-        final s = html.StyleElement()..id = styleId;
-        s.text = r'''
-          .vpc{position:absolute;bottom:0;left:0;right:0;padding:0 12px 12px;
-            background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.3) 60%,transparent 100%);
-            opacity:0;transition:opacity .2s;pointer-events:none;box-sizing:border-box}
-          .vpc.on{opacity:1;pointer-events:all}
-          .vpp{position:relative;height:28px;cursor:pointer;display:flex;align-items:center;
-            margin-bottom:4px;touch-action:none;-webkit-user-select:none;user-select:none}
-          .vpt{position:absolute;left:0;right:0;height:4px;background:rgba(255,255,255,.3);border-radius:2px}
-          .vpf{position:absolute;left:0;top:0;height:4px;background:#E53935;border-radius:2px;
-            width:0%;pointer-events:none}
-          .vpth{position:absolute;top:50%;width:14px;height:14px;background:#fff;border-radius:50%;
-            transform:translate(-50%,-50%);left:0%;box-shadow:0 1px 4px rgba(0,0,0,.7);pointer-events:none}
-          .vpr{display:flex;align-items:center;gap:4px}
-          .vptm{color:#fff;font-size:11px;font-family:system-ui,sans-serif;
-            font-variant-numeric:tabular-nums;min-width:32px}
-          .vptd{color:rgba(255,255,255,.55);text-align:right}
-          .vpsp{flex:1}
-          .vpb{background:rgba(255,255,255,.12);border:none;padding:0;cursor:pointer;
-            display:flex;align-items:center;justify-content:center;
-            width:48px;height:48px;border-radius:50%;color:#fff;
-            font-size:11px;font-weight:bold;font-family:system-ui,sans-serif;
-            transition:background .15s;touch-action:manipulation;-webkit-user-select:none;user-select:none}
-          .vpb:hover{background:rgba(255,255,255,.28)}
-          .vpcw{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-            opacity:0;transition:opacity .2s;pointer-events:none}
-          .vpcw.on{opacity:1;pointer-events:all}
-          .vpplay{background:rgba(229,57,53,.88);cursor:pointer;width:60px;height:60px;
-            border-radius:50%;display:flex;align-items:center;justify-content:center;
-            box-shadow:0 3px 16px rgba(0,0,0,.55);transition:transform .12s,background .15s;
-            touch-action:manipulation;-webkit-user-select:none;user-select:none}
-          .vpplay:hover{transform:scale(1.08);background:#E53935}
-          .vpstate-pause .vp-bar{width:4px;height:20px;background:#fff;border-radius:2px;
-            display:block;margin:0 2px}
-          .vpstate-play::after{content:'';display:block;border-style:solid;
-            border-width:11px 0 11px 20px;border-color:transparent transparent transparent #fff;
-            margin-left:5px}
-          .vpro{position:absolute;inset:0;background:rgba(0,0,0,.65);display:none;
-            flex-direction:column;align-items:center;justify-content:center;gap:12px}
-          .vpro.on{display:flex}
-          .vprb{background:#E53935;cursor:pointer;width:60px;height:60px;border-radius:50%;
-            display:flex;align-items:center;justify-content:center;
-            box-shadow:0 3px 16px rgba(0,0,0,.55);transition:transform .12s;
-            touch-action:manipulation}
-          .vprb:hover{transform:scale(1.08)}
-          .vp-replay-icon{width:22px;height:22px;border-radius:50%;border:3px solid white;
-            border-bottom-color:transparent;transform:rotate(45deg);position:relative}
-          .vp-replay-icon::after{content:'';position:absolute;border:5px solid transparent;
-            border-right-color:white;border-top-color:white;bottom:-4px;left:-6px;
-            transform:rotate(-45deg)}
-          .vprl{color:#fff;font-size:13px;font-weight:600;font-family:system-ui,sans-serif}
-        ''';
-        html.document.head!.append(s);
-      }
-
-      // ── Build DOM ────────────────────────────────────────────────
-      final root = html.DivElement()
-        ..id = '${vid}r'
-        ..style.width = '100%'
-        ..style.height = '100%'
-        ..style.position = 'relative'
-        ..style.background = '#000'
-        ..style.overflow = 'hidden';
-
-      // Use trusted sanitizer so all HTML is preserved
-      final tmp = html.DivElement();
-      tmp.setInnerHtml('''
-        <video id="${vid}v" src="$videoUrl" autoplay muted playsinline
-          style="width:100%;height:100%;object-fit:contain;display:block;pointer-events:none"></video>
-        <div class="vpcw" id="${vid}cw">
-          <div class="vpplay vpstate-pause" id="${vid}pb">
-            <div class="vp-bar"></div><div class="vp-bar"></div>
-          </div>
-        </div>
-        <div class="vpc" id="${vid}ct">
-          <div class="vpp" id="${vid}pg">
-            <div class="vpt"></div>
-            <div class="vpf" id="${vid}fl"></div>
-            <div class="vpth" id="${vid}th"></div>
-          </div>
-          <div class="vpr">
-            <span class="vptm" id="${vid}cu">0:00</span>
-            <button class="vpb" id="${vid}b1">&#9664;&#9664;10</button>
-            <button class="vpb" id="${vid}f1">10&#9654;&#9654;</button>
-            <div class="vpsp"></div>
-            <span class="vptm vptd" id="${vid}du">0:00</span>
-          </div>
-        </div>
-        <div class="vpro" id="${vid}ro">
-          <div class="vprb" id="${vid}rb"><div class="vp-replay-icon"></div></div>
-          <span class="vprl">Watch again</span>
-        </div>
-      ''', treeSanitizer: html.NodeTreeSanitizer.trusted);
-      root.append(tmp);
-
-      // ── Inject JS — all event handling as native browser JS ──────
-      // This bypasses Flutter's pointer event interception entirely.
-      final script = html.ScriptElement();
-      // Build the JS string using Dart string interpolation for the vid prefix,
-      // but all logic is pure JS executed by the browser.
-      script.text = '''
-(function(){
-  var P="${vid}";
-  function init(){
-    var v=document.getElementById(P+"v"),
-        ct=document.getElementById(P+"ct"),
-        cw=document.getElementById(P+"cw"),
-        pb=document.getElementById(P+"pb"),
-        pg=document.getElementById(P+"pg"),
-        fl=document.getElementById(P+"fl"),
-        th=document.getElementById(P+"th"),
-        cu=document.getElementById(P+"cu"),
-        du=document.getElementById(P+"du"),
-        b1=document.getElementById(P+"b1"),
-        f1=document.getElementById(P+"f1"),
-        ro=document.getElementById(P+"ro"),
-        rb=document.getElementById(P+"rb"),
-        rt=document.getElementById(P+"r");
-    if(!v||!ct){setTimeout(init,50);return;}
-    var drag=false,htimer=null,loops=0,unmuted=false;
-    function fmt(s){s=isNaN(s)||!isFinite(s)?0:Math.floor(s);return Math.floor(s/60)+":"+(s%60<10?"0":"")+(s%60);}
-    function dur(){var d=v.duration;return isNaN(d)||!isFinite(d)?0:d;}
-    function bar(t){var d=dur(),p=d>0?Math.min(100,Math.max(0,t/d*100)):0;fl.style.width=p+"%";th.style.left=p+"%";cu.textContent=fmt(t);du.textContent=fmt(d);}
-    function show(){ct.classList.add("on");cw.classList.add("on");clearTimeout(htimer);htimer=setTimeout(function(){ct.classList.remove("on");cw.classList.remove("on");},4000);}
-    function unmute(){if(!unmuted){unmuted=true;v.muted=false;}}
-    function pause_icon(){pb.className="vpplay vpstate-pause";if(!pb.querySelector(".vp-bar")){pb.innerHTML='<div class="vp-bar"></div><div class="vp-bar"></div>';}}
-    function play_icon(){pb.className="vpplay vpstate-play";pb.innerHTML="";}
-    // root click = toggle controls
-    if(rt)rt.addEventListener("click",function(e){unmute();if(ct.classList.contains("on")){ct.classList.remove("on");cw.classList.remove("on");clearTimeout(htimer);}else show();});
-    if(rt)rt.addEventListener("mousemove",function(){show();});
-    // play/pause
-    pb.addEventListener("click",function(e){e.stopPropagation();unmute();if(v.paused){v.play().catch(function(){});pause_icon();}else{v.pause();play_icon();}show();});
-    // skip
-    function skip(d){return function(e){e.stopPropagation();e.preventDefault();unmute();var t=Math.min(Math.max(0,v.currentTime+d),dur()||Infinity);v.currentTime=t;bar(t);show();};}
-    b1.addEventListener("click",skip(-10));
-    f1.addEventListener("click",skip(10));
-    b1.addEventListener("touchend",skip(-10));
-    f1.addEventListener("touchend",skip(10));
-    // progress bar mouse
-    function seek(cx){var r=pg.getBoundingClientRect(),x=Math.min(Math.max(0,cx-r.left),r.width),t=(x/r.width)*dur();v.currentTime=t;bar(t);show();}
-    pg.addEventListener("mousedown",function(e){e.stopPropagation();e.preventDefault();drag=true;seek(e.clientX);});
-    pg.addEventListener("click",function(e){e.stopPropagation();});
-    document.addEventListener("mousemove",function(e){if(drag)seek(e.clientX);});
-    document.addEventListener("mouseup",function(){drag=false;});
-    // progress bar touch
-    pg.addEventListener("touchstart",function(e){e.stopPropagation();e.preventDefault();drag=true;seek(e.touches[0].clientX);},{passive:false});
-    pg.addEventListener("touchmove",function(e){e.stopPropagation();e.preventDefault();if(drag)seek(e.touches[0].clientX);},{passive:false});
-    pg.addEventListener("touchend",function(e){e.stopPropagation();drag=false;});
-    // video events
-    v.addEventListener("timeupdate",function(){if(!drag)bar(v.currentTime);});
-    v.addEventListener("loadedmetadata",function(){du.textContent=fmt(dur());show();});
-    v.addEventListener("ended",function(){loops++;if(loops<2){v.currentTime=0;v.play().catch(function(){});}else{ro.classList.add("on");ct.classList.remove("on");cw.classList.remove("on");}});
-    // replay
-    rb.addEventListener("click",function(){loops=0;ro.classList.remove("on");v.currentTime=0;v.play().catch(function(){});pause_icon();show();});
-  }
-  setTimeout(init,0);
-})();
-''';
-      html.document.body!.append(script);
-
-      return root;
-    });
+    // Web-only video player - not applicable for mobile
+    // For mobile, use native video player or platform-specific implementation
   }
 
   @override
-  Widget build(BuildContext context) => HtmlElementView(viewType: _viewId);
+  Widget build(BuildContext context) {
+    // Mobile placeholder - web-only video player not supported on mobile
+    return Container(
+      color: Colors.black,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.video_library, color: Colors.white, size: 48),
+            const SizedBox(height: 16),
+            Text(
+              'Video Player',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Video playback coming soon',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

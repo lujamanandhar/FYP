@@ -9,6 +9,7 @@ from rest_framework.pagination import PageNumberPagination
 from .models import (
     Challenge, ChallengeParticipant, UserBadge, Streak,
     Post, Comment, Like, Report, Follow, ChallengeDailyLog,
+    ChallengeCompletion, EsewaPayment,
 )
 from .serializers import (
     ChallengeSerializer, LeaderboardSerializer, UserBadgeSerializer,
@@ -201,27 +202,20 @@ class BadgeView(APIView):
 class StreakView(APIView):
     """
     GET /api/challenges/streak/
-    Returns the Streak for the requesting user, or zeros if none exists.
-    If the user missed yesterday, returns 0 for current_streak.
+    Returns the unified Streak for the requesting user.
     Requirements: 4.2
     """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        from django.utils import timezone
+        today = timezone.localtime(timezone.now()).date()
+        yesterday = today - timezone.timedelta(days=1)
         
         try:
             streak = Streak.objects.get(user=request.user)
-            
-            # Check if streak is still valid
-            today = timezone.now().date()
-            yesterday = today - timezone.timedelta(days=1)
-            
-            # If last active was today or yesterday, streak is valid
             if streak.last_active_date in (today, yesterday):
                 current_streak = streak.current_streak
             else:
-                # Missed a day - streak is broken, return 0
                 current_streak = 0
             
             return Response({
@@ -235,6 +229,38 @@ class StreakView(APIView):
                 'longest_streak': 0,
                 'last_active_date': None,
             })
+
+
+class AllStreaksView(APIView):
+    """
+    GET /api/challenges/streaks/all/
+    Returns workout, nutrition, and challenge streaks separately.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from challenges.models import WorkoutStreak, NutritionStreak
+
+        today = timezone.localtime(timezone.now()).date()
+        yesterday = today - timezone.timedelta(days=1)
+
+        def get_streak_data(model_class):
+            try:
+                s = model_class.objects.get(user=request.user)
+                current = s.current_streak if s.last_active_date in (today, yesterday) else 0
+                return {'current_streak': current, 'longest_streak': s.longest_streak, 'last_active_date': s.last_active_date}
+            except model_class.DoesNotExist:
+                return {'current_streak': 0, 'longest_streak': 0, 'last_active_date': None}
+
+        workout = get_streak_data(WorkoutStreak)
+        nutrition = get_streak_data(NutritionStreak)
+        challenge = get_streak_data(Streak)
+
+        return Response({
+            'workout': workout,
+            'nutrition': nutrition,
+            'challenge': challenge,
+        })
 
 
 # ---------------------------------------------------------------------------
@@ -278,6 +304,17 @@ class CreatePostView(APIView):
             content=content,
             image_urls=image_urls if isinstance(image_urls, list) else [],
         )
+
+        # Notify all followers of the poster
+        try:
+            from notifications.utils import notify_new_post
+            poster_name = getattr(request.user, 'name', None) or request.user.email
+            followers = Follow.objects.filter(following=request.user).select_related('follower')
+            for f in followers:
+                notify_new_post(f.follower, poster_name)
+        except Exception:
+            pass
+
         serializer = PostSerializer(post, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -576,22 +613,6 @@ class UserFollowingView(APIView):
                 'avatar_url': getattr(user, 'avatar_url', None),
             })
         return Response(data)
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, pk):
-        target = User.objects.filter(pk=pk).first()
-        if target is None:
-            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
-        followers = Follow.objects.filter(following=target).select_related('follower')
-        data = []
-        for f in followers:
-            user = f.follower
-            data.append({
-                'id': user.pk,
-                'username': getattr(user, 'name', None) or user.email,
-                'avatar_url': getattr(user, 'avatar_url', None),
-            })
-        return Response(data)
 
 
 # ---------------------------------------------------------------------------
@@ -703,6 +724,28 @@ class DailyLogCompleteView(APIView):
         _update_streak(request.user)
         _award_badges(request.user)
 
+        # Check if challenge is now fully completed and generate certificate
+        if participant.completed:
+            total_participants = ChallengeParticipant.objects.filter(
+                challenge=participant.challenge, completed=True
+            ).count()
+            rank = ChallengeParticipant.objects.filter(
+                challenge=participant.challenge,
+                completed=True,
+                completed_at__lt=participant.completed_at,
+            ).count() + 1
+            days_taken = (participant.completed_at.date() - participant.joined_at.date()).days + 1
+            ChallengeCompletion.objects.get_or_create(
+                user=request.user,
+                challenge=participant.challenge,
+                defaults={
+                    'participant': participant,
+                    'days_taken': days_taken,
+                    'rank': rank,
+                    'total_participants': total_participants,
+                }
+            )
+
         shared_post = None
         share = request.data.get('share_to_community', False)
         if share:
@@ -746,3 +789,224 @@ class DailyLogListView(APIView):
         logs = ChallengeDailyLog.objects.filter(participant=participant).order_by('day_number')
         serializer = ChallengeDailyLogSerializer(logs, many=True)
         return Response(serializer.data)
+
+
+# ---------------------------------------------------------------------------
+# eSewa Payment views
+# ---------------------------------------------------------------------------
+
+class EsewaInitiateView(APIView):
+    """
+    POST /api/challenges/<uuid:pk>/pay/initiate/
+    Generates eSewa v2 payment params with HMAC-SHA256 signature.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        import hmac, hashlib, base64, uuid as uuid_lib
+        from django.conf import settings
+
+        challenge = Challenge.objects.filter(pk=pk).first()
+        if challenge is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        if not challenge.is_paid:
+            return Response({'detail': 'This challenge is free.'}, status=status.HTTP_400_BAD_REQUEST)
+        if EsewaPayment.objects.filter(user=request.user, challenge=challenge, status='COMPLETED').exists():
+            return Response({'detail': 'Already paid.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        transaction_uuid = str(uuid_lib.uuid4()).replace('-', '')[:20]
+        amount = str(challenge.price)
+        total_amount = amount  # no tax/service charge
+
+        # eSewa credentials — use env vars in production
+        product_code = getattr(settings, 'ESEWA_PRODUCT_CODE', 'EPAYTEST')
+        secret_key = getattr(settings, 'ESEWA_SECRET_KEY', '8gBm/:&EnhH.1/q')
+
+        # Generate HMAC-SHA256 signature
+        message = f'total_amount={total_amount},transaction_uuid={transaction_uuid},product_code={product_code}'
+        signature = base64.b64encode(
+            hmac.new(secret_key.encode(), message.encode(), hashlib.sha256).digest()
+        ).decode()
+
+        # Build success/failure URLs pointing back to our backend
+        base = request.build_absolute_uri('/').rstrip('/')
+        success_url = f'{base}/api/challenges/{pk}/pay/verify/'
+        failure_url = f'{base}/api/challenges/{pk}/pay/failure/'
+
+        # Save pending payment
+        EsewaPayment.objects.create(
+            user=request.user,
+            challenge=challenge,
+            amount=challenge.price,
+            transaction_uuid=transaction_uuid,
+        )
+
+        # Determine eSewa form URL
+        esewa_url = getattr(
+            settings, 'ESEWA_PAYMENT_URL',
+            'https://rc-epay.esewa.com.np/api/epay/main/v2/form'
+        )
+
+        return Response({
+            'esewa_url': esewa_url,
+            'amount': amount,
+            'tax_amount': '0',
+            'total_amount': total_amount,
+            'transaction_uuid': transaction_uuid,
+            'product_code': product_code,
+            'product_service_charge': '0',
+            'product_delivery_charge': '0',
+            'success_url': success_url,
+            'failure_url': failure_url,
+            'signed_field_names': 'total_amount,transaction_uuid,product_code',
+            'signature': signature,
+        })
+
+
+class EsewaVerifyView(APIView):
+    """
+    GET /api/challenges/<uuid:pk>/pay/verify/
+    Called by eSewa after successful payment (redirect with Base64 encoded data).
+    Verifies signature and checks transaction status via eSewa status API.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        import base64, json, hmac, hashlib
+        from django.conf import settings
+        import requests as req
+
+        # eSewa sends response as Base64 encoded JSON in 'data' query param
+        encoded_data = request.query_params.get('data', '')
+        if not encoded_data:
+            return Response({'detail': 'No payment data received.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            decoded = base64.b64decode(encoded_data).decode('utf-8')
+            response_data = json.loads(decoded)
+        except Exception:
+            return Response({'detail': 'Invalid payment response.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        transaction_uuid = response_data.get('transaction_uuid', '')
+        total_amount = response_data.get('total_amount', '')
+        received_signature = response_data.get('signature', '')
+        esewa_status = response_data.get('status', '')
+
+        # Verify signature
+        product_code = getattr(settings, 'ESEWA_PRODUCT_CODE', 'EPAYTEST')
+        secret_key = getattr(settings, 'ESEWA_SECRET_KEY', '8gBm/:&EnhH.1/q')
+        signed_fields = response_data.get('signed_field_names', 'transaction_code,status,total_amount,transaction_uuid,product_code,signed_field_names')
+
+        message_parts = []
+        for field in signed_fields.split(','):
+            message_parts.append(f'{field}={response_data.get(field, "")}')
+        message = ','.join(message_parts)
+
+        expected_signature = base64.b64encode(
+            hmac.new(secret_key.encode(), message.encode(), hashlib.sha256).digest()
+        ).decode()
+
+        if received_signature != expected_signature:
+            return Response({'detail': 'Signature verification failed.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verify with eSewa status API
+        verify_url = getattr(
+            settings, 'ESEWA_VERIFY_URL',
+            'https://uat.esewa.com.np/api/epay/transaction/status/'
+        )
+        try:
+            verify_resp = req.get(verify_url, params={
+                'product_code': product_code,
+                'total_amount': total_amount,
+                'transaction_uuid': transaction_uuid,
+            }, timeout=10)
+            verify_data = verify_resp.json()
+        except Exception:
+            return Response({'detail': 'Could not verify with eSewa.'}, status=status.HTTP_502_BAD_GATEWAY)
+
+        if verify_data.get('status') != 'COMPLETE':
+            return Response({'detail': f'Payment not complete: {verify_data.get("status")}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Mark payment as completed
+        payment = EsewaPayment.objects.filter(
+            transaction_uuid=transaction_uuid,
+            challenge_id=pk,
+        ).first()
+
+        if payment is None:
+            return Response({'detail': 'Payment record not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        payment.status = 'COMPLETED'
+        payment.esewa_ref_id = verify_data.get('refId', '')
+        payment.verified_at = timezone.now()
+        payment.save()
+
+        # Auto-join the challenge
+        ChallengeParticipant.objects.get_or_create(challenge=payment.challenge, user=payment.user)
+
+        # Redirect to app deep link or success page
+        from django.http import HttpResponseRedirect
+        return HttpResponseRedirect(f'/api/challenges/{pk}/pay/success/?status=COMPLETE&transaction_uuid={transaction_uuid}')
+
+    # Also handle POST (some redirects use POST)
+    def post(self, request, pk):
+        return self.get(request, pk)
+
+
+class EsewaPaymentSuccessView(APIView):
+    """GET /api/challenges/<uuid:pk>/pay/success/ — simple success confirmation for the app to poll."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        transaction_uuid = request.query_params.get('transaction_uuid', '')
+        payment = EsewaPayment.objects.filter(
+            transaction_uuid=transaction_uuid, challenge_id=pk, status='COMPLETED'
+        ).first()
+        if payment:
+            return Response({'status': 'COMPLETE', 'message': 'Payment verified successfully!'})
+        return Response({'status': 'PENDING'}, status=status.HTTP_202_ACCEPTED)
+
+
+class EsewaFailureView(APIView):
+    """POST /api/challenges/<uuid:pk>/pay/failure/ — marks payment as failed."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        transaction_uuid = request.data.get('transaction_uuid') or request.query_params.get('transaction_uuid')
+        EsewaPayment.objects.filter(
+            transaction_uuid=transaction_uuid, user=request.user, challenge_id=pk
+        ).update(status='FAILED')
+        return Response({'detail': 'Payment failed.'})
+
+
+# ---------------------------------------------------------------------------
+# Certificate / Completion views
+# ---------------------------------------------------------------------------
+
+class ChallengeCompletionListView(APIView):
+    """
+    GET /api/challenges/completions/
+    Returns all challenge completions (certificates) for the requesting user.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        completions = ChallengeCompletion.objects.filter(
+            user=request.user
+        ).select_related('challenge')
+        data = []
+        for c in completions:
+            data.append({
+                'id': str(c.id),
+                'certificate_number': c.certificate_number,
+                'challenge_id': str(c.challenge.id),
+                'challenge_name': c.challenge.name,
+                'challenge_type': c.challenge.challenge_type,
+                'days_taken': c.days_taken,
+                'rank': c.rank,
+                'total_participants': c.total_participants,
+                'completed_at': c.completed_at,
+                'prize_description': c.challenge.prize_description,
+                'is_official': c.challenge.is_official,
+            })
+        return Response(data)

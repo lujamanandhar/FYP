@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-@8k(g#$g3$rl!y&rue^um%e5d7n5&7u&td3ga0i_c(i@1dwf_z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Allow connections from local network for mobile device testing
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 
 # Application definition
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'challenges',
     'gyms',
     'admin.apps.AdminConfig',  # Custom admin app
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -279,3 +281,16 @@ LOGGING = {
 
 
 # OpenStreetMap Overpass API - No configuration needed (100% FREE)
+
+# ── eSewa Payment Gateway ──────────────────────────────────────────────────
+# UAT (testing) credentials — replace with live credentials for production
+ESEWA_PRODUCT_CODE = 'EPAYTEST'
+ESEWA_SECRET_KEY = '8gBm/:&EnhH.1/q'
+ESEWA_PAYMENT_URL = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form'
+ESEWA_VERIFY_URL = 'https://uat.esewa.com.np/api/epay/transaction/status/'
+
+# For production, use:
+# ESEWA_PRODUCT_CODE = 'YOUR_MERCHANT_CODE'
+# ESEWA_SECRET_KEY = 'YOUR_SECRET_KEY'
+# ESEWA_PAYMENT_URL = 'https://epay.esewa.com.np/api/epay/main/v2/form'
+# ESEWA_VERIFY_URL = 'https://epay.esewa.com.np/api/epay/transaction/status/'

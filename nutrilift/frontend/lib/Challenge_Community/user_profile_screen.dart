@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/token_service.dart';
+import '../services/streak_service.dart';
 import '../UserManagement/profile_edit_screen.dart';
 import '../widgets/nutrilift_header.dart';
+import '../widgets/streak_overview_widget.dart';
 import 'community_api_service.dart';
+import 'challenge_api_service.dart';
+import 'challenge_certificate_screen.dart';
 
 const Color _kRed = Color(0xFFE53935);
 const Color _kRedLight = Color(0xFFFFEBEE);
@@ -34,6 +38,8 @@ class _UserProfileScreenState extends State<UserProfileScreen>
   UserProfileModel? _profile;
   List<PostModel> _posts = [];
   Map<String, dynamic>? _challengeStats;
+  AllStreaks _allStreaks = const AllStreaks();
+  bool _loadingStreaks = false;
 
   bool _loadingProfile = true;
   bool _loadingPosts = true;
@@ -72,6 +78,17 @@ class _UserProfileScreenState extends State<UserProfileScreen>
     _loadProfile();
     _loadPosts();
     _loadStats();
+    if (_isOwnProfile) _loadStreaks();
+  }
+
+  Future<void> _loadStreaks() async {
+    setState(() => _loadingStreaks = true);
+    try {
+      final streaks = await StreakService().fetchAllStreaks();
+      if (mounted) setState(() => _allStreaks = streaks);
+    } catch (_) {} finally {
+      if (mounted) setState(() => _loadingStreaks = false);
+    }
   }
 
   Future<void> _loadProfile() async {
@@ -180,6 +197,35 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                         onTapFollowing: _openFollowingList,
                       ),
                     ),
+                    // Show streak section for own profile
+                    if (_isOwnProfile)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                          child: GestureDetector(
+                            onTap: () => showStreakOverview(context, _allStreaks),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFFFF6F00), Color(0xFFFF8F00)],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  _MiniStreak('💪', 'Workout', _allStreaks.workout.currentStreak),
+                                  Container(width: 1, height: 30, color: Colors.white30),
+                                  _MiniStreak('🍎', 'Nutrition', _allStreaks.nutrition.currentStreak),
+                                  Container(width: 1, height: 30, color: Colors.white30),
+                                  _MiniStreak('🏆', 'Challenge', _allStreaks.challenge.currentStreak),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     SliverPersistentHeader(
                       pinned: true,
                       delegate: _TabBarDelegate(
@@ -207,6 +253,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                         stats: _challengeStats,
                         loading: _loadingStats,
                         profile: _profile,
+                        isOwnProfile: _isOwnProfile,
                       ),
                     ],
                   ),
@@ -441,44 +488,72 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
 }
 
 // ── Achievements tab ───────────────────────────────────────────────────────────
-class _AchievementsTab extends StatelessWidget {
+class _AchievementsTab extends StatefulWidget {
   final Map<String, dynamic>? stats;
   final bool loading;
   final UserProfileModel? profile;
-  const _AchievementsTab({required this.stats, required this.loading, this.profile});
+  final bool isOwnProfile;
+  const _AchievementsTab({
+    required this.stats,
+    required this.loading,
+    this.profile,
+    this.isOwnProfile = false,
+  });
+
+  @override
+  State<_AchievementsTab> createState() => _AchievementsTabState();
+}
+
+class _AchievementsTabState extends State<_AchievementsTab> {
+  List<ChallengeCompletionModel> _completions = [];
+  bool _loadingCerts = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isOwnProfile) _loadCertificates();
+  }
+
+  Future<void> _loadCertificates() async {
+    setState(() => _loadingCerts = true);
+    try {
+      final certs = await ChallengeApiService().fetchCompletions();
+      if (mounted) setState(() => _completions = certs);
+    } catch (_) {} finally {
+      if (mounted) setState(() => _loadingCerts = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (loading) {
+    if (widget.loading) {
       return const Center(child: CircularProgressIndicator(color: _kRed));
     }
 
-    final totalJoined = stats?['total_joined'] as int? ?? 0;
-    final totalCompleted = stats?['total_completed'] as int? ?? 0;
-    final totalDays = stats?['total_days_logged'] as int? ?? 0;
-    final streak = stats?['current_streak'] as int? ?? 0;
+    final totalJoined = widget.stats?['total_joined'] as int? ?? 0;
+    final totalCompleted = widget.stats?['total_completed'] as int? ?? 0;
+    final totalDays = widget.stats?['total_days_logged'] as int? ?? 0;
+    final streak = widget.stats?['current_streak'] as int? ?? 0;
     final challenges =
-        (stats?['challenges'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
+        (widget.stats?['challenges'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
 
-    final hasPhysical = profile != null &&
-        (profile!.gender != null ||
-            profile!.ageGroup != null ||
-            profile!.height != null ||
-            profile!.weight != null ||
-            profile!.fitnessLevel != null);
+    final hasPhysical = widget.profile != null &&
+        (widget.profile!.gender != null ||
+            widget.profile!.ageGroup != null ||
+            widget.profile!.height != null ||
+            widget.profile!.weight != null ||
+            widget.profile!.fitnessLevel != null);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
       children: [
-        // ── Physical & Fitness Info ────────────────────────────────
         if (hasPhysical) ...[
           _SectionTitle(title: 'Physical & Fitness Info', icon: Icons.person_outline_rounded),
           const SizedBox(height: 10),
-          _InfoCard(profile: profile!),
+          _InfoCard(profile: widget.profile!),
           const SizedBox(height: 20),
         ],
 
-        // ── Challenge summary cards ────────────────────────────────
         _SectionTitle(title: 'Challenge Stats', icon: Icons.emoji_events_outlined),
         const SizedBox(height: 10),
         Row(children: [
@@ -494,12 +569,28 @@ class _AchievementsTab extends StatelessWidget {
         ]),
         const SizedBox(height: 20),
 
-        // ── Challenge participation list ────────────────────────────
+        // ── Certificates ────────────────────────────────────────────
+        if (widget.isOwnProfile) ...[
+          _SectionTitle(title: '🏆 Certificates', icon: Icons.workspace_premium),
+          const SizedBox(height: 10),
+          if (_loadingCerts)
+            const Center(child: CircularProgressIndicator())
+          else if (_completions.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text('Complete a challenge to earn your first certificate!',
+                  style: TextStyle(color: Colors.grey[500], fontSize: 13)),
+            )
+          else
+            ..._completions.map((c) => _CertificateTile(completion: c)),
+          const SizedBox(height: 8),
+        ],
+
         if (challenges.isNotEmpty) ...[
           _SectionTitle(title: 'Challenges', icon: Icons.list_alt_rounded),
           const SizedBox(height: 10),
           ...challenges.map((c) => _ChallengeCard(data: c)),
-        ] else if (stats != null)
+        ] else if (widget.stats != null)
           Center(
             child: Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -508,6 +599,65 @@ class _AchievementsTab extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _CertificateTile extends StatelessWidget {
+  final ChallengeCompletionModel completion;
+  const _CertificateTile({required this.completion});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChallengeCertificateScreen(completion: completion),
+        ),
+      ),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1A1A2E), Color(0xFF0F3460)],
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFFFD700).withOpacity(0.5)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFD700).withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Text('🏆', style: TextStyle(fontSize: 22)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(completion.challengeName,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14)),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${completion.daysTaken} days • #${completion.certificateNumber}',
+                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Color(0xFFFFD700)),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -876,6 +1026,37 @@ class _PostViewerState extends State<_PostViewer> {
           );
         },
       ),
+    );
+  }
+}
+
+// ── Mini streak display for profile ───────────────────────────────────────────
+class _MiniStreak extends StatelessWidget {
+  final String emoji;
+  final String label;
+  final int count;
+  const _MiniStreak(this.emoji, this.label, this.count);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('🔥$emoji', style: const TextStyle(fontSize: 14)),
+            const SizedBox(width: 4),
+            Text('$count',
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18)),
+          ],
+        ),
+        Text(label,
+            style: const TextStyle(color: Colors.white70, fontSize: 11)),
+      ],
     );
   }
 }

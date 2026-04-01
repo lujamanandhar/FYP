@@ -345,8 +345,10 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
                 workout_log = WorkoutLog.objects.create(**validated_data)
                 
                 # Create WorkoutExercise entries
+                workout_exercise_objects = []
                 for exercise_data in workout_exercises_data:
-                    WorkoutExercise.objects.create(workout_log=workout_log, **exercise_data)
+                    we = WorkoutExercise.objects.create(workout_log=workout_log, **exercise_data)
+                    workout_exercise_objects.append(we)
                 
                 # Create WorkoutLogExercise entries (backward compatibility)
                 for exercise_data in exercises_data:
@@ -369,6 +371,14 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
                 elif provided_calories and float(provided_calories) > 0:
                     # Keep the client-provided calories for guided/bodyweight workouts
                     pass  # already set via validated_data
+
+                # Run PR detection NOW — after all exercises are committed in this transaction
+                # This avoids the race condition where the post_save signal fires before
+                # WorkoutExercise records exist.
+                if workout_exercise_objects:
+                    from .signals import update_personal_record
+                    for we in workout_exercise_objects:
+                        update_personal_record(workout_log.user, we, workout_log)
                 
                 # Create audit log entry
                 if user:

@@ -6,15 +6,11 @@ from .models import (
 
 
 class ChallengeSerializer(serializers.ModelSerializer):
-    """
-    Serializer for Challenge with computed participant_progress for the requesting user.
-    Returns 0 if the user has not joined the challenge.
-    Requirements: 3.1
-    """
     participant_progress = serializers.SerializerMethodField()
     created_by_username = serializers.SerializerMethodField()
     created_by_id = serializers.SerializerMethodField()
     is_joined = serializers.SerializerMethodField()
+    has_paid = serializers.SerializerMethodField()
 
     class Meta:
         model = Challenge
@@ -23,7 +19,17 @@ class ChallengeSerializer(serializers.ModelSerializer):
             'goal_value', 'unit', 'start_date', 'end_date',
             'is_official', 'created_by_username', 'created_by_id',
             'participant_progress', 'is_joined', 'default_tasks',
+            'is_paid', 'price', 'currency', 'prize_description', 'has_paid',
         ]
+
+    def get_has_paid(self, obj):
+        request = self.context.get('request')
+        if not obj.is_paid or request is None or not request.user.is_authenticated:
+            return True  # free challenge, no payment needed
+        from .models import EsewaPayment
+        return EsewaPayment.objects.filter(
+            user=request.user, challenge=obj, status='COMPLETED'
+        ).exists()
 
     def get_participant_progress(self, obj):
         request = self.context.get('request')

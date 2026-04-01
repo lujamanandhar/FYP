@@ -127,24 +127,60 @@ class AdminChallengeListView(APIView):
 class AdminChallengeUpdateView(APIView):
     """
     PUT /api/admin/challenges/<challenge_id>/
-    Update challenge (mark as official, activate/deactivate)
+    Update challenge (mark as official, activate/deactivate, set payment fields)
     """
     permission_classes = [IsAdminUser]
 
     def put(self, request, challenge_id):
         try:
             challenge = Challenge.objects.get(id=challenge_id)
-            
-            if 'is_official' in request.data:
-                challenge.is_official = request.data['is_official']
-            if 'is_active' in request.data:
-                challenge.is_active = request.data['is_active']
-            
+
+            updatable = ['is_official', 'is_active', 'is_paid', 'price', 'currency', 'prize_description']
+            for field in updatable:
+                if field in request.data:
+                    setattr(challenge, field, request.data[field])
+
             challenge.save()
             serializer = ChallengeSerializer(challenge, context={'request': request})
             return Response(serializer.data)
         except Challenge.DoesNotExist:
             return Response({'detail': 'Challenge not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class AdminChallengeCreateView(APIView):
+    """
+    POST /api/admin/challenges/create/
+    Create an official challenge with optional payment fields.
+    """
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        required = ['name', 'description', 'challenge_type', 'goal_value', 'unit', 'start_date', 'end_date']
+        for field in required:
+            if not request.data.get(field):
+                return Response({'detail': f'{field} is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            challenge = Challenge.objects.create(
+                name=request.data['name'],
+                description=request.data['description'],
+                challenge_type=request.data['challenge_type'],
+                goal_value=float(request.data['goal_value']),
+                unit=request.data['unit'],
+                start_date=request.data['start_date'],
+                end_date=request.data['end_date'],
+                is_official=request.data.get('is_official', True),
+                is_active=True,
+                is_paid=request.data.get('is_paid', False),
+                price=request.data.get('price', 0),
+                currency=request.data.get('currency', 'NPR'),
+                prize_description=request.data.get('prize_description', ''),
+                default_tasks=[{'label': t} for t in request.data.get('tasks', []) if t],
+            )
+            serializer = ChallengeSerializer(challenge, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AdminSupportTicketListView(APIView):

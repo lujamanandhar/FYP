@@ -5,9 +5,15 @@ import '../services/auth_service.dart';
 import '../services/error_handler.dart';
 import '../services/dashboard_service.dart';
 import '../services/dashboard_refresh_service.dart';
+import '../services/tab_navigation_service.dart';
+import '../services/streak_service.dart';
 import '../widgets/nutrilift_header.dart';
+import '../widgets/streak_overview_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../Challenge_Community/challenge_api_service.dart';
+import '../Challenge_Community/active_challenge_screen.dart';
+import '../NutritionTracking/nutrition_tracking.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -25,9 +31,16 @@ class _HomePageState extends State<HomePage>
   final AuthService _authService = AuthService();
   final DashboardService _dashboardService = DashboardService();
   final DashboardRefreshService _refreshService = DashboardRefreshService();
+  final ChallengeApiService _challengeService = ChallengeApiService();
+  final TabNavigationService _tabNavService = TabNavigationService();
+  final StreakService _streakService = StreakService();
 
   DashboardStats? _dashboardStats;
   List<ChartData> _weeklyData = [];
+  List<ChallengeModel> _activeChallenges = [];
+  bool _isLoadingChallenges = true;
+  List<QuickActionShortcut> _shortcuts = [];
+  AllStreaks _allStreaks = const AllStreaks();
 
   // Active time tracking — counts seconds live, persists minutes to prefs
   int _activeTimeSeconds = 0;
@@ -46,6 +59,9 @@ class _HomePageState extends State<HomePage>
     _loadActiveTime();
     _loadUserProfile();
     _loadDashboardStats();
+    _loadActiveChallenges();
+    _loadShortcuts();
+    _loadAllStreaks();
     // Tick every second — update live display
     _activeTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
@@ -57,6 +73,7 @@ class _HomePageState extends State<HomePage>
       print('🔔 Dashboard: Refresh event received!');
       if (mounted) {
         _loadDashboardStats();
+        _loadActiveChallenges();
       }
     });
   }
@@ -139,10 +156,74 @@ class _HomePageState extends State<HomePage>
     });
   }
 
+  Future<void> _loadAllStreaks() async {
+    final streaks = await _streakService.fetchAllStreaks();
+    if (mounted) setState(() => _allStreaks = streaks);
+  }
+
+  Future<void> _loadActiveChallenges() async {
+    setState(() => _isLoadingChallenges = true);
+    try {
+      final challenges = await _challengeService.fetchActiveChallenges();
+      // Filter only joined challenges
+      final joined = challenges.where((c) => c.isJoined).toList();
+      setState(() {
+        _activeChallenges = joined;
+        _isLoadingChallenges = false;
+      });
+    } catch (e) {
+      print('Error loading challenges: $e');
+      setState(() => _isLoadingChallenges = false);
+    }
+  }
+
+  Future<void> _loadShortcuts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final shortcuts = prefs.getStringList('quick_action_shortcuts') ?? [];
+    setState(() {
+      _shortcuts = shortcuts.map((s) {
+        final parts = s.split('|');
+        return QuickActionShortcut(
+          label: parts[0],
+          icon: _getIconFromString(parts[1]),
+          route: parts[2],
+        );
+      }).toList();
+    });
+  }
+
+  Future<void> _saveShortcuts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final shortcuts = _shortcuts.map((s) => '${s.label}|${_getStringFromIcon(s.icon)}|${s.route}').toList();
+    await prefs.setStringList('quick_action_shortcuts', shortcuts);
+  }
+
+  IconData _getIconFromString(String iconName) {
+    switch (iconName) {
+      case 'restaurant': return Icons.restaurant;
+      case 'fitness_center': return Icons.fitness_center;
+      case 'water_drop': return Icons.water_drop;
+      case 'camera_alt': return Icons.camera_alt;
+      case 'emoji_events': return Icons.emoji_events;
+      default: return Icons.add;
+    }
+  }
+
+  String _getStringFromIcon(IconData icon) {
+    if (icon == Icons.restaurant) return 'restaurant';
+    if (icon == Icons.fitness_center) return 'fitness_center';
+    if (icon == Icons.water_drop) return 'water_drop';
+    if (icon == Icons.camera_alt) return 'camera_alt';
+    if (icon == Icons.emoji_events) return 'emoji_events';
+    return 'add';
+  }
+
   Future<void> _refresh() async {
     await _saveActiveTime();
     await _loadDashboardStats();
     await _loadUserProfile();
+    await _loadActiveChallenges();
+    await _loadAllStreaks();
   }
 
   void nextView() => setState(() => showChart = true);
@@ -166,6 +247,7 @@ class _HomePageState extends State<HomePage>
 
     return NutriLiftScaffold(
       streakCount: currentStreak,
+      onStreakTap: () => showStreakOverview(context, _allStreaks),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _refresh,
@@ -301,23 +383,7 @@ class _HomePageState extends State<HomePage>
                             ),
                           ),
                           const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildQuickAction(
-                                  Icons.restaurant,
-                                  'SCAN MEAL',
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildQuickAction(
-                                  Icons.fitness_center,
-                                  'ADD SHORTCUTS',
-                                ),
-                              ),
-                            ],
-                          ),
+                          _buildQuickActionsSection(),
                           const SizedBox(height: 24),
 
                           // AI Assistant
@@ -385,65 +451,7 @@ class _HomePageState extends State<HomePage>
                             ),
                           ),
                           const SizedBox(height: 12),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 4,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFEBEE),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(
-                                    Icons.fitness_center,
-                                    color: Colors.red,
-                                    size: 20,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                const Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '30 Days Pushup Challenge',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF2D2D2D),
-                                        ),
-                                      ),
-                                      SizedBox(height: 2),
-                                      Text(
-                                        'Day 15 of 30',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Color(0xFF666666),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.chevron_right,
-                                  color: Color(0xFF999999),
-                                ),
-                              ],
-                            ),
-                          ),
+                          _buildActiveChallengesSection(),
                           const SizedBox(height: 24),
                         ],
                       ),
@@ -780,40 +788,351 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _buildQuickAction(IconData icon, String label) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFEBEE),
-              borderRadius: BorderRadius.circular(8),
+  Widget _buildQuickAction(IconData icon, String label, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              spreadRadius: 1,
             ),
-            child: Icon(icon, color: Colors.red, size: 20),
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFEBEE),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: Colors.red, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(label,
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2D2D2D))),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActionsSection() {
+    return Column(
+      children: [
+        if (_shortcuts.isEmpty)
+          Row(
+            children: [
+              Expanded(
+                child: _buildQuickAction(
+                  Icons.restaurant,
+                  'QUICK LOG FOOD',
+                  onTap: () {
+                    _tabNavService.goToNutrition();
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildQuickAction(
+                  Icons.add_circle_outline,
+                  'ADD SHORTCUTS',
+                  onTap: _showAddShortcutDialog,
+                ),
+              ),
+            ],
+          )
+        else
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              ..._shortcuts.map((shortcut) => SizedBox(
+                    width: (MediaQuery.of(context).size.width - 44) / 2,
+                    child: _buildQuickAction(
+                      shortcut.icon,
+                      shortcut.label,
+                      onTap: () => _handleShortcutTap(shortcut.route),
+                    ),
+                  )),
+              SizedBox(
+                width: (MediaQuery.of(context).size.width - 44) / 2,
+                child: _buildQuickAction(
+                  Icons.add_circle_outline,
+                  'ADD MORE',
+                  onTap: _showAddShortcutDialog,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(label,
-                style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2D2D2D))),
+      ],
+    );
+  }
+
+  void _handleShortcutTap(String route) {
+    switch (route) {
+      case '/nutrition':
+        // Switch to nutrition tab (index 2) in MainNavigation
+        _tabNavService.goToNutrition();
+        break;
+      case '/workout':
+        // Switch to workout tab (index 1) in MainNavigation
+        _tabNavService.goToWorkout();
+        break;
+      case '/challenges':
+        // Switch to community/challenges tab (index 3) in MainNavigation
+        _tabNavService.goToCommunity();
+        break;
+      default:
+        break;
+    }
+  }
+
+  void _navigateToMainTab(int tabIndex) {
+    // This method is no longer needed but kept for reference
+    _tabNavService.switchToTab(tabIndex);
+  }
+
+  void _showAddShortcutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Quick Action Shortcut'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.restaurant, color: Colors.red),
+              title: const Text('Quick Log Food'),
+              onTap: () {
+                _addShortcut('QUICK LOG FOOD', Icons.restaurant, '/nutrition');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.fitness_center, color: Colors.red),
+              title: const Text('Quick Log Exercise'),
+              onTap: () {
+                _addShortcut('QUICK LOG EXERCISE', Icons.fitness_center, '/workout');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.water_drop, color: Colors.red),
+              title: const Text('Log Water'),
+              onTap: () {
+                _addShortcut('LOG WATER', Icons.water_drop, '/nutrition');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: Colors.red),
+              title: const Text('Scan Meal'),
+              onTap: () {
+                _addShortcut('SCAN MEAL', Icons.camera_alt, '/nutrition');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.emoji_events, color: Colors.red),
+              title: const Text('View Challenges'),
+              onTap: () {
+                _addShortcut('CHALLENGES', Icons.emoji_events, '/challenges');
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
           ),
         ],
       ),
+    );
+  }
+
+  void _addShortcut(String label, IconData icon, String route) {
+    setState(() {
+      _shortcuts.add(QuickActionShortcut(label: label, icon: icon, route: route));
+    });
+    _saveShortcuts();
+  }
+
+  Widget _buildActiveChallengesSection() {
+    if (_isLoadingChallenges) {
+      return Container(
+        height: 80,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_activeChallenges.isEmpty) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFEBEE),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.emoji_events,
+                color: Colors.red,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'No Active Challenges',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2D2D2D),
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Join a challenge to get started!',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right,
+              color: Color(0xFF999999),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: _activeChallenges.take(3).map((challenge) {
+        final daysTotal = challenge.endDate.difference(challenge.startDate).inDays;
+        final daysPassed = DateTime.now().difference(challenge.startDate).inDays;
+        final currentDay = daysPassed + 1;
+        
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ActiveChallengeScreen(
+                    challengeId: challenge.id,
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFEBEE),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.fitness_center,
+                      color: Colors.red,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          challenge.name,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF2D2D2D),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Day $currentDay of $daysTotal',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF666666),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: Color(0xFF999999),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }
@@ -822,4 +1141,16 @@ class ChartData {
   final String day;
   final double value;
   ChartData(this.day, this.value);
+}
+
+class QuickActionShortcut {
+  final String label;
+  final IconData icon;
+  final String route;
+
+  QuickActionShortcut({
+    required this.label,
+    required this.icon,
+    required this.route,
+  });
 }

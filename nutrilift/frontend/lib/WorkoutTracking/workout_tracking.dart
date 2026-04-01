@@ -14,6 +14,10 @@ import '../providers/personal_records_provider.dart';
 import '../providers/exercise_library_provider.dart';
 import '../providers/repository_providers.dart';
 import '../services/dashboard_service.dart';
+import '../services/streak_service.dart';
+import '../services/dashboard_refresh_service.dart';
+import '../widgets/streak_overview_widget.dart';
+import 'dart:async';
 import '../models/workout_log.dart';
 import '../models/workout_models.dart' show CreateWorkoutLogRequest, ExerciseSetRequest, WorkoutSetRequest;
 import '../models/personal_record.dart';
@@ -84,16 +88,22 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
   DateTime _selectedDate = DateTime.now();
   String? _selectedMuscleGroup; // null = nothing selected
   int _currentStreak = 0;
+  AllStreaks _allStreaks = const AllStreaks();
+  final StreakService _streakService = StreakService();
+  StreamSubscription<void>? _refreshSubscription;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Delay provider modifications until after the widget tree is built
     Future.microtask(() {
       if (mounted) _refreshData();
     });
     _loadStreak();
+    // Listen for dashboard refresh events (e.g. after workout is saved)
+    _refreshSubscription = DashboardRefreshService().refreshStream.listen((_) {
+      if (mounted) _loadStreak();
+    });
   }
 
   void _refreshData() {
@@ -105,11 +115,11 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
 
   Future<void> _loadStreak() async {
     try {
-      final dashboardService = DashboardService();
-      final streak = await dashboardService.getCurrentStreak();
+      final streaks = await _streakService.fetchAllStreaks();
       if (mounted) {
         setState(() {
-          _currentStreak = streak;
+          _allStreaks = streaks;
+          _currentStreak = streaks.workout.currentStreak;
         });
       }
     } catch (e) {
@@ -119,6 +129,7 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
 
   @override
   void dispose() {
+    _refreshSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -168,6 +179,7 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
 
     return NutriLiftScaffold(
       streakCount: _currentStreak,
+      onStreakTap: () => showStreakOverview(context, _allStreaks),
       title: 'Workout',
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
@@ -1931,7 +1943,17 @@ class _WorkoutCompletionScreenState
       print('DEBUG: Workout saved successfully');
       
       ref.read(workoutHistoryProvider.notifier).refresh();
-      ref.read(personalRecordsProvider.notifier).refresh();
+
+      // Wait for backend PR detection (now synchronous in serializer), then refresh PRs
+      await Future.delayed(const Duration(milliseconds: 800));
+      await ref.read(personalRecordsProvider.notifier).refresh();
+
+      // Refresh streak and notify dashboard
+      try {
+        await StreakService().fetchAllStreaks();
+        DashboardRefreshService().notifyRefresh();
+        print('DEBUG: Streak refreshed after workout save');
+      } catch (_) {}
 
       if (mounted) setState(() { _saving = false; _saved = true; });
     } catch (e, stackTrace) {

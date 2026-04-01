@@ -681,8 +681,8 @@ class _NewWorkoutScreenState extends ConsumerState<NewWorkoutScreen> {
         // Notify home page to refresh dashboard
         DashboardRefreshService().notifyRefresh();
         
-        // Small delay to ensure backend signals have processed
-        await Future.delayed(const Duration(milliseconds: 500));
+        // Wait for backend to finish PR detection (serializer now handles this synchronously)
+        await Future.delayed(const Duration(milliseconds: 800));
         
         // Force refresh of PRs to show new records immediately
         await ref.read(personalRecordsProvider.notifier).refresh();

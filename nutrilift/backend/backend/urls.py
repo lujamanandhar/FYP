@@ -43,6 +43,9 @@ urlpatterns = [
     
     # Gym comparison endpoints
     path('api/gyms/', include('gyms.urls', namespace='gyms')),
+
+    # Notification endpoints
+    path('api/notifications/', include('notifications.urls')),
     
     # Public FAQ endpoint (uses same view but without admin permission)
     path('api/faqs/', admin_views.FAQListView.as_view(), name='public-faqs'),
