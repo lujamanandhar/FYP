@@ -157,6 +157,16 @@ class AuthService {
   void dispose() {
     _apiClient.dispose();
   }
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await _apiClient.post('/auth/change-password/', body: {
+      'current_password': currentPassword,
+      'new_password': newPassword,
+    });
+  }
 }
 
 // Request models
