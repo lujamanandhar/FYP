@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/nutrilift_header.dart';
 import '../screens/workout_history_screen.dart';
 import '../screens/new_workout_screen.dart';
@@ -25,6 +26,8 @@ import '../models/exercise.dart';
 
 const Color _kRed = Color(0xFFE53935);
 
+enum _WorkoutView { today, all, favourites }
+
 // ── Warmup & Stretch static data ──────────────────────────────────────────────
 const _kWarmupPlan = GuidedPlan(
   id: 'warmup',
@@ -43,9 +46,46 @@ const _kWarmupPlan = GuidedPlan(
   ],
 );
 
+const _kWarmupIntensePlan = GuidedPlan(
+  id: 'warmup_intense',
+  name: '10-Min Power Warmup',
+  description: 'High-intensity warmup for heavy training days.',
+  difficulty: 'Intermediate',
+  category: 'Full Body',
+  estimatedMinutes: 10,
+  emoji: '⚡',
+  exercises: [
+    GuidedExercise(name: 'Jumping Jacks', muscleGroup: 'Full Body', durationSeconds: 45, restSeconds: 10, instruction: 'Jump feet wide while raising arms overhead.'),
+    GuidedExercise(name: 'Butt Kicks', muscleGroup: 'Hamstrings', durationSeconds: 40, restSeconds: 10, instruction: 'Jog in place, kicking heels up to your glutes.'),
+    GuidedExercise(name: 'Inchworm', muscleGroup: 'Full Body', durationSeconds: 40, restSeconds: 10, instruction: 'Bend forward, walk hands out to plank, walk back up.'),
+    GuidedExercise(name: 'World\'s Greatest Stretch', muscleGroup: 'Full Body', durationSeconds: 45, restSeconds: 10, instruction: 'Lunge forward, rotate torso, reach arm to sky. Alternate sides.'),
+    GuidedExercise(name: 'Bear Crawl', muscleGroup: 'Full Body', durationSeconds: 40, restSeconds: 10, instruction: 'On hands and feet, crawl forward keeping knees low.'),
+    GuidedExercise(name: 'Lateral Shuffles', muscleGroup: 'Legs', durationSeconds: 40, restSeconds: 10, instruction: 'Shuffle side to side in athletic stance.'),
+    GuidedExercise(name: 'Mountain Climbers', muscleGroup: 'Core', durationSeconds: 40, restSeconds: 15, instruction: 'In plank, drive knees alternately toward chest rapidly.'),
+  ],
+);
+
+const _kMorningWarmupPlan = GuidedPlan(
+  id: 'warmup_morning',
+  name: 'Morning Wake-Up',
+  description: 'Gentle morning routine to wake up your body.',
+  difficulty: 'Beginner',
+  category: 'Full Body',
+  estimatedMinutes: 7,
+  emoji: '🌅',
+  exercises: [
+    GuidedExercise(name: 'Neck Rolls', muscleGroup: 'Neck', durationSeconds: 30, restSeconds: 5, instruction: 'Slowly roll neck in full circles each direction.'),
+    GuidedExercise(name: 'Shoulder Rolls', muscleGroup: 'Shoulders', durationSeconds: 30, restSeconds: 5, instruction: 'Roll shoulders forward and backward in large circles.'),
+    GuidedExercise(name: 'Torso Twists', muscleGroup: 'Core', durationSeconds: 30, restSeconds: 5, instruction: 'Stand feet apart, twist torso left and right with arms extended.'),
+    GuidedExercise(name: 'Cat-Cow Stretch', muscleGroup: 'Back', durationSeconds: 40, restSeconds: 5, instruction: 'On hands and knees, arch back up then drop belly down.'),
+    GuidedExercise(name: 'Hip Flexor Stretch', muscleGroup: 'Hips', durationSeconds: 30, restSeconds: 5, instruction: 'Lunge forward, lower back knee, push hips forward.'),
+    GuidedExercise(name: 'Ankle Circles', muscleGroup: 'Ankles', durationSeconds: 30, restSeconds: 5, instruction: 'Rotate each ankle in full circles both directions.'),
+  ],
+);
+
 const _kStretchPlan = GuidedPlan(
   id: 'stretch',
-  name: '5-Min Cool Down Stretch',
+  name: '5-Min Cool Down',
   description: 'Static stretches to recover and relax.',
   difficulty: 'Beginner',
   category: 'Full Body',
@@ -60,14 +100,55 @@ const _kStretchPlan = GuidedPlan(
   ],
 );
 
+const _kStretchDeepPlan = GuidedPlan(
+  id: 'stretch_deep',
+  name: '10-Min Deep Stretch',
+  description: 'Full body deep stretch for flexibility and recovery.',
+  difficulty: 'Intermediate',
+  category: 'Full Body',
+  estimatedMinutes: 10,
+  emoji: '🌿',
+  exercises: [
+    GuidedExercise(name: 'Seated Forward Fold', muscleGroup: 'Hamstrings', durationSeconds: 45, restSeconds: 5, instruction: 'Sit with legs straight, fold forward reaching for feet.'),
+    GuidedExercise(name: 'Butterfly Stretch', muscleGroup: 'Hips', durationSeconds: 45, restSeconds: 5, instruction: 'Sit with soles together, press knees toward floor.'),
+    GuidedExercise(name: 'Spinal Twist', muscleGroup: 'Back', durationSeconds: 40, restSeconds: 5, instruction: 'Sit, cross one leg over, twist toward bent knee. Each side.'),
+    GuidedExercise(name: 'Doorway Chest Stretch', muscleGroup: 'Chest', durationSeconds: 40, restSeconds: 5, instruction: 'Arms at 90°, press forearms on wall, lean forward.'),
+    GuidedExercise(name: 'Lying Hip Flexor', muscleGroup: 'Hips', durationSeconds: 45, restSeconds: 5, instruction: 'Lie on back, pull one knee to chest, extend other leg.'),
+    GuidedExercise(name: 'Thread the Needle', muscleGroup: 'Shoulders', durationSeconds: 40, restSeconds: 5, instruction: 'On all fours, slide one arm under body, rest shoulder on floor.'),
+    GuidedExercise(name: 'Supine Twist', muscleGroup: 'Back', durationSeconds: 45, restSeconds: 5, instruction: 'Lie on back, drop knees to one side, arms out. Each side.'),
+  ],
+);
+
+const _kYogaStretchPlan = GuidedPlan(
+  id: 'stretch_yoga',
+  name: 'Yoga Flow',
+  description: 'Yoga-inspired stretches for mind and body.',
+  difficulty: 'Beginner',
+  category: 'Full Body',
+  estimatedMinutes: 8,
+  emoji: '🕉️',
+  exercises: [
+    GuidedExercise(name: 'Mountain Pose', muscleGroup: 'Full Body', durationSeconds: 30, restSeconds: 5, instruction: 'Stand tall, feet together, arms at sides. Breathe deeply.'),
+    GuidedExercise(name: 'Downward Dog', muscleGroup: 'Full Body', durationSeconds: 40, restSeconds: 5, instruction: 'Inverted V shape, hands and feet on floor, hips high.'),
+    GuidedExercise(name: 'Warrior I', muscleGroup: 'Legs', durationSeconds: 40, restSeconds: 5, instruction: 'Lunge forward, back foot at 45°, arms overhead. Each side.'),
+    GuidedExercise(name: 'Warrior II', muscleGroup: 'Legs', durationSeconds: 40, restSeconds: 5, instruction: 'Wide stance, front knee bent, arms parallel to floor.'),
+    GuidedExercise(name: 'Triangle Pose', muscleGroup: 'Full Body', durationSeconds: 40, restSeconds: 5, instruction: 'Wide stance, reach down to front foot, other arm up.'),
+    GuidedExercise(name: 'Cobra Pose', muscleGroup: 'Back', durationSeconds: 35, restSeconds: 5, instruction: 'Lie face down, press up with arms, arch back gently.'),
+    GuidedExercise(name: 'Corpse Pose', muscleGroup: 'Full Body', durationSeconds: 60, restSeconds: 0, instruction: 'Lie flat on back, arms at sides, completely relax.'),
+  ],
+);
+
 // ── Body focus filter data ─────────────────────────────────────────────────────
 const _kBodyFocusFilters = [
-  {'label': 'Abs', 'value': 'CORE', 'emoji': ''},
-  {'label': 'Arms', 'value': 'ARMS', 'emoji': ''},
-  {'label': 'Chest', 'value': 'CHEST', 'emoji': ''},
-  {'label': 'Legs', 'value': 'LEGS', 'emoji': ''},
-  {'label': 'Shoulders', 'value': 'SHOULDERS', 'emoji': ''},
-  {'label': 'Back', 'value': 'BACK', 'emoji': ''},
+  {'label': 'Abs', 'value': 'CORE'},
+  {'label': 'Arms', 'value': 'ARMS'},
+  {'label': 'Chest', 'value': 'CHEST'},
+  {'label': 'Legs', 'value': 'LEGS'},
+  {'label': 'Shoulders', 'value': 'SHOULDERS'},
+  {'label': 'Back', 'value': 'BACK'},
+  {'label': 'Glutes', 'value': 'GLUTES'},
+  {'label': 'Cardio', 'value': 'CARDIO'},
+  {'label': 'Full Body', 'value': 'FULL_BODY'},
 ];
 
 class WorkoutTracking extends StatelessWidget {
@@ -92,6 +173,11 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
   final StreakService _streakService = StreakService();
   StreamSubscription<void>? _refreshSubscription;
 
+  // My Workouts filter state
+  _WorkoutView _workoutView = _WorkoutView.today;
+  DateTimeRange? _dateFilter;
+  Set<String> _favouriteWorkoutNames = {};
+
   @override
   void initState() {
     super.initState();
@@ -100,10 +186,32 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
       if (mounted) _refreshData();
     });
     _loadStreak();
-    // Listen for dashboard refresh events (e.g. after workout is saved)
+    _loadFavourites();
     _refreshSubscription = DashboardRefreshService().refreshStream.listen((_) {
       if (mounted) _loadStreak();
     });
+  }
+
+  Future<void> _loadFavourites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favs = prefs.getStringList('favourite_workouts') ?? [];
+    if (mounted) setState(() => _favouriteWorkoutNames = favs.toSet());
+  }
+
+  Future<void> _saveFavourites() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('favourite_workouts', _favouriteWorkoutNames.toList());
+  }
+
+  void _toggleFavourite(String name) {
+    setState(() {
+      if (_favouriteWorkoutNames.contains(name)) {
+        _favouriteWorkoutNames.remove(name);
+      } else {
+        _favouriteWorkoutNames.add(name);
+      }
+    });
+    _saveFavourites();
   }
 
   void _refreshData() {
@@ -290,31 +398,55 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
 
   // ── Warmup & Stretch row ───────────────────────────────────────────────────
   Widget _buildWarmupStretchRow(BuildContext context) {
-    return Row(children: [
-      Expanded(
-        child: _QuickPlanCard(
-          plan: _kWarmupPlan,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => GuidedWorkoutPlayerScreen(plan: _kWarmupPlan),
+    final warmupPlans = [_kWarmupPlan, _kWarmupIntensePlan, _kMorningWarmupPlan];
+    final stretchPlans = [_kStretchPlan, _kStretchDeepPlan, _kYogaStretchPlan];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Warmup section
+        Text('Warmup', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[600])),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 110,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: warmupPlans.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (_, i) => SizedBox(
+              width: 160,
+              child: _QuickPlanCard(
+                plan: warmupPlans[i],
+                onTap: () => Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => GuidedWorkoutPlayerScreen(plan: warmupPlans[i]),
+                )),
+              ),
             ),
           ),
         ),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        child: _QuickPlanCard(
-          plan: _kStretchPlan,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => GuidedWorkoutPlayerScreen(plan: _kStretchPlan),
+        const SizedBox(height: 14),
+        // Stretch section
+        Text('Cool Down & Stretch', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[600])),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 110,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: stretchPlans.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (_, i) => SizedBox(
+              width: 160,
+              child: _QuickPlanCard(
+                plan: stretchPlans[i],
+                onTap: () => Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => GuidedWorkoutPlayerScreen(plan: stretchPlans[i]),
+                )),
+              ),
             ),
           ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 
   // ── Body focus chips — highlight selected, show difficulty inline ─────────
@@ -329,13 +461,11 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
           final f = _kBodyFocusFilters[i];
           final label = f['label'] as String;
           final value = f['value'] as String;
-          final emoji = f['emoji'] as String;
           final selected = _selectedMuscleGroup == value;
 
           return GestureDetector(
             onTap: () => setState(() {
               if (_selectedMuscleGroup == value) {
-                // deselect
                 _selectedMuscleGroup = null;
               } else {
                 _selectedMuscleGroup = value;
@@ -343,7 +473,7 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
             }),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
                 color: selected ? _kRed : Colors.white,
                 borderRadius: BorderRadius.circular(22),
@@ -355,18 +485,14 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
                     ? [BoxShadow(color: _kRed.withOpacity(0.25), blurRadius: 6, offset: const Offset(0, 2))]
                     : [],
               ),
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                Text(emoji, style: const TextStyle(fontSize: 15)),
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: selected ? Colors.white : Colors.grey[700],
-                    fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                    fontSize: 13,
-                  ),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: selected ? Colors.white : Colors.grey[700],
+                  fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 13,
                 ),
-              ]),
+              ),
             ),
           );
         },
@@ -382,9 +508,9 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
     final exercises = allExercises.where((e) => e.muscleGroup == muscleValue).toList();
 
     const difficulties = [
-      {'label': 'Beginner', 'value': 'BEGINNER', 'color': Color(0xFF4CAF50), 'emoji': '🌱', 'desc': 'Perfect for getting started'},
-      {'label': 'Intermediate', 'value': 'INTERMEDIATE', 'color': Color(0xFFFF9800), 'emoji': '🔥', 'desc': 'Build on your foundation'},
-      {'label': 'Advanced', 'value': 'ADVANCED', 'color': Color(0xFFE53935), 'emoji': '⚡', 'desc': 'Push your limits'},
+      {'label': 'Beginner', 'value': 'BEGINNER', 'color': Color(0xFF4CAF50), 'desc': 'Perfect for getting started'},
+      {'label': 'Intermediate', 'value': 'INTERMEDIATE', 'color': Color(0xFFFF9800), 'desc': 'Build on your foundation'},
+      {'label': 'Advanced', 'value': 'ADVANCED', 'color': Color(0xFFE53935), 'desc': 'Push your limits'},
     ];
 
     return Column(
@@ -392,7 +518,6 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
         final diffValue = d['value'] as String;
         final diffLabel = d['label'] as String;
         final color = d['color'] as Color;
-        final emoji = d['emoji'] as String;
         final desc = d['desc'] as String;
         final count = exercises.where((e) => e.difficulty == diffValue).length;
         final diffExercises = exercises.where((e) => e.difficulty == diffValue).toList();
@@ -425,14 +550,21 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
               ],
             ),
             child: Row(children: [
-              Text(emoji, style: const TextStyle(fontSize: 24)),
+              Container(
+                width: 4,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: count == 0 ? Colors.grey[300] : color,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$muscleLabel $diffLabel',
+                      '$muscleLabel · $diffLabel',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -459,63 +591,134 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
     );
   }
 
-  // ── My Workouts (past logged workouts to repeat) ──────────────────────────
+  // ── My Workouts (today by default, filterable, favouritable) ─────────────
   Widget _buildMyWorkouts(BuildContext context, AsyncValue<List<WorkoutLog>> historyAsync) {
     return historyAsync.when(
       loading: () => const Center(
         child: Padding(
           padding: EdgeInsets.all(16),
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(_kRed),
-          ),
+          child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(_kRed)),
         ),
       ),
       error: (_, __) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Text('Could not load workouts',
-            style: TextStyle(color: Colors.grey[500], fontSize: 13)),
+        child: Text('Could not load workouts', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
       ),
-      data: (workouts) {
-        if (workouts.isEmpty) {
-          return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[200]!),
+      data: (allWorkouts) {
+        // ── Filter bar ──────────────────────────────────────────
+        final filterBar = Row(
+          children: [
+            _ViewChip(label: 'Today',     selected: _workoutView == _WorkoutView.today,      onTap: () => setState(() { _workoutView = _WorkoutView.today;      _dateFilter = null; })),
+            const SizedBox(width: 6),
+            _ViewChip(label: 'All',       selected: _workoutView == _WorkoutView.all,        onTap: () => setState(() { _workoutView = _WorkoutView.all;        _dateFilter = null; })),
+            const SizedBox(width: 6),
+            _ViewChip(label: 'Favourites', icon: Icons.bookmark_rounded, selected: _workoutView == _WorkoutView.favourites, onTap: () => setState(() { _workoutView = _WorkoutView.favourites; _dateFilter = null; })),
+            const Spacer(),
+            // Date filter icon
+            GestureDetector(
+              onTap: () async {
+                final range = await showDateRangePicker(
+                  context: context,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime.now(),
+                  initialDateRange: _dateFilter,
+                  builder: (ctx, child) => Theme(
+                    data: Theme.of(ctx).copyWith(colorScheme: const ColorScheme.light(primary: _kRed)),
+                    child: child!,
+                  ),
+                );
+                if (range != null) setState(() { _dateFilter = range; _workoutView = _WorkoutView.all; });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: _dateFilter != null ? _kRed.withOpacity(0.1) : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: _dateFilter != null ? _kRed.withOpacity(0.3) : Colors.grey[200]!),
+                ),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.date_range_rounded, size: 16, color: _dateFilter != null ? _kRed : Colors.grey[500]),
+                  if (_dateFilter != null) ...[
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: () => setState(() => _dateFilter = null),
+                      child: const Icon(Icons.close, size: 13, color: _kRed),
+                    ),
+                  ],
+                ]),
+              ),
             ),
-            child: Column(children: [
-              Icon(Icons.history_rounded, color: Colors.grey[400], size: 32),
-              const SizedBox(height: 8),
-              Text('No workouts logged yet',
-                  style: TextStyle(color: Colors.grey[500], fontSize: 13)),
-            ]),
-          );
+          ],
+        );
+
+        // ── Apply filters ────────────────────────────────────────
+        List<WorkoutLog> filtered = allWorkouts;
+
+        if (_dateFilter != null) {
+          filtered = filtered.where((w) {
+            final d = w.date.toLocal();
+            return !d.isBefore(_dateFilter!.start) && !d.isAfter(_dateFilter!.end.add(const Duration(days: 1)));
+          }).toList();
+        } else if (_workoutView == _WorkoutView.today) {
+          final today = DateTime.now();
+          filtered = filtered.where((w) => _isSameDay(w.date, today)).toList();
+        } else if (_workoutView == _WorkoutView.favourites) {
+          filtered = filtered.where((w) => _favouriteWorkoutNames.contains(w.workoutName ?? 'Workout')).toList();
         }
 
-        // Deduplicate by workout name, keep most recent of each
-        final seen = <String>{};
-        final unique = <WorkoutLog>[];
-        for (final w in workouts) {
-          final name = w.workoutName ?? 'Workout';
-          if (!seen.contains(name)) {
-            seen.add(name);
-            unique.add(w);
+        // Deduplicate by name (keep most recent) unless showing today or date-filtered
+        if (_dateFilter == null && _workoutView != _WorkoutView.today) {
+          final seen = <String>{};
+          final unique = <WorkoutLog>[];
+          for (final w in filtered) {
+            final name = w.workoutName ?? 'Workout';
+            if (!seen.contains(name)) { seen.add(name); unique.add(w); }
+            if (unique.length >= 10) break;
           }
-          if (unique.length >= 6) break;
+          filtered = unique;
         }
 
         return Column(
-          children: unique.map((w) => _MyWorkoutTile(
-            workout: w,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => NewWorkoutScreen(repeatFrom: w),
-              ),
-            ),
-          )).toList(),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            filterBar,
+            const SizedBox(height: 10),
+            if (filtered.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: Column(children: [
+                  Icon(
+                    _workoutView == _WorkoutView.favourites ? Icons.bookmark_border_rounded : Icons.history_rounded,
+                    color: Colors.grey[400], size: 32,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _workoutView == _WorkoutView.today
+                        ? 'No workouts logged today'
+                        : _workoutView == _WorkoutView.favourites
+                            ? 'No favourites yet — bookmark a workout!'
+                            : 'No workouts found',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                  ),
+                ]),
+              )
+            else
+              ...filtered.map((w) => _MyWorkoutTile(
+                workout: w,
+                isFavourite: _favouriteWorkoutNames.contains(w.workoutName ?? 'Workout'),
+                onToggleFavourite: () => _toggleFavourite(w.workoutName ?? 'Workout'),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => NewWorkoutScreen(repeatFrom: w)),
+                ),
+              )),
+          ],
         );
       },
     );
@@ -884,46 +1087,110 @@ class _QuickPlanCard extends StatelessWidget {
 
   const _QuickPlanCard({required this.plan, required this.onTap});
 
+  // Curated workout background images — varied per plan
+  static const _planImages = {
+    'warmup': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80',
+    'warmup_intense': 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&q=80',
+    'warmup_morning': 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400&q=80',
+    'stretch': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&q=80',
+    'stretch_deep': 'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=400&q=80',
+    'stretch_yoga': 'https://images.unsplash.com/photo-1588286840104-8957b019727f?w=400&q=80',
+  };
+
   @override
   Widget build(BuildContext context) {
+    final imageUrl = _planImages[plan.id] ?? _planImages['warmup']!;
+
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.grey[200]!),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Stack(
           children: [
-            Row(children: [
-              Text(plan.emoji, style: const TextStyle(fontSize: 24)),
-              const Spacer(),
-              Container(
+            // Background photo
+            Positioned.fill(
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: const Color(0xFF1A1A2E),
+                ),
+              ),
+            ),
+            // Gradient fade from bottom
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.3),
+                      Colors.black.withOpacity(0.75),
+                    ],
+                    stops: const [0.0, 0.4, 1.0],
+                  ),
+                ),
+              ),
+            ),
+            // Content overlay
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      plan.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        const Icon(Icons.timer_outlined, color: Colors.white70, size: 11),
+                        const SizedBox(width: 3),
+                        Text(
+                          '${plan.estimatedMinutes} min',
+                          style: const TextStyle(color: Colors.white70, fontSize: 11),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.fitness_center, color: Colors.white70, size: 11),
+                        const SizedBox(width: 3),
+                        Text(
+                          '${plan.totalExercises} exercises',
+                          style: const TextStyle(color: Colors.white70, fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Play button top-right
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: _kRed.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white.withOpacity(0.9),
+                  shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.play_arrow_rounded, color: _kRed, size: 16),
+                child: const Icon(Icons.play_arrow_rounded, color: Color(0xFFE53935), size: 16),
               ),
-            ]),
-            const SizedBox(height: 8),
-            Text(plan.name,
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 13)),
-            const SizedBox(height: 2),
-            Text('${plan.estimatedMinutes} min · ${plan.totalExercises} exercises',
-                style: TextStyle(color: Colors.grey[500], fontSize: 11)),
+            ),
           ],
         ),
       ),
@@ -935,8 +1202,15 @@ class _QuickPlanCard extends StatelessWidget {
 class _MyWorkoutTile extends StatelessWidget {
   final WorkoutLog workout;
   final VoidCallback onTap;
+  final bool isFavourite;
+  final VoidCallback onToggleFavourite;
 
-  const _MyWorkoutTile({required this.workout, required this.onTap});
+  const _MyWorkoutTile({
+    required this.workout,
+    required this.onTap,
+    required this.isFavourite,
+    required this.onToggleFavourite,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -952,13 +1226,9 @@ class _MyWorkoutTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.grey[200]!),
+          border: Border.all(color: isFavourite ? _kRed.withOpacity(0.25) : Colors.grey[200]!),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
+            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 6, offset: const Offset(0, 2)),
           ],
         ),
         child: Row(children: [
@@ -977,8 +1247,7 @@ class _MyWorkoutTile extends StatelessWidget {
               children: [
                 Text(
                   workout.workoutName ?? 'Workout',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 14),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -988,21 +1257,70 @@ class _MyWorkoutTile extends StatelessWidget {
               ],
             ),
           ),
+          // Bookmark icon
+          GestureDetector(
+            onTap: onToggleFavourite,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Icon(
+                isFavourite ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                color: isFavourite ? _kRed : Colors.grey[400],
+                size: 22,
+              ),
+            ),
+          ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               color: _kRed.withOpacity(0.08),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
-              'Repeat',
-              style: TextStyle(
-                  color: _kRed,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600),
-            ),
+            child: const Text('Repeat', style: TextStyle(color: _kRed, fontSize: 12, fontWeight: FontWeight.w600)),
           ),
         ]),
+      ),
+    );
+  }
+}
+
+// ── View chip helper ──────────────────────────────────────────────────────────
+class _ViewChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final IconData? icon;
+
+  const _ViewChip({required this.label, required this.selected, required this.onTap, this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? _kRed : Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: selected ? _kRed : Colors.grey[200]!),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 13, color: selected ? Colors.white : Colors.grey[500]),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                color: selected ? Colors.white : Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1144,9 +1462,9 @@ class BodyFocusDifficultyScreen extends StatelessWidget {
   }) : super(key: key);
 
   static const _difficulties = [
-    {'label': 'Beginner', 'value': 'BEGINNER', 'color': Color(0xFF4CAF50), 'emoji': '🌱', 'desc': 'Perfect for getting started'},
-    {'label': 'Intermediate', 'value': 'INTERMEDIATE', 'color': Color(0xFFFF9800), 'emoji': '🔥', 'desc': 'Build on your foundation'},
-    {'label': 'Advanced', 'value': 'ADVANCED', 'color': Color(0xFFE53935), 'emoji': '⚡', 'desc': 'Push your limits'},
+    {'label': 'Beginner', 'value': 'BEGINNER', 'color': Color(0xFF4CAF50), 'desc': 'Perfect for getting started'},
+    {'label': 'Intermediate', 'value': 'INTERMEDIATE', 'color': Color(0xFFFF9800), 'desc': 'Build on your foundation'},
+    {'label': 'Advanced', 'value': 'ADVANCED', 'color': Color(0xFFE53935), 'desc': 'Push your limits'},
   ];
 
   @override
@@ -1168,7 +1486,6 @@ class BodyFocusDifficultyScreen extends StatelessWidget {
               final diffValue = d['value'] as String;
               final diffLabel = d['label'] as String;
               final color = d['color'] as Color;
-              final diffEmoji = d['emoji'] as String;
               final desc = d['desc'] as String;
               final count = exercises.where((e) => e.difficulty == diffValue).length;
 
@@ -1212,7 +1529,7 @@ class BodyFocusDifficultyScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Center(
-                        child: Text(diffEmoji, style: const TextStyle(fontSize: 26)),
+                        child: Icon(Icons.fitness_center, color: color, size: 26),
                       ),
                     ),
                     const SizedBox(width: 16),

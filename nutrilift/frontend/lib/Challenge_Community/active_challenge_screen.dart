@@ -211,7 +211,7 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
 
         return NutriLiftScaffold(
           streakCount: _currentStreak,
-          title: 'Active Challenge',
+          title: challenge.name,
           showBackButton: true,
           showDrawer: false,
           body: provider.isDailyLogLoading
@@ -301,7 +301,7 @@ class _DailyLogBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Challenge name + progress ──────────────────────────────
+          // ── Challenge name + description + progress ────────────────
           Card(
             elevation: 3,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -310,12 +310,15 @@ class _DailyLogBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Description always visible
+                  Text(
+                    challenge.description,
+                    style: const TextStyle(fontSize: 14, color: Color(0xFF555555), height: 1.5),
+                  ),
+                  const SizedBox(height: 14),
+                  // Progress bar
                   Row(
                     children: [
-                      Expanded(
-                        child: Text(challenge.name,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(

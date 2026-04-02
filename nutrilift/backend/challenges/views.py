@@ -828,8 +828,8 @@ class EsewaInitiateView(APIView):
             hmac.new(secret_key.encode(), message.encode(), hashlib.sha256).digest()
         ).decode()
 
-        # Build success/failure URLs pointing back to our backend
-        base = request.build_absolute_uri('/').rstrip('/')
+        # Build success/failure URLs — use ESEWA_SUCCESS_BASE_URL if set (for ngrok/production)
+        base = getattr(settings, 'ESEWA_SUCCESS_BASE_URL', None) or request.build_absolute_uri('/').rstrip('/')
         success_url = f'{base}/api/challenges/{pk}/pay/verify/'
         failure_url = f'{base}/api/challenges/{pk}/pay/failure/'
 
@@ -868,15 +868,16 @@ class EsewaVerifyView(APIView):
     GET /api/challenges/<uuid:pk>/pay/verify/
     Called by eSewa after successful payment (redirect with Base64 encoded data).
     Verifies signature and checks transaction status via eSewa status API.
+    Note: This endpoint is called by eSewa redirect, so authentication may not be present.
+    We use the payment record's user (stored during initiate) to join the challenge.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = []  # No auth required — eSewa redirect doesn't send JWT
 
     def get(self, request, pk):
         import base64, json, hmac, hashlib
         from django.conf import settings
         import requests as req
 
-        # eSewa sends response as Base64 encoded JSON in 'data' query param
         encoded_data = request.query_params.get('data', '')
         if not encoded_data:
             return Response({'detail': 'No payment data received.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -890,18 +891,14 @@ class EsewaVerifyView(APIView):
         transaction_uuid = response_data.get('transaction_uuid', '')
         total_amount = response_data.get('total_amount', '')
         received_signature = response_data.get('signature', '')
-        esewa_status = response_data.get('status', '')
 
-        # Verify signature
+        # Verify HMAC signature
         product_code = getattr(settings, 'ESEWA_PRODUCT_CODE', 'EPAYTEST')
         secret_key = getattr(settings, 'ESEWA_SECRET_KEY', '8gBm/:&EnhH.1/q')
         signed_fields = response_data.get('signed_field_names', 'transaction_code,status,total_amount,transaction_uuid,product_code,signed_field_names')
 
-        message_parts = []
-        for field in signed_fields.split(','):
-            message_parts.append(f'{field}={response_data.get(field, "")}')
+        message_parts = [f'{f}={response_data.get(f, "")}' for f in signed_fields.split(',')]
         message = ','.join(message_parts)
-
         expected_signature = base64.b64encode(
             hmac.new(secret_key.encode(), message.encode(), hashlib.sha256).digest()
         ).decode()
@@ -910,10 +907,7 @@ class EsewaVerifyView(APIView):
             return Response({'detail': 'Signature verification failed.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Verify with eSewa status API
-        verify_url = getattr(
-            settings, 'ESEWA_VERIFY_URL',
-            'https://uat.esewa.com.np/api/epay/transaction/status/'
-        )
+        verify_url = getattr(settings, 'ESEWA_VERIFY_URL', 'https://uat.esewa.com.np/api/epay/transaction/status/')
         try:
             verify_resp = req.get(verify_url, params={
                 'product_code': product_code,
@@ -927,7 +921,7 @@ class EsewaVerifyView(APIView):
         if verify_data.get('status') != 'COMPLETE':
             return Response({'detail': f'Payment not complete: {verify_data.get("status")}'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Mark payment as completed
+        # Find payment record by transaction_uuid (not by request.user since this is a redirect)
         payment = EsewaPayment.objects.filter(
             transaction_uuid=transaction_uuid,
             challenge_id=pk,
@@ -936,26 +930,28 @@ class EsewaVerifyView(APIView):
         if payment is None:
             return Response({'detail': 'Payment record not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+        # Mark payment as completed
         payment.status = 'COMPLETED'
         payment.esewa_ref_id = verify_data.get('refId', '')
         payment.verified_at = timezone.now()
         payment.save()
 
-        # Auto-join the challenge
-        ChallengeParticipant.objects.get_or_create(challenge=payment.challenge, user=payment.user)
+        # Auto-join the challenge using the payment's user
+        ChallengeParticipant.objects.get_or_create(
+            challenge=payment.challenge,
+            user=payment.user
+        )
 
-        # Redirect to app deep link or success page
         from django.http import HttpResponseRedirect
         return HttpResponseRedirect(f'/api/challenges/{pk}/pay/success/?status=COMPLETE&transaction_uuid={transaction_uuid}')
 
-    # Also handle POST (some redirects use POST)
     def post(self, request, pk):
         return self.get(request, pk)
 
 
 class EsewaPaymentSuccessView(APIView):
     """GET /api/challenges/<uuid:pk>/pay/success/ — simple success confirmation for the app to poll."""
-    permission_classes = [IsAuthenticated]
+    permission_classes = []  # No auth — called via WebView redirect
 
     def get(self, request, pk):
         transaction_uuid = request.query_params.get('transaction_uuid', '')

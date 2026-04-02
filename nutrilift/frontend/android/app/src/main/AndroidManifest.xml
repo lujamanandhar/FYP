@@ -18,6 +18,10 @@
         android:label="nutrilift"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Disable Impeller on API 36 emulator to fix connection drops -->
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableImpeller"
+            android:value="false" />
         
         <!-- Google Maps API Key for Android -->
         <meta-data

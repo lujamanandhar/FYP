@@ -388,14 +388,17 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                       if (current.isPaid && !current.hasPaid) {
                         // Show payment sheet
                         showPaymentSheet(context, current, () async {
+                          // Wait a moment for backend to complete join
+                          await Future.delayed(const Duration(milliseconds: 1000));
                           await provider.fetchChallenges();
                           if (context.mounted) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => ActiveChallengeScreen(
-                                      challengeId: challenge.id)),
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('✅ Payment successful! You have joined the challenge.'),
+                                backgroundColor: Colors.green,
+                              ),
                             );
+                            // Stay on challenge details — don't navigate away
                           }
                         });
                       } else {

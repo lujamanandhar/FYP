@@ -107,38 +107,52 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
     }
   }
 
+  // Kathmandu, Nepal — default location
+  static const double _defaultLat = 27.7172;
+  static const double _defaultLng = 85.3240;
+
+  Position _kathmanduPosition() => Position(
+        latitude: _defaultLat,
+        longitude: _defaultLng,
+        timestamp: DateTime.now(),
+        accuracy: 0,
+        altitude: 0,
+        altitudeAccuracy: 0,
+        heading: 0,
+        headingAccuracy: 0,
+        speed: 0,
+        speedAccuracy: 0,
+      );
+
   Future<void> _getMobileLocation() async {
     // Check permissions
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location permission denied')),
-          );
-        }
-        setState(() => _isLoading = false);
-        return;
-      }
     }
-    
-    if (permission == LocationPermission.deniedForever) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permission permanently denied. Enable in settings.')),
-        );
-      }
-      setState(() => _isLoading = false);
+
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      // Fall back to Kathmandu
+      setState(() => _currentPosition = _kathmanduPosition());
       return;
     }
 
-    // Get current position
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-    
-    setState(() => _currentPosition = position);
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      ).timeout(const Duration(seconds: 10));
+
+      // Validate — if lat/lng is 0,0 or clearly wrong, use Kathmandu
+      if (position.latitude.abs() < 0.1 && position.longitude.abs() < 0.1) {
+        setState(() => _currentPosition = _kathmanduPosition());
+      } else {
+        setState(() => _currentPosition = position);
+      }
+    } catch (_) {
+      // Timeout or error — fall back to Kathmandu
+      setState(() => _currentPosition = _kathmanduPosition());
+    }
   }
 
   Future<void> _searchGyms({double? latitude, double? longitude, int? radius}) async {
@@ -237,7 +251,7 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
   }
 
   Future<void> _openMap() async {
-    // Open area selector map
+    // Open area selector — user taps to set center + adjusts radius
     final result = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(
@@ -248,15 +262,14 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
     );
 
     if (result != null) {
-      // User selected an area, search gyms in that area
       final latitude = result['latitude'] as double;
       final longitude = result['longitude'] as double;
       final radius = result['radius'] as int;
-      
+
       setState(() {
-        _searchAreaName = 'Custom Area (${(radius / 1000).toStringAsFixed(1)} km)';
+        _searchAreaName = 'Selected Area (${(radius / 1000).toStringAsFixed(1)} km)';
       });
-      
+
       await _searchGyms(
         latitude: latitude,
         longitude: longitude,

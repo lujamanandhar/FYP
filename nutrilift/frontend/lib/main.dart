@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform, kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart' as provider_pkg;
 import 'UserManagement/login_screen.dart';
@@ -12,11 +12,6 @@ import 'Challenge_Community/community_api_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize WebView platform for Android only
-  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-    _initAndroidWebView();
-  }
   // Initialize global error handler with navigation key for displaying errors globally
   final navigatorKey = GlobalKey<NavigatorState>();
   ErrorHandler().initialize(navKey: navigatorKey);
@@ -137,16 +132,4 @@ class MyApp extends StatelessWidget {
   }
 }
 
-void _initAndroidWebView() {
-  // Dynamically initialize Android WebView platform
-  // This avoids import errors on web
-  try {
-    // ignore: avoid_dynamic_calls
-    final dynamic platform = _getAndroidWebViewPlatform();
-    if (platform != null) {
-      // WebViewPlatform.instance is set by the webview_flutter_android package automatically
-    }
-  } catch (_) {}
-}
 
-dynamic _getAndroidWebViewPlatform() => null;

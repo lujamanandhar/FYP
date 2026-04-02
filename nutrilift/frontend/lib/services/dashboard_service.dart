@@ -30,7 +30,8 @@ class DashboardService {
     final dio = _dioClient.dio;
     final now = DateTime.now();
     final todayStr = DateFormat('yyyy-MM-dd').format(now);
-    final sevenDaysAgo = now.subtract(const Duration(days: 7));
+    // Fetch full current year for monthly chart
+    final yearStart = DateTime(now.year, 1, 1);
 
     // Fetch today's workout history to get today's calories burned and workout count
     final historyResponse = await dio.get('/workouts/logs/get_history/');
@@ -49,19 +50,14 @@ class DashboardService {
       if (logDate == null) continue;
       final logDateStr = DateFormat('yyyy-MM-dd').format(logDate);
       
-      print('📊 Dashboard: Log date=$logDateStr, today=$todayStr, calories=${log['calories_burned']}');
-      
       if (logDateStr == todayStr) {
         todayWorkouts++;
         todayCaloriesBurned += double.parse(
           (log['calories_burned'] ?? '0').toString(),
         ).toInt();
         todayDuration += (log['duration'] ?? log['duration_minutes'] ?? 0) as int;
-        print('📊 Dashboard: TODAY\'S LOG - Total workouts: $todayWorkouts, Total calories: $todayCaloriesBurned');
       }
     }
-    
-    print('📊 Dashboard: Final - Workouts: $todayWorkouts, Calories: $todayCaloriesBurned');
 
     // Fetch today's nutrition progress for calorie intake
     int todayCaloriesIntake = 0;
@@ -85,19 +81,43 @@ class DashboardService {
       }
     } catch (_) {}
 
-    // Fetch weekly workout stats for the chart
+    // Fetch full-year workout stats for the chart (calories burned + workouts per date)
     Map<String, dynamic> workoutByDate = {};
     try {
       final statsResponse = await dio.get(
         '/workouts/logs/statistics/',
         queryParameters: {
-          'start_date': sevenDaysAgo.toIso8601String(),
+          'start_date': yearStart.toIso8601String(),
           'end_date': now.toIso8601String(),
         },
       );
       workoutByDate = Map<String, dynamic>.from(
         statsResponse.data['workout_by_date'] ?? {},
       );
+    } catch (_) {}
+
+    // Merge full-year nutrition intake per date into workoutByDate
+    try {
+      final yearStartStr = DateFormat('yyyy-MM-dd').format(yearStart);
+      final nutritionResponse = await dio.get(
+        '/nutrition/nutrition-progress/',
+        queryParameters: {'date_from': yearStartStr, 'date_to': todayStr, 'page_size': 400},
+      );
+      final List<dynamic> progressResults;
+      if (nutritionResponse.data is List) {
+        progressResults = nutritionResponse.data as List;
+      } else if (nutritionResponse.data is Map && nutritionResponse.data.containsKey('results')) {
+        progressResults = nutritionResponse.data['results'] as List;
+      } else {
+        progressResults = [];
+      }
+      for (final p in progressResults) {
+        final dateStr = p['progress_date']?.toString() ?? '';
+        if (dateStr.isEmpty) continue;
+        workoutByDate.putIfAbsent(dateStr, () => <String, dynamic>{});
+        workoutByDate[dateStr]['intake'] =
+            double.tryParse((p['total_calories'] ?? '0').toString())?.toInt() ?? 0;
+      }
     } catch (_) {}
 
     // Fetch streak

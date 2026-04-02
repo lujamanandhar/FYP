@@ -163,10 +163,10 @@ class OpenStreetMapService:
         
         # Create place_id from OSM element
         place_id = f"{element['type']}/{element['id']}"
-        
-        # Default photo (OSM doesn't provide photos directly)
-        photos = ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800']
-        
+
+        # Use varied gym photos based on place_id hash (no API key needed)
+        photos = [self._get_gym_photo(place_id, name)]
+
         return {
             'place_id': place_id,
             'name': name,
@@ -238,11 +238,36 @@ class OpenStreetMapService:
             'rating': 0,
             'user_ratings_total': 0,
             'price_level': 0,
-            'photos': ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800'],
+            'photos': [self._get_gym_photo(f"detail/{element.get('id', 0)}", name)],
             'reviews': [],
             'opening_hours': opening_hours,
         }
     
+    def _get_gym_photo(self, place_id: str, name: str) -> str:
+        """
+        Return a varied gym photo URL based on the place_id hash.
+        Uses a curated list of real gym/fitness center photos from Unsplash.
+        Each gym gets a consistent but different photo.
+        """
+        gym_photos = [
+            # Gym interiors and equipment
+            'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',  # gym floor
+            'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=800',  # weights room
+            'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800',  # gym equipment
+            'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800',  # treadmills
+            'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800',  # gym interior
+            'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800',  # weight rack
+            'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800',  # gym machines
+            'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=800',  # fitness center
+            'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800',  # gym workout
+            'https://images.unsplash.com/photo-1567013127542-490d757e51fc?w=800',  # gym building
+            'https://images.unsplash.com/photo-1576678927484-cc907957088c?w=800',  # fitness room
+            'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=800',  # gym entrance
+        ]
+        # Use hash of place_id to consistently pick a photo for each gym
+        idx = hash(place_id) % len(gym_photos)
+        return gym_photos[abs(idx)]
+
     def _calculate_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """Calculate distance between two points using Haversine formula (returns km)"""
         R = 6371  # Earth's radius in kilometers

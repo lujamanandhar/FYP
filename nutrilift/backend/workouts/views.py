@@ -397,11 +397,29 @@ class WorkoutLogViewSet(viewsets.ModelViewSet):
                 workout_by_date[date_str] = {
                     'count': 0,
                     'duration': 0,
-                    'calories': 0
+                    'calories': 0,
+                    'workouts': 0,
                 }
             workout_by_date[date_str]['count'] += 1
+            workout_by_date[date_str]['workouts'] += 1
             workout_by_date[date_str]['duration'] += log.duration_minutes
             workout_by_date[date_str]['calories'] += float(log.calories_burned)
+
+        # Merge per-date nutrition intake
+        try:
+            from nutrition.models import NutritionProgress
+            nutrition_qs = NutritionProgress.objects.filter(user=request.user)
+            if start_date:
+                nutrition_qs = nutrition_qs.filter(progress_date__gte=start_date_obj.date() if start_date else None)
+            if end_date:
+                nutrition_qs = nutrition_qs.filter(progress_date__lte=end_date_obj.date() if end_date else None)
+            for np in nutrition_qs:
+                date_str = np.progress_date.isoformat()
+                if date_str not in workout_by_date:
+                    workout_by_date[date_str] = {'count': 0, 'duration': 0, 'calories': 0, 'workouts': 0}
+                workout_by_date[date_str]['intake'] = float(np.total_calories)
+        except Exception:
+            pass
         
         # Get workout breakdown by category
         workouts_by_category = {}

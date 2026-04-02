@@ -294,3 +294,9 @@ ESEWA_VERIFY_URL = 'https://uat.esewa.com.np/api/epay/transaction/status/'
 # ESEWA_SECRET_KEY = 'YOUR_SECRET_KEY'
 # ESEWA_PAYMENT_URL = 'https://epay.esewa.com.np/api/epay/main/v2/form'
 # ESEWA_VERIFY_URL = 'https://epay.esewa.com.np/api/epay/transaction/status/'
+
+# ── eSewa Callback URL ─────────────────────────────────────────────────────────
+# Set this to your ngrok URL when testing with emulator/physical device
+# e.g. 'https://abc123.ngrok.io'
+# Leave as None to use the request's host (works for web browser testing)
+ESEWA_SUCCESS_BASE_URL = None  # Replace with your ngrok URL

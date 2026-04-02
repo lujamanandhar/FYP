@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:async';
+import 'dart:math' as math;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz_data;
 import '../services/auth_service.dart';
 import '../services/error_handler.dart';
 import '../services/dashboard_service.dart';
@@ -37,7 +41,12 @@ class _HomePageState extends State<HomePage>
 
   DashboardStats? _dashboardStats;
   List<ChartData> _weeklyData = [];
+  List<ChartData> _monthlyData = [];
   List<ChallengeModel> _activeChallenges = [];
+
+  // Chart state
+  int _selectedMetric = 0; // 0=CalBurned, 1=CalIntake, 2=ActiveTime, 3=Workouts
+  bool _isMonthlyView = false;
   bool _isLoadingChallenges = true;
   List<QuickActionShortcut> _shortcuts = [];
   AllStreaks _allStreaks = const AllStreaks();
@@ -48,6 +57,12 @@ class _HomePageState extends State<HomePage>
   
   // Track last refresh time to auto-refresh stale data
   DateTime? _lastRefreshTime;
+
+  // Today's Plan
+  List<PlanTask> _planTasks = [];
+  final Set<int> _completingTaskIds = {}; // tasks showing done animation
+  final FlutterLocalNotificationsPlugin _notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   
   // Subscription to refresh events
   StreamSubscription<void>? _refreshSubscription;
@@ -62,6 +77,8 @@ class _HomePageState extends State<HomePage>
     _loadActiveChallenges();
     _loadShortcuts();
     _loadAllStreaks();
+    _initNotifications();
+    _loadPlanTasks();
     // Tick every second — update live display
     _activeTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
@@ -129,19 +146,55 @@ class _HomePageState extends State<HomePage>
   void _buildWeeklyChartData() {
     if (_dashboardStats == null) return;
     final now = DateTime.now();
-    final weekData = <ChartData>[];
-    for (int i = 6; i >= 0; i--) {
-      final date = now.subtract(Duration(days: i));
+
+    // Weekly — current week Sun→Sat (7 fixed days)
+    final weekData = <List<ChartData>>[[], [], [], []];
+    // Find Sunday of current week
+    final todayWeekday = now.weekday % 7; // Mon=1..Sun=0 → Sun=0
+    final sunday = now.subtract(Duration(days: todayWeekday));
+    for (int i = 0; i < 7; i++) {
+      final date = sunday.add(Duration(days: i));
       final dateStr = DateFormat('yyyy-MM-dd').format(date);
       final dayLabel = DateFormat('EEE').format(date).substring(0, 3);
-      double calories = 0;
       final dayData = _dashboardStats!.workoutByDate[dateStr];
-      if (dayData != null) {
-        calories = (dayData['calories'] ?? 0).toDouble();
-      }
-      weekData.add(ChartData(dayLabel, calories));
+      weekData[0].add(ChartData(dayLabel, (dayData?['calories'] ?? 0).toDouble()));
+      weekData[1].add(ChartData(dayLabel, (dayData?['intake'] ?? 0).toDouble()));
+      weekData[2].add(ChartData(dayLabel, (dayData?['duration'] ?? dayData?['active_minutes'] ?? 0).toDouble()));
+      weekData[3].add(ChartData(dayLabel, (dayData?['workouts'] ?? dayData?['count'] ?? 0).toDouble()));
     }
-    _weeklyData = weekData;
+    _weeklyData = weekData[_selectedMetric];
+
+    // Monthly — Jan→Dec of current year (12 fixed months)
+    final monthData = <List<ChartData>>[[], [], [], []];
+    for (int m = 1; m <= 12; m++) {
+      final monthDate = DateTime(now.year, m, 1);
+      final monthLabel = DateFormat('MMM').format(monthDate);
+      double c0 = 0, c1 = 0, c2 = 0, c3 = 0;
+      final daysInMonth = DateUtils.getDaysInMonth(now.year, m);
+      for (int d = 1; d <= daysInMonth; d++) {
+        final date = DateTime(now.year, m, d);
+        final dateStr = DateFormat('yyyy-MM-dd').format(date);
+        final dayData = _dashboardStats!.workoutByDate[dateStr];
+        c0 += (dayData?['calories'] ?? 0).toDouble();
+        c1 += (dayData?['intake'] ?? 0).toDouble();
+        c2 += (dayData?['duration'] ?? dayData?['active_minutes'] ?? 0).toDouble();
+        c3 += (dayData?['workouts'] ?? dayData?['count'] ?? 0).toDouble();
+      }
+      monthData[0].add(ChartData(monthLabel, c0));
+      monthData[1].add(ChartData(monthLabel, c1));
+      monthData[2].add(ChartData(monthLabel, c2));
+      monthData[3].add(ChartData(monthLabel, c3));
+    }
+    _monthlyData = monthData[_selectedMetric];
+  }
+
+  List<ChartData> get _currentChartData => _isMonthlyView ? _monthlyData : _weeklyData;
+
+  void _onMetricChanged(int idx) {
+    setState(() {
+      _selectedMetric = idx;
+      _buildWeeklyChartData();
+    });
   }
 
   Future<void> _loadUserProfile() async {
@@ -196,6 +249,464 @@ class _HomePageState extends State<HomePage>
     final prefs = await SharedPreferences.getInstance();
     final shortcuts = _shortcuts.map((s) => '${s.label}|${_getStringFromIcon(s.icon)}|${s.route}').toList();
     await prefs.setStringList('quick_action_shortcuts', shortcuts);
+  }
+
+  // ── Today's Plan ─────────────────────────────────────────────────────────
+
+  Future<void> _initNotifications() async {
+    tz_data.initializeTimeZones();
+    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const ios = DarwinInitializationSettings();
+    await _notificationsPlugin.initialize(
+      const InitializationSettings(android: android, iOS: ios),
+    );
+  }
+
+  Future<void> _loadPlanTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getStringList('plan_tasks_today') ?? [];
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final savedDate = prefs.getString('plan_tasks_date') ?? '';
+    if (savedDate != today) {
+      // New day — clear tasks
+      await prefs.setStringList('plan_tasks_today', []);
+      await prefs.setString('plan_tasks_date', today);
+      if (mounted) setState(() => _planTasks = []);
+      return;
+    }
+    final tasks = raw.map((s) => PlanTask.fromString(s)).toList();
+    if (mounted) setState(() => _planTasks = tasks);
+  }
+
+  Future<void> _savePlanTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+        'plan_tasks_today', _planTasks.map((t) => t.toString()).toList());
+    await prefs.setString(
+        'plan_tasks_date', DateFormat('yyyy-MM-dd').format(DateTime.now()));
+  }
+
+  Future<void> _scheduleNotification(PlanTask task) async {
+    final now = DateTime.now();
+    final scheduled = DateTime(
+        now.year, now.month, now.day, task.startHour, task.startMinute);
+    if (scheduled.isBefore(now)) return; // already passed
+    await _notificationsPlugin.zonedSchedule(
+      task.id,
+      'Time for ${task.title}!',
+      'Your scheduled task is starting now.',
+      tz.TZDateTime.from(scheduled, tz.local),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'plan_channel', 'Today\'s Plan',
+          channelDescription: 'Reminders for your daily plan',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
+  Future<void> _cancelNotification(int id) async {
+    await _notificationsPlugin.cancel(id);
+  }
+
+  void _showAddTaskDialog() {
+    final titleCtrl = TextEditingController();
+    final notesCtrl = TextEditingController();
+    TaskType selectedType = TaskType.workout;
+    TimeOfDay startTime = TimeOfDay.now();
+    TimeOfDay endTime = TimeOfDay(
+        hour: (TimeOfDay.now().hour + 1) % 24, minute: TimeOfDay.now().minute);
+
+    String Function(TaskType) notesHint = (TaskType t) {
+      switch (t) {
+        case TaskType.workout:
+          return 'e.g. Push-ups 3x12, Squats 3x15, Plank 1min';
+        case TaskType.meal:
+          return 'e.g. Oatmeal with banana, Green tea, 2 eggs';
+        case TaskType.water:
+          return 'e.g. 500ml water, 2 glasses';
+        case TaskType.challenge:
+          return 'e.g. Day 5 - 20 burpees, 10 pull-ups';
+        case TaskType.custom:
+          return 'Add details...';
+      }
+    };
+
+    String Function(TaskType) notesLabel = (TaskType t) {
+      switch (t) {
+        case TaskType.workout: return 'Exercises';
+        case TaskType.meal:    return 'What to eat';
+        case TaskType.water:   return 'Amount';
+        case TaskType.challenge: return 'Details';
+        case TaskType.custom:  return 'Notes';
+      }
+    };
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModal) => Padding(
+          padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 20,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Add Task',
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
+                  IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(ctx)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: titleCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Task name',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 10),
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Text('Type',
+                  style: TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: TaskType.values.map((t) {
+                  final sel = t == selectedType;
+                  return ChoiceChip(
+                    label: Text(t.label),
+                    selected: sel,
+                    selectedColor: Colors.red,
+                    labelStyle: TextStyle(
+                        color: sel ? Colors.white : Colors.black87,
+                        fontSize: 12),
+                    onSelected: (_) => setModal(() => selectedType = t),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 14),
+              // Context-aware notes field
+              TextField(
+                controller: notesCtrl,
+                maxLines: 2,
+                decoration: InputDecoration(
+                  labelText: notesLabel(selectedType),
+                  hintText: notesHint(selectedType),
+                  hintStyle: TextStyle(fontSize: 12, color: Colors.grey[400]),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 10),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: _timePicker(
+                      ctx,
+                      label: 'Start',
+                      time: startTime,
+                      onPicked: (t) => setModal(() => startTime = t),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _timePicker(
+                      ctx,
+                      label: 'End',
+                      time: endTime,
+                      onPicked: (t) => setModal(() => endTime = t),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (titleCtrl.text.trim().isEmpty) return;
+                    final task = PlanTask(
+                      id: DateTime.now().millisecondsSinceEpoch % 100000,
+                      title: titleCtrl.text.trim(),
+                      type: selectedType,
+                      startHour: startTime.hour,
+                      startMinute: startTime.minute,
+                      endHour: endTime.hour,
+                      endMinute: endTime.minute,
+                      notes: notesCtrl.text.trim(),
+                    );
+                    setState(() => _planTasks.add(task));
+                    _savePlanTasks();
+                    _scheduleNotification(task);
+                    Navigator.pop(ctx);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: const Text('Add Task',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showEditTaskDialog(int index, PlanTask existing) {
+    final titleCtrl = TextEditingController(text: existing.title);
+    final notesCtrl = TextEditingController(text: existing.notes);
+    TaskType selectedType = existing.type;
+    TimeOfDay startTime =
+        TimeOfDay(hour: existing.startHour, minute: existing.startMinute);
+    TimeOfDay endTime =
+        TimeOfDay(hour: existing.endHour, minute: existing.endMinute);
+
+    String Function(TaskType) notesLabel = (TaskType t) {
+      switch (t) {
+        case TaskType.workout:   return 'Exercises';
+        case TaskType.meal:      return 'What to eat';
+        case TaskType.water:     return 'Amount';
+        case TaskType.challenge: return 'Details';
+        case TaskType.custom:    return 'Notes';
+      }
+    };
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModal) => Padding(
+          padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 20,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Edit Task',
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
+                  IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(ctx)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: titleCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Task name',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 10),
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Text('Type',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: TaskType.values.map((t) {
+                  final sel = t == selectedType;
+                  return ChoiceChip(
+                    label: Text(t.label),
+                    selected: sel,
+                    selectedColor: Colors.red,
+                    labelStyle: TextStyle(
+                        color: sel ? Colors.white : Colors.black87,
+                        fontSize: 12),
+                    onSelected: (_) => setModal(() => selectedType = t),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: notesCtrl,
+                maxLines: 2,
+                decoration: InputDecoration(
+                  labelText: notesLabel(selectedType),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 10),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: _timePicker(ctx,
+                        label: 'Start',
+                        time: startTime,
+                        onPicked: (t) => setModal(() => startTime = t)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _timePicker(ctx,
+                        label: 'End',
+                        time: endTime,
+                        onPicked: (t) => setModal(() => endTime = t)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (titleCtrl.text.trim().isEmpty) return;
+                    final updated = PlanTask(
+                      id: existing.id,
+                      title: titleCtrl.text.trim(),
+                      type: selectedType,
+                      startHour: startTime.hour,
+                      startMinute: startTime.minute,
+                      endHour: endTime.hour,
+                      endMinute: endTime.minute,
+                      notes: notesCtrl.text.trim(),
+                    );
+                    _cancelNotification(existing.id);
+                    setState(() => _planTasks[index] = updated);
+                    _savePlanTasks();
+                    _scheduleNotification(updated);
+                    Navigator.pop(ctx);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: const Text('Save Changes',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _timePicker(BuildContext ctx,
+      {required String label,
+      required TimeOfDay time,
+      required ValueChanged<TimeOfDay> onPicked}) {
+    return GestureDetector(
+      onTap: () async {
+        final picked =
+            await showTimePicker(context: ctx, initialTime: time);
+        if (picked != null) onPicked(picked);
+      },
+      child: Container(
+        padding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.access_time, size: 16, color: Colors.grey),
+            const SizedBox(width: 6),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style: const TextStyle(
+                        fontSize: 10, color: Colors.grey)),
+                Text(time.format(context),
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _handleTaskStart(PlanTask task, int index) {
+    // Mark as started so "Mark Done" button appears on return
+    setState(() {
+      _planTasks[index] = task.copyWith(isStarted: true);
+    });
+    _savePlanTasks();
+    switch (task.type) {
+      case TaskType.workout:
+        _tabNavService.goToWorkout();
+        break;
+      case TaskType.meal:
+      case TaskType.water:
+        _tabNavService.goToNutrition();
+        break;
+      case TaskType.challenge:
+        _tabNavService.goToCommunity();
+        break;
+      case TaskType.custom:
+        break;
+    }
+  }
+
+  void _markTaskDone(int index) {
+    final task = _planTasks[index];
+    // Show green "Done" state briefly, then remove
+    setState(() {
+      _completingTaskIds.add(task.id);
+      _planTasks[index] = task.copyWith(isDone: true);
+    });
+    _savePlanTasks();
+    // After the green flash, remove from list — AnimatedList handles the slide
+    Future.delayed(const Duration(milliseconds: 1200), () {
+      if (!mounted) return;
+      setState(() {
+        _completingTaskIds.remove(task.id);
+        _planTasks.removeWhere((t) => t.id == task.id);
+      });
+      _savePlanTasks();
+    });
   }
 
   IconData _getIconFromString(String iconName) {
@@ -349,28 +860,79 @@ class _HomePageState extends State<HomePage>
                           const SizedBox(height: 24),
 
                           // Today's Plan
-                          const Text(
-                            "Today's Plan",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2D2D2D),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Today's Plan",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2D2D2D),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: _showAddTaskDialog,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.add,
+                                          color: Colors.white, size: 16),
+                                      SizedBox(width: 4),
+                                      Text('Add Task',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 12),
-                          _buildPlanItem(
-                            Icons.fitness_center,
-                            'Cardio',
-                            '07:00-08:00 AM',
-                            'START',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildPlanItem(
-                            Icons.restaurant,
-                            'Lunch',
-                            '01:00-02:00 PM',
-                            'LOG',
-                          ),
+                          if (_planTasks.isEmpty)
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                    color: Colors.grey[200]!,
+                                    style: BorderStyle.solid),
+                              ),
+                              child: Column(children: [
+                                Icon(Icons.event_note_outlined,
+                                    color: Colors.grey[400], size: 32),
+                                const SizedBox(height: 8),
+                                Text('No tasks planned yet',
+                                    style: TextStyle(
+                                        color: Colors.grey[500],
+                                        fontSize: 13)),
+                                const SizedBox(height: 4),
+                                Text('Tap "Add Task" to plan your day',
+                                    style: TextStyle(
+                                        color: Colors.grey[400],
+                                        fontSize: 11)),
+                              ]),
+                            )
+                          else
+                            ..._planTasks.asMap().entries.map((entry) {
+                              final i = entry.key;
+                              final task = entry.value;
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: _buildPlanItem(task, i),
+                              );
+                            }),
                           const SizedBox(height: 24),
 
                           // Quick Actions
@@ -600,124 +1162,121 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _buildChart() {
-    if (_isLoadingStats || _weeklyData.isEmpty) {
+    if (_isLoadingStats) {
       return Container(
         key: const ValueKey('chart'),
-        height: 250,
+        height: 320,
         child: const Center(child: CircularProgressIndicator()),
       );
     }
 
-    final maxVal = _weeklyData.map((e) => e.value).fold(0.0, (a, b) => a > b ? a : b);
+    const metrics = [
+      _MetricMeta('Cal Burned', Icons.local_fire_department, Color(0xFFE53935), 'kcal'),
+      _MetricMeta('Cal Intake', Icons.restaurant, Color(0xFFFF9800), 'kcal'),
+      _MetricMeta('Active Time', Icons.access_time, Color(0xFF43A047), 'min'),
+      _MetricMeta('Workouts', Icons.fitness_center, Color(0xFF1E88E5), ''),
+    ];
+
+    final meta = metrics[_selectedMetric];
+    final data = _currentChartData;
+    final maxVal = data.isEmpty ? 10.0 : data.map((e) => e.value).fold(0.0, (a, b) => a > b ? a : b);
 
     return Container(
       key: const ValueKey('chart'),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            spreadRadius: 1,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8, spreadRadius: 1),
         ],
       ),
-      padding: const EdgeInsets.all(16),
-      height: 250,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Weekly Calories Burned',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF2D2D2D),
+          // Metric selector chips
+          SizedBox(
+            height: 36,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: metrics.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, i) {
+                final selected = i == _selectedMetric;
+                final m = metrics[i];
+                return GestureDetector(
+                  onTap: () => _onMetricChanged(i),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: selected ? m.color : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: selected
+                          ? [BoxShadow(color: m.color.withOpacity(0.35), blurRadius: 6, offset: const Offset(0, 2))]
+                          : [],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(m.icon, size: 14, color: selected ? Colors.white : Colors.grey[500]),
+                        const SizedBox(width: 5),
+                        Text(
+                          m.label,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                            color: selected ? Colors.white : Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: maxVal > 0 ? maxVal * 1.2 : 100,
-                barTouchData: BarTouchData(
-                  enabled: true,
-                  touchTooltipData: BarTouchTooltipData(
-                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                      return BarTooltipItem(
-                        '${rod.toY.toInt()} cal',
-                        const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  show: true,
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        final idx = value.toInt();
-                        if (idx >= 0 && idx < _weeklyData.length) {
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              _weeklyData[idx].day,
-                              style: const TextStyle(
-                                  fontSize: 12, color: Color(0xFF666666)),
-                            ),
-                          );
-                        }
-                        return const Text('');
-                      },
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 40,
-                      getTitlesWidget: (value, meta) => Text(
-                        value.toInt().toString(),
-                        style: const TextStyle(
-                            fontSize: 10, color: Color(0xFF666666)),
-                      ),
-                    ),
-                  ),
-                  topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                ),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  horizontalInterval: 100,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: Colors.grey.withOpacity(0.2),
-                    strokeWidth: 1,
-                  ),
-                ),
-                borderData: FlBorderData(show: false),
-                barGroups: _weeklyData.asMap().entries.map((entry) {
-                  return BarChartGroupData(
-                    x: entry.key,
-                    barRods: [
-                      BarChartRodData(
-                        toY: entry.value.value,
-                        color: const Color(0xFFE53935),
-                        width: 20,
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(4)),
-                      ),
-                    ],
-                  );
-                }).toList(),
+          const SizedBox(height: 14),
+
+          // Weekly / Monthly toggle
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _TimeToggleButton(
+                label: 'Weekly',
+                selected: !_isMonthlyView,
+                onTap: () => setState(() { _isMonthlyView = false; _buildWeeklyChartData(); }),
+              ),
+              const SizedBox(width: 6),
+              _TimeToggleButton(
+                label: 'Monthly',
+                selected: _isMonthlyView,
+                onTap: () => setState(() { _isMonthlyView = true; _buildWeeklyChartData(); }),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Bar chart
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
+            child: SizedBox(
+              key: ValueKey('$_selectedMetric-$_isMonthlyView'),
+              height: 140,
+              child: data.isEmpty
+                  ? Center(child: Text('No data', style: TextStyle(color: Colors.grey[400])))
+                  : _buildBarChart(data, meta, maxVal),
+            ),
+          ),
+
+          // Timeframe label below x-axis
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                _isMonthlyView ? 'Monthly' : 'Weekly',
+                style: TextStyle(fontSize: 11, color: Colors.grey[400], letterSpacing: 0.5),
               ),
             ),
           ),
@@ -726,67 +1285,274 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _buildPlanItem(
-      IconData icon, String title, String time, String buttonText) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            spreadRadius: 1,
+  BarChart _buildBarChart(List<ChartData> data, _MetricMeta meta, double maxVal) {
+    final barWidth = _isMonthlyView ? 10.0 : 18.0;
+    final leftReserved = _isMonthlyView ? 28.0 : 36.0;
+    final labelFontSize = _isMonthlyView ? 9.0 : 10.0;
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: maxVal > 0 ? maxVal * 1.25 : 10,
+        barTouchData: BarTouchData(
+          enabled: true,
+          touchTooltipData: BarTouchTooltipData(
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              final suffix = meta.unit.isNotEmpty ? ' ${meta.unit}' : '';
+              return BarTooltipItem(
+                '${rod.toY.toInt()}$suffix',
+                const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+              );
+            },
           ),
-        ],
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFEBEE),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: Colors.red, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF2D2D2D))),
-                const SizedBox(height: 2),
-                Text(time,
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF666666))),
-              ],
+        ),
+        titlesData: FlTitlesData(
+          show: true,
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, _) {
+                final idx = value.toInt();
+                if (idx >= 0 && idx < data.length) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(data[idx].day,
+                        style: TextStyle(fontSize: labelFontSize, color: const Color(0xFF888888))),
+                  );
+                }
+                return const Text('');
+              },
             ),
           ),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              elevation: 0,
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: leftReserved,
+              getTitlesWidget: (value, _) => Text(
+                value.toInt().toString(),
+                style: TextStyle(fontSize: labelFontSize, color: const Color(0xFF888888)),
+              ),
             ),
-            child: Text(buttonText,
-                style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.bold)),
           ),
-        ],
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        ),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          getDrawingHorizontalLine: (v) =>
+              FlLine(color: Colors.grey.withOpacity(0.15), strokeWidth: 1),
+        ),
+        borderData: FlBorderData(show: false),
+        barGroups: data.asMap().entries.map((entry) {
+          return BarChartGroupData(
+            x: entry.key,
+            barRods: [
+              BarChartRodData(
+                toY: entry.value.value,
+                color: meta.color,
+                width: barWidth,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
+                backDrawRodData: BackgroundBarChartRodData(
+                  show: true,
+                  toY: maxVal > 0 ? maxVal * 1.25 : 10,
+                  color: meta.color.withOpacity(0.07),
+                ),
+              ),
+            ],
+          );
+        }).toList(),
       ),
     );
   }
+
+  Widget _buildPlanItem(PlanTask task, int index) {
+    final now = DateTime.now();
+    final startDt = DateTime(now.year, now.month, now.day, task.startHour, task.startMinute);
+    final endDt   = DateTime(now.year, now.month, now.day, task.endHour,   task.endMinute);
+    final isActive    = now.isAfter(startDt) && now.isBefore(endDt);
+    final isPast      = now.isAfter(endDt);
+    final isCompleting = _completingTaskIds.contains(task.id);
+    final timeStr = '${_fmt(task.startHour)}:${_fmt(task.startMinute)} - ${_fmt(task.endHour)}:${_fmt(task.endMinute)}';
+
+    // While completing: show green card briefly, then it disappears via setState
+    if (isCompleting) {
+      return const SizedBox.shrink();
+    }
+
+    return Dismissible(
+      key: Key('task_${task.id}_${task.isDone}'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 16),
+        decoration: BoxDecoration(color: Colors.red[100], borderRadius: BorderRadius.circular(12)),
+        child: const Icon(Icons.delete_outline, color: Colors.red),
+      ),
+      onDismissed: (_) {
+        _cancelNotification(task.id);
+        setState(() => _planTasks.removeAt(index));
+        _savePlanTasks();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        decoration: BoxDecoration(
+          color: task.isDone ? const Color(0xFFF0FFF4) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: task.isDone
+              ? Border.all(color: Colors.green.withOpacity(0.4), width: 1.5)
+              : isActive
+                  ? Border.all(color: Colors.red.withOpacity(0.4), width: 1.5)
+                  : null,
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, spreadRadius: 1)],
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: task.isDone ? Colors.green[50] : isPast ? Colors.grey[100] : const Color(0xFFFFEBEE),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                task.isDone ? Icons.check_circle : task.type.icon,
+                color: task.isDone ? Colors.green : isPast ? Colors.grey[400] : Colors.red,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          task.title,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: task.isDone ? Colors.green[700] : isPast ? Colors.grey[400] : const Color(0xFF2D2D2D),
+                            decoration: task.isDone || isPast ? TextDecoration.lineThrough : null,
+                          ),
+                        ),
+                      ),
+                      if (isActive && !task.isDone) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(8)),
+                          child: const Text('NOW', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                      if (task.isDone) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(8)),
+                          child: const Text('Done', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    task.type.label,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: task.isDone ? Colors.green[400] : isPast ? Colors.grey[300] : Colors.red[300],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    timeStr,
+                    style: TextStyle(fontSize: 12, color: isPast || task.isDone ? Colors.grey[400] : const Color(0xFF666666)),
+                  ),
+                  if (task.notes.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      task.notes,
+                      style: TextStyle(fontSize: 11, color: isPast || task.isDone ? Colors.grey[300] : Colors.grey[500], fontStyle: FontStyle.italic),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (task.isDone)
+              const Icon(Icons.check_circle, color: Colors.green, size: 24)
+            else if (task.isStarted)
+              ElevatedButton(
+                onPressed: () => _markTaskDone(index),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  elevation: 0,
+                ),
+                child: const Text('Done', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+              )
+            else if (!isPast)
+              ElevatedButton(
+                onPressed: () => _handleTaskStart(task, index),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isActive ? Colors.red : const Color(0xFFB71C1C),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  elevation: 0,
+                ),
+                child: Text(task.type.actionLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              )
+            else
+              const Icon(Icons.check_circle_outline, color: Colors.grey, size: 22),
+            const SizedBox(width: 4),
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, color: Colors.grey[400], size: 20),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              itemBuilder: (_) => const [
+                PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit_outlined, size: 18, color: Colors.black87), SizedBox(width: 10), Text('Edit')])),
+                PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete_outline, size: 18, color: Colors.red), SizedBox(width: 10), Text('Delete', style: TextStyle(color: Colors.red))])),
+              ],
+              onSelected: (value) {
+                if (value == 'edit') {
+                  _showEditTaskDialog(index, task);
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      title: const Text('Delete Task'),
+                      content: Text('Remove "${task.title}" from today\'s plan?'),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            _cancelNotification(task.id);
+                            setState(() => _planTasks.removeAt(index));
+                            _savePlanTasks();
+                          },
+                          child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _fmt(int n) => n.toString().padLeft(2, '0');
 
   Widget _buildQuickAction(IconData icon, String label, {VoidCallback? onTap}) {
     return GestureDetector(
@@ -1153,4 +1919,155 @@ class QuickActionShortcut {
     required this.icon,
     required this.route,
   });
+}
+
+class _MetricMeta {
+  final String label;
+  final IconData icon;
+  final Color color;
+  final String unit;
+  const _MetricMeta(this.label, this.icon, this.color, this.unit);
+}
+
+class _TimeToggleButton extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  const _TimeToggleButton({required this.label, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFFB71C1C) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+            color: selected ? Colors.white : Colors.grey[500],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Today's Plan models ───────────────────────────────────────────────────
+
+enum TaskType {
+  workout,
+  meal,
+  water,
+  challenge,
+  custom;
+
+  String get label {
+    switch (this) {
+      case TaskType.workout: return 'Workout';
+      case TaskType.meal:    return 'Meal';
+      case TaskType.water:   return 'Water';
+      case TaskType.challenge: return 'Challenge';
+      case TaskType.custom:  return 'Custom';
+    }
+  }
+
+  String get actionLabel {
+    switch (this) {
+      case TaskType.workout:   return 'START';
+      case TaskType.meal:      return 'LOG';
+      case TaskType.water:     return 'LOG';
+      case TaskType.challenge: return 'VIEW';
+      case TaskType.custom:    return 'OPEN';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case TaskType.workout:   return Icons.fitness_center;
+      case TaskType.meal:      return Icons.restaurant;
+      case TaskType.water:     return Icons.water_drop;
+      case TaskType.challenge: return Icons.emoji_events;
+      case TaskType.custom:    return Icons.task_alt;
+    }
+  }
+}
+
+class PlanTask {
+  final int id;
+  final String title;
+  final TaskType type;
+  final int startHour;
+  final int startMinute;
+  final int endHour;
+  final int endMinute;
+  final String notes;
+  final bool isStarted; // user tapped START at least once
+  final bool isDone;    // user marked as completed
+
+  PlanTask({
+    required this.id,
+    required this.title,
+    required this.type,
+    required this.startHour,
+    required this.startMinute,
+    required this.endHour,
+    required this.endMinute,
+    this.notes = '',
+    this.isStarted = false,
+    this.isDone = false,
+  });
+
+  PlanTask copyWith({
+    bool? isStarted,
+    bool? isDone,
+    String? title,
+    TaskType? type,
+    int? startHour,
+    int? startMinute,
+    int? endHour,
+    int? endMinute,
+    String? notes,
+  }) => PlanTask(
+    id: id,
+    title: title ?? this.title,
+    type: type ?? this.type,
+    startHour: startHour ?? this.startHour,
+    startMinute: startMinute ?? this.startMinute,
+    endHour: endHour ?? this.endHour,
+    endMinute: endMinute ?? this.endMinute,
+    notes: notes ?? this.notes,
+    isStarted: isStarted ?? this.isStarted,
+    isDone: isDone ?? this.isDone,
+  );
+
+  @override
+  String toString() {
+    final safeNotes = notes.replaceAll('§§', '');
+    // format: id|title|typeIdx|sh|sm|eh|em|isStarted|isDone§§notes
+    return '$id|$title|${type.index}|$startHour|$startMinute|$endHour|$endMinute|${isStarted ? 1 : 0}|${isDone ? 1 : 0}§§$safeNotes';
+  }
+
+  factory PlanTask.fromString(String s) {
+    final parts = s.split('§§');
+    final p = parts[0].split('|');
+    return PlanTask(
+      id: int.parse(p[0]),
+      title: p[1],
+      type: TaskType.values[int.parse(p[2])],
+      startHour: int.parse(p[3]),
+      startMinute: int.parse(p[4]),
+      endHour: int.parse(p[5]),
+      endMinute: int.parse(p[6]),
+      isStarted: p.length > 7 ? p[7] == '1' : false,
+      isDone: p.length > 8 ? p[8] == '1' : false,
+      notes: parts.length > 1 ? parts[1] : '',
+    );
+  }
 }
