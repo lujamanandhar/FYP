@@ -288,7 +288,6 @@ class _WorkoutTrackingHomeState extends ConsumerState<WorkoutTrackingHome> with 
     return NutriLiftScaffold(
       streakCount: _currentStreak,
       onStreakTap: () => showStreakOverview(context, _allStreaks),
-      title: 'Workout',
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
         child: Column(
