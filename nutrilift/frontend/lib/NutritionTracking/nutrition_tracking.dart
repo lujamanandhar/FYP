@@ -1038,7 +1038,6 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
     return NutriLiftScaffold(
       streakCount: _currentStreak,
       onStreakTap: () => showStreakOverview(context, _allStreaks),
-      title: 'Nutrition',
       body: _getCurrentScreen(),
     );
   }

@@ -314,7 +314,6 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
   Widget build(BuildContext context) {
     debugPrint('🏋️ GymComparisonScreen: build() - isLoading=$_isLoading, gyms=${_gyms.length}, position=${_currentPosition?.latitude}');
     return NutriLiftScaffold(
-      title: 'Gym Comparison',
       streakCount: _currentStreak,
       onStreakTap: () => showStreakOverview(context, _allStreaks),
       body: RefreshIndicator(

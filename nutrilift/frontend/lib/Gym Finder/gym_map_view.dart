@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import '../services/gym_service.dart';
+import '../widgets/nutrilift_header.dart';
 import 'gym_details_screen.dart';
 
 class GymMapView extends StatefulWidget {
@@ -104,16 +105,15 @@ class _GymMapViewState extends State<GymMapView> {
   Widget build(BuildContext context) {
     final center = _mapCenter ?? const LatLng(27.7172, 85.3240);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gym Map'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 2,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(56),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+    return NutriLiftScaffold(
+      title: 'Gym Map',
+      showBackButton: true,
+      showDrawer: false,
+      body: Column(
+        children: [
+          // Search bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -149,10 +149,9 @@ class _GymMapViewState extends State<GymMapView> {
               onChanged: (v) => setState(() {}),
             ),
           ),
-        ),
-      ),
-      body: Stack(
-        children: [
+          Expanded(
+            child: Stack(
+              children: [
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -415,6 +414,9 @@ class _GymMapViewState extends State<GymMapView> {
                 ),
               ),
             ),
+        ],
+      ),
+          ),
         ],
       ),
     );

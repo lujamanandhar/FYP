@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import '../widgets/nutrilift_header.dart';
 
 /// Area selector map — user taps to set center, adjusts radius slider, confirms.
 /// Returns: { 'latitude': double, 'longitude': double, 'radius': int }
@@ -41,21 +42,18 @@ class _AreaSelectorMapState extends State<AreaSelectorMap> {
   Widget build(BuildContext context) {
     final center = _selectedCenter ?? const LatLng(27.7172, 85.3240);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select Search Area'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 2,
-        actions: [
-          TextButton.icon(
-            onPressed: _confirmSelection,
-            icon: const Icon(Icons.check, color: Color(0xFFE53935)),
-            label: const Text('Find Gyms',
-                style: TextStyle(color: Color(0xFFE53935), fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
+    return NutriLiftScaffold(
+      title: 'Select Search Area',
+      showBackButton: true,
+      showDrawer: false,
+      actions: [
+        TextButton.icon(
+          onPressed: _confirmSelection,
+          icon: const Icon(Icons.check, color: Color(0xFFE53935)),
+          label: const Text('Find Gyms',
+              style: TextStyle(color: Color(0xFFE53935), fontWeight: FontWeight.bold)),
+        ),
+      ],
       body: Stack(
         children: [
           // ── Map ──────────────────────────────────────────────────────
