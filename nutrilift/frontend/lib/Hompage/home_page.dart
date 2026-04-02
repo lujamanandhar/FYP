@@ -49,6 +49,7 @@ class _HomePageState extends State<HomePage>
   bool _isMonthlyView = false;
   bool _isLoadingChallenges = true;
   List<QuickActionShortcut> _shortcuts = [];
+  bool _isEditingShortcuts = false;
   AllStreaks _allStreaks = const AllStreaks();
 
   // Active time tracking — counts seconds live, persists minutes to prefs
@@ -287,6 +288,10 @@ class _HomePageState extends State<HomePage>
   }
 
   Future<void> _scheduleNotification(PlanTask task) async {
+    // Respect the user's notification preference
+    final prefs = await SharedPreferences.getInstance();
+    if (!(prefs.getBool('notifications_enabled') ?? true)) return;
+
     final now = DateTime.now();
     final scheduled = DateTime(
         now.year, now.month, now.day, task.startHour, task.startMinute);
@@ -936,13 +941,47 @@ class _HomePageState extends State<HomePage>
                           const SizedBox(height: 24),
 
                           // Quick Actions
-                          const Text(
-                            'Quick Actions',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2D2D2D),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Quick Actions',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2D2D2D),
+                                ),
+                              ),
+                              if (_shortcuts.isNotEmpty)
+                                _isEditingShortcuts
+                                    ? TextButton(
+                                        onPressed: () => setState(() => _isEditingShortcuts = false),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.red,
+                                          padding: EdgeInsets.zero,
+                                          minimumSize: Size.zero,
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                        child: const Text('Done', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                      )
+                                    : PopupMenuButton<String>(
+                                        icon: Icon(Icons.more_vert, color: Colors.grey[500], size: 20),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        itemBuilder: (_) => const [
+                                          PopupMenuItem(
+                                            value: 'edit',
+                                            child: Row(children: [
+                                              Icon(Icons.edit_outlined, size: 18, color: Colors.black87),
+                                              SizedBox(width: 10),
+                                              Text('Edit'),
+                                            ]),
+                                          ),
+                                        ],
+                                        onSelected: (v) {
+                                          if (v == 'edit') setState(() => _isEditingShortcuts = true);
+                                        },
+                                      ),
+                            ],
                           ),
                           const SizedBox(height: 12),
                           _buildQuickActionsSection(),
@@ -1194,49 +1233,44 @@ class _HomePageState extends State<HomePage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Metric selector chips
-          SizedBox(
-            height: 36,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: metrics.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, i) {
-                final selected = i == _selectedMetric;
-                final m = metrics[i];
-                return GestureDetector(
-                  onTap: () => _onMetricChanged(i),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: selected ? m.color : Colors.grey[100],
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: selected
-                          ? [BoxShadow(color: m.color.withOpacity(0.35), blurRadius: 6, offset: const Offset(0, 2))]
-                          : [],
-                    ),
+          // Single centered dropdown as the chart title
+          Center(
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: _selectedMetric,
+                icon: Icon(Icons.keyboard_arrow_down_rounded, color: meta.color, size: 20),
+                borderRadius: BorderRadius.circular(12),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: meta.color),
+                selectedItemBuilder: (context) => List.generate(metrics.length, (i) {
+                  final m = metrics[i];
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(m.icon, size: 18, color: m.color),
+                      const SizedBox(width: 8),
+                      Text(m.label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: m.color)),
+                    ],
+                  );
+                }),
+                items: List.generate(metrics.length, (i) {
+                  final m = metrics[i];
+                  return DropdownMenuItem(
+                    value: i,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(m.icon, size: 14, color: selected ? Colors.white : Colors.grey[500]),
-                        const SizedBox(width: 5),
-                        Text(
-                          m.label,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                            color: selected ? Colors.white : Colors.grey[600],
-                          ),
-                        ),
+                        Icon(m.icon, size: 15, color: m.color),
+                        const SizedBox(width: 8),
+                        Text(m.label, style: const TextStyle(fontSize: 14, color: Color(0xFF2D2D2D))),
                       ],
                     ),
-                  ),
-                );
-              },
+                  );
+                }),
+                onChanged: (i) { if (i != null) _onMetricChanged(i); },
+              ),
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
 
           // Weekly / Monthly toggle
           Row(
@@ -1604,9 +1638,7 @@ class _HomePageState extends State<HomePage>
                 child: _buildQuickAction(
                   Icons.restaurant,
                   'QUICK LOG FOOD',
-                  onTap: () {
-                    _tabNavService.goToNutrition();
-                  },
+                  onTap: () => _tabNavService.goToNutrition(),
                 ),
               ),
               const SizedBox(width: 12),
@@ -1624,14 +1656,47 @@ class _HomePageState extends State<HomePage>
             spacing: 12,
             runSpacing: 12,
             children: [
-              ..._shortcuts.map((shortcut) => SizedBox(
-                    width: (MediaQuery.of(context).size.width - 44) / 2,
-                    child: _buildQuickAction(
-                      shortcut.icon,
-                      shortcut.label,
-                      onTap: () => _handleShortcutTap(shortcut.route),
-                    ),
-                  )),
+              ..._shortcuts.asMap().entries.map((entry) {
+                final i = entry.key;
+                final shortcut = entry.value;
+                return SizedBox(
+                  width: (MediaQuery.of(context).size.width - 44) / 2,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      _buildQuickAction(
+                        shortcut.icon,
+                        shortcut.label,
+                        onTap: _isEditingShortcuts ? null : () => _handleShortcutTap(shortcut.route),
+                      ),
+                      // Remove button — only visible in edit mode
+                      if (_isEditingShortcuts)
+                        Positioned(
+                          top: -6,
+                          right: -6,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _shortcuts.removeAt(i);
+                                if (_shortcuts.isEmpty) _isEditingShortcuts = false;
+                              });
+                              _saveShortcuts();
+                            },
+                            child: Container(
+                              width: 20,
+                              height: 20,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.close, color: Colors.white, size: 13),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }),
               SizedBox(
                 width: (MediaQuery.of(context).size.width - 44) / 2,
                 child: _buildQuickAction(
@@ -1691,22 +1756,6 @@ class _HomePageState extends State<HomePage>
               title: const Text('Quick Log Exercise'),
               onTap: () {
                 _addShortcut('QUICK LOG EXERCISE', Icons.fitness_center, '/workout');
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.water_drop, color: Colors.red),
-              title: const Text('Log Water'),
-              onTap: () {
-                _addShortcut('LOG WATER', Icons.water_drop, '/nutrition');
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt, color: Colors.red),
-              title: const Text('Scan Meal'),
-              onTap: () {
-                _addShortcut('SCAN MEAL', Icons.camera_alt, '/nutrition');
                 Navigator.pop(context);
               },
             ),
