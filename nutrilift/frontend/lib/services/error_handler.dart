@@ -129,6 +129,14 @@ class ErrorHandler {
     }
     
     if (error.isUnauthorized()) {
+      // If the error has a meaningful message from the server (e.g. "Invalid credentials"),
+      // show that instead of the generic session-expired message.
+      final msg = error.message.toLowerCase();
+      if (msg.contains('invalid') || msg.contains('incorrect') ||
+          msg.contains('no active account') || msg.contains('credentials') ||
+          msg.contains('password') || msg.contains('email')) {
+        return 'Invalid email or password. Please try again.';
+      }
       return 'Your session has expired. Please log in again.';
     }
     
