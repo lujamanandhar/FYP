@@ -388,8 +388,12 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                       if (current.isPaid && !current.hasPaid) {
                         // Show payment sheet
                         showPaymentSheet(context, current, () async {
-                          // Wait a moment for backend to complete join
-                          await Future.delayed(const Duration(milliseconds: 1000));
+                          // Payment intercepted by WebView — now join the challenge directly
+                          try {
+                            await provider.joinChallenge(challenge.id);
+                          } catch (_) {
+                            // May already be joined if backend verify ran — ignore
+                          }
                           await provider.fetchChallenges();
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -398,7 +402,13 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                                 backgroundColor: Colors.green,
                               ),
                             );
-                            // Stay on challenge details — don't navigate away
+                            // Navigate to active challenge screen
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ActiveChallengeScreen(challengeId: challenge.id),
+                              ),
+                            );
                           }
                         });
                       } else {
