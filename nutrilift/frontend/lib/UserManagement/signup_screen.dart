@@ -17,6 +17,7 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> with ErrorHandlingMixin {
   bool _isLoading = false;
+  bool _obscureConfirmPassword = true;
   
   // Form controllers
   final _emailController = TextEditingController();
@@ -163,7 +164,15 @@ class _SignupScreenState extends State<SignupScreen> with ErrorHandlingMixin {
                   ),
                   enabled: !_isLoading,
                   prefixIcon: const Icon(Icons.lock_outlined),
-                  obscureText: true,
+                  obscureText: _obscureConfirmPassword,
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscureConfirmPassword
+                        ? Icons.visibility_off
+                        : Icons.visibility),
+                    onPressed: () => setState(
+                        () => _obscureConfirmPassword = !_obscureConfirmPassword),
+                  ),
+                  showValidationIcon: false,
                 ),
                 const SizedBox(height: 30),
                 
