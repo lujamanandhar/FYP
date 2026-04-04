@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:async';
 import 'dart:math' as math;
@@ -29,6 +29,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with ErrorHandlingMixin, WidgetsBindingObserver {
   bool showChart = false;
+  late final PageController _summaryPageController = PageController();
   UserProfile? _userProfile;
   bool _isLoading = true;
   bool _isLoadingStats = true;
@@ -52,7 +53,7 @@ class _HomePageState extends State<HomePage>
   bool _isEditingShortcuts = false;
   AllStreaks _allStreaks = const AllStreaks();
 
-  // Active time tracking — counts seconds live, persists minutes to prefs
+  // Active time tracking â€” counts seconds live, persists minutes to prefs
   int _activeTimeSeconds = 0;
   Timer? _activeTimer;
   
@@ -80,7 +81,7 @@ class _HomePageState extends State<HomePage>
     _loadAllStreaks();
     _initNotifications();
     _loadPlanTasks();
-    // Tick every second — update live display
+    // Tick every second â€” update live display
     _activeTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
       setState(() => _activeTimeSeconds++);
@@ -88,7 +89,7 @@ class _HomePageState extends State<HomePage>
     
     // Listen for refresh events from other screens
     _refreshSubscription = _refreshService.refreshStream.listen((_) {
-      print('🔔 Dashboard: Refresh event received!');
+      print('ðŸ”” Dashboard: Refresh event received!');
       if (mounted) {
         _loadDashboardStats();
         _loadActiveChallenges();
@@ -100,6 +101,7 @@ class _HomePageState extends State<HomePage>
   void dispose() {
     _activeTimer?.cancel();
     _refreshSubscription?.cancel();
+    _summaryPageController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _saveActiveTime();
     super.dispose();
@@ -116,7 +118,7 @@ class _HomePageState extends State<HomePage>
   }
 
   Future<void> _loadActiveTime() async {
-    // Always start from 0 — active time is per login session.
+    // Always start from 0 â€” active time is per login session.
     // The key is cleared on logout so a fresh login always starts at 0.
     if (mounted) setState(() => _activeTimeSeconds = 0);
   }
@@ -127,11 +129,11 @@ class _HomePageState extends State<HomePage>
   }
 
   Future<void> _loadDashboardStats() async {
-    print('🔄 Dashboard: Loading stats...');
+    print('ðŸ”„ Dashboard: Loading stats...');
     setState(() => _isLoadingStats = true);
     try {
       final stats = await _dashboardService.getDashboardStats();
-      print('✅ Dashboard: Stats loaded - Workouts: ${stats.todayWorkouts}, Calories: ${stats.todayCaloriesBurned}, Intake: ${stats.todayCaloriesIntake}');
+      print('âœ… Dashboard: Stats loaded - Workouts: ${stats.todayWorkouts}, Calories: ${stats.todayCaloriesBurned}, Intake: ${stats.todayCaloriesIntake}');
       setState(() {
         _dashboardStats = stats;
         _buildWeeklyChartData();
@@ -139,7 +141,7 @@ class _HomePageState extends State<HomePage>
         _lastRefreshTime = DateTime.now();
       });
     } catch (e) {
-      print('❌ Dashboard: Error loading stats: $e');
+      print('âŒ Dashboard: Error loading stats: $e');
       setState(() => _isLoadingStats = false);
     }
   }
@@ -148,10 +150,10 @@ class _HomePageState extends State<HomePage>
     if (_dashboardStats == null) return;
     final now = DateTime.now();
 
-    // Weekly — current week Sun→Sat (7 fixed days)
+    // Weekly â€” current week Sunâ†’Sat (7 fixed days)
     final weekData = <List<ChartData>>[[], [], [], []];
     // Find Sunday of current week
-    final todayWeekday = now.weekday % 7; // Mon=1..Sun=0 → Sun=0
+    final todayWeekday = now.weekday % 7; // Mon=1..Sun=0 â†’ Sun=0
     final sunday = now.subtract(Duration(days: todayWeekday));
     for (int i = 0; i < 7; i++) {
       final date = sunday.add(Duration(days: i));
@@ -165,7 +167,7 @@ class _HomePageState extends State<HomePage>
     }
     _weeklyData = weekData[_selectedMetric];
 
-    // Monthly — Jan→Dec of current year (12 fixed months)
+    // Monthly â€” Janâ†’Dec of current year (12 fixed months)
     final monthData = <List<ChartData>>[[], [], [], []];
     for (int m = 1; m <= 12; m++) {
       final monthDate = DateTime(now.year, m, 1);
@@ -252,7 +254,7 @@ class _HomePageState extends State<HomePage>
     await prefs.setStringList('quick_action_shortcuts', shortcuts);
   }
 
-  // ── Today's Plan ─────────────────────────────────────────────────────────
+  // â”€â”€ Today's Plan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Future<void> _initNotifications() async {
     tz_data.initializeTimeZones();
@@ -269,7 +271,7 @@ class _HomePageState extends State<HomePage>
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     final savedDate = prefs.getString('plan_tasks_date') ?? '';
     if (savedDate != today) {
-      // New day — clear tasks
+      // New day â€” clear tasks
       await prefs.setStringList('plan_tasks_today', []);
       await prefs.setString('plan_tasks_date', today);
       if (mounted) setState(() => _planTasks = []);
@@ -356,6 +358,7 @@ class _HomePageState extends State<HomePage>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
@@ -365,8 +368,8 @@ class _HomePageState extends State<HomePage>
               left: 20,
               right: 20,
               top: 20,
-              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24),
-          child: Column(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 24),
+          child: SingleChildScrollView(child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -483,6 +486,7 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
+          ),
         ),
       ),
     );
@@ -510,6 +514,7 @@ class _HomePageState extends State<HomePage>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
@@ -519,8 +524,8 @@ class _HomePageState extends State<HomePage>
               left: 20,
               right: 20,
               top: 20,
-              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24),
-          child: Column(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 24),
+          child: SingleChildScrollView(child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -630,6 +635,7 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
+          ),
         ),
       ),
     );
@@ -703,7 +709,7 @@ class _HomePageState extends State<HomePage>
       _planTasks[index] = task.copyWith(isDone: true);
     });
     _savePlanTasks();
-    // After the green flash, remove from list — AnimatedList handles the slide
+    // After the green flash, remove from list â€” AnimatedList handles the slide
     Future.delayed(const Duration(milliseconds: 1200), () {
       if (!mounted) return;
       setState(() {
@@ -742,14 +748,23 @@ class _HomePageState extends State<HomePage>
     await _loadAllStreaks();
   }
 
-  void nextView() => setState(() => showChart = true);
-  void prevView() => setState(() => showChart = false);
+  void nextView() {
+    _summaryPageController.animateToPage(1,
+        duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    setState(() => showChart = true);
+  }
+
+  void prevView() {
+    _summaryPageController.animateToPage(0,
+        duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    setState(() => showChart = false);
+  }
 
   @override
   Widget build(BuildContext context) {
     // Auto-refresh if data is stale (older than 30 seconds)
     if (_lastRefreshTime != null && 
-        DateTime.now().difference(_lastRefreshTime!) > const Duration(seconds: 30) &&
+        DateTime.now().difference(_lastRefreshTime!) > const Duration(minutes: 5) &&
         !_isLoadingStats) {
       // Schedule refresh after build completes
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -783,7 +798,7 @@ class _HomePageState extends State<HomePage>
                           _buildWelcomeSection(),
                           const SizedBox(height: 16),
 
-                          // Daily Summary / Chart toggle
+                          // Daily Summary / Chart swipeable pages
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -796,69 +811,47 @@ class _HomePageState extends State<HomePage>
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              Stack(
-                                children: [
-                                  AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 300),
-                                    child: showChart
-                                        ? _buildChart()
-                                        : _buildStatsGrid(),
-                                  ),
-                                  Positioned(
-                                    left: -16,
-                                    top: 0,
-                                    bottom: 0,
-                                    child: Center(
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black
-                                                  .withOpacity(0.1),
-                                              blurRadius: 8,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                        ),
-                                        child: IconButton(
-                                          icon:
-                                              const Icon(Icons.chevron_left),
-                                          color: const Color(0xFF666666),
-                                          onPressed: prevView,
-                                        ),
-                                      ),
+                              // Use a fixed height that fits both pages fully
+                              SizedBox(
+                                height: 330,
+                                child: PageView(
+                                  controller: _summaryPageController,
+                                  onPageChanged: (i) =>
+                                      setState(() => showChart = i == 1),
+                                  children: [
+                                    // Page 1: stats grid — wrap in SingleChildScrollView
+                                    // so it doesn't overflow if content is taller
+                                    SingleChildScrollView(
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      child: _buildStatsGrid(),
                                     ),
-                                  ),
-                                  Positioned(
-                                    right: -16,
-                                    top: 0,
-                                    bottom: 0,
-                                    child: Center(
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black
-                                                  .withOpacity(0.1),
-                                              blurRadius: 8,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                        ),
-                                        child: IconButton(
-                                          icon:
-                                              const Icon(Icons.chevron_right),
-                                          color: const Color(0xFF666666),
-                                          onPressed: nextView,
-                                        ),
-                                      ),
+                                    // Page 2: chart — let it use full height
+                                    SingleChildScrollView(
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      child: _buildChart(),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              // Page indicator dots
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(2, (i) {
+                                  final active = (showChart ? 1 : 0) == i;
+                                  return AnimatedContainer(
+                                    duration: const Duration(milliseconds: 250),
+                                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                                    width: active ? 18 : 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: active
+                                          ? const Color(0xFFE53935)
+                                          : Colors.grey[300],
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  );
+                                }),
                               ),
                             ],
                           ),
@@ -1297,7 +1290,7 @@ class _HomePageState extends State<HomePage>
             transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
             child: SizedBox(
               key: ValueKey('$_selectedMetric-$_isMonthlyView'),
-              height: 140,
+              height: 175,
               child: data.isEmpty
                   ? Center(child: Text('No data', style: TextStyle(color: Colors.grey[400])))
                   : _buildBarChart(data, meta, maxVal),
@@ -1669,7 +1662,7 @@ class _HomePageState extends State<HomePage>
                         shortcut.label,
                         onTap: _isEditingShortcuts ? null : () => _handleShortcutTap(shortcut.route),
                       ),
-                      // Remove button — only visible in edit mode
+                      // Remove button â€” only visible in edit mode
                       if (_isEditingShortcuts)
                         Positioned(
                           top: -6,
@@ -2008,7 +2001,7 @@ class _TimeToggleButton extends StatelessWidget {
   }
 }
 
-// ── Today's Plan models ───────────────────────────────────────────────────
+// â”€â”€ Today's Plan models â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 enum TaskType {
   workout,
@@ -2098,13 +2091,13 @@ class PlanTask {
 
   @override
   String toString() {
-    final safeNotes = notes.replaceAll('§§', '');
-    // format: id|title|typeIdx|sh|sm|eh|em|isStarted|isDone§§notes
-    return '$id|$title|${type.index}|$startHour|$startMinute|$endHour|$endMinute|${isStarted ? 1 : 0}|${isDone ? 1 : 0}§§$safeNotes';
+    final safeNotes = notes.replaceAll('Â§Â§', '');
+    // format: id|title|typeIdx|sh|sm|eh|em|isStarted|isDoneÂ§Â§notes
+    return '$id|$title|${type.index}|$startHour|$startMinute|$endHour|$endMinute|${isStarted ? 1 : 0}|${isDone ? 1 : 0}Â§Â§$safeNotes';
   }
 
   factory PlanTask.fromString(String s) {
-    final parts = s.split('§§');
+    final parts = s.split('Â§Â§');
     final p = parts[0].split('|');
     return PlanTask(
       id: int.parse(p[0]),
@@ -2120,3 +2113,4 @@ class PlanTask {
     );
   }
 }
+
