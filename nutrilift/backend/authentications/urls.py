@@ -39,6 +39,10 @@ urlpatterns = [
     # POST /api/auth/support/
     path('support/', views.submit_support_ticket, name='auth-support'),
 
+    # Password reset
+    path('password-reset/', views.password_reset_request, name='auth-password-reset'),
+    path('password-reset/confirm/', views.password_reset_confirm, name='auth-password-reset-confirm'),
+
     # Admin endpoints
     path('admin/dashboard/', admin_views.AdminDashboardView.as_view(), name='admin-dashboard'),
     path('admin/users/', admin_views.AdminUserListView.as_view(), name='admin-users'),

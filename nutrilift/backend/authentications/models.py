@@ -135,3 +135,20 @@ class User(AbstractUser):
     def get_short_name(self):
         """Return the user's short name or email if name is not set."""
         return self.name if self.name else self.email
+
+
+class PasswordResetOTP(models.Model):
+    """6-digit OTP for password reset — expires in 10 minutes."""
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='reset_otps')
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'password_reset_otps'
+        ordering = ['-created_at']
+
+    def is_valid(self):
+        from django.utils import timezone
+        from datetime import timedelta
+        return not self.is_used and (timezone.now() - self.created_at) < timedelta(minutes=10)

@@ -435,3 +435,84 @@ def submit_support_ticket(request):
         message=message,
     )
     return Response({'detail': 'Your message has been sent. We\'ll get back to you soon!', 'ticket_id': str(ticket.id)}, status=status.HTTP_201_CREATED)
+
+
+# ── Password Reset (6-digit OTP) ───────────────────────────────────────────────
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def password_reset_request(request):
+    """
+    POST /api/auth/password-reset/
+    Body: { "email": "user@example.com" }
+    Generates a 6-digit OTP, prints to console, returns it in response for demo.
+    """
+    import random
+    from .models import PasswordResetOTP
+
+    email = request.data.get('email', '').strip().lower()
+    if not email:
+        return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response({'message': 'If that email is registered, a code has been sent.', 'otp': ''})
+
+    # Generate 6-digit OTP
+    otp = f"{random.randint(100000, 999999)}"
+
+    # Invalidate old OTPs for this user
+    PasswordResetOTP.objects.filter(user=user, is_used=False).update(is_used=True)
+
+    # Save new OTP
+    PasswordResetOTP.objects.create(user=user, otp=otp)
+
+    # Print to Django terminal (visible during demo)
+    print(f"\n{'='*40}\nPASSWORD RESET OTP\nEmail: {email}\nOTP Code: {otp}\nExpires in 10 minutes\n{'='*40}\n")
+
+    return Response({
+        'message': 'OTP sent successfully.',
+        # otp NOT returned — user must read from terminal
+    })
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def password_reset_confirm(request):
+    """
+    POST /api/auth/password-reset/confirm/
+    Body: { "email": "...", "otp": "123456", "new_password": "..." }
+    """
+    from django.contrib.auth.hashers import make_password
+    from .models import PasswordResetOTP
+
+    email = request.data.get('email', '').strip().lower()
+    otp = request.data.get('otp', '').strip()
+    new_password = request.data.get('new_password', '')
+
+    if not email or not otp or not new_password:
+        return Response({'error': 'email, otp, and new_password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(new_password) < 8:
+        return Response({'error': 'Password must be at least 8 characters.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response({'error': 'Invalid email.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Find valid OTP
+    otp_obj = PasswordResetOTP.objects.filter(user=user, otp=otp, is_used=False).order_by('-created_at').first()
+    if not otp_obj or not otp_obj.is_valid():
+        return Response({'error': 'Invalid or expired OTP.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Reset password
+    user.password = make_password(new_password)
+    user.save(update_fields=['password'])
+
+    # Mark OTP as used
+    otp_obj.is_used = True
+    otp_obj.save(update_fields=['is_used'])
+
+    return Response({'message': 'Password reset successful. You can now log in.'})
