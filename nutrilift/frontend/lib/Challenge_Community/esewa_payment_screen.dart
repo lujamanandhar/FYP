@@ -37,6 +37,20 @@ class _EsewaPaymentScreenState extends State<EsewaPaymentScreen> {
   Future<void> _initPayment() async {
     try {
       final params = await _service.initiateEsewaPayment(widget.challenge.id);
+      // Backend simulation mode — payment already completed server-side
+      if (params['status'] == 'SIMULATED_SUCCESS') {
+        if (mounted) {
+          Navigator.pop(context);
+          widget.onSuccess();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Payment successful! You have joined the challenge.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        return;
+      }
       if (mounted) setState(() { _params = params; _loading = false; });
     } catch (e) {
       if (mounted) setState(() { _error = e.toString(); _loading = false; });
@@ -47,7 +61,16 @@ class _EsewaPaymentScreenState extends State<EsewaPaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pay with eSewa'),
+        title: Image.network(
+          'https://esewa.com.np/common/images/esewa_logo.png',
+          height: 28,
+          color: Colors.white,
+          colorBlendMode: BlendMode.srcIn,
+          errorBuilder: (_, __, ___) => const Text(
+            'eSewa',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+        ),
         backgroundColor: const Color(0xFF60BB46),
         foregroundColor: Colors.white,
         leading: IconButton(

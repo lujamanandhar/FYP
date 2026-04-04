@@ -47,11 +47,11 @@ class ChallengeModel {
   factory ChallengeModel.fromJson(Map<String, dynamic> json) {
     return ChallengeModel(
       id: json['id'] as String,
-      name: json['name'] as String,
-      description: json['description'] as String,
-      challengeType: json['challenge_type'] as String,
-      goalValue: (json['goal_value'] as num).toDouble(),
-      unit: json['unit'] as String,
+      name: json['name'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      challengeType: json['challenge_type'] as String? ?? '',
+      goalValue: (json['goal_value'] as num?)?.toDouble() ?? 0.0,
+      unit: json['unit'] as String? ?? '',
       startDate: DateTime.parse(json['start_date'] as String),
       endDate: DateTime.parse(json['end_date'] as String),
       participantProgress: (json['participant_progress'] as num?)?.toDouble() ?? 0.0,
@@ -87,11 +87,11 @@ class ChallengeParticipantModel {
 
   factory ChallengeParticipantModel.fromJson(Map<String, dynamic> json) {
     return ChallengeParticipantModel(
-      rank: json['rank'] as int,
-      userId: json['user_id'] as String,
-      username: json['username'] as String,
+      rank: json['rank'] as int? ?? 0,
+      userId: json['user_id'] as String? ?? '',
+      username: json['username'] as String? ?? '',
       avatarUrl: json['avatar_url'] as String?,
-      progress: (json['progress'] as num).toDouble(),
+      progress: (json['progress'] as num?)?.toDouble() ?? 0.0,
       currentStreak: json['current_streak'] as int? ?? 0,
     );
   }
@@ -116,11 +116,11 @@ class BadgeModel {
 
   factory BadgeModel.fromJson(Map<String, dynamic> json) {
     return BadgeModel(
-      badgeId: json['badge_id'] as String,
-      name: json['name'] as String,
-      description: json['description'] as String,
-      iconUrl: json['icon_url'] as String,
-      pointsReward: json['points_reward'] as int,
+      badgeId: json['badge_id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      iconUrl: json['icon_url'] as String? ?? '',
+      pointsReward: json['points_reward'] as int? ?? 0,
       earnedAt: DateTime.parse(json['earned_at'] as String),
     );
   }
