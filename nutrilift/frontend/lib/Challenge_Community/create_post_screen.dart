@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../services/dio_client.dart';
@@ -102,15 +103,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         final bytes = item.bytes ?? await item.file.readAsBytes();
         if (!item.isVideo) localBytes.add(bytes);
 
-        try {
-          final result = await _uploadMedia(item, bytes);
-          imageUrls.add(result['url'] as String);
-          if (result['is_video'] == true) {
-            videoUrls.add(result['url'] as String);
-          }
-        } catch (_) {
-          // Fall back to filename if upload fails
-          imageUrls.add(item.file.name);
+        final result = await _uploadMedia(item, bytes);
+        imageUrls.add(result['url'] as String);
+        if (result['is_video'] == true) {
+          videoUrls.add(result['url'] as String);
         }
       }
 
@@ -129,10 +125,27 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   Future<Map<String, dynamic>> _uploadMedia(_MediaItem item, Uint8List bytes) async {
-    final ext = item.file.name.contains('.') ? item.file.name.split('.').last : (item.isVideo ? 'mp4' : 'jpg');
+    final ext = item.file.name.contains('.') ? item.file.name.split('.').last.toLowerCase() : (item.isVideo ? 'mp4' : 'jpg');
     final fieldName = item.isVideo ? 'file' : 'image';
+
+    // Compress images to save server space; videos upload as-is
+    Uint8List uploadBytes = bytes;
+    String uploadExt = ext;
+    if (!item.isVideo) {
+      final CompressFormat format = ext == 'png' ? CompressFormat.png : CompressFormat.jpeg;
+      final compressed = await FlutterImageCompress.compressWithList(
+        bytes,
+        quality: 75,       // 75% quality — good balance of size vs clarity
+        format: format,
+      );
+      if (compressed != null && compressed.length < bytes.length) {
+        uploadBytes = compressed;
+        uploadExt = ext == 'png' ? 'png' : 'jpg';
+      }
+    }
+
     final formData = FormData.fromMap({
-      fieldName: MultipartFile.fromBytes(bytes, filename: 'post.$ext'),
+      fieldName: MultipartFile.fromBytes(uploadBytes, filename: 'post.$uploadExt'),
     });
     final dio = DioClient().dio;
     final response = await dio.post('/upload/', data: formData);
