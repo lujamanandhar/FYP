@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/gif', 'image/webp'}
-ALLOWED_VIDEO_TYPES = {'video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm', 'video/x-matroska'}
+ALLOWED_VIDEO_TYPES = {'video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm', 'video/x-matroska', 'video/mpeg', 'application/octet-stream'}
 ALLOWED_MEDIA_TYPES = ALLOWED_IMAGE_TYPES | ALLOWED_VIDEO_TYPES
 
 MAX_IMAGE_SIZE = 10 * 1024 * 1024   # 10 MB
@@ -39,6 +39,11 @@ class UploadMediaView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # For octet-stream, determine type by extension
+        if file.content_type == 'application/octet-stream':
+            ext = os.path.splitext(file.name)[1].lower()
+            is_video = ext in {'.mp4', '.mov', '.avi', '.webm', '.mkv', '.mpeg', '.mpg'}
+
         max_size = MAX_VIDEO_SIZE if is_video else MAX_IMAGE_SIZE
         if file.size > max_size:
             limit_mb = max_size // (1024 * 1024)
@@ -51,5 +56,6 @@ class UploadMediaView(APIView):
         filename = f'uploads/{uuid.uuid4().hex}{ext}'
         saved_path = default_storage.save(filename, ContentFile(file.read()))
 
-        url = request.build_absolute_uri(settings.MEDIA_URL + saved_path)
-        return Response({'url': url, 'is_video': is_video}, status=status.HTTP_201_CREATED)
+        # Return relative path — client reconstructs full URL using its configured base
+        relative_url = settings.MEDIA_URL + saved_path
+        return Response({'url': relative_url, 'is_video': is_video}, status=status.HTTP_201_CREATED)
