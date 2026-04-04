@@ -116,6 +116,16 @@ class JoinChallengeView(APIView):
                 {'detail': 'Already joined this challenge'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        # Block joining paid challenges without a completed payment
+        if challenge.is_paid:
+            has_paid = EsewaPayment.objects.filter(
+                user=request.user, challenge=challenge, status='COMPLETED'
+            ).exists()
+            if not has_paid:
+                return Response(
+                    {'detail': 'Payment required to join this challenge.'},
+                    status=status.HTTP_402_PAYMENT_REQUIRED,
+                )
         ChallengeParticipant.objects.create(challenge=challenge, user=request.user)
         return Response({'detail': 'Joined successfully.'}, status=status.HTTP_201_CREATED)
 
@@ -812,7 +822,26 @@ class EsewaInitiateView(APIView):
         if not challenge.is_paid:
             return Response({'detail': 'This challenge is free.'}, status=status.HTTP_400_BAD_REQUEST)
         if EsewaPayment.objects.filter(user=request.user, challenge=challenge, status='COMPLETED').exists():
-            return Response({'detail': 'Already paid.'}, status=status.HTTP_400_BAD_REQUEST)
+            # Already paid — treat as success so user can access the challenge
+            ChallengeParticipant.objects.get_or_create(
+                challenge=challenge, user=request.user
+            )
+            return Response({'status': 'SIMULATED_SUCCESS', 'message': 'Already paid.'})
+
+        # Simulate success for testing when sandbox is unavailable
+        if getattr(settings, 'ESEWA_SIMULATE_SUCCESS', False):
+            import uuid as uuid_lib2
+            sim_uuid = str(uuid_lib2.uuid4()).replace('-', '')[:20]
+            payment, _ = EsewaPayment.objects.get_or_create(
+                user=request.user, challenge=challenge,
+                defaults={'amount': challenge.price, 'transaction_uuid': sim_uuid}
+            )
+            payment.status = 'COMPLETED'
+            payment.save()
+            ChallengeParticipant.objects.get_or_create(
+                challenge=challenge, user=request.user
+            )
+            return Response({'status': 'SIMULATED_SUCCESS', 'message': 'Payment simulated successfully.'})
 
         transaction_uuid = str(uuid_lib.uuid4()).replace('-', '')[:20]
         amount = str(challenge.price)
@@ -829,7 +858,15 @@ class EsewaInitiateView(APIView):
         ).decode()
 
         # Build success/failure URLs — use ESEWA_SUCCESS_BASE_URL if set (for ngrok/production)
-        base = getattr(settings, 'ESEWA_SUCCESS_BASE_URL', None) or request.build_absolute_uri('/').rstrip('/')
+        # For emulator testing, use 10.0.2.2 which maps to the host machine's localhost
+        base = getattr(settings, 'ESEWA_SUCCESS_BASE_URL', None)
+        if not base:
+            # Try to detect emulator (10.0.2.2) vs real server
+            host = request.get_host()
+            if '10.0.2.2' in host or 'localhost' in host or '127.0.0.1' in host:
+                base = f'http://{host}'
+            else:
+                base = request.build_absolute_uri('/').rstrip('/')
         success_url = f'{base}/api/challenges/{pk}/pay/verify/'
         failure_url = f'{base}/api/challenges/{pk}/pay/failure/'
 
