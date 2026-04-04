@@ -158,6 +158,10 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Allow video uploads up to 150 MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024   # 150 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024   # 150 MB
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -300,3 +304,12 @@ ESEWA_VERIFY_URL = 'https://uat.esewa.com.np/api/epay/transaction/status/'
 # e.g. 'https://abc123.ngrok.io'
 # Leave as None to use the request's host (works for web browser testing)
 ESEWA_SUCCESS_BASE_URL = None  # Replace with your ngrok URL
+
+# Set to True to simulate payment success when eSewa sandbox is unavailable
+ESEWA_SIMULATE_SUCCESS = config('ESEWA_SIMULATE_SUCCESS', default=False, cast=bool)
+
+
+# ── Email Configuration (console backend for FYP demo) ────────────────────────
+# Reset tokens print to the Django terminal — no real email server needed
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'nutrilift@example.com'
