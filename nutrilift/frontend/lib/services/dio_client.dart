@@ -5,7 +5,7 @@ import 'app_config.dart';
 /// Dio HTTP client with JWT authentication and error handling interceptors
 class DioClient {
   static String get _baseUrl => AppConfig.baseUrl;
-  static const Duration _timeout = Duration(seconds: 30);
+  static const Duration _timeout = Duration(seconds: 10);
 
   late final Dio _dio;
   final TokenService _tokenService = TokenService();

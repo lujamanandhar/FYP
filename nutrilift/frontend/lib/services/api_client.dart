@@ -6,8 +6,8 @@ import 'app_config.dart';
 
 class ApiClient {
   static String get _baseUrl => AppConfig.baseUrl;
-  static const Duration _timeout = Duration(seconds: 30);
-  static const int _maxRetries = 3;
+  static const Duration _timeout = Duration(seconds: 10);
+  static const int _maxRetries = 1;
 
   final http.Client _client;
   final TokenService _tokenService;
@@ -171,11 +171,21 @@ class ApiClient {
           data: data,
         );
       } else {
-        final message = data['message'] ?? 'An error occurred';
-        final errors = data['errors'] as Map<String, dynamic>?;
+        // Extract message from Django response — tries common keys
+        final message = data['detail']
+            ?? data['message']
+            ?? data['error']
+            ?? (data['non_field_errors'] is List
+                ? (data['non_field_errors'] as List).first.toString()
+                : null)
+            ?? 'An error occurred';
+
+        // Extract field-level validation errors
+        final errors = data['errors'] as Map<String, dynamic>?
+            ?? _extractFieldErrors(data);
         
-        // Handle authentication failures
-        if (response.statusCode == 401) {
+        // Only trigger session-expired flow for 401s on authenticated endpoints
+        if (response.statusCode == 401 && requiresAuth) {
           _handleAuthenticationFailure(requiresAuth);
         }
         
@@ -188,6 +198,17 @@ class ApiClient {
     } on FormatException {
       throw ApiException('Invalid response format from server.');
     }
+  }
+
+  // Extract field-level errors from Django validation responses
+  Map<String, dynamic>? _extractFieldErrors(Map<String, dynamic> data) {
+    final fieldErrors = <String, dynamic>{};
+    for (final key in data.keys) {
+      if (key != 'detail' && key != 'message' && key != 'error' && data[key] is List) {
+        fieldErrors[key] = data[key];
+      }
+    }
+    return fieldErrors.isEmpty ? null : fieldErrors;
   }
 
   // Handle authentication failure
