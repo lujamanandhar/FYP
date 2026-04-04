@@ -53,8 +53,7 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<ChallengeProvider>();
-      if (provider.challenges.isEmpty) provider.fetchChallenges();
+      context.read<ChallengeProvider>().fetchChallenges();
     });
   }
 
