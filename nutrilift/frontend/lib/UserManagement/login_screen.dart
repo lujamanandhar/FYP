@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:url_launcher/url_launcher.dart';
 import 'signup_screen.dart';
+import 'forgot_password_screen.dart';
 import 'main_navigation.dart';
 import '../Admin/admin_main_navigation.dart';
 import '../services/auth_service.dart';
@@ -124,125 +125,122 @@ class _LoginScreenState extends State<LoginScreen> with ErrorHandlingMixin {
         child: LoadingOverlay(
           isLoading: _isLoading,
           loadingMessage: 'Signing you in...',
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/nutrilift_logo.png', height: 80),
-                  const SizedBox(height: 30),
-                  const Text(
-                    'Sign In To NutriLift',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const Text(
-                    "Let's personalize your fitness with us",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 30),
-                  
-                  // Server validation errors display
-                  ServerValidationErrorDisplay(
-                    errors: _validationErrors,
-                    generalError: _errorMessage,
-                    onDismiss: () {
-                      setState(() {
-                        _validationErrors = null;
-                        _errorMessage = null;
-                      });
-                    },
-                  ),
-                  
-                  // Email field with real-time validation
-                  ValidatedTextFormField(
-                    label: 'Email Address',
-                    controller: _emailController,
-                    validator: _formValidator.validateEmail,
-                    enabled: !_isLoading,
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    keyboardType: TextInputType.emailAddress,
-                    serverError: _validationErrors?['email']?.first,
-                  ),
-                  const SizedBox(height: 15),
-                  
-                  // Password field with real-time validation
-                  ValidatedTextFormField(
-                    label: 'Password',
-                    controller: _passwordController,
-                    validator: (value) => _formValidator.validateRequired(value, 'Password'),
-                    enabled: !_isLoading,
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    obscureText: _obscurePassword,
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                    showValidationIcon: false,
-                    serverError: _validationErrors?['password']?.first,
-                  ),
-                  const SizedBox(height: 20),
-                  
-                  // Login button
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _handleLogin,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : const Text(
-                            'Log In',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Spacer(),
+                        Image.asset('assets/nutrilift_logo.png', height: 80),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'Sign In To NutriLift',
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        const Text(
+                          "Let's personalize your fitness with us",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        const SizedBox(height: 30),
+                        ValidatedTextFormField(
+                          label: 'Email Address',
+                          controller: _emailController,
+                          validator: _formValidator.validateEmail,
+                          enabled: !_isLoading,
+                          prefixIcon: const Icon(Icons.email_outlined),
+                          keyboardType: TextInputType.emailAddress,
+                          serverError: _validationErrors?['email']?.first,
+                        ),
+                        const SizedBox(height: 15),
+                        ValidatedTextFormField(
+                          label: 'Password',
+                          controller: _passwordController,
+                          validator: (value) => _formValidator.validateRequired(value, 'Password'),
+                          enabled: !_isLoading,
+                          prefixIcon: const Icon(Icons.lock_outlined),
+                          obscureText: _obscurePassword,
+                          suffixIcon: IconButton(
+                            icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                           ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Don't have an account? "),
-                      GestureDetector(
-                        onTap: _isLoading ? null : () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const SignupScreen()),
-                          );
-                        },
-                        child: Text(
-                          'Signup',
-                          style: TextStyle(
-                            color: _isLoading ? Colors.grey : Colors.red, 
-                            fontWeight: FontWeight.bold
+                          showValidationIcon: false,
+                          serverError: _validationErrors?['password']?.first,
+                        ),
+                        const SizedBox(height: 4),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: _isLoading ? null : () {
+                              Navigator.push(context, MaterialPageRoute(
+                                builder: (_) => const ForgotPasswordScreen(),
+                              ));
+                            },
+                            style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
+                            child: const Text('Forgot Password?', style: TextStyle(color: Colors.red, fontSize: 13)),
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        ServerValidationErrorDisplay(
+                          errors: _validationErrors,
+                          generalError: _errorMessage,
+                          onDismiss: () => setState(() {
+                            _validationErrors = null;
+                            _errorMessage = null;
+                          }),
+                        ),
+                        ElevatedButton(
+                          onPressed: _isLoading ? null : _handleLogin,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 20, width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : const Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Don't have an account? "),
+                            GestureDetector(
+                              onTap: _isLoading ? null : () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) => const SignupScreen()));
+                              },
+                              child: Text(
+                                'Signup',
+                                style: TextStyle(
+                                  color: _isLoading ? Colors.grey : Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        const Text('Or continue with', style: TextStyle(color: Colors.grey)),
+                        const SizedBox(height: 16),
+                        _googleSignInButton(),
+                        const Spacer(),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 30),
-                  const Text(
-                    'Or continue with',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 20),
-                  _googleSignInButton(),
-                ],
+                ),
               ),
             ),
           ),
