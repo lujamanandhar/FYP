@@ -501,74 +501,58 @@ class ServerValidationErrorDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (errors == null && generalError == null) {
-      return const SizedBox.shrink();
+    // Collect the single most relevant message to show
+    String? message = generalError;
+    if (message == null && errors != null && errors!.isNotEmpty) {
+      final first = errors!.values.first;
+      message = first is List && first.isNotEmpty
+          ? first.first.toString()
+          : first.toString();
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.red[50],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.red[200]!),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.error_outline, color: Colors.red[700], size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  generalError ?? 'Please fix the following errors:',
-                  style: TextStyle(
-                    color: Colors.red[700],
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+    if (message == null) return const SizedBox.shrink();
+
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF0F0),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFFFCDD2)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline_rounded,
+                color: Color(0xFFE53935), size: 18),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Color(0xFFC62828),
+                  fontSize: 13.5,
+                  height: 1.4,
                 ),
               ),
-              if (onDismiss != null)
-                IconButton(
-                  icon: Icon(Icons.close, color: Colors.red[700], size: 18),
-                  onPressed: onDismiss,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
+            ),
+            if (onDismiss != null)
+              GestureDetector(
+                onTap: onDismiss,
+                child: const Padding(
+                  padding: EdgeInsets.only(left: 8),
+                  child: Icon(Icons.close_rounded,
+                      color: Color(0xFFE57373), size: 16),
                 ),
-            ],
-          ),
-          if (errors != null) ...[
-            const SizedBox(height: 8),
-            ...errors!.entries.map((entry) {
-              final fieldName = _formatFieldName(entry.key);
-              final errorMessages = entry.value is List 
-                  ? (entry.value as List).cast<String>()
-                  : [entry.value.toString()];
-              
-              return Padding(
-                padding: const EdgeInsets.only(left: 28, bottom: 4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: errorMessages.map((error) => Text(
-                    '• $fieldName: $error',
-                    style: TextStyle(
-                      color: Colors.red[600],
-                      fontSize: 13,
-                    ),
-                  )).toList(),
-                ),
-              );
-            }).toList(),
+              ),
           ],
-        ],
+        ),
       ),
     );
   }
 
   String _formatFieldName(String fieldName) {
-    // Convert snake_case to Title Case
     return fieldName
         .split('_')
         .map((word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1))
