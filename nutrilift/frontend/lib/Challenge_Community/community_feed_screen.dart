@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/token_service.dart';
+import '../services/app_config.dart';
 import 'community_provider.dart';
 import 'community_api_service.dart';
 import 'comments_screen.dart' show showCommentsSheet;
@@ -190,7 +191,7 @@ class _PostCardState extends State<_PostCard> {
                     radius: 20,
                     backgroundColor: _kRedLight,
                     backgroundImage:
-                        post.avatarUrl != null ? NetworkImage(post.avatarUrl!) : null,
+                        post.avatarUrl != null ? NetworkImage(AppConfig.resolveMediaUrl(post.avatarUrl!)) : null,
                     child: post.avatarUrl == null
                         ? Text(
                             post.username.isNotEmpty ? post.username[0].toUpperCase() : '?',
@@ -459,9 +460,9 @@ class _MediaSectionState extends State<_MediaSection> {
                           width: double.infinity,
                           errorBuilder: (_, __, ___) => _brokenMedia());
                     }
-                    final url = widget.urls[i];
+                    final url = AppConfig.resolveMediaUrl(widget.urls[i]);
                     if (url.isEmpty) return _brokenMedia();
-                    final isVideo = widget.videoUrls.contains(url) || _isVideoUrl(url);
+                    final isVideo = widget.videoUrls.contains(widget.urls[i]) || widget.videoUrls.contains(url) || _isVideoUrl(url);
                     if (isVideo) return _VideoThumbnail(url: url);
                     return Image.network(
                       url,

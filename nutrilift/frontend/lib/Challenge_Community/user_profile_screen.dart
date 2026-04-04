@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/token_service.dart';
 import '../services/streak_service.dart';
+import '../services/app_config.dart';
 import '../UserManagement/profile_edit_screen.dart';
 import '../widgets/nutrilift_header.dart';
 import '../widgets/streak_overview_widget.dart';
@@ -300,7 +301,7 @@ class _ProfileHeader extends StatelessWidget {
                 radius: 40,
                 backgroundColor: _kRedLight,
                 backgroundImage: profile.avatarUrl != null
-                    ? NetworkImage(profile.avatarUrl!)
+                    ? NetworkImage(AppConfig.resolveMediaUrl(profile.avatarUrl!))
                     : null,
                 child: profile.avatarUrl == null
                     ? Text(initials,
@@ -926,7 +927,7 @@ class _Thumb extends StatelessWidget {
       color: Colors.grey[100],
       child: hasImg
           ? Stack(fit: StackFit.expand, children: [
-              Image.network(post.imageUrls.first,
+              Image.network(AppConfig.resolveMediaUrl(post.imageUrls.first),
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) =>
                       const Icon(Icons.broken_image_outlined, color: Colors.grey)),
@@ -996,7 +997,7 @@ class _PostViewerState extends State<_PostViewer> {
               if (post.imageUrls.isNotEmpty)
                 AspectRatio(
                   aspectRatio: 1,
-                  child: Image.network(post.imageUrls.first,
+                  child: Image.network(AppConfig.resolveMediaUrl(post.imageUrls.first),
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) =>
                           Container(color: Colors.grey[100])),
@@ -1113,7 +1114,7 @@ class _FollowListScreenState extends State<_FollowListScreen> {
                         radius: 22,
                         backgroundColor: _kRedLight,
                         backgroundImage: u.avatarUrl != null
-                            ? NetworkImage(u.avatarUrl!)
+                            ? NetworkImage(AppConfig.resolveMediaUrl(u.avatarUrl!))
                             : null,
                         child: u.avatarUrl == null
                             ? Text(initials,

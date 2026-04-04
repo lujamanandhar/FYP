@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../services/app_config.dart';
 import 'community_provider.dart';
 
 const Color _kRed = Color(0xFFE53935);
@@ -136,7 +137,7 @@ class _DayCompletionOverlayState extends State<DayCompletionOverlay>
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
-                          widget.firstMediaUrl!,
+                          AppConfig.resolveMediaUrl(widget.firstMediaUrl!),
                           height: 120,
                           width: double.infinity,
                           fit: BoxFit.cover,

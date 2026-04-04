@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../services/app_config.dart';
 import 'community_api_service.dart';
 import 'community_provider.dart';
 
@@ -196,7 +197,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                                           radius: 18,
                                           backgroundColor: _kRedLight,
                                           backgroundImage: c.avatarUrl != null
-                                              ? NetworkImage(c.avatarUrl!)
+                                              ? NetworkImage(AppConfig.resolveMediaUrl(c.avatarUrl!))
                                               : null,
                                           child: c.avatarUrl == null
                                               ? Text(

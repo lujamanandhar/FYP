@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../services/app_config.dart';
 import '../services/dio_client.dart';
 import '../services/dashboard_service.dart';
 import '../widgets/nutrilift_header.dart';
@@ -459,7 +460,7 @@ class _DailyLogBody extends StatelessWidget {
                                 child: const Icon(Icons.play_circle_outline,
                                     color: Colors.white, size: 36),
                               )
-                            : Image.network(item.url,
+                            : Image.network(AppConfig.resolveMediaUrl(item.url),
                                 width: 80, height: 80, fit: BoxFit.cover),
                       ),
                       if (!alreadyComplete)
