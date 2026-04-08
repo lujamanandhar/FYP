@@ -163,6 +163,29 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                       label:
                           'Goal: ${challenge.goalValue.toStringAsFixed(0)} ${challenge.unit}',
                     ),
+                    const SizedBox(height: 4),
+                    _InfoRow(
+                      icon: Icons.people,
+                      label: challenge.maxParticipants != null
+                          ? '${challenge.participantCount} / ${challenge.maxParticipants} joined'
+                          : '${challenge.participantCount} participants',
+                    ),
+                    if (challenge.maxParticipants != null) ...[
+                      const SizedBox(height: 4),
+                      _InfoRow(
+                        icon: challenge.spotsLeft == 0
+                            ? Icons.block
+                            : Icons.event_seat,
+                        label: challenge.spotsLeft == 0
+                            ? 'Challenge is full'
+                            : '${challenge.spotsLeft} spots remaining',
+                        color: challenge.spotsLeft == 0
+                            ? Colors.red
+                            : challenge.spotsLeft! <= 5
+                                ? Colors.orange
+                                : Colors.green,
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -459,17 +482,19 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color? color;
 
-  const _InfoRow({required this.icon, required this.label});
+  const _InfoRow({required this.icon, required this.label, this.color});
 
   @override
   Widget build(BuildContext context) {
+    final c = color ?? Colors.grey[600]!;
     return Row(
       children: [
-        Icon(icon, size: 14, color: Colors.grey[600]),
+        Icon(icon, size: 14, color: c),
         const SizedBox(width: 6),
         Text(label,
-            style: TextStyle(color: Colors.grey[700], fontSize: 13)),
+            style: TextStyle(color: color != null ? c : Colors.grey[700], fontSize: 13)),
       ],
     );
   }
