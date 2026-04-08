@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz_data;
 import '../services/app_config.dart';
 import '../services/dio_client.dart';
 import '../services/dashboard_service.dart';
@@ -27,14 +30,51 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
   void initState() {
     super.initState();
     _loadStreak();
+    tz_data.initializeTimeZones();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ChallengeProvider>();
       if (provider.challenges.isEmpty) {
-        provider.fetchChallenges().then((_) => _fetchLog());
+        provider.fetchChallenges().then((_) {
+          _fetchLog();
+          _scheduleEndNotifications(provider);
+        });
       } else {
         _fetchLog();
+        _scheduleEndNotifications(provider);
       }
     });
+  }
+
+  Future<void> _scheduleEndNotifications(ChallengeProvider provider) async {
+    final plugin = FlutterLocalNotificationsPlugin();
+    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    await plugin.initialize(const InitializationSettings(android: android));
+
+    for (final challenge in provider.challenges.where((c) => c.isJoined)) {
+      final endDate = challenge.endDate;
+      final oneDayBefore = DateTime(endDate.year, endDate.month, endDate.day - 1, 9, 0);
+      final now = DateTime.now();
+      if (oneDayBefore.isAfter(now)) {
+        final notifId = challenge.id.hashCode.abs() % 100000;
+        await plugin.zonedSchedule(
+          notifId,
+          '⏰ Challenge ends tomorrow!',
+          '"${challenge.name}" ends tomorrow. Complete your daily task!',
+          tz.TZDateTime.from(oneDayBefore, tz.local),
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'challenge_end', 'Challenge Reminders',
+              channelDescription: 'Reminders when challenges are about to end',
+              importance: Importance.high,
+              priority: Priority.high,
+            ),
+          ),
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+        );
+      }
+    }
   }
 
   Future<void> _loadStreak() async {
@@ -230,6 +270,56 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
                       onToggleTask: (i) => provider.toggleTask(challengeId, i),
                       onRemoveMedia: (i) => provider.removeMedia(challengeId, i),
                       onComplete: () async {
+                        // Only verify if there are structured tasks
+                        final hasStructured = log?.taskItems.any((t) => t.isStructured) ?? false;
+                        if (hasStructured) {
+                          try {
+                            final verification = await ChallengeApiService().verifyTodayLog(challengeId);
+                            final unmet = (verification['unmet'] as List?)?.cast<String>() ?? [];
+                            if (unmet.isNotEmpty && context.mounted) {
+                              await showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  title: const Text('Tasks Not Complete'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('The following tasks are not yet done:'),
+                                      const SizedBox(height: 12),
+                                      ...unmet.map((msg) => Padding(
+                                        padding: const EdgeInsets.only(bottom: 6),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            const Icon(Icons.cancel, color: Colors.orange, size: 16),
+                                            const SizedBox(width: 6),
+                                            Expanded(child: Text(msg, style: const TextStyle(fontSize: 13))),
+                                          ],
+                                        ),
+                                      )),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              return; // Block completion
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Could not verify tasks: $e')),
+                              );
+                            }
+                            return;
+                          }
+                        }
+
                         await provider.completeDailyLog(challengeId);
                         if (!context.mounted) return;
                         // Re-resolve challenge with updated progress from provider
@@ -412,6 +502,70 @@ class _DailyLogBody extends StatelessWidget {
             ...tasks.asMap().entries.map((entry) {
               final i = entry.key;
               final task = entry.value;
+              final isStructured = task.isStructured;
+              final isVerified = task.verified ?? false;
+
+              // Structured tasks: show auto-verification status, no manual checkbox
+              if (isStructured) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isVerified ? const Color(0xFFE8F5E9) : const Color(0xFFFFF3E0),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isVerified ? const Color(0xFF4CAF50) : const Color(0xFFFF9800),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        isVerified ? Icons.check_circle : Icons.pending,
+                        color: isVerified ? const Color(0xFF4CAF50) : const Color(0xFFFF9800),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(task.label,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  decoration: isVerified ? TextDecoration.lineThrough : null,
+                                  color: isVerified ? Colors.grey[600] : Colors.black87,
+                                )),
+                            if (task.verificationMessage != null && !isVerified)
+                              Text(task.verificationMessage!,
+                                  style: const TextStyle(fontSize: 11, color: Color(0xFFFF9800))),
+                            if (isVerified)
+                              Text('Verified from your logs ✓',
+                                  style: const TextStyle(fontSize: 11, color: Color(0xFF4CAF50))),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: task.type == 'exercise'
+                              ? Colors.blue[50]
+                              : Colors.green[50],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          task.type == 'exercise' ? '💪 Exercise' : '🥗 Food',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: task.type == 'exercise' ? Colors.blue[700] : Colors.green[700],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              // Manual tasks: regular checkbox
               return CheckboxListTile(
                 value: task.completed,
                 onChanged: alreadyComplete ? null : (_) => onToggleTask(i),
