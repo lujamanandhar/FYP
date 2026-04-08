@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'gym_details_screen.dart';
 import 'gym_map_view.dart';
+import 'gym_directions_screen.dart';
 import 'area_selector_map.dart';
 import '../widgets/nutrilift_header.dart';
 import '../widgets/streak_overview_widget.dart';
@@ -212,11 +213,11 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
       if (_selectedForComparison.contains(placeId)) {
         _selectedForComparison.remove(placeId);
       } else {
-        if (_selectedForComparison.length < 3) {
+        if (_selectedForComparison.length < 5) {
           _selectedForComparison.add(placeId);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Maximum 3 gyms can be compared')),
+            const SnackBar(content: Text('Maximum 5 gyms can be compared')),
           );
         }
       }
@@ -737,11 +738,16 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
   }
 
   Future<void> _openDirections(GymPlace gym) async {
-    final url = 'https://www.google.com/maps/dir/?api=1&destination=${gym.latitude},${gym.longitude}';
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => GymDirectionsScreen(
+          gymLat: gym.latitude,
+          gymLng: gym.longitude,
+          gymName: gym.name,
+        ),
+      ),
+    );
   }
 }
 
@@ -760,7 +766,11 @@ class GymComparisonResultScreen extends StatelessWidget {
         child: Column(
           children: [
             // Comparison Table
-            Table(
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 32),
+                child: Table(
               border: TableBorder.all(color: Colors.grey[300]!),
               children: [
                 // Header Row
@@ -811,6 +821,8 @@ class GymComparisonResultScreen extends StatelessWidget {
                 ),
               ],
             ),
+              ),
+            ),
             const SizedBox(height: 24),
             
             // Individual Gym Cards
@@ -830,7 +842,7 @@ class GymComparisonResultScreen extends StatelessWidget {
                           children: [
                             Expanded(
                               child: ElevatedButton.icon(
-                                onPressed: () => _call(gym.phone),
+                                onPressed: () => _call(context, gym.phone),
                                 icon: const Icon(Icons.phone, size: 18),
                                 label: const Text('Call'),
                                 style: ElevatedButton.styleFrom(
@@ -841,7 +853,7 @@ class GymComparisonResultScreen extends StatelessWidget {
                             const SizedBox(width: 12),
                             Expanded(
                               child: ElevatedButton.icon(
-                                onPressed: () => _openDirections(gym),
+                                onPressed: () => _openDirections(context, gym),
                                 icon: const Icon(Icons.directions, size: 18),
                                 label: const Text('Directions'),
                                 style: ElevatedButton.styleFrom(
@@ -889,19 +901,29 @@ class GymComparisonResultScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _call(String? phone) async {
-    if (phone == null) return;
+  Future<void> _call(BuildContext context, String? phone) async {
+    if (phone == null || phone.isEmpty || phone == 'N/A') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No phone number available for this gym')),
+      );
+      return;
+    }
     final uri = Uri.parse('tel:$phone');
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     }
   }
 
-  Future<void> _openDirections(GymDetails gym) async {
-    final url = 'https://www.google.com/maps/dir/?api=1&destination=${gym.latitude},${gym.longitude}';
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+  void _openDirections(BuildContext context, GymDetails gym) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => GymDirectionsScreen(
+          gymLat: gym.latitude,
+          gymLng: gym.longitude,
+          gymName: gym.name,
+        ),
+      ),
+    );
   }
 }
