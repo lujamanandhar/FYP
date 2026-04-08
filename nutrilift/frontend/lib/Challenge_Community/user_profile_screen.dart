@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
+import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/token_service.dart';
 import '../services/streak_service.dart';
@@ -9,6 +11,7 @@ import '../widgets/streak_overview_widget.dart';
 import 'community_api_service.dart';
 import 'challenge_api_service.dart';
 import 'challenge_certificate_screen.dart';
+import 'challenge_provider.dart';
 
 const Color _kRed = Color(0xFFE53935);
 const Color _kRedLight = Color(0xFFFFEBEE);
@@ -131,7 +134,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
       await _service.toggleFollow(widget.userId);
       if (mounted) setState(() => _profile!.isFollowingMe = !_profile!.isFollowingMe);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      if (mounted) showCenterToast(context, '$e');
     } finally {
       if (mounted) setState(() => _toggling = false);
     }
@@ -144,7 +147,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
         up = await _authService.getProfile();
         if (mounted) setState(() => _myProfile = up);
       } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+        if (mounted) showCenterToast(context, '$e');
         return;
       }
     }
@@ -508,11 +511,15 @@ class _AchievementsTab extends StatefulWidget {
 class _AchievementsTabState extends State<_AchievementsTab> {
   List<ChallengeCompletionModel> _completions = [];
   bool _loadingCerts = false;
+  bool _loadingBadges = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.isOwnProfile) _loadCertificates();
+    if (widget.isOwnProfile) {
+      _loadCertificates();
+      _loadBadges();
+    }
   }
 
   Future<void> _loadCertificates() async {
@@ -522,6 +529,15 @@ class _AchievementsTabState extends State<_AchievementsTab> {
       if (mounted) setState(() => _completions = certs);
     } catch (_) {} finally {
       if (mounted) setState(() => _loadingCerts = false);
+    }
+  }
+
+  Future<void> _loadBadges() async {
+    setState(() => _loadingBadges = true);
+    try {
+      context.read<ChallengeProvider>().fetchBadges();
+    } catch (_) {} finally {
+      if (mounted) setState(() => _loadingBadges = false);
     }
   }
 
@@ -585,6 +601,62 @@ class _AchievementsTabState extends State<_AchievementsTab> {
           else
             ..._completions.map((c) => _CertificateTile(completion: c)),
           const SizedBox(height: 8),
+        ],
+
+        // ── Badges ──────────────────────────────────────────────────
+        if (widget.isOwnProfile) ...[
+          _SectionTitle(title: '🎖️ Badges', icon: Icons.military_tech_outlined),
+          const SizedBox(height: 10),
+          if (_loadingBadges)
+            const Center(child: CircularProgressIndicator())
+          else Builder(builder: (context) {
+            final badges = context.watch<ChallengeProvider>().badges;
+            if (badges.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Text('Complete challenges to earn badges!',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 13)),
+              );
+            }
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 0.85,
+              ),
+              itemCount: badges.length,
+              itemBuilder: (context, i) {
+                final badge = badges[i];
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.amber[100],
+                      backgroundImage: badge.iconUrl.isNotEmpty
+                          ? NetworkImage(badge.iconUrl)
+                          : null,
+                      child: badge.iconUrl.isEmpty
+                          ? const Icon(Icons.military_tech, size: 28, color: Colors.amber)
+                          : null,
+                    ),
+                    const SizedBox(height: 5),
+                    Text(badge.name,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+                    Text('+${badge.pointsReward} pts',
+                        style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                  ],
+                );
+              },
+            );
+          }),
+          const SizedBox(height: 16),
         ],
 
         if (challenges.isNotEmpty) ...[
