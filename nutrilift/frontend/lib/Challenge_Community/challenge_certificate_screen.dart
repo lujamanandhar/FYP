@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
@@ -37,9 +38,7 @@ class _ChallengeCertificateScreenState extends State<ChallengeCertificateScreen>
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Share failed: $e')),
-        );
+        showCenterToast(context, 'Share failed: $e');
       }
     } finally {
       if (mounted) setState(() => _sharing = false);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:provider/provider.dart';
 import '../services/app_config.dart';
 import 'community_api_service.dart';
@@ -98,9 +99,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
     } catch (e) {
       setState(() => _isSending = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send: $e')),
-        );
+        showCenterToast(context, 'Failed to send: $e');
       }
     }
   }

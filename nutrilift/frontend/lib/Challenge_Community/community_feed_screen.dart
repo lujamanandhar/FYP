@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:provider/provider.dart';
 import '../services/token_service.dart';
 import '../services/app_config.dart';
@@ -308,8 +309,7 @@ class _PostCardState extends State<_PostCard> {
                         );
                         if (confirm == true) provider.deletePost(post.id);
                       } else if (value == 'report') {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(content: Text('Post reported')));
+                        showCenterToast(context, 'Post reported');
                       }
                     },
                     itemBuilder: (_) => [

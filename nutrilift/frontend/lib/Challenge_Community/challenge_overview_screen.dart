@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:provider/provider.dart';
 import '../widgets/nutrilift_header.dart';
 import 'challenge_provider.dart';
@@ -12,7 +13,7 @@ const Color _kRed = Color(0xFFE53935);
 const Color _kGold = Color(0xFFFFC107);
 const Color _kGreen = Color(0xFF4CAF50);
 
-// ─── Standalone screen ────────────────────────────────────────────────────────
+// --- Standalone screen --------------------------------------------------------
 class ChallengeOverviewScreen extends StatefulWidget {
   const ChallengeOverviewScreen({super.key});
   @override
@@ -37,7 +38,7 @@ class _ChallengeOverviewScreenState extends State<ChallengeOverviewScreen> {
   }
 }
 
-// ─── Body ─────────────────────────────────────────────────────────────────────
+// --- Body ---------------------------------------------------------------------
 class ChallengeOverviewBody extends StatefulWidget {
   const ChallengeOverviewBody({super.key});
   @override
@@ -77,7 +78,7 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
   Widget build(BuildContext context) {
     return Stack(children: [
       Column(children: [
-        // ── Tab bar ──
+        // -- Tab bar --
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
           child: Container(
@@ -120,7 +121,7 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
         ),
         const SizedBox(height: 10),
 
-        // ── Content ──
+        // -- Content --
         Expanded(
           child: Consumer<ChallengeProvider>(
             builder: (context, provider, _) {
@@ -154,7 +155,7 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
         ),
       ]),
 
-      // ── FAB ──
+      // -- FAB --
       Positioned(
         bottom: 20, right: 16,
         child: FloatingActionButton.extended(
@@ -170,7 +171,7 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
   }
 }
 
-// ─── Error state ──────────────────────────────────────────────────────────────
+// --- Error state --------------------------------------------------------------
 class _ErrorState extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
@@ -195,7 +196,7 @@ class _ErrorState extends StatelessWidget {
   }
 }
 
-// ─── Challenge List (All + Official tabs) ─────────────────────────────────────
+// --- Challenge List (All + Official tabs) -------------------------------------
 class _ChallengeList extends StatelessWidget {
   final List<ChallengeModel> challenges;
   final ChallengeProvider provider;
@@ -279,14 +280,13 @@ class _ChallengeList extends StatelessWidget {
     if (ok == true && context.mounted) {
       final deleted = await provider.deleteChallenge(c.id);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(deleted ? 'Challenge deleted' : (provider.error ?? 'Failed'))));
+        showCenterToast(context, deleted ? 'Challenge deleted' : (provider.error ?? 'Failed'));
       }
     }
   }
 }
 
-// ─── Enhanced Challenge Card ──────────────────────────────────────────────────
+// --- Enhanced Challenge Card --------------------------------------------------
 class _ChallengeCard extends StatelessWidget {
   final ChallengeModel challenge;
   final VoidCallback onTap;
@@ -322,80 +322,74 @@ class _ChallengeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tc = _typeColor(challenge.challengeType);
     final official = challenge.isOfficial;
+    final hasEnded = challenge.endDate.isBefore(DateTime.now());
     final progress = challenge.goalValue > 0
         ? (challenge.participantProgress / challenge.goalValue).clamp(0.0, 1.0)
         : 0.0;
     final daysLeft = challenge.endDate.difference(DateTime.now()).inDays;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
           BoxShadow(
-            color: official ? _kGold.withOpacity(0.18) : Colors.black.withOpacity(0.07),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Material(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            // ── Coloured header strip ──
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: official
-                      ? [const Color(0xFFFFC107), const Color(0xFFFFB300)]
-                      : [tc.withOpacity(0.85), tc],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-              ),
-              child: Row(children: [
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // -- Header row --
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.25),
-                    borderRadius: BorderRadius.circular(8),
+                    color: tc.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(_typeIcon(challenge.challengeType), color: Colors.white, size: 18),
+                  child: Icon(_typeIcon(challenge.challengeType), color: tc, size: 18),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(challenge.name,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                         maxLines: 1, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
                     Row(children: [
                       if (official) ...[
-                        const Icon(Icons.verified_rounded, size: 12, color: Colors.white),
+                        Icon(Icons.verified_rounded, size: 12, color: Colors.amber[700]),
                         const SizedBox(width: 3),
-                        const Text('Official', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                        Text('Official', style: TextStyle(color: Colors.amber[700], fontSize: 11, fontWeight: FontWeight.w600)),
                       ] else ...[
-                        const Icon(Icons.person_outline, size: 12, color: Colors.white70),
+                        Icon(Icons.person_outline, size: 12, color: Colors.grey[500]),
                         const SizedBox(width: 3),
                         Text('@${challenge.createdByUsername}',
-                            style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                            style: TextStyle(color: Colors.grey[500], fontSize: 11)),
                       ],
                       if (challenge.isPaid) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.25),
-                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.green[50],
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.green[200]!),
                           ),
                           child: Text(
                             '${challenge.currency} ${challenge.price.toStringAsFixed(0)}',
-                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.green[700], fontSize: 10, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],
@@ -404,7 +398,7 @@ class _ChallengeCard extends StatelessWidget {
                 ),
                 if (onDelete != null)
                   PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert, color: Colors.white, size: 20),
+                    icon: Icon(Icons.more_vert, color: Colors.grey[400], size: 18),
                     onSelected: (v) { if (v == 'delete') onDelete!(); },
                     itemBuilder: (_) => [
                       const PopupMenuItem(value: 'delete',
@@ -416,65 +410,93 @@ class _ChallengeCard extends StatelessWidget {
                     ],
                   ),
               ]),
-            ),
+              const SizedBox(height: 12),
 
-            // ── Body ──
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                // Stats row
-                Row(children: [
-                  _MiniStat(icon: Icons.flag_rounded, label: '${challenge.goalValue.toStringAsFixed(0)} ${challenge.unit}', color: tc),
-                  const SizedBox(width: 12),
+              // -- Stats row --
+              Row(children: [
+                _MiniStat(icon: Icons.flag_rounded, label: '${challenge.goalValue.toStringAsFixed(0)} ${challenge.unit}', color: Colors.grey[600]!),
+                const SizedBox(width: 12),
+                if (hasEnded)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(6)),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.lock_clock, size: 11, color: Colors.grey[500]),
+                      const SizedBox(width: 3),
+                      Text('Ended', style: TextStyle(color: Colors.grey[500], fontSize: 11, fontWeight: FontWeight.w600)),
+                    ]),
+                  )
+                else
                   _MiniStat(
                     icon: Icons.schedule_rounded,
-                    label: '${daysLeft < 0 ? 0 : daysLeft}d left',
+                    label: '${daysLeft}d left',
                     color: daysLeft <= 3 ? Colors.red : Colors.grey[600]!,
                   ),
-                  const Spacer(),
-                  if (challenge.isJoined)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: _kGreen.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: _kGreen.withOpacity(0.3)),
-                      ),
-                      child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                        Icon(Icons.check_circle_rounded, size: 13, color: _kGreen),
-                        SizedBox(width: 4),
-                        Text('Joined', style: TextStyle(color: _kGreen, fontSize: 11, fontWeight: FontWeight.bold)),
-                      ]),
+                const Spacer(),
+                if (challenge.isJoined)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: _kGreen.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: _kGreen.withOpacity(0.25)),
                     ),
-                ]),
-                const SizedBox(height: 12),
-
-                // Progress bar
-                Row(children: [
-                  Expanded(
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: LinearProgressIndicator(
-                          value: progress,
-                          minHeight: 7,
-                          backgroundColor: Colors.grey[100],
-                          valueColor: AlwaysStoppedAnimation<Color>(_kRed),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                        Text('${challenge.participantProgress.toStringAsFixed(0)} / ${challenge.goalValue.toStringAsFixed(0)}',
-                            style: TextStyle(color: Colors.grey[500], fontSize: 11)),
-                        Text('${(progress * 100).toStringAsFixed(0)}%',
-                            style: TextStyle(color: _kRed, fontWeight: FontWeight.bold, fontSize: 11)),
-                      ]),
+                    child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.check_circle_rounded, size: 12, color: _kGreen),
+                      SizedBox(width: 4),
+                      Text('Joined', style: TextStyle(color: _kGreen, fontSize: 11, fontWeight: FontWeight.w600)),
                     ]),
                   ),
-                ]),
-                const SizedBox(height: 12),
+              ]),
+              const SizedBox(height: 10),
 
-                // Action button — always navigate to details first
+              // -- Progress bar --
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 6,
+                  backgroundColor: Colors.grey[100],
+                  valueColor: const AlwaysStoppedAnimation<Color>(_kRed),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text('${challenge.participantProgress.toStringAsFixed(0)} / ${challenge.goalValue.toStringAsFixed(0)}',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 11)),
+                Text('${(progress * 100).toStringAsFixed(0)}%',
+                    style: const TextStyle(color: _kRed, fontWeight: FontWeight.bold, fontSize: 11)),
+              ]),
+              const SizedBox(height: 12),
+
+              // -- Action button --
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: onTap,
+                  icon: Icon(
+                    challenge.isJoined ? Icons.today_rounded : Icons.info_outline_rounded,
+                    size: 16,
+                  ),
+                  label: const Text('View Details', style: TextStyle(fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: challenge.isJoined ? _kGreen : _kRed,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+                // Action button � always navigate to details first
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
@@ -491,7 +513,7 @@ class _ChallengeCard extends StatelessWidget {
                       challenge.isJoined
                           ? 'View Details'
                           : (challenge.isPaid && !challenge.hasPaid
-                              ? '${challenge.currency} ${challenge.price.toStringAsFixed(0)} — View Details'
+                              ? '${challenge.currency} ${challenge.price.toStringAsFixed(0)} � View Details'
                               : 'View Details'),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -534,7 +556,7 @@ class _MiniStat extends StatelessWidget {
 }
 
 
-// ─── Active Challenge List (My Challenges tab) ────────────────────────────────
+// --- Active Challenge List (My Challenges tab) --------------------------------
 class _ActiveChallengeList extends StatelessWidget {
   final List<ChallengeModel> challenges;
   final ChallengeProvider provider;
@@ -598,7 +620,7 @@ class _ActiveChallengeList extends StatelessWidget {
   }
 }
 
-// ─── Enhanced Active Challenge Card ──────────────────────────────────────────
+// --- Enhanced Active Challenge Card ------------------------------------------
 class _ActiveChallengeCard extends StatelessWidget {
   final ChallengeModel challenge;
   final VoidCallback onTap;
@@ -650,7 +672,7 @@ class _ActiveChallengeCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         clipBehavior: Clip.antiAlias,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          // ── Gradient header ──
+          // -- Gradient header --
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
@@ -704,7 +726,7 @@ class _ActiveChallengeCard extends StatelessWidget {
             ]),
           ),
 
-          // ── Progress bar ──
+          // -- Progress bar --
           Container(
             height: 6,
             child: LinearProgressIndicator(
@@ -715,7 +737,7 @@ class _ActiveChallengeCard extends StatelessWidget {
             ),
           ),
 
-          // ── Body ──
+          // -- Body --
           Padding(
             padding: const EdgeInsets.all(14),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -788,7 +810,7 @@ class _ActiveChallengeCard extends StatelessWidget {
 }
 
 
-// ─── Create Challenge Sheet ───────────────────────────────────────────────────
+// --- Create Challenge Sheet ---------------------------------------------------
 class _CreateChallengeSheet extends StatefulWidget {
   const _CreateChallengeSheet();
   @override
@@ -832,8 +854,7 @@ class _CreateChallengeSheetState extends State<_CreateChallengeSheet> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_endDate.isBefore(_startDate)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('End date must be after start date')));
+      showCenterToast(context, 'End date must be after start date');
       return;
     }
     setState(() => _loading = true);
@@ -856,11 +877,9 @@ class _CreateChallengeSheetState extends State<_CreateChallengeSheet> {
     if (!mounted) return;
     if (ok) {
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Challenge created!'), backgroundColor: _kGreen));
+      showCenterToast(context, 'Challenge created!');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(provider.error ?? 'Failed to create challenge')));
+      showCenterToast(context, provider.error ?? 'Failed to create challenge');
     }
   }
 

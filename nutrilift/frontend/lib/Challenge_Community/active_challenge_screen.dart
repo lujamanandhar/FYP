@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -200,9 +201,7 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Upload failed: $e')),
-        );
+        showCenterToast(context, 'Upload failed: $e');
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
@@ -312,9 +311,7 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Could not verify tasks: $e')),
-                              );
+                              showCenterToast(context, 'Could not verify tasks: $e');
                             }
                             return;
                           }

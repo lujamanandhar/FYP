@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'challenge_api_service.dart';
 import 'esewa_webview_stub.dart'
     if (dart.library.io) 'esewa_webview_impl.dart';
@@ -42,12 +43,7 @@ class _EsewaPaymentScreenState extends State<EsewaPaymentScreen> {
         if (mounted) {
           Navigator.pop(context);
           widget.onSuccess();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✅ Payment successful! You have joined the challenge.'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          showCenterToast(context, '✅ Payment successful! You have joined the challenge.');
         }
         return;
       }
@@ -89,21 +85,11 @@ class _EsewaPaymentScreenState extends State<EsewaPaymentScreen> {
                       onSuccess: () {
                         Navigator.pop(context);
                         widget.onSuccess();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('✅ Payment successful! You have joined the challenge.'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
+                        showCenterToast(context, '✅ Payment successful! You have joined the challenge.');
                       },
                       onFailure: () {
                         Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('❌ Payment cancelled or failed.'),
-                            backgroundColor: Colors.orange,
-                          ),
-                        );
+                        showCenterToast(context, '❌ Payment cancelled or failed.', isError: true);
                       },
                     ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:provider/provider.dart';
 import '../services/app_config.dart';
 import 'community_provider.dart';
@@ -65,19 +66,12 @@ class _DayCompletionOverlayState extends State<DayCompletionOverlay>
       );
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Posted to community!'),
-            backgroundColor: _kGreen,
-          ),
-        );
+        showCenterToast(context, 'Posted to community!');
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isSharing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to share: $e')),
-        );
+        showCenterToast(context, 'Failed to share: $e');
       }
     }
   }

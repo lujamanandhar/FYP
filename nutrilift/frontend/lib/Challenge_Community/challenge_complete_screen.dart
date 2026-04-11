@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'challenge_overview_screen.dart';
 import '../widgets/nutrilift_header.dart';
 
@@ -134,11 +135,7 @@ class ChallengeCompleteScreen extends StatelessWidget {
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Feature coming soon!'),
-                        ),
-                      );
+                      showCenterToast(context, 'Feature coming soon!');
                     },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),

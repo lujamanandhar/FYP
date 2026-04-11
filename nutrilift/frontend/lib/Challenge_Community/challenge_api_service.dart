@@ -22,6 +22,9 @@ class ChallengeModel {
   final String currency;
   final String prizeDescription;
   final bool hasPaid;
+  final int? maxParticipants;
+  final int participantCount;
+  final int? spotsLeft;
 
   ChallengeModel({
     required this.id,
@@ -42,6 +45,9 @@ class ChallengeModel {
     this.currency = 'NPR',
     this.prizeDescription = '',
     this.hasPaid = true,
+    this.maxParticipants,
+    this.participantCount = 0,
+    this.spotsLeft,
   });
 
   factory ChallengeModel.fromJson(Map<String, dynamic> json) {
@@ -64,6 +70,9 @@ class ChallengeModel {
       currency: json['currency'] as String? ?? 'NPR',
       prizeDescription: json['prize_description'] as String? ?? '',
       hasPaid: json['has_paid'] as bool? ?? true,
+      maxParticipants: json['max_participants'] as int?,
+      participantCount: json['participant_count'] as int? ?? 0,
+      spotsLeft: json['spots_left'] as int?,
     );
   }
 }
@@ -75,6 +84,8 @@ class ChallengeParticipantModel {
   final String? avatarUrl;
   final double progress;
   final int currentStreak;
+  final String? email;
+  final String? participantId;
 
   ChallengeParticipantModel({
     required this.rank,
@@ -83,16 +94,20 @@ class ChallengeParticipantModel {
     this.avatarUrl,
     required this.progress,
     this.currentStreak = 0,
+    this.email,
+    this.participantId,
   });
 
   factory ChallengeParticipantModel.fromJson(Map<String, dynamic> json) {
     return ChallengeParticipantModel(
       rank: json['rank'] as int? ?? 0,
       userId: json['user_id'] as String? ?? '',
-      username: json['username'] as String? ?? '',
+      username: (json['username'] ?? json['name'] ?? '') as String,
       avatarUrl: json['avatar_url'] as String?,
       progress: (json['progress'] as num?)?.toDouble() ?? 0.0,
       currentStreak: json['current_streak'] as int? ?? 0,
+      email: json['email'] as String?,
+      participantId: json['participant_id'] as String?,
     );
   }
 }
@@ -150,18 +165,64 @@ class StreakModel {
 
 class DailyTaskItem {
   final String label;
+  final String type; // 'manual', 'exercise', 'food'
   bool completed;
 
-  DailyTaskItem({required this.label, required this.completed});
+  // Exercise task fields
+  final String? exerciseName;
+  final int? targetReps;
+
+  // Food task fields
+  final String? foodName;
+  final double? targetGrams;
+
+  // Verification result (from verify endpoint)
+  bool? verified;
+  double? actualValue;
+  double? targetValue;
+  String? verificationMessage;
+
+  DailyTaskItem({
+    required this.label,
+    this.type = 'manual',
+    required this.completed,
+    this.exerciseName,
+    this.targetReps,
+    this.foodName,
+    this.targetGrams,
+    this.verified,
+    this.actualValue,
+    this.targetValue,
+    this.verificationMessage,
+  });
+
+  bool get isManual => type == 'manual';
+  bool get isStructured => type == 'exercise' || type == 'food';
 
   factory DailyTaskItem.fromJson(Map<String, dynamic> json) {
     return DailyTaskItem(
       label: json['label'] as String? ?? '',
+      type: json['type'] as String? ?? 'manual',
       completed: json['completed'] as bool? ?? false,
+      exerciseName: json['exercise_name'] as String?,
+      targetReps: json['target_reps'] as int?,
+      foodName: json['food_name'] as String?,
+      targetGrams: (json['target_grams'] as num?)?.toDouble(),
+      verified: json['verified'] as bool?,
+      actualValue: (json['actual_value'] as num?)?.toDouble(),
+      targetValue: (json['target_value'] as num?)?.toDouble(),
+      verificationMessage: json['message'] as String?,
     );
   }
 
-  Map<String, dynamic> toJson() => {'label': label, 'completed': completed};
+  Map<String, dynamic> toJson() {
+    final m = <String, dynamic>{'label': label, 'type': type, 'completed': completed};
+    if (exerciseName != null) m['exercise_name'] = exerciseName;
+    if (targetReps != null) m['target_reps'] = targetReps;
+    if (foodName != null) m['food_name'] = foodName;
+    if (targetGrams != null) m['target_grams'] = targetGrams;
+    return m;
+  }
 }
 
 class DailyMediaItem {
@@ -212,8 +273,13 @@ class ChallengeDailyLogModel {
     );
   }
 
-  bool get allTasksComplete =>
-      taskItems.isEmpty || taskItems.every((t) => t.completed);
+  bool get allTasksComplete {
+    if (taskItems.isEmpty) return true;
+    return taskItems.every((t) {
+      if (t.isStructured) return t.verified == true;
+      return t.completed;
+    });
+  }
 }
 
 class ChallengeCompletionModel {
@@ -407,6 +473,16 @@ class ChallengeApiService {
       return ChallengeDailyLogModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw _handleError(e, 'Failed to fetch today\'s log');
+    }
+  }
+
+  /// Verify today's tasks against actual workout/nutrition logs.
+  Future<Map<String, dynamic>> verifyTodayLog(String challengeId) async {
+    try {
+      final response = await _dio.get('/challenges/$challengeId/daily-log/verify/');
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e, 'Failed to verify daily log');
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:provider/provider.dart';
 import '../widgets/nutrilift_header.dart';
 import '../services/dashboard_service.dart';
@@ -6,6 +7,7 @@ import 'challenge_provider.dart';
 import 'challenge_api_service.dart';
 import 'active_challenge_screen.dart';
 import 'esewa_payment_screen.dart';
+import 'challenge_leaderboard_screen.dart';
 
 class ChallengeDetailsScreen extends StatefulWidget {
   final ChallengeModel challenge;
@@ -17,15 +19,11 @@ class ChallengeDetailsScreen extends StatefulWidget {
 }
 
 class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
-  List<ChallengeParticipantModel> _leaderboard = [];
-  bool _leaderboardLoading = false;
-  String? _leaderboardError;
   int _currentStreak = 0;
 
   @override
   void initState() {
     super.initState();
-    _fetchLeaderboard();
     _loadStreak();
   }
 
@@ -40,30 +38,6 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
       }
     } catch (e) {
       print('Error loading streak: $e');
-    }
-  }
-
-  Future<void> _fetchLeaderboard() async {
-    setState(() {
-      _leaderboardLoading = true;
-      _leaderboardError = null;
-    });
-    try {
-      final service = ChallengeApiService();
-      final data = await service.fetchLeaderboard(widget.challenge.id);
-      if (mounted) {
-        setState(() {
-          _leaderboard = data;
-          _leaderboardLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _leaderboardError = e.toString();
-          _leaderboardLoading = false;
-        });
-      }
     }
   }
 
@@ -260,62 +234,8 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
             ),
             const SizedBox(height: 16),
 
-            // ── Leaderboard ──────────────────────────────────────────────
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Leaderboard',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 12),
-                    if (_leaderboardLoading)
-                      const Center(
-                          child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: CircularProgressIndicator(),
-                      ))
-                    else if (_leaderboardError != null)
-                      Column(
-                        children: [
-                          Text(
-                            _leaderboardError!,
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                          TextButton.icon(
-                            onPressed: _fetchLeaderboard,
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Retry'),
-                          ),
-                        ],
-                      )
-                    else if (_leaderboard.isEmpty)
-                      const Text(
-                        'No participants yet.',
-                        style: TextStyle(color: Colors.grey),
-                      )
-                    else
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _leaderboard.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final entry = _leaderboard[index];
-                          return _LeaderboardTile(entry: entry);
-                        },
-                      ),
-                  ],
-                ),
-              ),
-            ),
+            // ── Leaderboard button ───────────────────────────────────────
+            _LeaderboardButton(challenge: challenge),
             const SizedBox(height: 24),
 
             // ── JOIN / LEAVE buttons ─────────────────────────────────
@@ -380,11 +300,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                           if (ok == true && context.mounted) {
                             await provider.leaveChallenge(challenge.id);
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content:
-                                        Text('Left challenge successfully')),
-                              );
+                              showCenterToast(context, 'Left challenge successfully');
                               Navigator.of(context).pop();
                             }
                           }
@@ -419,12 +335,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                           }
                           await provider.fetchChallenges();
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('✅ Payment successful! You have joined the challenge.'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
+                            showCenterToast(context, '✅ Payment successful! You have joined the challenge.');
                             // Navigate to active challenge screen
                             Navigator.pushReplacement(
                               context,
@@ -500,44 +411,50 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _LeaderboardTile extends StatelessWidget {
-  final ChallengeParticipantModel entry;
-
-  const _LeaderboardTile({required this.entry});
+class _LeaderboardButton extends StatelessWidget {
+  final ChallengeModel challenge;
+  const _LeaderboardButton({required this.challenge});
 
   @override
   Widget build(BuildContext context) {
-    Color rankColor;
-    switch (entry.rank) {
-      case 1:
-        rankColor = const Color(0xFFFFD700); // gold
-        break;
-      case 2:
-        rankColor = const Color(0xFFC0C0C0); // silver
-        break;
-      case 3:
-        rankColor = const Color(0xFFCD7F32); // bronze
-        break;
-      default:
-        rankColor = Colors.grey;
-    }
-
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: rankColor.withOpacity(0.2),
-        child: Text(
-          '#${entry.rank}',
-          style: TextStyle(
-              color: rankColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 13),
+    final hasEnded = challenge.endDate.isBefore(DateTime.now());
+    // Get current user ID from provider if available
+    final currentUserId = challenge.createdById; // fallback; real ID fetched in screen
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () async {
+          // Fetch current user ID for "You" highlight
+          String? userId;
+          try {
+            final provider = context.read<ChallengeProvider>();
+            userId = provider.currentUserId;
+          } catch (_) {}
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ChallengeLeaderboardScreen(
+                  challengeId: challenge.id,
+                  challengeName: challenge.name,
+                  endDate: challenge.endDate,
+                  prizeDescription: challenge.prizeDescription.isNotEmpty ? challenge.prizeDescription : null,
+                  currentUserId: userId,
+                ),
+              ),
+            );
+          }
+        },
+        icon: Icon(hasEnded ? Icons.emoji_events : Icons.leaderboard, color: const Color(0xFFE53935)),
+        label: Text(
+          hasEnded ? 'View Final Leaderboard' : 'View Leaderboard',
+          style: const TextStyle(color: Color(0xFFE53935), fontWeight: FontWeight.w600),
         ),
-      ),
-      title: Text(entry.username,
-          style: const TextStyle(fontWeight: FontWeight.w600)),
-      trailing: Text(
-        '${entry.progress.toStringAsFixed(0)}',
-        style: const TextStyle(fontWeight: FontWeight.bold),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: Color(0xFFE53935)),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
       ),
     );
   }
