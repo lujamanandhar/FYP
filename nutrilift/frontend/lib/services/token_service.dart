@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TokenService {
@@ -129,8 +130,7 @@ class TokenService {
     return (token != null && token.isNotEmpty) || (refreshToken != null && refreshToken.isNotEmpty);
   }
 
-  // Automatic token refresh logic placeholder
-  // This would be implemented when refresh token endpoint is available
+  // Automatic token refresh — calls backend and saves new tokens
   Future<String?> refreshTokenIfNeeded() async {
     if (await isTokenValid()) {
       return await getToken();
@@ -141,8 +141,34 @@ class TokenService {
       return null;
     }
 
-    // TODO: Implement actual refresh token API call when backend supports it
-    // For now, return null to indicate refresh is needed
+    try {
+      // Import here to avoid circular dependency
+      final prefs = await SharedPreferences.getInstance();
+      final baseUrl = prefs.getString('base_url') ?? 'http://10.0.2.2:8000/api';
+
+      // Use a plain Dio instance (no interceptors) to avoid infinite loop
+      final dio = Dio(BaseOptions(
+        baseUrl: baseUrl,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+        headers: {'Content-Type': 'application/json'},
+      ));
+
+      final response = await dio.post('/auth/token/refresh/', data: {
+        'refresh_token': refreshToken,
+      });
+
+      final newToken = response.data['token'] as String?;
+      final newRefresh = response.data['refresh_token'] as String?;
+
+      if (newToken != null) {
+        await saveToken(newToken);
+        if (newRefresh != null) await saveRefreshToken(newRefresh);
+        return newToken;
+      }
+    } catch (_) {
+      // Refresh failed — caller should redirect to login
+    }
     return null;
   }
 

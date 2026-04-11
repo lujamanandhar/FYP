@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dio_client.dart';
 
 class AppNotification {
@@ -71,25 +72,43 @@ class AppNotification {
   }
 }
 
-/// Singleton notification service with polling support.
+/// Singleton notification service with polling + local push notifications.
 class NotificationService extends ChangeNotifier {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
 
   final _dio = DioClient();
+  final _localNotif = FlutterLocalNotificationsPlugin();
   List<AppNotification> _notifications = [];
   int _unreadCount = 0;
   Timer? _pollTimer;
   bool _isPolling = false;
+  bool _localNotifInitialized = false;
+  final Set<String> _shownIds = {}; // track which notifs we've already pushed locally
 
   List<AppNotification> get notifications => _notifications;
   int get unreadCount => _unreadCount;
 
+  /// Initialize local notification plugin (call once at app start).
+  Future<void> initLocalNotifications() async {
+    if (_localNotifInitialized) return;
+    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const ios = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    await _localNotif.initialize(
+      const InitializationSettings(android: android, iOS: ios),
+    );
+    _localNotifInitialized = true;
+  }
+
   /// Start polling every [intervalSeconds] seconds.
   void startPolling({int intervalSeconds = 15}) {
     _pollTimer?.cancel();
-    _fetchNotifications(); // immediate first fetch
+    _fetchNotifications();
     _pollTimer = Timer.periodic(Duration(seconds: intervalSeconds), (_) {
       _fetchNotifications();
     });
@@ -111,16 +130,46 @@ class NotificationService extends ChangeNotifier {
           .toList();
       final newUnread = data['unread_count'] as int? ?? 0;
 
+      // Fire local push for any new unread notifications we haven't shown yet
+      if (_localNotifInitialized) {
+        for (final n in list) {
+          if (!n.isRead && !_shownIds.contains(n.id)) {
+            _shownIds.add(n.id);
+            _showLocalNotification(n);
+          }
+        }
+      }
+
       if (_unreadCount != newUnread || list.length != _notifications.length) {
         _notifications = list;
         _unreadCount = newUnread;
         notifyListeners();
       }
     } catch (_) {
-      // Silently fail — don't disrupt the UI
+      // Silently fail
     } finally {
       _isPolling = false;
     }
+  }
+
+  Future<void> _showLocalNotification(AppNotification n) async {
+    const androidDetails = AndroidNotificationDetails(
+      'nutrilift_main',
+      'NutriLift Notifications',
+      channelDescription: 'Challenge, social, and streak notifications',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+    const iosDetails = DarwinNotificationDetails();
+    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+
+    await _localNotif.show(
+      n.id.hashCode.abs() % 100000,
+      n.title,
+      n.message,
+      details,
+    );
   }
 
   Future<void> refresh() => _fetchNotifications();

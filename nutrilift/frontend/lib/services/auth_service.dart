@@ -36,6 +36,9 @@ class AuthService {
       if (authResponse.token != null) {
         _apiClient.setAuthToken(authResponse.token);
       }
+      if (authResponse.refreshToken != null) {
+        await _tokenService.saveRefreshToken(authResponse.refreshToken!);
+      }
       
       return authResponse;
     } on ApiException {
@@ -55,6 +58,9 @@ class AuthService {
       // Set the auth token for future requests and save to storage
       if (authResponse.token != null) {
         _apiClient.setAuthToken(authResponse.token);
+      }
+      if (authResponse.refreshToken != null) {
+        await _tokenService.saveRefreshToken(authResponse.refreshToken!);
       }
       
       return authResponse;
@@ -353,16 +359,19 @@ class ProfileUpdateRequest {
 class AuthResponse {
   final UserProfile? user;
   final String? token;
+  final String? refreshToken;
 
   AuthResponse({
     this.user,
     this.token,
+    this.refreshToken,
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
       user: json['user'] != null ? UserProfile.fromJson(json['user'] as Map<String, dynamic>) : null,
       token: json['token'] as String?,
+      refreshToken: json['refresh_token'] as String?,
     );
   }
 }
