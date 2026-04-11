@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 // import 'success_screen.dart';
 import '../widgets/onboarding_header.dart';
 import '../services/onboarding_service.dart';
@@ -40,17 +41,7 @@ class _WeightScreenState extends State<WeightScreen> {
       
       // Show error if submission failed
       if (_onboardingService.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_onboardingService.error!),
-            backgroundColor: Colors.red,
-            action: SnackBarAction(
-              label: 'Retry',
-              textColor: Colors.white,
-              onPressed: _submitProfile,
-            ),
-          ),
-        );
+        showCenterToast(context, _onboardingService.error!, isError: true);
       }
     }
   }
@@ -59,12 +50,7 @@ class _WeightScreenState extends State<WeightScreen> {
     // Validate current step first
     final error = _onboardingService.validateCurrentStep(5);
     if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_onboardingService.getStepErrorMessage(5) ?? error),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showCenterToast(context, _onboardingService.getStepErrorMessage(5) ?? error, isError: true);
       return;
     }
 

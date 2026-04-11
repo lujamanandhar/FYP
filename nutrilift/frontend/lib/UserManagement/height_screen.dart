@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'weight_screen.dart';
 import '../widgets/onboarding_header.dart';
 import '../services/onboarding_service.dart';
@@ -86,12 +87,7 @@ class _HeightScreenState extends State<HeightScreen> {
                   // Validate current step before proceeding
                   final error = _onboardingService.validateCurrentStep(4);
                   if (error != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(_onboardingService.getStepErrorMessage(4) ?? error),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
+                    showCenterToast(context, _onboardingService.getStepErrorMessage(4) ?? error, isError: true);
                     return;
                   }
                   

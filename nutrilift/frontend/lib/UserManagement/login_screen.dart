@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
+import '../widgets/center_toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
@@ -43,9 +43,7 @@ class _LoginScreenState extends State<LoginScreen> with ErrorHandlingMixin {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not launch $url')),
-        );
+        showCenterToast(context, 'Could not launch $url');
       }
     }
   }
@@ -232,10 +230,6 @@ class _LoginScreenState extends State<LoginScreen> with ErrorHandlingMixin {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 24),
-                        const Text('Or continue with', style: TextStyle(color: Colors.grey)),
-                        const SizedBox(height: 16),
-                        _googleSignInButton(),
                         const Spacer(),
                       ],
                     ),
@@ -248,90 +242,4 @@ class _LoginScreenState extends State<LoginScreen> with ErrorHandlingMixin {
       ),
     );
   }
-
-  Widget _googleSignInButton() {
-    return OutlinedButton(
-      onPressed: _isLoading ? null : () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google Sign-In coming soon')),
-        );
-      },
-      style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: Color(0xFFBBBBBB), width: 1.2),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          _GoogleLogo(size: 26),
-          SizedBox(width: 14),
-          Text(
-            'Sign in with Google',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1F1F1F),
-              letterSpacing: 0.1,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _GoogleLogo extends StatelessWidget {
-  final double size;
-  const _GoogleLogo({Key? key, this.size = 40}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(painter: _GoogleGPainter()),
-    );
-  }
-}
-
-class _GoogleGPainter extends CustomPainter {
-  static const _red    = Color(0xFFEA4335);
-  static const _blue   = Color(0xFF4285F4);
-  static const _yellow = Color(0xFFFBBC05);
-  static const _green  = Color(0xFF34A853);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-    final r  = size.width / 2;
-    final sw = r * 0.34;
-    final ir = r - sw / 2;
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = sw
-      ..strokeCap = StrokeCap.butt;
-    final arcRect = Rect.fromCircle(center: Offset(cx, cy), radius: ir);
-    paint.color = _red;
-    canvas.drawArc(arcRect, _r(-50), _r(97), false, paint);
-    paint.color = _yellow;
-    canvas.drawArc(arcRect, _r(47), _r(68), false, paint);
-    paint.color = _green;
-    canvas.drawArc(arcRect, _r(115), _r(115), false, paint);
-    paint.color = _blue;
-    canvas.drawArc(arcRect, _r(230), _r(80), false, paint);
-    final barH = sw * 0.85;
-    canvas.drawRect(
-      Rect.fromLTRB(cx, cy - barH / 2, cx + ir + sw / 2, cy + barH / 2),
-      Paint()..color = _blue..style = PaintingStyle.fill,
-    );
-  }
-
-  double _r(double deg) => deg * math.pi / 180;
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

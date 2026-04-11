@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:dio/dio.dart';
 import '../services/app_config.dart';
 
@@ -201,8 +202,7 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
         'new_password': _passCtrl.text,
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password reset successful! Please log in.'), backgroundColor: Colors.green));
+        showCenterToast(context, 'Password reset successful! Please log in.');
         Navigator.of(context).popUntil((r) => r.isFirst);
       }
     } on DioException catch (e) {

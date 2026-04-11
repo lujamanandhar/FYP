@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/auth_service.dart';
 import '../services/form_validator.dart';
@@ -125,12 +126,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with ErrorHandlin
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to pick image: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showCenterToast(context, 'Failed to pick image: $e', isError: true);
       }
     }
   }

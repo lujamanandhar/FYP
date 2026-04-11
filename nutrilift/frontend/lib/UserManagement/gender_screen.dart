@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'age_group_screen.dart';
 import '../widgets/onboarding_header.dart';
 import '../services/onboarding_service.dart';
@@ -85,12 +86,7 @@ class _GenderScreenState extends State<GenderScreen> {
                 onPressed: _selectedGender != null ? () {
                   final error = _onboardingService.validateCurrentStep(1);
                   if (error != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(_onboardingService.getStepErrorMessage(1) ?? error),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
+                    showCenterToast(context, _onboardingService.getStepErrorMessage(1) ?? error, isError: true);
                     return;
                   }
                   
