@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import '../widgets/nutrilift_header.dart';
+import '../widgets/center_toast.dart';
 import 'admin_service.dart';
+import '../Challenge_Community/challenge_leaderboard_screen.dart';
+
+const _kRed = Color(0xFFE53935);
+const _kBg = Color(0xFFF5F6FA);
 
 class AdminChallengesScreen extends StatefulWidget {
   const AdminChallengesScreen({Key? key}) : super(key: key);
@@ -13,6 +17,7 @@ class _AdminChallengesScreenState extends State<AdminChallengesScreen> {
   final AdminService _adminService = AdminService();
   List<dynamic> _challenges = [];
   bool _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
@@ -21,7 +26,7 @@ class _AdminChallengesScreenState extends State<AdminChallengesScreen> {
   }
 
   Future<void> _loadChallenges() async {
-    setState(() => _isLoading = true);
+    setState(() { _isLoading = true; _error = null; });
     try {
       final response = await _adminService.getChallenges();
       setState(() {
@@ -29,7 +34,7 @@ class _AdminChallengesScreenState extends State<AdminChallengesScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() { _isLoading = false; _error = e.toString(); });
     }
   }
 
@@ -37,92 +42,240 @@ class _AdminChallengesScreenState extends State<AdminChallengesScreen> {
     try {
       await _adminService.updateChallenge(challengeId, isOfficial: !currentValue);
       _loadChallenges();
+      showCenterToast(context, currentValue ? 'Removed official status' : 'Marked as official');
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted) showCenterToast(context, 'Error: $e', isError: true);
     }
   }
 
-  void _showCreateDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => _CreateChallengeDialog(
-        adminService: _adminService,
-        onCreated: _loadChallenges,
+  Future<void> _showLeaderboard(Map<String, dynamic> challenge) async {
+    final endDate = challenge['end_date'] != null
+        ? DateTime.tryParse(challenge['end_date']) ?? DateTime.now()
+        : DateTime.now();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChallengeLeaderboardScreen(
+          challengeId: challenge['id'],
+          challengeName: challenge['name'] ?? '',
+          endDate: endDate,
+          isAdmin: true,
+          prizeDescription: challenge['prize_description'],
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return NutriLiftScaffold(
-      title: 'Challenge Management',
-      showBackButton: true,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showCreateDialog,
-        backgroundColor: const Color(0xFFE53935),
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Create', style: TextStyle(color: Colors.white)),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _loadChallenges,
-              child: ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-                itemCount: _challenges.length,
-                itemBuilder: (context, index) {
-                  final c = _challenges[index];
-                  final isPaid = c['is_paid'] == true;
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: isPaid
-                            ? const Color(0xFF60BB46)
-                            : const Color(0xFFFFEBEE),
-                        child: Icon(
-                          isPaid ? Icons.lock : Icons.emoji_events,
-                          color: isPaid ? Colors.white : const Color(0xFFE53935),
-                          size: 20,
-                        ),
-                      ),
-                      title: Text(c['name'],
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('${c['challenge_type']} • ${c['unit']}'),
-                          if (isPaid)
-                            Text(
-                              'NPR ${c['price']} — ${c['prize_description'] ?? ''}',
-                              style: const TextStyle(
-                                  color: Color(0xFF60BB46), fontSize: 12),
-                            ),
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (c['is_official'] == true)
-                            const Icon(Icons.verified, color: Colors.blue, size: 18),
-                          IconButton(
-                            icon: Icon(
-                              c['is_official'] == true ? Icons.star : Icons.star_border,
-                              color: Colors.amber,
-                            ),
-                            onPressed: () => _toggleOfficial(c['id'], c['is_official'] == true),
-                            tooltip: 'Toggle Official',
+    return Material(
+      color: _kBg,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          _isLoading
+              ? const Center(child: CircularProgressIndicator(color: _kRed))
+              : _error != null
+                  ? _ErrorRetry(onRetry: _loadChallenges)
+                  : _challenges.isEmpty
+                      ? const Center(child: Text('No challenges yet', style: TextStyle(color: Colors.grey)))
+                      : RefreshIndicator(
+                          color: _kRed,
+                          onRefresh: _loadChallenges,
+                          child: ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                            itemCount: _challenges.length,
+                            itemBuilder: (context, index) {
+                              final c = _challenges[index];
+                              return _ChallengeCard(
+                                challenge: c,
+                                onToggleOfficial: () => _toggleOfficial(c['id'], c['is_official'] == true),
+                                onViewLeaderboard: () => _showLeaderboard(c),
+                              );
+                            },
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                        ),
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton.extended(
+              heroTag: 'admin_challenges_fab',
+              onPressed: () => showDialog(
+                context: context,
+                builder: (_) => _CreateChallengeDialog(adminService: _adminService, onCreated: _loadChallenges),
               ),
+              backgroundColor: _kRed,
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text('Create', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
             ),
+          ),
+        ],
+      ),
     );
   }
 }
+
+class _ChallengeCard extends StatelessWidget {
+  final Map<String, dynamic> challenge;
+  final VoidCallback onToggleOfficial;
+  final VoidCallback onViewLeaderboard;
+  const _ChallengeCard({required this.challenge, required this.onToggleOfficial, required this.onViewLeaderboard});
+
+  Color get _typeColor {
+    switch (challenge['challenge_type']) {
+      case 'nutrition': return const Color(0xFF10B981);
+      case 'workout': return const Color(0xFF3B82F6);
+      default: return const Color(0xFF8B5CF6);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isPaid = challenge['is_paid'] == true;
+    final isOfficial = challenge['is_official'] == true;
+    final type = challenge['challenge_type'] ?? '';
+    final endDate = challenge['end_date'] != null ? DateTime.tryParse(challenge['end_date']) : null;
+    final hasEnded = endDate != null && endDate.isBefore(DateTime.now());
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+        border: hasEnded && isPaid ? Border.all(color: const Color(0xFFEF4444), width: 1.5) : null,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: _typeColor.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
+                  child: Text(type.toUpperCase(), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: _typeColor)),
+                ),
+                const SizedBox(width: 8),
+                if (isPaid)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(8)),
+                    child: const Text('PAID', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFD97706))),
+                  ),
+                if (hasEnded) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(8)),
+                    child: const Text('ENDED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFEF4444))),
+                  ),
+                ],
+                const Spacer(),
+                GestureDetector(
+                  onTap: onToggleOfficial,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: isOfficial ? const Color(0xFFEFF6FF) : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: isOfficial ? const Color(0xFF3B82F6) : Colors.grey[300]!),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(isOfficial ? Icons.verified : Icons.verified_outlined,
+                            size: 14, color: isOfficial ? const Color(0xFF3B82F6) : Colors.grey),
+                        const SizedBox(width: 4),
+                        Text(isOfficial ? 'Official' : 'Make Official',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600,
+                                color: isOfficial ? const Color(0xFF3B82F6) : Colors.grey[600])),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(challenge['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            const SizedBox(height: 4),
+            Text(
+              '${challenge['goal_value']} ${challenge['unit']}',
+              style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+            ),
+            if (isPaid && challenge['prize_description'] != null && challenge['prize_description'].toString().isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Icon(Icons.card_giftcard, size: 14, color: Color(0xFFD97706)),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(challenge['prize_description'], style: const TextStyle(fontSize: 12, color: Color(0xFFD97706))),
+                  ),
+                ],
+              ),
+            ],
+            // Leaderboard button — always show for paid challenges, highlight if ended
+            if (isPaid) ...[
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: onViewLeaderboard,
+                  icon: Icon(
+                    hasEnded ? Icons.emoji_events : Icons.leaderboard,
+                    size: 16,
+                    color: hasEnded ? const Color(0xFFEF4444) : _kRed,
+                  ),
+                  label: Text(
+                    hasEnded ? 'View Leaderboard & Award Prize' : 'View Leaderboard',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: hasEnded ? const Color(0xFFEF4444) : _kRed,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: hasEnded ? const Color(0xFFEF4444) : _kRed),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorRetry extends StatelessWidget {
+  final VoidCallback onRetry;
+  const _ErrorRetry({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.error_outline, size: 48, color: Colors.red),
+          const SizedBox(height: 12),
+          const Text('Failed to load', style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: onRetry,
+            style: ElevatedButton.styleFrom(backgroundColor: _kRed, foregroundColor: Colors.white),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Create Challenge Dialog ────────────────────────────────────────────────────
 
 class _CreateChallengeDialog extends StatefulWidget {
   final AdminService adminService;
@@ -156,25 +309,19 @@ class _CreateChallengeDialogState extends State<_CreateChallengeDialog> {
       initialDate: isStart ? _startDate : _endDate,
       firstDate: DateTime.now().subtract(const Duration(days: 1)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (ctx, child) => Theme(
+        data: Theme.of(ctx).copyWith(colorScheme: const ColorScheme.light(primary: _kRed)),
+        child: child!,
+      ),
     );
-    if (picked != null) {
-      setState(() {
-        if (isStart) _startDate = picked;
-        else _endDate = picked;
-      });
-    }
+    if (picked != null) setState(() => isStart ? _startDate = picked : _endDate = picked);
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
     try {
-      final tasks = _tasksController.text
-          .split('\n')
-          .map((t) => t.trim())
-          .where((t) => t.isNotEmpty)
-          .toList();
-
+      final tasks = _tasksController.text.split('\n').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
       await widget.adminService.createChallenge(
         name: _name.text.trim(),
         description: _description.text.trim(),
@@ -190,32 +337,30 @@ class _CreateChallengeDialogState extends State<_CreateChallengeDialog> {
         prizeDescription: _prizeDescription.text.trim(),
         tasks: tasks,
       );
-
       if (mounted) {
         Navigator.pop(context);
         widget.onCreated();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Challenge created successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        showCenterToast(context, 'Challenge created!');
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
+      if (mounted) showCenterToast(context, 'Error: $e', isError: true);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
   }
 
+  InputDecoration _field(String label, {String? hint}) => InputDecoration(
+    labelText: label, hintText: hint,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: _kRed)),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+  );
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -224,165 +369,99 @@ class _CreateChallengeDialogState extends State<_CreateChallengeDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Create Official Challenge',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-
-              // Name
-              TextFormField(
-                controller: _name,
-                decoration: const InputDecoration(labelText: 'Challenge Name *', border: OutlineInputBorder()),
-                validator: (v) => v!.isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-
-              // Description
-              TextFormField(
-                controller: _description,
-                decoration: const InputDecoration(labelText: 'Description *', border: OutlineInputBorder()),
-                maxLines: 2,
-                validator: (v) => v!.isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-
-              // Type + Unit row
               Row(
                 children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: _type,
-                      decoration: const InputDecoration(labelText: 'Type', border: OutlineInputBorder()),
-                      items: ['workout', 'nutrition', 'mixed']
-                          .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                          .toList(),
-                      onChanged: (v) => setState(() => _type = v!),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: _unit,
-                      decoration: const InputDecoration(labelText: 'Unit', border: OutlineInputBorder()),
-                      items: ['days', 'kcal', 'reps']
-                          .map((u) => DropdownMenuItem(value: u, child: Text(u)))
-                          .toList(),
-                      onChanged: (v) => setState(() => _unit = v!),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Goal value
-              TextFormField(
-                controller: _goalValue,
-                decoration: const InputDecoration(labelText: 'Goal Value *', border: OutlineInputBorder()),
-                keyboardType: TextInputType.number,
-                validator: (v) => v!.isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-
-              // Date pickers
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _pickDate(true),
-                      icon: const Icon(Icons.calendar_today, size: 16),
-                      label: Text('Start: ${_startDate.day}/${_startDate.month}/${_startDate.year}'),
-                    ),
-                  ),
+                  const Icon(Icons.emoji_events_rounded, color: _kRed),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _pickDate(false),
-                      icon: const Icon(Icons.calendar_today, size: 16),
-                      label: Text('End: ${_endDate.day}/${_endDate.month}/${_endDate.year}'),
-                    ),
-                  ),
+                  const Text('Create Challenge', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Spacer(),
+                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
                 ],
               ),
+              const Divider(),
+              const SizedBox(height: 8),
+
+              TextFormField(controller: _name, decoration: _field('Challenge Name *'), validator: (v) => v!.isEmpty ? 'Required' : null),
+              const SizedBox(height: 12),
+              TextFormField(controller: _description, decoration: _field('Description *'), maxLines: 2, validator: (v) => v!.isEmpty ? 'Required' : null),
               const SizedBox(height: 12),
 
-              // Daily tasks
-              TextFormField(
-                controller: _tasksController,
-                decoration: const InputDecoration(
-                  labelText: 'Daily Tasks (one per line)',
-                  hintText: 'e.g.\n30 push-ups\n10 min run',
-                  border: OutlineInputBorder(),
+              Row(children: [
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    value: _type,
+                    decoration: _field('Type'),
+                    items: ['workout', 'nutrition', 'mixed'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+                    onChanged: (v) => setState(() => _type = v!),
+                  ),
                 ),
-                maxLines: 3,
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    value: _unit,
+                    decoration: _field('Unit'),
+                    items: ['days', 'kcal', 'reps', 'km', 'minutes'].map((u) => DropdownMenuItem(value: u, child: Text(u))).toList(),
+                    onChanged: (v) => setState(() => _unit = v!),
+                  ),
+                ),
+              ]),
               const SizedBox(height: 12),
 
-              // Official toggle
-              SwitchListTile(
-                value: _isOfficial,
-                onChanged: (v) => setState(() => _isOfficial = v),
-                title: const Text('Official Challenge'),
-                subtitle: const Text('Shown with verified badge'),
-                activeColor: const Color(0xFFE53935),
-                contentPadding: EdgeInsets.zero,
-              ),
+              TextFormField(controller: _goalValue, decoration: _field('Goal Value *'), keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Required' : null),
+              const SizedBox(height: 12),
 
-              // Paid toggle
-              SwitchListTile(
-                value: _isPaid,
-                onChanged: (v) => setState(() => _isPaid = v),
-                title: const Text('Paid Challenge (eSewa)'),
-                subtitle: const Text('Requires payment to join'),
-                activeColor: const Color(0xFF60BB46),
-                contentPadding: EdgeInsets.zero,
-              ),
+              Row(children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _pickDate(true),
+                    icon: const Icon(Icons.calendar_today, size: 14, color: _kRed),
+                    label: Text('${_startDate.day}/${_startDate.month}/${_startDate.year}', style: const TextStyle(color: _kRed)),
+                    style: OutlinedButton.styleFrom(side: const BorderSide(color: _kRed)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _pickDate(false),
+                    icon: const Icon(Icons.calendar_today, size: 14, color: _kRed),
+                    label: Text('${_endDate.day}/${_endDate.month}/${_endDate.year}', style: const TextStyle(color: _kRed)),
+                    style: OutlinedButton.styleFrom(side: const BorderSide(color: _kRed)),
+                  ),
+                ),
+              ]),
+              const SizedBox(height: 12),
 
-              // Payment fields
+              TextFormField(controller: _tasksController, decoration: _field('Daily Tasks', hint: 'One per line\ne.g. 30 push-ups'), maxLines: 3),
+              const SizedBox(height: 8),
+
+              SwitchListTile(value: _isOfficial, onChanged: (v) => setState(() => _isOfficial = v),
+                  title: const Text('Official Challenge', style: TextStyle(fontSize: 14)),
+                  activeColor: _kRed, contentPadding: EdgeInsets.zero),
+              SwitchListTile(value: _isPaid, onChanged: (v) => setState(() => _isPaid = v),
+                  title: const Text('Paid (eSewa)', style: TextStyle(fontSize: 14)),
+                  activeColor: const Color(0xFF10B981), contentPadding: EdgeInsets.zero),
+
               if (_isPaid) ...[
-                TextFormField(
-                  controller: _price,
-                  decoration: const InputDecoration(
-                    labelText: 'Price (NPR) *',
-                    prefixText: 'NPR ',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (v) => _isPaid && (v!.isEmpty || double.tryParse(v) == null)
-                      ? 'Enter valid price'
-                      : null,
-                ),
+                const SizedBox(height: 8),
+                TextFormField(controller: _price, decoration: _field('Price (NPR)', hint: '500'), keyboardType: TextInputType.number),
                 const SizedBox(height: 12),
-                TextFormField(
-                  controller: _prizeDescription,
-                  decoration: const InputDecoration(
-                    labelText: 'Prize Description',
-                    hintText: 'e.g. Gift hamper + NutriLift voucher worth NPR 2000',
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 2,
-                ),
-                const SizedBox(height: 12),
+                TextFormField(controller: _prizeDescription, decoration: _field('Prize Description'), maxLines: 2),
               ],
 
-              // Buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saving ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _kRed, foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _saving ? null : _submit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE53935),
-                      foregroundColor: Colors.white,
-                    ),
-                    child: _saving
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : const Text('Create Challenge'),
-                  ),
-                ],
+                  child: _saving
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : const Text('Create Challenge', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
               ),
             ],
           ),
