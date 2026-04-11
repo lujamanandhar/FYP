@@ -78,13 +78,22 @@ bool _lungeDetect(Map<PoseLandmarkType, PoseLandmark> lm, _RepState state, void 
 
 _Detector _detectorFor(String name) {
   final n = name.toLowerCase();
-  if (n.contains('push') || n.contains('press') || n.contains('dip') || n.contains('chest') || n.contains('tricep')) return _pushUpDetect;
-  if (n.contains('squat') || n.contains('deadlift') || n.contains('leg') || n.contains('calf')) return _squatDetect;
-  if (n.contains('curl') || n.contains('bicep') || n.contains('row') || n.contains('pull')) return _curlDetect;
+  // Curl / bicep movements
+  if (n.contains('curl') || n.contains('bicep') || n.contains('hammer')) return _curlDetect;
+  // Row / pull movements (elbow flexion like curl)
+  if (n.contains('row') || n.contains('pull')) return _curlDetect;
+  // Push / press / dip / chest / tricep movements
+  if (n.contains('push') || n.contains('press') || n.contains('dip') || n.contains('chest') || n.contains('tricep') || n.contains('fly') || n.contains('flye')) return _pushUpDetect;
+  // Shoulder / overhead / lateral movements
+  if (n.contains('shoulder') || n.contains('overhead') || n.contains('lateral') || n.contains('raise')) return _pushUpDetect;
+  // Squat / deadlift / leg / calf movements
+  if (n.contains('squat') || n.contains('deadlift') || n.contains('leg') || n.contains('calf') || n.contains('glute') || n.contains('hip thrust')) return _squatDetect;
+  // Lunge / step movements
   if (n.contains('lunge') || n.contains('step')) return _lungeDetect;
-  if (n.contains('shoulder') || n.contains('overhead') || n.contains('lateral')) return _pushUpDetect;
-  if (n.contains('crunch') || n.contains('sit') || n.contains('ab') || n.contains('core')) return _curlDetect;
-  return _squatDetect; // default
+  // Core / ab movements
+  if (n.contains('crunch') || n.contains('sit') || n.contains('ab') || n.contains('core') || n.contains('plank')) return _curlDetect;
+  // Default to squat (most generic full-body movement)
+  return _squatDetect;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -309,6 +318,15 @@ class _CameraWorkoutPlayerScreenState extends State<CameraWorkoutPlayerScreen>
     widget.onComplete(_results, _stopwatch.elapsed.inSeconds);
   }
 
+  String _detectorLabel(String name) {
+    final n = name.toLowerCase();
+    if (n.contains('curl') || n.contains('bicep') || n.contains('hammer') || n.contains('row') || n.contains('pull')) return 'Elbow Curl';
+    if (n.contains('push') || n.contains('press') || n.contains('dip') || n.contains('chest') || n.contains('tricep') || n.contains('fly') || n.contains('shoulder') || n.contains('overhead') || n.contains('lateral') || n.contains('raise')) return 'Push/Press';
+    if (n.contains('lunge') || n.contains('step')) return 'Lunge';
+    if (n.contains('crunch') || n.contains('sit') || n.contains('ab') || n.contains('core')) return 'Core Flex';
+    return 'Squat/Hinge';
+  }
+
   @override
   void dispose() {
     _ctrl?.dispose();
@@ -384,7 +402,7 @@ class _CameraWorkoutPlayerScreenState extends State<CameraWorkoutPlayerScreen>
           ]),
         )),
 
-        // Exercise name + muscle group
+        // Exercise name + muscle group + detector label
         Positioned(top: 80, left: 0, right: 0, child: Column(children: [
           Text(_currentExercise.name,
               textAlign: TextAlign.center,
@@ -396,6 +414,15 @@ class _CameraWorkoutPlayerScreenState extends State<CameraWorkoutPlayerScreen>
             decoration: BoxDecoration(color: widget.difficultyColor.withOpacity(0.85), borderRadius: BorderRadius.circular(12)),
             child: Text(_currentExercise.muscleGroup,
                 style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(8)),
+            child: Text(
+              'Tracking: ${_detectorLabel(_currentExercise.name)}',
+              style: const TextStyle(color: Colors.white70, fontSize: 10),
+            ),
           ),
         ])),
 

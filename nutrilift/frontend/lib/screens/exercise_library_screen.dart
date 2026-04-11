@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/exercise.dart';
 import '../providers/exercise_library_provider.dart';
@@ -444,12 +445,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                       OutlinedButton.icon(
                         onPressed: () {
                           // TODO: Open video URL
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Video link: Coming soon'),
-                              backgroundColor: Color(0xFFE53935),
-                            ),
-                          );
+                          showCenterToast(context, 'Video link: Coming soon', isError: true);
                         },
                         icon: const Icon(Icons.play_circle_outline),
                         label: const Text('Watch Video'),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/exercise.dart' as ex;
@@ -590,12 +591,7 @@ class _NewWorkoutScreenState extends ConsumerState<NewWorkoutScreen> {
           setState(() {
             _showExerciseSearch = false;
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${exercise.name} added'),
-              duration: const Duration(seconds: 1),
-            ),
-          );
+          showCenterToast(context, '${exercise.name} added');
         },
       ),
     );
@@ -662,12 +658,7 @@ class _NewWorkoutScreenState extends ConsumerState<NewWorkoutScreen> {
       
       if (workoutLog != null && mounted) {
         // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Workout logged successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        showCenterToast(context, 'Workout logged successfully!');
         
         // Show PR notification if applicable
         if (workoutLog.hasNewPrs) {
@@ -694,12 +685,7 @@ class _NewWorkoutScreenState extends ConsumerState<NewWorkoutScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error logging workout: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showCenterToast(context, 'Error logging workout: $e', isError: true);
       }
     }
   }

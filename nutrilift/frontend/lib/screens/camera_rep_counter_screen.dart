@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import '../services/rep_counting_service.dart';
@@ -177,9 +178,7 @@ class _CameraRepCounterScreenState extends State<CameraRepCounterScreen> {
   
   void _showError(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.red),
-      );
+      showCenterToast(context, message, isError: true);
     }
   }
   

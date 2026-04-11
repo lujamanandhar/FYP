@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import '../services/dio_client.dart';
 
 class WorkoutConversionScreen extends StatefulWidget {
@@ -71,20 +72,13 @@ class _WorkoutConversionScreenState extends State<WorkoutConversionScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Workout saved successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        showCenterToast(context, 'Workout saved successfully!');
         // Go back to home
         Navigator.popUntil(context, (r) => r.isFirst);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save: $e'), backgroundColor: Colors.red),
-        );
+        showCenterToast(context, 'Failed to save: $e', isError: true);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
