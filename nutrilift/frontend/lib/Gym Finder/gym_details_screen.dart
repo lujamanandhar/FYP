@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/nutrilift_header.dart';
 import '../services/gym_service.dart';
@@ -37,9 +38,7 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading gym details: $e')),
-        );
+        showCenterToast(context, 'Error loading gym details: $e');
       }
     }
   }
@@ -74,9 +73,7 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
               isFavorite: false,
             ));
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Removed from favorites')),
-          );
+          showCenterToast(context, 'Removed from favorites');
         }
       } else {
         await _gymService.addToFavorites(_gym!.placeId, _gym!.name, _gym!.address);
@@ -98,16 +95,12 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
               isFavorite: true,
             ));
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Added to favorites!')),
-          );
+          showCenterToast(context, 'Added to favorites!');
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        showCenterToast(context, 'Error: $e');
       }
     }
   }

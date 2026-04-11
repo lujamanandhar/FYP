@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
@@ -68,9 +69,7 @@ class _GymMapViewState extends State<GymMapView> {
     } catch (e) {
       if (mounted) {
         setState(() => _isSearching = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Location not found: $query')),
-        );
+        showCenterToast(context, 'Location not found: $query');
       }
     }
   }
@@ -91,7 +90,17 @@ class _GymMapViewState extends State<GymMapView> {
         widget.onAreaChanged?.call(lat, lng, 5000);
       }
     } catch (e) {
-      if (mounted) setState(() => _isLoadingGyms = false);
+      if (mounted) {
+        setState(() => _isLoadingGyms = false);
+        final isTimeout = e.toString().contains('timeout') || e.toString().contains('503');
+        showCenterToast(
+          context,
+          isTimeout
+              ? 'Gym service is slow. Tap the search button to retry.'
+              : 'Could not load gyms. Check connection and retry.',
+          isError: true,
+        );
+      }
     }
   }
 

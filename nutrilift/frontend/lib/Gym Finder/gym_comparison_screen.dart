@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,6 +28,8 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
   StreamSubscription<void>? _refreshSubscription;
   List<GymPlace> _gyms = [];
   bool _isLoading = false;
+  bool _hasError = false;
+  String _errorMessage = '';
   Position? _currentPosition;
   List<String> _selectedForComparison = [];
   double _searchRadius = 5000; // Default 5km
@@ -100,9 +103,7 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
     } catch (e) {
       debugPrint('Error getting location: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error getting location: $e')),
-        );
+        showCenterToast(context, 'Error getting location: $e');
       }
       setState(() => _isLoading = false);
     }
@@ -166,7 +167,7 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
       return;
     }
     
-    setState(() => _isLoading = true);
+    setState(() { _isLoading = true; _hasError = false; });
     
     try {
       debugPrint('Calling gym service with lat: $lat, lng: $lng, radius: $searchRadius');
@@ -200,11 +201,15 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
     } catch (e) {
       debugPrint('Error searching gyms: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading gyms: $e')),
-        );
+        final isTimeout = e.toString().contains('timeout') || e.toString().contains('timed out') || e.toString().contains('503');
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+          _errorMessage = isTimeout
+              ? 'Gym service is temporarily slow. Tap retry to try again.'
+              : 'Could not load gyms. Check your connection.';
+        });
       }
-      setState(() => _isLoading = false);
     }
   }
 
@@ -216,9 +221,7 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
         if (_selectedForComparison.length < 5) {
           _selectedForComparison.add(placeId);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Maximum 5 gyms can be compared')),
-          );
+          showCenterToast(context, 'Maximum 5 gyms can be compared');
         }
       }
     });
@@ -226,9 +229,7 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
 
   Future<void> _showComparison() async {
     if (_selectedForComparison.length < 2) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Select at least 2 gyms to compare')),
-      );
+      showCenterToast(context, 'Select at least 2 gyms to compare');
       return;
     }
 
@@ -244,9 +245,7 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error comparing gyms: $e')),
-        );
+        showCenterToast(context, 'Error comparing gyms: $e');
       }
     }
   }
@@ -518,7 +517,46 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
                 // Gym List
                 _isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : filteredGyms.isEmpty
+                    : _hasError
+                        ? Center(
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 40),
+                                Container(
+                                  padding: const EdgeInsets.all(20),
+                                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFEF2F2),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: const Color(0xFFFECACA)),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      const Icon(Icons.wifi_off_rounded, size: 48, color: Color(0xFFEF4444)),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        _errorMessage,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(fontSize: 14, color: Color(0xFF991B1B)),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      ElevatedButton.icon(
+                                        onPressed: _searchGyms,
+                                        icon: const Icon(Icons.refresh),
+                                        label: const Text('Try Again'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFFE53935),
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : filteredGyms.isEmpty
                         ? Center(
                             child: Column(
                               children: [
@@ -903,9 +941,7 @@ class GymComparisonResultScreen extends StatelessWidget {
 
   Future<void> _call(BuildContext context, String? phone) async {
     if (phone == null || phone.isEmpty || phone == 'N/A') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No phone number available for this gym')),
-      );
+      showCenterToast(context, 'No phone number available for this gym');
       return;
     }
     final uri = Uri.parse('tel:$phone');

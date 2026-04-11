@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'gym_details_screen.dart';
 import '../widgets/nutrilift_header.dart';
 import '../services/dashboard_service.dart';
@@ -322,9 +323,7 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                       child: IconButton(
                         icon: const Icon(Icons.location_on, color: Colors.white),
                         onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Map view coming soon!')),
-                          );
+                          showCenterToast(context, 'Map view coming soon!');
                         },
                       ),
                     ),
@@ -484,9 +483,7 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                     child: OutlinedButton.icon(
                       onPressed: () {
                         // Call gym
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Calling ${gym['phone']}')),
-                        );
+                        showCenterToast(context, 'Calling ${gym['phone']}');
                       },
                       icon: Icon(Icons.phone, size: 16, color: Colors.red[700]),
                       label: Text('Call', style: TextStyle(color: Colors.red[700])),
