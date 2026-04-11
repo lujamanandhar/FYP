@@ -43,6 +43,9 @@ urlpatterns = [
     path('password-reset/', views.password_reset_request, name='auth-password-reset'),
     path('password-reset/confirm/', views.password_reset_confirm, name='auth-password-reset-confirm'),
 
+    # Token refresh — exchange refresh token for new access token
+    path('token/refresh/', views.token_refresh, name='auth-token-refresh'),
+
     # Admin endpoints
     path('admin/dashboard/', admin_views.AdminDashboardView.as_view(), name='admin-dashboard'),
     path('admin/users/', admin_views.AdminUserListView.as_view(), name='admin-users'),

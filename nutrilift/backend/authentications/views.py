@@ -133,6 +133,8 @@ def register(request):
             
             # Generate JWT token for the new user
             token = generate_jwt_token(user)
+            from .jwt_utils import generate_refresh_token
+            refresh_token = generate_refresh_token(user)
             
             # Prepare user profile data for response
             profile_serializer = UserProfileSerializer(user)
@@ -142,7 +144,8 @@ def register(request):
                 'message': 'User registered successfully',
                 'data': {
                     'user': profile_serializer.data,
-                    'token': token
+                    'token': token,
+                    'refresh_token': refresh_token,
                 }
             }, status=status.HTTP_201_CREATED)
             
@@ -259,6 +262,8 @@ def login(request):
         
         # Generate JWT token for successful login
         token = generate_jwt_token(user)
+        from .jwt_utils import generate_refresh_token
+        refresh_token = generate_refresh_token(user)
         
         # Prepare user profile data for response
         profile_serializer = UserProfileSerializer(user)
@@ -268,7 +273,8 @@ def login(request):
             'message': 'Login successful',
             'data': {
                 'user': profile_serializer.data,
-                'token': token
+                'token': token,
+                'refresh_token': refresh_token,
             }
         }, status=status.HTTP_200_OK)
         
@@ -516,3 +522,48 @@ def password_reset_confirm(request):
     otp_obj.save(update_fields=['is_used'])
 
     return Response({'message': 'Password reset successful. You can now log in.'})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def token_refresh(request):
+    """
+    POST /api/auth/token/refresh/
+    Exchange a valid refresh token for a new access token.
+    Body: { "refresh_token": "<token>" }
+    Returns: { "token": "<new_access_token>", "refresh_token": "<new_refresh_token>" }
+    """
+    import jwt as pyjwt
+    from .jwt_utils import generate_refresh_token
+
+    refresh_token = request.data.get('refresh_token', '').strip()
+    if not refresh_token:
+        return Response({'detail': 'refresh_token is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        payload = pyjwt.decode(
+            refresh_token,
+            settings.JWT_SECRET_KEY,
+            algorithms=[settings.JWT_ALGORITHM],
+        )
+    except pyjwt.ExpiredSignatureError:
+        return Response({'detail': 'Refresh token has expired. Please log in again.'}, status=status.HTTP_401_UNAUTHORIZED)
+    except pyjwt.InvalidTokenError:
+        return Response({'detail': 'Invalid refresh token.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if payload.get('type') != 'refresh':
+        return Response({'detail': 'Invalid token type.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    user_id = payload.get('user_id')
+    try:
+        user = User.objects.get(id=user_id, is_active=True)
+    except User.DoesNotExist:
+        return Response({'detail': 'User not found or inactive.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    new_access = generate_jwt_token(user)
+    new_refresh = generate_refresh_token(user)
+
+    return Response({
+        'token': new_access,
+        'refresh_token': new_refresh,
+    }, status=status.HTTP_200_OK)

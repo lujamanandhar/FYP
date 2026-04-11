@@ -96,7 +96,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'email', 'name', 'gender', 'age_group',
-            'height', 'weight', 'fitness_level', 'created_at', 'avatar_url', 'is_staff'
+            'height', 'weight', 'fitness_level', 'created_at', 'avatar_url', 'is_staff', 'is_active'
         ]
         read_only_fields = ['id', 'email', 'created_at', 'is_staff']
 
