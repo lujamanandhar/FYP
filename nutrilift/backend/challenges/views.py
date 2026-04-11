@@ -727,27 +727,39 @@ class DailyLogCompleteView(APIView):
 
         # Increment participant progress by 1 completed day
         participant.progress = participant.progress + 1
-        participant.save(update_fields=['progress'])
+
+        # Check if challenge goal is now reached — mark participant as completed
+        challenge = participant.challenge
+        if not participant.completed and participant.progress >= challenge.goal_value:
+            participant.completed = True
+            participant.completed_at = timezone.now()
+
+        participant.save(update_fields=['progress', 'completed', 'completed_at'])
 
         # Update streak for this user
         from .signals import _update_streak, _award_badges
         _update_streak(request.user)
         _award_badges(request.user)
 
-        # Check if challenge is now fully completed and generate certificate
+        # Generate certificate if just completed
         if participant.completed:
             total_participants = ChallengeParticipant.objects.filter(
-                challenge=participant.challenge, completed=True
+                challenge=challenge, completed=True
             ).count()
+            # Rank = number of others who completed before this user + 1
             rank = ChallengeParticipant.objects.filter(
-                challenge=participant.challenge,
+                challenge=challenge,
                 completed=True,
                 completed_at__lt=participant.completed_at,
             ).count() + 1
+
+            # Persist rank on the participant record
+            ChallengeParticipant.objects.filter(pk=participant.pk).update(rank=rank)
+
             days_taken = (participant.completed_at.date() - participant.joined_at.date()).days + 1
             ChallengeCompletion.objects.get_or_create(
                 user=request.user,
-                challenge=participant.challenge,
+                challenge=challenge,
                 defaults={
                     'participant': participant,
                     'days_taken': days_taken,
@@ -779,6 +791,101 @@ class DailyLogCompleteView(APIView):
             'shared_post': post_data,
             'participant_progress': participant.progress,
         }, status=status.HTTP_200_OK)
+
+
+class DailyLogVerifyView(APIView):
+    """
+    GET /api/challenges/<uuid:pk>/daily-log/verify/
+    Checks structured tasks (exercise/food type) against the user's actual
+    workout and nutrition logs for today. Returns verified status per task
+    and a list of unmet task descriptions.
+    Requirements: 23.4, 23.5
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        participant = ChallengeParticipant.objects.filter(
+            challenge_id=pk, user=request.user
+        ).select_related('challenge').first()
+        if participant is None:
+            return Response({'detail': 'Not joined this challenge.'}, status=status.HTTP_404_NOT_FOUND)
+
+        today = timezone.now().date()
+        day_number = (today - participant.joined_at.date()).days + 1
+
+        log = ChallengeDailyLog.objects.filter(
+            participant=participant, day_number=day_number
+        ).first()
+        if log is None:
+            return Response({'detail': 'Log not found for today.'}, status=status.HTTP_404_NOT_FOUND)
+
+        task_items = log.task_items or []
+        unmet = []
+        updated_tasks = []
+
+        for task in task_items:
+            label = task.get('label', '')
+            task_type = task.get('type', '')  # 'exercise', 'food', or plain manual
+            verified = task.get('verified', False)
+            verification_message = task.get('verification_message', None)
+
+            if task_type == 'exercise':
+                # Check if user logged any workout today
+                try:
+                    from workouts.models import WorkoutLog
+                    logged = WorkoutLog.objects.filter(
+                        user=request.user,
+                        date__date=today,
+                    ).exists()
+                    if logged:
+                        verified = True
+                        verification_message = None
+                    else:
+                        verified = False
+                        verification_message = f'No workout logged today for: {label}'
+                        unmet.append(f'Exercise task not done: {label}')
+                except Exception:
+                    # workouts app may not be available — treat as unverifiable, don't block
+                    verified = True
+
+            elif task_type == 'food':
+                # Check if user logged any nutrition intake today
+                try:
+                    from nutrition.models import IntakeLog
+                    logged = IntakeLog.objects.filter(
+                        user=request.user,
+                        date=today,
+                    ).exists()
+                    if logged:
+                        verified = True
+                        verification_message = None
+                    else:
+                        verified = False
+                        verification_message = f'No nutrition logged today for: {label}'
+                        unmet.append(f'Nutrition task not done: {label}')
+                except Exception:
+                    verified = True
+
+            else:
+                # Manual task — just check the completed flag
+                if not task.get('completed', False):
+                    unmet.append(f'Task not checked off: {label}')
+
+            updated_tasks.append({
+                **task,
+                'verified': verified,
+                'verification_message': verification_message,
+            })
+
+        # Persist the updated verification state back to the log
+        log.task_items = updated_tasks
+        log.save(update_fields=['task_items', 'updated_at'])
+
+        return Response({
+            'verified': len(unmet) == 0,
+            'unmet': unmet,
+            'task_items': updated_tasks,
+        })
 
 
 class DailyLogListView(APIView):

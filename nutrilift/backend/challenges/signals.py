@@ -169,6 +169,7 @@ def connect_signals():
     post_save.connect(handle_workout_log_saved, sender=WorkoutLog)
     post_save.connect(handle_intake_log_saved, sender=IntakeLog)
     post_save.connect(handle_challenge_created, sender=Challenge)
+    post_save.connect(handle_challenge_updated, sender=Challenge)
 
 
 def handle_challenge_created(sender, instance, created, **kwargs):
@@ -183,3 +184,29 @@ def handle_challenge_created(sender, instance, created, **kwargs):
             notify_new_challenge(user, instance.name, str(instance.id))
     except Exception:
         logger.error("Error in handle_challenge_created", exc_info=True)
+
+
+def notify_admins_challenge_ended(challenge):
+    """Notify all staff users that a paid challenge has ended and needs prize review."""
+    try:
+        from django.contrib.auth import get_user_model
+        from notifications.utils import notify_challenge_ended_admin
+        User = get_user_model()
+        participant_count = challenge.participants.count()
+        for admin in User.objects.filter(is_staff=True, is_active=True):
+            notify_challenge_ended_admin(admin, challenge.name, str(challenge.id), participant_count)
+    except Exception:
+        logger.error("Error in notify_admins_challenge_ended", exc_info=True)
+
+
+def handle_challenge_updated(sender, instance, created, **kwargs):
+    """When a paid challenge is deactivated (ended), notify admins to award prizes."""
+    if created:
+        return
+    # Only notify for paid, official challenges that just became inactive
+    if not instance.is_paid or not instance.is_official:
+        return
+    now = timezone.now()
+    # Notify if end_date has passed and challenge is still active (just ended)
+    if instance.end_date <= now and instance.is_active:
+        notify_admins_challenge_ended(instance)

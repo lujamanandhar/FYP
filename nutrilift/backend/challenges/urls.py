@@ -21,6 +21,7 @@ urlpatterns = [
     path('<uuid:pk>/leaderboard/', views.LeaderboardView.as_view(), name='challenge-leaderboard'),
     path('<uuid:pk>/daily-log/', views.DailyLogView.as_view(), name='challenge-daily-log'),
     path('<uuid:pk>/daily-log/complete/', views.DailyLogCompleteView.as_view(), name='challenge-daily-log-complete'),
+    path('<uuid:pk>/daily-log/verify/', views.DailyLogVerifyView.as_view(), name='challenge-daily-log-verify'),
     path('<uuid:pk>/daily-logs/', views.DailyLogListView.as_view(), name='challenge-daily-logs'),
     path('badges/', views.BadgeView.as_view(), name='challenge-badges'),
     path('streak/', views.StreakView.as_view(), name='challenge-streak'),

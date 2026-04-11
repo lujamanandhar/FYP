@@ -45,6 +45,9 @@ class ChallengeParticipant(models.Model):
     joined_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     rank = models.IntegerField(null=True, blank=True)
+    prize_paid = models.BooleanField(default=False)
+    prize_paid_at = models.DateTimeField(null=True, blank=True)
+    prize_notes = models.TextField(blank=True)
 
     class Meta:
         unique_together = [('challenge', 'user')]
