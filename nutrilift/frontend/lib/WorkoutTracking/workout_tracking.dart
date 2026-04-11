@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +11,7 @@ import '../screens/personal_records_screen.dart';
 import '../screens/guided_workout_player_screen.dart';
 import '../screens/guided_workout_plans.dart';
 import '../screens/workout_detail_screen.dart';
+import '../screens/camera_workout_player_screen.dart';
 import '../providers/workout_history_provider.dart';
 import '../providers/personal_records_provider.dart';
 import '../providers/exercise_library_provider.dart';
@@ -1777,10 +1779,17 @@ class BodyFocusExercisesScreen extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Camera tracking coming soon — requires ML Kit setup'),
-                    backgroundColor: Color(0xFF1A1A2E),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CameraWorkoutPlayerScreen(
+                      title: title,
+                      exercises: exercises,
+                      difficultyColor: difficultyColor,
+                      onComplete: (results, duration) {
+                        Navigator.pop(context);
+                      },
+                    ),
                   ),
                 );
               },
@@ -1790,45 +1799,30 @@ class BodyFocusExercisesScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.grey[300]!),
+                  border: Border.all(color: difficultyColor.withOpacity(0.3)),
                 ),
                 child: Row(children: [
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      color: difficultyColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.camera_alt_rounded, color: Colors.grey[600], size: 24),
+                    child: Icon(Icons.camera_alt_rounded, color: difficultyColor, size: 24),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(children: [
-                          const Text('Camera Tracking',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Text('Soon',
-                                style: TextStyle(
-                                    color: Colors.orange,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold)),
-                          ),
-                        ]),
+                        const Text('Camera Tracking',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                         Text('AI counts reps via camera pose detection',
                             style: TextStyle(color: Colors.grey[500], fontSize: 12)),
                       ],
                     ),
                   ),
-                  Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey[400], size: 16),
+                  Icon(Icons.arrow_forward_ios_rounded, color: difficultyColor, size: 16),
                 ]),
               ),
             ),

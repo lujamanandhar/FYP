@@ -10,9 +10,12 @@ import 'Challenge_Community/challenge_api_service.dart';
 import 'Challenge_Community/community_provider.dart';
 import 'Challenge_Community/community_api_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize global error handler with navigation key for displaying errors globally
+
+  // Initialize local push notifications
+  await NotificationService().initLocalNotifications();
+
   final navigatorKey = GlobalKey<NavigatorState>();
   ErrorHandler().initialize(navKey: navigatorKey);
   

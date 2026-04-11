@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/nutrilift_header.dart';
 import '../widgets/streak_overview_widget.dart';
@@ -519,12 +520,7 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
     
     if (selected.isBefore(today)) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cannot edit past data. Past entries are read-only.'),
-            backgroundColor: Colors.orange,
-          ),
-        );
+        showCenterToast(context, 'Cannot edit past data. Past entries are read-only.', isError: true);
       }
       return;
     }
@@ -541,12 +537,7 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
     if (result['delete'] == true) {
       if (log.id == null) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Cannot delete: Invalid log ID'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          showCenterToast(context, 'Cannot delete: Invalid log ID', isError: true);
         }
         return;
       }
@@ -563,21 +554,11 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
         DashboardRefreshService().notifyRefresh();
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Food deleted successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          showCenterToast(context, 'Food deleted successfully!');
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error deleting food: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          showCenterToast(context, 'Error deleting food: $e', isError: true);
         }
       }
       return;
@@ -605,21 +586,11 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
       DashboardRefreshService().notifyRefresh();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Food updated successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        showCenterToast(context, 'Food updated successfully!');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error updating food: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showCenterToast(context, 'Error updating food: $e', isError: true);
       }
     }
   }
@@ -964,16 +935,7 @@ class _NutritionTrackerHomeState extends ConsumerState<NutritionTrackerHome> {
                           onPressed: () {
                             final quantity = double.tryParse(quantityController.text);
                             if (quantity == null || quantity <= 0) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text('Please enter a valid quantity'),
-                                  backgroundColor: Colors.red,
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                              );
+                              showCenterToast(context, 'Please enter a valid quantity', isError: true);
                               return;
                             }
                             Navigator.of(context).pop({
@@ -1166,12 +1128,7 @@ class _MacroOverviewSheetState extends ConsumerState<MacroOverviewSheet> with Si
       ref.invalidate(dailyProgressProvider);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Goal saved successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        showCenterToast(context, 'Goal saved successfully!');
         widget.onClose();
       }
     } catch (e, stackTrace) {
@@ -1181,13 +1138,7 @@ class _MacroOverviewSheetState extends ConsumerState<MacroOverviewSheet> with Si
         setState(() {
           _errorMessage = e.toString().replaceAll('Exception: ', '');
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString().replaceAll('Exception: ', '')}'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
+        showCenterToast(context, 'Error: ${e.toString().replaceAll('Exception: ', '')}', isError: true);
       }
     } finally {
       if (mounted) {
@@ -2090,12 +2041,7 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
       DashboardRefreshService().notifyRefresh();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$foodName logged successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        showCenterToast(context, '$foodName logged successfully!');
         widget.onBack();
       }
     } catch (e) {
@@ -2103,12 +2049,7 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
         setState(() {
           _errorMessage = e.toString();
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error logging meal: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showCenterToast(context, 'Error logging meal: $e', isError: true);
       }
     } finally {
       if (mounted) {
@@ -2209,12 +2150,7 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
               onPressed: () {
                 final quantity = double.tryParse(quantityController.text);
                 if (quantity == null || quantity <= 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a valid quantity'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
+                  showCenterToast(context, 'Please enter a valid quantity', isError: true);
                   return;
                 }
                 Navigator.of(context).pop({
@@ -2620,13 +2556,7 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
               
               // Show success message
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('${createdFood.name} logged successfully!'),
-                    backgroundColor: Colors.green,
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
+                showCenterToast(context, '${createdFood.name} logged successfully!');
                 
                 // Close the form and return to main screen
                 setFormState(() {
@@ -2649,13 +2579,7 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
                 isLoading = false;
                 errorMessage = 'Error: ${e.toString().replaceAll('Exception: ', '')}';
               });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Error creating custom food: ${e.toString().replaceAll('Exception: ', '')}'),
-                  backgroundColor: Colors.red,
-                  duration: const Duration(seconds: 5),
-                ),
-              );
+              showCenterToast(context, 'Error creating custom food: ${e.toString().replaceAll('Exception: ', '')}', isError: true);
             }
           }
         }
