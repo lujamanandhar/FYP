@@ -45,9 +45,19 @@ class NearbyGymsView(APIView):
         
         # Fetch gyms from OpenStreetMap Overpass API (100% FREE)
         osm_service = OpenStreetMapService()
-        gyms = osm_service.search_nearby_gyms(latitude, longitude, radius)
-        
-        return Response({'gyms': gyms, 'count': len(gyms)})
+        try:
+            gyms = osm_service.search_nearby_gyms(latitude, longitude, radius)
+            return Response({'gyms': gyms, 'count': len(gyms)})
+        except Exception as e:
+            return Response(
+                {
+                    'error': 'gym_fetch_failed',
+                    'message': 'Could not load gyms right now. The map service is temporarily unavailable. Please try again.',
+                    'gyms': [],
+                    'count': 0,
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
 
 
 class GymDetailsView(APIView):

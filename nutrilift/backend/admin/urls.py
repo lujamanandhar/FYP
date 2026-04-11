@@ -15,6 +15,8 @@ urlpatterns = [
     path('challenges/', views.AdminChallengeListView.as_view(), name='challenges'),
     path('challenges/create/', views.AdminChallengeCreateView.as_view(), name='challenge-create'),
     path('challenges/<uuid:challenge_id>/', views.AdminChallengeUpdateView.as_view(), name='challenge-update'),
+    path('challenges/<uuid:challenge_id>/leaderboard/', views.AdminChallengeLeaderboardView.as_view(), name='challenge-leaderboard'),
+    path('challenges/<uuid:challenge_id>/award-prize/', views.AdminAwardPrizeView.as_view(), name='challenge-award-prize'),
     
     # Support Ticket Management
     path('support-tickets/', views.AdminSupportTicketListView.as_view(), name='support-tickets'),

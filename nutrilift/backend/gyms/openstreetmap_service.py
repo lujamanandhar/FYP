@@ -1,35 +1,22 @@
 import requests
 from typing import List, Dict, Optional
 import math
+import time
 
 
 class OpenStreetMapService:
     """Service for fetching gym data from OpenStreetMap Overpass API - 100% FREE"""
     
-    # Public Overpass API endpoints (completely free, no API key needed)
     OVERPASS_ENDPOINTS = [
         "https://overpass-api.de/api/interpreter",
         "https://overpass.kumi.systems/api/interpreter",
+        "https://overpass.openstreetmap.ru/api/interpreter",
     ]
     
     def __init__(self):
         self.current_endpoint = 0
     
     def search_nearby_gyms(self, latitude: float, longitude: float, radius: int = 5000) -> List[Dict]:
-        """
-        Search for gyms near a location using OpenStreetMap Overpass API
-        
-        Args:
-            latitude: Latitude of search center
-            longitude: Longitude of search center
-            radius: Search radius in meters (default 5000m = 5km)
-        
-        Returns:
-            List of gym data dictionaries
-        """
-        # Convert radius to bounding box (approximate)
-        # 1 degree latitude ≈ 111km
-        # 1 degree longitude ≈ 111km * cos(latitude)
         lat_offset = (radius / 1000) / 111.0
         lng_offset = (radius / 1000) / (111.0 * math.cos(math.radians(latitude)))
         
@@ -38,8 +25,6 @@ class OpenStreetMapService:
         north = latitude + lat_offset
         east = longitude + lng_offset
         
-        # Overpass QL query for gyms and fitness centers
-        # Tags: leisure=fitness_centre, leisure=sports_centre, sport=fitness
         query = f"""
         [out:json][timeout:25];
         (
@@ -51,39 +36,45 @@ class OpenStreetMapService:
         out center tags;
         """
         
-        try:
-            endpoint = self.OVERPASS_ENDPOINTS[self.current_endpoint]
-            response = requests.post(
-                endpoint,
-                data={'data': query},
-                timeout=30,
-                headers={'User-Agent': 'NutriLift-Gym-Finder/1.0'}
-            )
-            response.raise_for_status()
-            data = response.json()
-            
-            print(f"✅ OpenStreetMap Overpass API: Found {len(data.get('elements', []))} gyms")
-            
-            gyms = []
-            for element in data.get('elements', []):
-                gym = self._format_osm_place(element, latitude, longitude)
-                if gym:
-                    gyms.append(gym)
-            
-            # Sort by distance from search center
-            gyms.sort(key=lambda g: self._calculate_distance(
-                latitude, longitude, g['latitude'], g['longitude']
-            ))
-            
-            return gyms[:20]  # Return top 20 closest gyms
-            
-        except Exception as e:
-            print(f"❌ Error fetching from Overpass API: {e}")
-            # Try alternate endpoint
-            if self.current_endpoint < len(self.OVERPASS_ENDPOINTS) - 1:
-                self.current_endpoint += 1
-                return self.search_nearby_gyms(latitude, longitude, radius)
-            return []
+        last_error = None
+        for attempt, endpoint in enumerate(self.OVERPASS_ENDPOINTS):
+            try:
+                if attempt > 0:
+                    time.sleep(1)  # brief pause between retries
+                response = requests.post(
+                    endpoint,
+                    data={'data': query},
+                    timeout=30,
+                    headers={'User-Agent': 'NutriLift-Gym-Finder/1.0'}
+                )
+                response.raise_for_status()
+                data = response.json()
+                
+                gyms = []
+                for element in data.get('elements', []):
+                    gym = self._format_osm_place(element, latitude, longitude)
+                    if gym:
+                        gyms.append(gym)
+                
+                gyms.sort(key=lambda g: self._calculate_distance(
+                    latitude, longitude, g['latitude'], g['longitude']
+                ))
+                
+                print(f"✅ Overpass ({endpoint}): Found {len(gyms)} gyms")
+                return gyms[:20]
+                
+            except requests.exceptions.Timeout:
+                last_error = 'timeout'
+                print(f"⏱ Timeout on {endpoint}, trying next...")
+            except requests.exceptions.ConnectionError:
+                last_error = 'connection'
+                print(f"🔌 Connection error on {endpoint}, trying next...")
+            except Exception as e:
+                last_error = str(e)
+                print(f"❌ Error on {endpoint}: {e}")
+        
+        # All endpoints failed — raise so the view can return a proper error
+        raise Exception(f"All Overpass API endpoints failed. Last error: {last_error}")
     
     def get_place_details(self, place_id: str) -> Optional[Dict]:
         """

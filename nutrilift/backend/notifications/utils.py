@@ -55,3 +55,21 @@ def notify_new_post(user, poster_name):
         f'{poster_name} shared something new in the community.',
         '/community',
     )
+
+
+def notify_challenge_ended_admin(admin_user, challenge_name, challenge_id, participant_count):
+    notify(
+        admin_user, 'challenge',
+        '🏁 Challenge Ended',
+        f'"{challenge_name}" has ended with {participant_count} participant(s). Review the leaderboard and award prizes.',
+        f'/admin/challenges/{challenge_id}',
+    )
+
+
+def notify_prize_awarded(user, challenge_name, rank, prize_description):
+    notify(
+        user, 'challenge',
+        '🎉 You Won a Prize!',
+        f'Congratulations! You ranked #{rank} in "{challenge_name}". Prize: {prize_description}',
+        '/challenges',
+    )

@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.utils import timezone
+from django.utils.dateparse import parse_date
 from .permissions import IsAdminUser
 from .models import FAQ
 from .serializers import FAQSerializer
@@ -160,6 +162,15 @@ class AdminChallengeCreateView(APIView):
             if not request.data.get(field):
                 return Response({'detail': f'{field} is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        def _parse_date(value):
+            """Parse date string to timezone-aware datetime."""
+            if not value:
+                return None
+            d = parse_date(str(value)[:10])
+            if d:
+                return timezone.make_aware(timezone.datetime(d.year, d.month, d.day))
+            return value
+
         try:
             challenge = Challenge.objects.create(
                 name=request.data['name'],
@@ -167,8 +178,8 @@ class AdminChallengeCreateView(APIView):
                 challenge_type=request.data['challenge_type'],
                 goal_value=float(request.data['goal_value']),
                 unit=request.data['unit'],
-                start_date=request.data['start_date'],
-                end_date=request.data['end_date'],
+                start_date=_parse_date(request.data['start_date']),
+                end_date=_parse_date(request.data['end_date']),
                 is_official=request.data.get('is_official', True),
                 is_active=True,
                 is_paid=request.data.get('is_paid', False),
@@ -301,3 +312,110 @@ class FAQDetailView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except FAQ.DoesNotExist:
             return Response({'detail': 'FAQ not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class AdminChallengeLeaderboardView(APIView):
+    """
+    GET /api/admin/challenges/<challenge_id>/leaderboard/
+    Returns top participants with rank, progress, and prize_paid status.
+    """
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, challenge_id):
+        try:
+            challenge = Challenge.objects.get(id=challenge_id)
+        except Challenge.DoesNotExist:
+            return Response({'detail': 'Challenge not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        from challenges.models import ChallengeParticipant
+        participants = (
+            ChallengeParticipant.objects
+            .filter(challenge=challenge)
+            .select_related('user')
+            .order_by('-progress')[:10]
+        )
+
+        data = []
+        for i, p in enumerate(participants, start=1):
+            data.append({
+                'rank': i,
+                'user_id': str(p.user.id),
+                'name': getattr(p.user, 'name', None) or p.user.email,
+                'email': p.user.email,
+                'avatar_url': getattr(p.user, 'avatar_url', None),
+                'progress': p.progress,
+                'goal_value': challenge.goal_value,
+                'completed': p.completed,
+                'prize_paid': p.prize_paid,
+                'participant_id': str(p.id),
+            })
+
+        now = timezone.now()
+        return Response({
+            'challenge_id': str(challenge.id),
+            'challenge_name': challenge.name,
+            'is_paid': challenge.is_paid,
+            'prize_description': challenge.prize_description,
+            'end_date': challenge.end_date,
+            'has_ended': challenge.end_date <= now,
+            'leaderboard': data,
+        })
+
+
+class AdminAwardPrizeView(APIView):
+    """
+    POST /api/admin/challenges/<challenge_id>/award-prize/
+    Body: { "participant_id": "<uuid>", "notes": "optional" }
+    Marks the participant as prize_paid and sends them a notification.
+    """
+    permission_classes = [IsAdminUser]
+
+    def post(self, request, challenge_id):
+        try:
+            challenge = Challenge.objects.get(id=challenge_id)
+        except Challenge.DoesNotExist:
+            return Response({'detail': 'Challenge not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        participant_id = request.data.get('participant_id')
+        if not participant_id:
+            return Response({'detail': 'participant_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        from challenges.models import ChallengeParticipant
+        try:
+            participant = ChallengeParticipant.objects.select_related('user').get(
+                id=participant_id, challenge=challenge
+            )
+        except ChallengeParticipant.DoesNotExist:
+            return Response({'detail': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Compute rank
+        rank = ChallengeParticipant.objects.filter(
+            challenge=challenge, progress__gt=participant.progress
+        ).count() + 1
+
+        # Persist prize_paid on the participant record
+        participant.prize_paid = True
+        participant.prize_paid_at = timezone.now()
+        if request.data.get('notes'):
+            participant.prize_notes = request.data['notes']
+        participant.save(update_fields=['prize_paid', 'prize_paid_at', 'prize_notes'])
+
+        # Notify the winner
+        try:
+            from notifications.utils import notify_prize_awarded
+            notify_prize_awarded(
+                participant.user,
+                challenge.name,
+                rank,
+                challenge.prize_description or 'Prize',
+            )
+        except Exception:
+            pass
+
+        return Response({
+            'detail': f'Prize awarded and notification sent to {participant.user.email}',
+            'rank': rank,
+            'user': participant.user.email,
+            'prize_paid': True,
+            'prize_paid_at': participant.prize_paid_at,
+        })
