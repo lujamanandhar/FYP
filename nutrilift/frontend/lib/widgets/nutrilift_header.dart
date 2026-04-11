@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:provider/provider.dart' as provider_pkg;
 import '../services/auth_service.dart';
 import '../services/error_handler.dart';
 import '../services/notification_service.dart';
-import '../services/streak_service.dart';
 import '../UserManagement/profile_edit_screen.dart';
 import '../UserManagement/login_screen.dart';
 import '../Support/help_support_screen.dart';
 import '../Settings/settings_screen.dart';
-import '../Admin/admin_dashboard_screen.dart';
+import '../Admin/admin_main_navigation.dart';
 import 'notification_panel.dart';
-import 'streak_overview_widget.dart';
 
 class NutriLiftHeader extends StatefulWidget implements PreferredSizeWidget {
   final String? title;
@@ -18,8 +17,6 @@ class NutriLiftHeader extends StatefulWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final bool showDrawer;
   final VoidCallback? onNotificationTap;
-  final VoidCallback? onStreakTap;
-  final int? streakCount;
 
   const NutriLiftHeader({
     Key? key,
@@ -28,8 +25,6 @@ class NutriLiftHeader extends StatefulWidget implements PreferredSizeWidget {
     this.actions,
     this.showDrawer = true,
     this.onNotificationTap,
-    this.onStreakTap,
-    this.streakCount,
   }) : super(key: key);
 
   @override
@@ -40,36 +35,11 @@ class NutriLiftHeader extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _NutriLiftHeaderState extends State<NutriLiftHeader> with ErrorHandlingMixin {
-  int _selfStreak = 0;
-  AllStreaks _allStreaks = const AllStreaks();
-
   @override
   void initState() {
     super.initState();
-    // If no streakCount is passed by the parent, fetch it ourselves
-    if (widget.streakCount == null) {
-      _fetchStreak();
-    }
   }
 
-  Future<void> _fetchStreak() async {
-    try {
-      final streaks = await StreakService().fetchAllStreaks();
-      if (mounted) {
-        setState(() {
-          _allStreaks = streaks;
-          // Use the highest of the three streaks as the display value
-          _selfStreak = [
-            streaks.workout.currentStreak,
-            streaks.nutrition.currentStreak,
-            streaks.challenge.currentStreak,
-          ].reduce((a, b) => a > b ? a : b);
-        });
-      }
-    } catch (_) {}
-  }
-
-  int get _displayStreak => widget.streakCount ?? _selfStreak;
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -102,56 +72,6 @@ class _NutriLiftHeaderState extends State<NutriLiftHeader> with ErrorHandlingMix
             ),
       centerTitle: widget.title != null,
       actions: [
-        // Streak counter with fire icon - always show
-        GestureDetector(
-          onTap: () => widget.onStreakTap != null
-              ? widget.onStreakTap!()
-              : widget.streakCount != null
-                  ? _showStreakCalendar(context)
-                  : showStreakOverview(context, _allStreaks),
-          child: Container(
-            margin: const EdgeInsets.only(right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              gradient: _displayStreak > 0
-                  ? const LinearGradient(
-                      colors: [Color(0xFFFF6F00), Color(0xFFFF8F00)],
-                    )
-                  : LinearGradient(
-                      colors: [Colors.grey[300]!, Colors.grey[400]!],
-                    ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: _displayStreak > 0
-                      ? Colors.orange.withOpacity(0.3)
-                      : Colors.grey.withOpacity(0.2),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.local_fire_department,
-                  color: Colors.white,
-                  size: 18,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '$_displayStreak',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
         IconButton(
           icon: provider_pkg.Consumer<NotificationService>(
             builder: (ctx, notifService, _) {
@@ -214,106 +134,6 @@ class _NutriLiftHeaderState extends State<NutriLiftHeader> with ErrorHandlingMix
             ),
           ),
       ],
-    );
-  }
-
-  void _showStreakCalendar(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.local_fire_department, color: Color(0xFFFF6F00)),
-              SizedBox(width: 8),
-              Text('Streak Calendar'),
-            ],
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Current Streak: $_displayStreak days',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFFF6F00),
-                  ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Keep logging workouts or meals daily to maintain your streak!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-                SizedBox(height: 24),
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.orange[50],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange[200]!),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.emoji_events, color: Colors.amber, size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            'Streak Milestones',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12),
-                      _buildMilestone(7, _displayStreak),
-                      _buildMilestone(30, _displayStreak),
-                      _buildMilestone(100, _displayStreak),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildMilestone(int days, int currentStreak) {
-    final achieved = currentStreak >= days;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(
-            achieved ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: achieved ? Colors.green : Colors.grey,
-            size: 20,
-          ),
-          SizedBox(width: 8),
-          Text(
-            '$days Day Streak',
-            style: TextStyle(
-              color: achieved ? Colors.black87 : Colors.grey,
-              fontWeight: achieved ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -455,12 +275,7 @@ class _NutriLiftDrawerState extends State<NutriLiftDrawer> with ErrorHandlingMix
         });
         
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile updated successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          showCenterToast(context, 'Profile updated successfully!');
         }
       }
     }
@@ -532,7 +347,7 @@ class _NutriLiftDrawerState extends State<NutriLiftDrawer> with ErrorHandlingMix
             ListTile(
               leading: const Icon(Icons.admin_panel_settings, color: Colors.red),
               title: const Text('Admin Dashboard'),
-              onTap: () => _navigateToPage(context, const AdminDashboardScreen()),
+              onTap: () => _navigateToPage(context, const AdminMainNavigation()),
             ),
             const Divider(),
           ],
@@ -597,8 +412,6 @@ class NutriLiftScaffold extends StatelessWidget {
         actions: actions,
         showDrawer: showDrawer,
         onNotificationTap: onNotificationTap,
-        onStreakTap: onStreakTap,
-        streakCount: streakCount,
       ),
       endDrawer: showDrawer ? const NutriLiftDrawer() : null,
       body: body,

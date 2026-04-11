@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dio/dio.dart';
 import '../widgets/nutrilift_header.dart';
@@ -86,21 +87,11 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
       if (mounted) {
         _subjectCtrl.clear();
         _messageCtrl.clear();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Message sent! We\'ll get back to you soon.'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        showCenterToast(context, 'Message sent! We\'ll get back to you soon.');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to send. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showCenterToast(context, 'Failed to send. Please try again.', isError: true);
       }
     } finally {
       if (mounted) setState(() => _sending = false);
@@ -111,9 +102,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open $url')),
-        );
+        showCenterToast(context, 'Could not open $url');
       }
     }
   }
@@ -122,9 +111,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     final Uri phoneUri = Uri.parse('tel:$phone');
     if (!await launchUrl(phoneUri)) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not dial $phone')),
-        );
+        showCenterToast(context, 'Could not dial $phone');
       }
     }
   }

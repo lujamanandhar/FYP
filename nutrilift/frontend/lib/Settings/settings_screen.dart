@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../widgets/nutrilift_header.dart';
@@ -205,7 +206,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
 
   void _snack(String msg) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      showCenterToast(context, msg);
 
   void _showExportDialog() {
     showDialog(

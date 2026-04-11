@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/center_toast.dart';
 import '../services/auth_service.dart';
 import '../widgets/nutrilift_header.dart';
 
@@ -40,21 +41,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       );
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password changed successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        showCenterToast(context, 'Password changed successfully');
       }
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showCenterToast(context, 'Failed: ${e.toString()}', isError: true);
     }
   }
 
