@@ -124,6 +124,20 @@ class AdminService {
       if (isStaff != null) 'is_staff': isStaff,
     });
   }
+
+  Future<Map<String, dynamic>> getAdminChallengeLeaderboard(String challengeId) async {
+    final dio = _dioClient.dio;
+    final response = await dio.get('/admin/challenges/$challengeId/leaderboard/');
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> awardPrize(String challengeId, String participantId) async {
+    final dio = _dioClient.dio;
+    final response = await dio.post('/admin/challenges/$challengeId/award-prize/', data: {
+      'participant_id': participantId,
+    });
+    return response.data;
+  }
 }
 
 

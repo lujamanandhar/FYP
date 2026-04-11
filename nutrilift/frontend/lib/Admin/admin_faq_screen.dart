@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import '../widgets/nutrilift_header.dart';
+import '../widgets/center_toast.dart';
 import 'admin_service.dart';
+
+const _kRed = Color(0xFFE53935);
+const _kBg = Color(0xFFF5F6FA);
 
 class AdminFAQScreen extends StatefulWidget {
   const AdminFAQScreen({Key? key}) : super(key: key);
@@ -15,6 +18,15 @@ class _AdminFAQScreenState extends State<AdminFAQScreen> {
   bool _isLoading = true;
   String _selectedCategory = 'all';
 
+  static const _categories = {
+    'all': 'All',
+    'getting_started': 'Getting Started',
+    'nutrition': 'Nutrition',
+    'workout': 'Workout',
+    'challenges': 'Challenges',
+    'general': 'General',
+  };
+
   @override
   void initState() {
     super.initState();
@@ -25,289 +37,340 @@ class _AdminFAQScreenState extends State<AdminFAQScreen> {
     setState(() => _isLoading = true);
     try {
       final faqs = await _adminService.getFAQs();
-      setState(() {
-        _faqs = faqs;
-        _isLoading = false;
-      });
+      setState(() { _faqs = faqs; _isLoading = false; });
     } catch (e) {
       setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading FAQs: $e')),
-        );
-      }
+      if (mounted) showCenterToast(context, 'Error loading FAQs: $e', isError: true);
     }
   }
 
-  Future<void> _showFAQDialog({FAQ? faq}) async {
-    final isEdit = faq != null;
-    final questionCtrl = TextEditingController(text: faq?.question ?? '');
-    final answerCtrl = TextEditingController(text: faq?.answer ?? '');
-    String category = faq?.category ?? 'getting_started';
-    int order = faq?.order ?? 0;
-    bool isActive = faq?.isActive ?? true;
+  List<FAQ> get _filtered => _selectedCategory == 'all'
+      ? _faqs
+      : _faqs.where((f) => f.category == _selectedCategory).toList();
 
+  Future<void> _showDialog({FAQ? faq}) async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: Text(isEdit ? 'Edit FAQ' : 'Create FAQ'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<String>(
-                  value: category,
-                  decoration: const InputDecoration(labelText: 'Category'),
-                  items: const [
-                    DropdownMenuItem(value: 'general', child: Text('General')),
-                    DropdownMenuItem(value: 'getting_started', child: Text('Getting Started')),
-                    DropdownMenuItem(value: 'nutrition', child: Text('Nutrition Tracking')),
-                    DropdownMenuItem(value: 'workout', child: Text('Workout Tracking')),
-                    DropdownMenuItem(value: 'challenges', child: Text('Challenges')),
-                  ],
-                  onChanged: (v) => setDialogState(() => category = v!),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: questionCtrl,
-                  decoration: const InputDecoration(labelText: 'Question'),
-                  maxLines: 2,
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: answerCtrl,
-                  decoration: const InputDecoration(labelText: 'Answer'),
-                  maxLines: 5,
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  decoration: const InputDecoration(labelText: 'Order'),
-                  keyboardType: TextInputType.number,
-                  onChanged: (v) => order = int.tryParse(v) ?? 0,
-                  controller: TextEditingController(text: order.toString()),
-                ),
-                const SizedBox(height: 12),
-                SwitchListTile(
-                  title: const Text('Active'),
-                  value: isActive,
-                  onChanged: (v) => setDialogState(() => isActive = v),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (questionCtrl.text.trim().isEmpty || answerCtrl.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Question and answer are required')),
-                  );
-                  return;
-                }
-                
-                try {
-                  if (isEdit) {
-                    await _adminService.updateFAQ(
-                      faq!.id,
-                      category: category,
-                      question: questionCtrl.text.trim(),
-                      answer: answerCtrl.text.trim(),
-                      order: order,
-                      isActive: isActive,
-                    );
-                  } else {
-                    await _adminService.createFAQ(
-                      category: category,
-                      question: questionCtrl.text.trim(),
-                      answer: answerCtrl.text.trim(),
-                      order: order,
-                      isActive: isActive,
-                    );
-                  }
-                  Navigator.pop(context, true);
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e')),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE53935)),
-              child: Text(isEdit ? 'Update' : 'Create'),
-            ),
-          ],
-        ),
-      ),
+      builder: (_) => _FAQDialog(adminService: _adminService, faq: faq),
     );
-
-    if (result == true) {
-      _loadFAQs();
-    }
+    if (result == true) _loadFAQs();
   }
 
-  Future<void> _deleteFAQ(FAQ faq) async {
+  Future<void> _delete(FAQ faq) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Delete FAQ'),
-        content: Text('Are you sure you want to delete this FAQ?\n\n"${faq.question}"'),
+        content: Text('Delete "${faq.question}"?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             child: const Text('Delete'),
           ),
         ],
       ),
     );
-
     if (confirm == true) {
       try {
         await _adminService.deleteFAQ(faq.id);
         _loadFAQs();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('FAQ deleted')),
-          );
-        }
+        if (mounted) showCenterToast(context, 'FAQ deleted');
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error deleting FAQ: $e')),
-          );
-        }
+        if (mounted) showCenterToast(context, 'Error: $e', isError: true);
       }
     }
   }
 
-  List<FAQ> get _filteredFAQs {
-    if (_selectedCategory == 'all') return _faqs;
-    return _faqs.where((faq) => faq.category == _selectedCategory).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return NutriLiftScaffold(
-      title: 'FAQ Management',
-      showBackButton: true,
-      body: Column(
+    return Material(
+      color: _kBg,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          // Category Filter
-          Container(
-            padding: const EdgeInsets.all(16),
+          Column(
+            children: [
+              // Category filter
+              Container(
+                color: _kRed,
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: [
-                  _buildCategoryChip('all', 'All'),
-                  _buildCategoryChip('getting_started', 'Getting Started'),
-                  _buildCategoryChip('nutrition', 'Nutrition'),
-                  _buildCategoryChip('workout', 'Workout'),
-                  _buildCategoryChip('challenges', 'Challenges'),
-                ],
+                children: _categories.entries.map((e) {
+                  final selected = _selectedCategory == e.key;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedCategory = e.key),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: selected ? Colors.white : Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(e.value, style: TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.w600,
+                          color: selected ? _kRed : Colors.white,
+                        )),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
           ),
-          
-          // FAQ List
+
+          // Count
+          if (!_isLoading)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Row(children: [
+                Text('${_filtered.length} FAQs', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+              ]),
+            ),
+
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _filteredFAQs.isEmpty
-                    ? const Center(child: Text('No FAQs found'))
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _filteredFAQs.length,
-                        itemBuilder: (context, index) {
-                          final faq = _filteredFAQs[index];
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            child: ExpansionTile(
-                              title: Text(
-                                faq.question,
-                                style: const TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              subtitle: Text(
-                                '${_getCategoryLabel(faq.category)} • Order: ${faq.order} • ${faq.isActive ? "Active" : "Inactive"}',
-                                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                              ),
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(faq.answer),
-                                      const SizedBox(height: 12),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
-                                          TextButton.icon(
-                                            onPressed: () => _showFAQDialog(faq: faq),
-                                            icon: const Icon(Icons.edit, size: 18),
-                                            label: const Text('Edit'),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          TextButton.icon(
-                                            onPressed: () => _deleteFAQ(faq),
-                                            icon: const Icon(Icons.delete, size: 18, color: Colors.red),
-                                            label: const Text('Delete', style: TextStyle(color: Colors.red)),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                ? const Center(child: CircularProgressIndicator(color: _kRed))
+                : _filtered.isEmpty
+                    ? const Center(child: Text('No FAQs found', style: TextStyle(color: Colors.grey)))
+                    : RefreshIndicator(
+                        color: _kRed,
+                        onRefresh: _loadFAQs,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                          itemCount: _filtered.length,
+                          itemBuilder: (context, index) {
+                            final faq = _filtered[index];
+                            return _FAQCard(faq: faq, onEdit: () => _showDialog(faq: faq), onDelete: () => _delete(faq));
+                          },
+                        ),
                       ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showFAQDialog(),
-        backgroundColor: const Color(0xFFE53935),
-        child: const Icon(Icons.add),
+          // FAB overlay
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton(
+              heroTag: 'admin_faq_fab',
+              onPressed: () => _showDialog(),
+              backgroundColor: _kRed,
+              child: const Icon(Icons.add, color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildCategoryChip(String value, String label) {
-    final isSelected = _selectedCategory == value;
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: FilterChip(
-        label: Text(label),
-        selected: isSelected,
-        onSelected: (selected) {
-          setState(() => _selectedCategory = value);
-        },
-        selectedColor: const Color(0xFFE53935),
-        labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.black87,
+class _FAQCard extends StatelessWidget {
+  final FAQ faq;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+  const _FAQCard({required this.faq, required this.onEdit, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: _kRed.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+            child: const Icon(Icons.help_outline_rounded, color: _kRed, size: 18),
+          ),
+          title: Text(faq.question, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(6)),
+                  child: Text(faq.category, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+                ),
+                const SizedBox(width: 6),
+                if (!faq.isActive)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(6)),
+                    child: const Text('Inactive', style: TextStyle(fontSize: 10, color: Color(0xFFDC2626))),
+                  ),
+              ],
+            ),
+          ),
+          children: [
+            Text(faq.answer, style: TextStyle(color: Colors.grey[700], fontSize: 13, height: 1.5)),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.edit_outlined, size: 16),
+                  label: const Text('Edit'),
+                  style: OutlinedButton.styleFrom(foregroundColor: _kRed, side: const BorderSide(color: _kRed)),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton.icon(
+                  onPressed: onDelete,
+                  icon: const Icon(Icons.delete_outline, size: 16),
+                  label: const Text('Delete'),
+                  style: OutlinedButton.styleFrom(foregroundColor: Colors.red, side: const BorderSide(color: Colors.red)),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
+}
 
-  String _getCategoryLabel(String category) {
-    const labels = {
-      'general': 'General',
-      'getting_started': 'Getting Started',
-      'nutrition': 'Nutrition',
-      'workout': 'Workout',
-      'challenges': 'Challenges',
-    };
-    return labels[category] ?? category;
+class _FAQDialog extends StatefulWidget {
+  final AdminService adminService;
+  final FAQ? faq;
+  const _FAQDialog({required this.adminService, this.faq});
+
+  @override
+  State<_FAQDialog> createState() => _FAQDialogState();
+}
+
+class _FAQDialogState extends State<_FAQDialog> {
+  final _questionCtrl = TextEditingController();
+  final _answerCtrl = TextEditingController();
+  final _orderCtrl = TextEditingController();
+  String _category = 'getting_started';
+  bool _isActive = true;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.faq != null) {
+      _questionCtrl.text = widget.faq!.question;
+      _answerCtrl.text = widget.faq!.answer;
+      _orderCtrl.text = widget.faq!.order.toString();
+      _category = widget.faq!.category;
+      _isActive = widget.faq!.isActive;
+    } else {
+      _orderCtrl.text = '0';
+    }
+  }
+
+  InputDecoration _field(String label, {String? hint}) => InputDecoration(
+    labelText: label, hintText: hint,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: _kRed)),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+  );
+
+  Future<void> _submit() async {
+    if (_questionCtrl.text.trim().isEmpty || _answerCtrl.text.trim().isEmpty) {
+      showCenterToast(context, 'Question and answer are required', isError: true);
+      return;
+    }
+    setState(() => _saving = true);
+    try {
+      if (widget.faq != null) {
+        await widget.adminService.updateFAQ(widget.faq!.id,
+          category: _category, question: _questionCtrl.text.trim(),
+          answer: _answerCtrl.text.trim(), order: int.tryParse(_orderCtrl.text) ?? 0, isActive: _isActive);
+      } else {
+        await widget.adminService.createFAQ(
+          category: _category, question: _questionCtrl.text.trim(),
+          answer: _answerCtrl.text.trim(), order: int.tryParse(_orderCtrl.text) ?? 0, isActive: _isActive);
+      }
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) showCenterToast(context, 'Error: $e', isError: true);
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEdit = widget.faq != null;
+    return Dialog(
+      insetPadding: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.help_outline_rounded, color: _kRed),
+                const SizedBox(width: 8),
+                Text(isEdit ? 'Edit FAQ' : 'New FAQ', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Spacer(),
+                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+              ],
+            ),
+            const Divider(),
+            const SizedBox(height: 8),
+
+            DropdownButtonFormField<String>(
+              value: _category,
+              decoration: _field('Category'),
+              items: const [
+                DropdownMenuItem(value: 'general', child: Text('General')),
+                DropdownMenuItem(value: 'getting_started', child: Text('Getting Started')),
+                DropdownMenuItem(value: 'nutrition', child: Text('Nutrition')),
+                DropdownMenuItem(value: 'workout', child: Text('Workout')),
+                DropdownMenuItem(value: 'challenges', child: Text('Challenges')),
+              ],
+              onChanged: (v) => setState(() => _category = v!),
+            ),
+            const SizedBox(height: 12),
+            TextField(controller: _questionCtrl, decoration: _field('Question *'), maxLines: 2),
+            const SizedBox(height: 12),
+            TextField(controller: _answerCtrl, decoration: _field('Answer *'), maxLines: 5),
+            const SizedBox(height: 12),
+            TextField(controller: _orderCtrl, decoration: _field('Display Order'), keyboardType: TextInputType.number),
+            const SizedBox(height: 4),
+            SwitchListTile(
+              value: _isActive, onChanged: (v) => setState(() => _isActive = v),
+              title: const Text('Active', style: TextStyle(fontSize: 14)),
+              activeColor: _kRed, contentPadding: EdgeInsets.zero,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _saving ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _kRed, foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: _saving
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Text(isEdit ? 'Update FAQ' : 'Create FAQ', style: const TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
