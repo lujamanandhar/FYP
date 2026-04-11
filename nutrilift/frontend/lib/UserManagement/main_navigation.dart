@@ -19,6 +19,8 @@ class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
   int _workoutTabRefreshKey = 0; // incremented to force workout page rebuild
   final TabNavigationService _tabNavService = TabNavigationService();
+  // Track which tabs have been visited to enable lazy loading
+  final Set<int> _visitedTabs = {0};
 
   @override
   void initState() {
@@ -44,6 +46,7 @@ class _MainNavigationState extends State<MainNavigation> {
           _workoutTabRefreshKey++;
         }
         _selectedIndex = index;
+        _visitedTabs.add(index);
       });
     }
   }
@@ -62,10 +65,12 @@ class _MainNavigationState extends State<MainNavigation> {
         index: _selectedIndex,
         children: [
           const HomePage(),
-          WorkoutTracking(key: ValueKey('workout_$_workoutTabRefreshKey')),
-          const NutritionTracking(),
-          const ChallengeCommunityWrapper(),
-          GymComparisonScreen(),
+          _visitedTabs.contains(1)
+              ? WorkoutTracking(key: ValueKey('workout_$_workoutTabRefreshKey'))
+              : const SizedBox.shrink(),
+          _visitedTabs.contains(2) ? const NutritionTracking() : const SizedBox.shrink(),
+          _visitedTabs.contains(3) ? const ChallengeCommunityWrapper() : const SizedBox.shrink(),
+          _visitedTabs.contains(4) ? GymComparisonScreen() : const SizedBox.shrink(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
