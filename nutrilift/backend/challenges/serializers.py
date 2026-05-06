@@ -11,6 +11,7 @@ class ChallengeSerializer(serializers.ModelSerializer):
     created_by_id = serializers.SerializerMethodField()
     is_joined = serializers.SerializerMethodField()
     has_paid = serializers.SerializerMethodField()
+    participant_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Challenge
@@ -20,7 +21,11 @@ class ChallengeSerializer(serializers.ModelSerializer):
             'is_official', 'created_by_username', 'created_by_id',
             'participant_progress', 'is_joined', 'default_tasks',
             'is_paid', 'price', 'currency', 'prize_description', 'has_paid',
+            'participant_count',
         ]
+
+    def get_participant_count(self, obj):
+        return obj.participants.count()
 
     def get_has_paid(self, obj):
         request = self.context.get('request')

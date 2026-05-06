@@ -71,7 +71,9 @@ def _update_feature_streak(model_class, user):
 
 
 def _award_badges(user):
-    """Award any active challenge_complete badges not yet earned by the user."""
+    """Award any active challenge_complete badges not yet earned by the user.
+    Sends an in-app notification for each newly awarded badge.
+    """
     from challenges.models import Badge, UserBadge
 
     eligible_badges = Badge.objects.filter(
@@ -82,7 +84,17 @@ def _award_badges(user):
     )
 
     for badge in eligible_badges:
-        UserBadge.objects.get_or_create(user=user, badge=badge)
+        _, created = UserBadge.objects.get_or_create(user=user, badge=badge)
+        if created:
+            # Notify user they earned a new badge
+            try:
+                from notifications.utils import notify_badge_earned
+                notify_badge_earned(user, badge.name, badge.icon_url)
+            except Exception:
+                logger.warning(
+                    "Could not send badge notification for user=%s badge=%s",
+                    user.pk, badge.name, exc_info=True,
+                )
 
 
 def _update_challenge_progress(user, calories, challenge_types):

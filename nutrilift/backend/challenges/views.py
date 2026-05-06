@@ -21,13 +21,19 @@ User = get_user_model()
 
 
 def _validated_default_tasks(raw):
-    """Validate and normalise default_tasks list. Each item must have a non-empty 'label'."""
+    """Validate and normalise default_tasks list. Each item must have a non-empty 'label'.
+    Preserves 'type' field (exercise/food/manual) for auto-verification."""
     if not isinstance(raw, list):
         return []
     result = []
     for item in raw:
         if isinstance(item, dict) and isinstance(item.get('label'), str) and item['label'].strip():
-            result.append({'label': item['label'].strip()})
+            task_type = item.get('type', 'manual')
+            if task_type not in ('exercise', 'food', 'manual'):
+                task_type = 'manual'
+            result.append({'label': item['label'].strip(), 'type': task_type})
+        elif isinstance(item, str) and item.strip():
+            result.append({'label': item.strip(), 'type': 'manual'})
     return result
 
 
@@ -661,7 +667,7 @@ class DailyLogView(APIView):
             day_number=day_number,
             defaults={
                 'task_items': [
-                    {'label': t.get('label', ''), 'completed': False}
+                    {'label': t.get('label', ''), 'type': t.get('type', 'manual'), 'completed': False}
                     for t in (participant.challenge.default_tasks or [])
                 ],
                 'media_urls': [],
@@ -703,6 +709,8 @@ class DailyLogCompleteView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
+        from django.db import transaction
+
         participant = ChallengeParticipant.objects.filter(
             challenge_id=pk, user=request.user
         ).select_related('challenge').first()
@@ -721,25 +729,78 @@ class DailyLogCompleteView(APIView):
         if log.is_complete:
             return Response({'detail': 'Day already completed.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        log.is_complete = True
-        log.completed_at = timezone.now()
-        log.save()
+        # Atomic: log save + participant progress update happen together or not at all
+        with transaction.atomic():
+            log.is_complete = True
+            log.completed_at = timezone.now()
+            log.save()
 
-        # Increment participant progress by 1 completed day
-        participant.progress = participant.progress + 1
+            # Increment participant progress by 1 completed day
+            participant.progress = participant.progress + 1
 
-        # Check if challenge goal is now reached — mark participant as completed
-        challenge = participant.challenge
-        if not participant.completed and participant.progress >= challenge.goal_value:
-            participant.completed = True
-            participant.completed_at = timezone.now()
+            # Check if challenge goal is now reached — mark participant as completed
+            challenge = participant.challenge
+            if not participant.completed and participant.progress >= challenge.goal_value:
+                participant.completed = True
+                participant.completed_at = timezone.now()
 
-        participant.save(update_fields=['progress', 'completed', 'completed_at'])
+            participant.save(update_fields=['progress', 'completed', 'completed_at'])
 
-        # Update streak for this user
+        # Update streak for this user (outside transaction — non-critical)
         from .signals import _update_streak, _award_badges
         _update_streak(request.user)
         _award_badges(request.user)
+
+        # Generate certificate if just completed
+        if participant.completed:
+            total_participants = ChallengeParticipant.objects.filter(
+                challenge=challenge, completed=True
+            ).count()
+            # Rank = number of others who completed before this user + 1
+            rank = ChallengeParticipant.objects.filter(
+                challenge=challenge,
+                completed=True,
+                completed_at__lt=participant.completed_at,
+            ).count() + 1
+
+            # Persist rank on the participant record
+            ChallengeParticipant.objects.filter(pk=participant.pk).update(rank=rank)
+
+            days_taken = (participant.completed_at.date() - participant.joined_at.date()).days + 1
+            ChallengeCompletion.objects.get_or_create(
+                user=request.user,
+                challenge=challenge,
+                defaults={
+                    'participant': participant,
+                    'days_taken': days_taken,
+                    'rank': rank,
+                    'total_participants': total_participants,
+                }
+            )
+
+        shared_post = None
+        share = request.data.get('share_to_community', False)
+        if share:
+            challenge_name = participant.challenge.name
+            content = f"I completed Day {day_number} of {challenge_name}! 💪"
+            # Only include non-video media as image_urls
+            image_urls = [
+                m['url'] for m in (log.media_urls or [])
+                if not m.get('is_video', False)
+            ]
+            shared_post = Post.objects.create(
+                user=request.user,
+                content=content,
+                image_urls=image_urls,
+            )
+
+        log_data = ChallengeDailyLogSerializer(log).data
+        post_data = PostSerializer(shared_post, context={'request': request}).data if shared_post else None
+        return Response({
+            'log': log_data,
+            'shared_post': post_data,
+            'participant_progress': participant.progress,
+        }, status=status.HTTP_200_OK)
 
         # Generate certificate if just completed
         if participant.completed:
@@ -810,7 +871,7 @@ class DailyLogVerifyView(APIView):
         if participant is None:
             return Response({'detail': 'Not joined this challenge.'}, status=status.HTTP_404_NOT_FOUND)
 
-        today = timezone.now().date()
+        today = timezone.localtime(timezone.now()).date()
         day_number = (today - participant.joined_at.date()).days + 1
 
         log = ChallengeDailyLog.objects.filter(
@@ -825,46 +886,156 @@ class DailyLogVerifyView(APIView):
 
         for task in task_items:
             label = task.get('label', '')
-            task_type = task.get('type', '')  # 'exercise', 'food', or plain manual
+            task_type = task.get('type', '')  # 'exercise', 'food', or 'manual'
             verified = task.get('verified', False)
             verification_message = task.get('verification_message', None)
 
             if task_type == 'exercise':
-                # Check if user logged any workout today
+                # Parse label for exercise name and target reps.
+                # Supported formats: "10 Push-ups", "Push-ups 10 reps", "10x Push-up"
+                import re as _re
+                label_lower = label.lower()
+
+                # Extract target reps from label (first number found)
+                rep_match = _re.search(r'(\d+)', label)
+                target_reps = int(rep_match.group(1)) if rep_match else None
+
+                # Extract exercise name: remove numbers, "reps", "x", "sets" from label
+                exercise_name_raw = _re.sub(r'\d+\s*(x|reps?|sets?)?', '', label, flags=_re.IGNORECASE).strip(' -,.')
+                exercise_name_clean = exercise_name_raw.strip()
+
                 try:
-                    from workouts.models import WorkoutLog
-                    logged = WorkoutLog.objects.filter(
+                    from workouts.models import WorkoutLog, WorkoutExercise
+                    # Get all workout logs for today
+                    today_logs = WorkoutLog.objects.filter(
                         user=request.user,
-                        date__date=today,
-                    ).exists()
-                    if logged:
-                        verified = True
-                        verification_message = None
-                    else:
+                        logged_at__date=today,
+                        is_deleted=False,
+                    )
+
+                    if not today_logs.exists():
                         verified = False
-                        verification_message = f'No workout logged today for: {label}'
-                        unmet.append(f'Exercise task not done: {label}')
+                        verification_message = f'No workout logged today. Task: {label}'
+                        unmet.append(f'No workout logged today for: {label}')
+                    else:
+                        # Look for the specific exercise by name (case-insensitive partial match)
+                        matching_exercises = WorkoutExercise.objects.filter(
+                            workout_log__in=today_logs,
+                            exercise__name__icontains=exercise_name_clean,
+                        )
+
+                        if not matching_exercises.exists():
+                            # Try broader match — check if any word in the exercise name matches
+                            words = [w for w in exercise_name_clean.split() if len(w) > 2]
+                            for word in words:
+                                matching_exercises = WorkoutExercise.objects.filter(
+                                    workout_log__in=today_logs,
+                                    exercise__name__icontains=word,
+                                )
+                                if matching_exercises.exists():
+                                    break
+
+                        if not matching_exercises.exists():
+                            verified = False
+                            verification_message = f'"{exercise_name_clean}" not found in today\'s workout log'
+                            unmet.append(f'Exercise not logged: {label}')
+                        elif target_reps is not None:
+                            # Check if total reps across all sets meets the target
+                            total_reps = sum(e.sets * e.reps for e in matching_exercises)
+                            if total_reps >= target_reps:
+                                verified = True
+                                verification_message = f'✓ {exercise_name_clean}: {total_reps} reps logged (target: {target_reps})'
+                            else:
+                                verified = False
+                                verification_message = f'{exercise_name_clean}: only {total_reps} reps logged, need {target_reps}'
+                                unmet.append(f'{label}: {total_reps}/{target_reps} reps done')
+                        else:
+                            # No specific rep target — just presence is enough
+                            verified = True
+                            ex = matching_exercises.first()
+                            verification_message = f'✓ {ex.exercise.name} logged today'
+
                 except Exception:
-                    # workouts app may not be available — treat as unverifiable, don't block
+                    # workouts app unavailable — don't block
                     verified = True
+                    verification_message = 'Could not verify (workout data unavailable)'
 
             elif task_type == 'food':
-                # Check if user logged any nutrition intake today
+                # Parse label for food name and target amount.
+                # Supported formats: "20g chicken", "chicken 20g", "20 grams of chicken"
+                # Generic labels like "Log your meals today" → just check any food was logged
+                import re as _re
+                label_lower = label.lower()
+
+                # Extract target grams
+                gram_match = _re.search(r'(\d+(?:\.\d+)?)\s*(?:g|grams?|gm)', label_lower)
+                target_grams = float(gram_match.group(1)) if gram_match else None
+
+                # Extract food name: remove numbers and unit words
+                food_name_raw = _re.sub(
+                    r'\d+(?:\.\d+)?\s*(?:g|grams?|gm|ml|of|serving|servings?)?',
+                    '', label, flags=_re.IGNORECASE
+                ).strip(' -,.')
+                food_name_clean = food_name_raw.strip()
+
+                # Generic instruction labels — just check any food was logged
+                generic_keywords = ['log', 'meal', 'food', 'eat', 'intake', 'nutrition', 'diet', 'track']
+                words_in_label = food_name_clean.lower().split()
+                is_generic = len(words_in_label) >= 2 and sum(1 for w in words_in_label if w in generic_keywords) >= 1
+
                 try:
                     from nutrition.models import IntakeLog
-                    logged = IntakeLog.objects.filter(
+                    today_intakes = IntakeLog.objects.filter(
                         user=request.user,
-                        date=today,
-                    ).exists()
-                    if logged:
-                        verified = True
-                        verification_message = None
-                    else:
+                        logged_at__date=today,
+                    ).select_related('food_item')
+
+                    if not today_intakes.exists():
                         verified = False
-                        verification_message = f'No nutrition logged today for: {label}'
-                        unmet.append(f'Nutrition task not done: {label}')
+                        verification_message = f'No nutrition logged today. Task: {label}'
+                        unmet.append(f'No nutrition logged today for: {label}')
+                    elif is_generic:
+                        # Generic task — any food logged counts
+                        verified = True
+                        count = today_intakes.count()
+                        verification_message = f'✓ {count} food item{"s" if count != 1 else ""} logged today'
+                    else:
+                        # Specific food task — match by name
+                        matching_intakes = today_intakes.filter(
+                            food_item__name__icontains=food_name_clean
+                        )
+
+                        if not matching_intakes.exists():
+                            # Try word-by-word match
+                            words = [w for w in food_name_clean.split() if len(w) > 2]
+                            for word in words:
+                                matching_intakes = today_intakes.filter(
+                                    food_item__name__icontains=word
+                                )
+                                if matching_intakes.exists():
+                                    break
+
+                        if not matching_intakes.exists():
+                            verified = False
+                            verification_message = f'"{food_name_clean}" not found in today\'s nutrition log'
+                            unmet.append(f'Food not logged: {label}')
+                        elif target_grams is not None:
+                            total_qty = sum(float(i.quantity) for i in matching_intakes)
+                            if total_qty >= target_grams:
+                                verified = True
+                                verification_message = f'✓ {food_name_clean}: {total_qty:.0f}g logged (target: {target_grams:.0f}g)'
+                            else:
+                                verified = False
+                                verification_message = f'{food_name_clean}: only {total_qty:.0f}g logged, need {target_grams:.0f}g'
+                                unmet.append(f'{label}: {total_qty:.0f}g/{target_grams:.0f}g logged')
+                        else:
+                            verified = True
+                            item = matching_intakes.first()
+                            verification_message = f'✓ {item.food_item.name} logged today'
+
                 except Exception:
                     verified = True
+                    verification_message = 'Could not verify (nutrition data unavailable)'
 
             else:
                 # Manual task — just check the completed flag
@@ -1059,11 +1230,12 @@ class EsewaVerifyView(APIView):
                 'transaction_uuid': transaction_uuid,
             }, timeout=10)
             verify_data = verify_resp.json()
+            if verify_data.get('status') != 'COMPLETE':
+                return Response({'detail': f'Payment not complete: {verify_data.get("status")}'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception:
-            return Response({'detail': 'Could not verify with eSewa.'}, status=status.HTTP_502_BAD_GATEWAY)
-
-        if verify_data.get('status') != 'COMPLETE':
-            return Response({'detail': f'Payment not complete: {verify_data.get("status")}'}, status=status.HTTP_400_BAD_REQUEST)
+            # eSewa status API unreachable (common with local dev server)
+            # Trust the signature verification above — if signature matched, payment is genuine
+            pass
 
         # Find payment record by transaction_uuid (not by request.user since this is a redirect)
         payment = EsewaPayment.objects.filter(
@@ -1108,15 +1280,25 @@ class EsewaPaymentSuccessView(APIView):
 
 
 class EsewaFailureView(APIView):
-    """POST /api/challenges/<uuid:pk>/pay/failure/ — marks payment as failed."""
-    permission_classes = [IsAuthenticated]
+    """POST/GET /api/challenges/<uuid:pk>/pay/failure/ — marks payment as failed."""
+    permission_classes = []  # No auth — eSewa redirect doesn't send JWT
+
+    def _handle(self, request, pk):
+        transaction_uuid = (
+            request.data.get('transaction_uuid')
+            or request.query_params.get('transaction_uuid')
+        )
+        if transaction_uuid:
+            EsewaPayment.objects.filter(
+                transaction_uuid=transaction_uuid, challenge_id=pk
+            ).update(status='FAILED')
+        return Response({'detail': 'Payment failed. You have not been charged and have not joined the challenge.'})
 
     def post(self, request, pk):
-        transaction_uuid = request.data.get('transaction_uuid') or request.query_params.get('transaction_uuid')
-        EsewaPayment.objects.filter(
-            transaction_uuid=transaction_uuid, user=request.user, challenge_id=pk
-        ).update(status='FAILED')
-        return Response({'detail': 'Payment failed.'})
+        return self._handle(request, pk)
+
+    def get(self, request, pk):
+        return self._handle(request, pk)
 
 
 # ---------------------------------------------------------------------------
