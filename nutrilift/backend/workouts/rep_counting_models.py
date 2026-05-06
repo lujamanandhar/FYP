@@ -21,6 +21,7 @@ class RepSession(models.Model):
         ('SHOULDER_PRESS', 'Shoulder Press'),
         ('LUNGE', 'Lunges'),
         ('SIT_UP', 'Sit-ups'),
+        ('BENCH_DIP', 'Bench Dips'),
     ]
     
     user = models.ForeignKey(

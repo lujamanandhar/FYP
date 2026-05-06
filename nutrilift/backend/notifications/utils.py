@@ -73,3 +73,12 @@ def notify_prize_awarded(user, challenge_name, rank, prize_description):
         f'Congratulations! You ranked #{rank} in "{challenge_name}". Prize: {prize_description}',
         '/challenges',
     )
+
+
+def notify_badge_earned(user, badge_name, icon_url=''):
+    notify(
+        user, 'achievement',
+        f'🏅 Badge Earned: {badge_name}',
+        f"Congratulations! You've earned the '{badge_name}' badge. Keep it up!",
+        '/gamification',
+    )
