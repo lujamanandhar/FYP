@@ -118,7 +118,7 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
                       )),
                   if (!_running)
                     const Text('Done!',
-                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                        style: TextStyle(color: Color(0xFFE53935), fontWeight: FontWeight.bold)),
                 ]),
               ],
             ),

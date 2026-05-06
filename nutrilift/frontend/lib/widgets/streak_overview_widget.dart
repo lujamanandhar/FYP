@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../services/streak_service.dart';
 
 /// Reusable streak overview showing workout, nutrition, and challenge streaks.
-/// Can be used as a bottom sheet, dialog, or inline widget.
 class StreakOverviewWidget extends StatelessWidget {
   final AllStreaks streaks;
 
@@ -14,7 +13,7 @@ class StreakOverviewWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _StreakCard(
-          icon: '🔥💪',
+          icon: Icons.fitness_center_rounded,
           label: 'Workout Streak',
           current: streaks.workout.currentStreak,
           longest: streaks.workout.longestStreak,
@@ -23,7 +22,7 @@ class StreakOverviewWidget extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _StreakCard(
-          icon: '🔥🍎',
+          icon: Icons.restaurant_rounded,
           label: 'Nutrition Streak',
           current: streaks.nutrition.currentStreak,
           longest: streaks.nutrition.longestStreak,
@@ -32,7 +31,7 @@ class StreakOverviewWidget extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _StreakCard(
-          icon: '🔥🏆',
+          icon: Icons.emoji_events_rounded,
           label: 'Challenge Streak',
           current: streaks.challenge.currentStreak,
           longest: streaks.challenge.longestStreak,
@@ -45,7 +44,7 @@ class StreakOverviewWidget extends StatelessWidget {
 }
 
 class _StreakCard extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String label;
   final int current;
   final int longest;
@@ -72,7 +71,14 @@ class _StreakCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 28)),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -86,7 +92,7 @@ class _StreakCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   current > 0
-                      ? '🔥 $current-day streak!'
+                      ? '$current-day streak'
                       : 'No active streak',
                   style: TextStyle(
                       fontSize: 12,
@@ -137,9 +143,16 @@ void showStreakOverview(BuildContext context, AllStreaks streaks) {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            '🔥 My Streaks',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(Icons.local_fire_department_rounded, color: Color(0xFFFF6F00), size: 22),
+              SizedBox(width: 6),
+              Text(
+                'My Streaks',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
           const SizedBox(height: 4),
           Text(
@@ -159,14 +172,12 @@ void showStreakOverview(BuildContext context, AllStreaks streaks) {
 class StreakBadge extends StatelessWidget {
   final int count;
   final Color color;
-  final String emoji;
   final VoidCallback? onTap;
 
   const StreakBadge({
     Key? key,
     required this.count,
     this.color = const Color(0xFFFF6F00),
-    this.emoji = '🔥',
     this.onTap,
   }) : super(key: key);
 
@@ -193,14 +204,19 @@ class StreakBadge extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 14)),
+            Icon(
+              Icons.local_fire_department_rounded,
+              size: 14,
+              color: count > 0 ? Colors.white : Colors.grey[600],
+            ),
             const SizedBox(width: 4),
             Text(
               '$count',
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: count > 0 ? Colors.white : Colors.grey[700],
+              ),
             ),
           ],
         ),

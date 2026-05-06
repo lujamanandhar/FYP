@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/center_toast.dart';
 import 'challenge_overview_screen.dart';
 import '../widgets/nutrilift_header.dart';
+import 'gamification_screen.dart';
 
 class ChallengeCompleteScreen extends StatelessWidget {
   const ChallengeCompleteScreen({super.key});
@@ -135,21 +136,19 @@ class ChallengeCompleteScreen extends StatelessWidget {
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () {
-                      showCenterToast(context, 'Feature coming soon!');
+                      Navigator.of(context).pop();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const GamificationScreen()),
+                      );
                     },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      side: const BorderSide(color: Color(0xFFE53935)),
+                      foregroundColor: const Color(0xFFE53935),
                     ),
-                    child: const Text(
-                      'View Achievements',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: const Text('View Achievements',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],

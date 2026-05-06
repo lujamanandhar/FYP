@@ -156,7 +156,7 @@ class ExerciseCard extends StatelessWidget {
   Color _getDifficultyColor(String difficulty) {
     switch (difficulty.toLowerCase()) {
       case 'beginner':
-        return Colors.green;
+        return const Color(0xFFE53935);
       case 'intermediate':
         return Colors.orange;
       case 'advanced':

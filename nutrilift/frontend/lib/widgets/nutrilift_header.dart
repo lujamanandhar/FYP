@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/center_toast.dart';
 import 'package:provider/provider.dart' as provider_pkg;
+import '../services/app_config.dart';
 import '../services/auth_service.dart';
 import '../services/error_handler.dart';
 import '../services/notification_service.dart';
@@ -44,32 +45,33 @@ class _NutriLiftHeaderState extends State<NutriLiftHeader> with ErrorHandlingMix
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.white,
-      elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
       leading: widget.showBackButton
           ? IconButton(
-              icon: const Icon(Icons.arrow_back, color: Color(0xFFE53935)),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFFE53935), size: 20),
               onPressed: () => Navigator.pop(context),
             )
           : null,
       automaticallyImplyLeading: widget.showBackButton,
       title: widget.title != null
-          ? Text(
-              widget.title!,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+          ? Text(widget.title!,
+              style: const TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700))
+          : Row(mainAxisSize: MainAxisSize.min, children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset('assets/nutrilift_logo.png', width: 28, height: 28, fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      width: 28, height: 28,
+                      decoration: BoxDecoration(color: const Color(0xFFE53935), borderRadius: BorderRadius.circular(8)),
+                      child: const Icon(Icons.fitness_center, color: Colors.white, size: 16),
+                    )),
               ),
-            )
-          : const Text(
-              'NUTRILIFT',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
+              const SizedBox(width: 8),
+              const Text('NUTRILIFT',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFFE53935), letterSpacing: 1.5)),
+            ]),
       centerTitle: widget.title != null,
       actions: [
         IconButton(
@@ -311,7 +313,7 @@ class _NutriLiftDrawerState extends State<NutriLiftDrawer> with ErrorHandlingMix
                   radius: 30,
                   backgroundColor: Colors.white,
                   backgroundImage: _userProfile?.avatarUrl != null
-                      ? NetworkImage(_userProfile!.avatarUrl!)
+                      ? NetworkImage(AppConfig.resolveMediaUrl(_userProfile!.avatarUrl!))
                       : null,
                   child: _userProfile?.avatarUrl == null
                       ? const Icon(Icons.person, size: 35, color: Colors.red)
