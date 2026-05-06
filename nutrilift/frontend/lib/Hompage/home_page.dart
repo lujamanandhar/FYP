@@ -202,14 +202,25 @@ class _HomePageState extends State<HomePage>
 
   Future<void> _loadUserProfile() async {
     setState(() => _isLoading = true);
-    final profile = await executeWithErrorHandling(
-      () => _authService.getProfile(),
-      loadingMessage: 'Loading your profile...',
-    );
-    setState(() {
-      _userProfile = profile;
-      _isLoading = false;
-    });
+    try {
+      final profile = await _authService.getProfile();
+      setState(() {
+        _userProfile = profile;
+        _isLoading = false;
+      });
+    } catch (e) {
+      // Retry once after a short delay in case of token initialization race
+      await Future.delayed(const Duration(milliseconds: 500));
+      try {
+        final profile = await _authService.getProfile();
+        setState(() {
+          _userProfile = profile;
+          _isLoading = false;
+        });
+      } catch (_) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   Future<void> _loadAllStreaks() async {
@@ -223,13 +234,16 @@ class _HomePageState extends State<HomePage>
       final challenges = await _challengeService.fetchActiveChallenges();
       // Filter only joined challenges
       final joined = challenges.where((c) => c.isJoined).toList();
-      setState(() {
-        _activeChallenges = joined;
-        _isLoadingChallenges = false;
-      });
+      if (mounted) {
+        setState(() {
+          _activeChallenges = joined;
+          _isLoadingChallenges = false;
+        });
+      }
     } catch (e) {
-      print('Error loading challenges: $e');
-      setState(() => _isLoadingChallenges = false);
+      if (mounted) {
+        setState(() => _isLoadingChallenges = false);
+      }
     }
   }
 
@@ -1423,10 +1437,10 @@ class _HomePageState extends State<HomePage>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
-          color: task.isDone ? const Color(0xFFF0FFF4) : Colors.white,
+          color: task.isDone ? const Color(0xFFFFF0F0) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: task.isDone
-              ? Border.all(color: Colors.green.withOpacity(0.4), width: 1.5)
+              ? Border.all(color: const Color(0xFFE53935).withOpacity(0.4), width: 1.5)
               : isActive
                   ? Border.all(color: Colors.red.withOpacity(0.4), width: 1.5)
                   : null,
@@ -1439,12 +1453,12 @@ class _HomePageState extends State<HomePage>
               duration: const Duration(milliseconds: 300),
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: task.isDone ? Colors.green[50] : isPast ? Colors.grey[100] : const Color(0xFFFFEBEE),
+                color: task.isDone ? const Color(0xFFFFEBEE) : isPast ? Colors.grey[100] : const Color(0xFFFFEBEE),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 task.isDone ? Icons.check_circle : task.type.icon,
-                color: task.isDone ? Colors.green : isPast ? Colors.grey[400] : Colors.red,
+                color: task.isDone ? const Color(0xFFE53935) : isPast ? Colors.grey[400] : Colors.red,
                 size: 20,
               ),
             ),
@@ -1461,7 +1475,7 @@ class _HomePageState extends State<HomePage>
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: task.isDone ? Colors.green[700] : isPast ? Colors.grey[400] : const Color(0xFF2D2D2D),
+                            color: task.isDone ? const Color(0xFFE53935) : isPast ? Colors.grey[400] : const Color(0xFF2D2D2D),
                             decoration: task.isDone || isPast ? TextDecoration.lineThrough : null,
                           ),
                         ),
@@ -1478,7 +1492,7 @@ class _HomePageState extends State<HomePage>
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(8)),
+                          decoration: BoxDecoration(color: const Color(0xFFE53935), borderRadius: BorderRadius.circular(8)),
                           child: const Text('Done', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
                         ),
                       ],
@@ -1489,7 +1503,7 @@ class _HomePageState extends State<HomePage>
                     task.type.label,
                     style: TextStyle(
                       fontSize: 10,
-                      color: task.isDone ? Colors.green[400] : isPast ? Colors.grey[300] : Colors.red[300],
+                      color: task.isDone ? const Color(0xFFE53935) : isPast ? Colors.grey[300] : Colors.red[300],
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -1511,12 +1525,12 @@ class _HomePageState extends State<HomePage>
               ),
             ),
             if (task.isDone)
-              const Icon(Icons.check_circle, color: Colors.green, size: 24)
+              const Icon(Icons.check_circle, color: Color(0xFFE53935), size: 24)
             else if (task.isStarted)
               ElevatedButton(
                 onPressed: () => _markTaskDone(index),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: const Color(0xFFE53935),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

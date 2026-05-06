@@ -1,10 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../widgets/center_toast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../widgets/nutrilift_header.dart';
 import 'change_password_screen.dart';
 import 'legal_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
+
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -42,7 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await plugin.cancelAll();
     }
     // Note: re-scheduling on enable would require access to _planTasks from
-    // home_page — the tasks will reschedule naturally when user adds new ones.
+    // home_page â€” the tasks will reschedule naturally when user adds new ones.
   }
 
   Future<void> _saveAutoSync(bool value) async {
@@ -62,7 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Privacy & Security ────────────────────────────────────
+            // â”€â”€ Privacy & Security â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             _sectionHeader('Privacy & Security'),
             _buildCard([
               _tile(
@@ -86,7 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ]),
             const SizedBox(height: 24),
 
-            // ── Notifications ─────────────────────────────────────────
+            // â”€â”€ Notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             _sectionHeader('Notifications'),
             _buildCard([
               _switchTile(
@@ -99,7 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ]),
             const SizedBox(height: 24),
 
-            // ── Data & Storage ────────────────────────────────────────
+            // â”€â”€ Data & Storage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             _sectionHeader('Data & Storage'),
             _buildCard([
               _switchTile(
@@ -124,7 +127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ]),
             const SizedBox(height: 24),
 
-            // ── About ─────────────────────────────────────────────────
+            // â”€â”€ About â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             _sectionHeader('About'),
             _buildCard([
               _tile(
@@ -138,13 +141,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.star_outline_rounded,
                 title: 'Rate NutriLift',
                 subtitle: 'Share your feedback on the app store',
-                onTap: () => _snack('Rating coming soon'),
+                onTap: _rateApp,
               ),
               _tile(
                 icon: Icons.share_outlined,
                 title: 'Share App',
                 subtitle: 'Invite friends to NutriLift',
-                onTap: () => _snack('Share coming soon'),
+                onTap: _shareApp,
               ),
             ]),
             const SizedBox(height: 16),
@@ -154,7 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _sectionHeader(String title) => Padding(
         padding: const EdgeInsets.only(bottom: 10),
@@ -207,6 +210,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _snack(String msg) =>
       showCenterToast(context, msg);
+
+  Future<void> _rateApp() async {
+    // Opens Play Store listing â€” update with your actual package name
+    const url = 'https://play.google.com/store/apps/details?id=com.example.nutrilift';
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      _snack('Could not open app store');
+    }
+  }
+
+  Future<void> _shareApp() async {
+    await Share.share(
+      'Check out NutriLift â€” your personal fitness and nutrition tracker!\n'
+      'https://play.google.com/store/apps/details?id=com.example.nutrilift',
+      subject: 'NutriLift App',
+    );
+  }
 
   void _showExportDialog() {
     showDialog(

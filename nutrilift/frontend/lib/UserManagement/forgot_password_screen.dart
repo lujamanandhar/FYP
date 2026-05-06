@@ -128,8 +128,8 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const SizedBox(height: 20),
           Center(child: Container(width: 80, height: 80,
-            decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), shape: BoxShape.circle),
-            child: const Icon(Icons.mark_email_read_outlined, color: Colors.green, size: 40))),
+            decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), shape: BoxShape.circle),
+            child: const Icon(Icons.mark_email_read_outlined, color: Colors.red, size: 40))),
           const SizedBox(height: 20),
           const Center(child: Text('Enter Verification Code', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
           const SizedBox(height: 8),

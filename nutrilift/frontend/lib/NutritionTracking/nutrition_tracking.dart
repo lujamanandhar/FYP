@@ -2162,8 +2162,11 @@ class _AddMealScreenState extends ConsumerState<AddMealScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFE53935),
+                minimumSize: const Size(88, 40),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              child: const Text('Log Food', style: TextStyle(color: Colors.white)),
+              child: const Text('Log Food', style: TextStyle(color: Colors.white, fontSize: 14)),
             ),
           ],
         );
