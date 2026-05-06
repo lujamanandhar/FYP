@@ -135,8 +135,14 @@ class OpenStreetMapService:
         else:
             return None
         
-        # Get name
-        name = tags.get('name', tags.get('operator', 'Unnamed Gym'))
+        # Get name — try multiple OSM tags before falling back
+        name = (tags.get('name') or tags.get('operator') or tags.get('brand') or
+                tags.get('name:en') or tags.get('name:ne'))
+        if not name:
+            sport = tags.get('sport', '')
+            leisure = tags.get('leisure', '')
+            name = f"{sport.title()} Center" if sport else (
+                leisure.replace('_', ' ').title() if leisure else 'Gym')
         
         # Build address from available tags
         address_parts = []
@@ -187,8 +193,14 @@ class OpenStreetMapService:
             lat = 0
             lon = 0
         
-        # Get name
-        name = tags.get('name', tags.get('operator', 'Unnamed Gym'))
+        # Get name — try multiple OSM tags before falling back
+        name = (tags.get('name') or tags.get('operator') or tags.get('brand') or
+                tags.get('name:en') or tags.get('name:ne'))
+        if not name:
+            sport = tags.get('sport', '')
+            leisure = tags.get('leisure', '')
+            name = f"{sport.title()} Center" if sport else (
+                leisure.replace('_', ' ').title() if leisure else 'Gym')
         
         # Build full address
         address_parts = []
