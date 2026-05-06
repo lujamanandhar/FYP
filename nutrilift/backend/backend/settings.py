@@ -95,6 +95,9 @@ DATABASES = {
     }
 }
 
+# Third-party API keys
+GEOAPIFY_API_KEY = config('GEOAPIFY_API_KEY', default='9697d303f4fb470f86ebfeba138f0bdd')
+
 # Uncomment below for SQLite development setup
 # DATABASES = {
 #     'default': {

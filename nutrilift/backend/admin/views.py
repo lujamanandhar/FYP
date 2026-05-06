@@ -14,6 +14,25 @@ from authentications.serializers import SupportTicketSerializer, UserProfileSeri
 from challenges.models import Challenge
 from challenges.serializers import ChallengeSerializer
 
+
+def _build_tasks(raw_tasks):
+    """
+    Convert tasks from frontend to backend format.
+    Accepts both:
+      - List of strings: ['30 Push-ups', 'Eat protein']  → type defaults to 'manual'
+      - List of dicts:   [{'label': '30 Push-ups', 'type': 'exercise'}]
+    """
+    result = []
+    for t in raw_tasks:
+        if isinstance(t, dict):
+            label = t.get('label', '').strip()
+            task_type = t.get('type', 'manual')
+            if label:
+                result.append({'label': label, 'type': task_type})
+        elif isinstance(t, str) and t.strip():
+            result.append({'label': t.strip(), 'type': 'manual'})
+    return result
+
 User = get_user_model()
 
 
@@ -31,13 +50,25 @@ class AdminDashboardView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
+        from challenges.models import ChallengeParticipant
+        now = timezone.now()
+
         total_users = User.objects.count()
         active_users = User.objects.filter(is_active=True).count()
         total_challenges = Challenge.objects.count()
         official_challenges = Challenge.objects.filter(is_official=True).count()
         open_tickets = SupportTicket.objects.filter(status='open').count()
         in_progress_tickets = SupportTicket.objects.filter(status='in_progress').count()
-        
+        pending_prizes = ChallengeParticipant.objects.filter(
+            challenge__is_paid=True,
+            challenge__end_date__lte=now,
+            completed=True,
+            prize_paid=False,
+        ).count()
+
+        from challenges.models import Post, Report
+        pending_reports = Post.objects.filter(is_reported=True, is_removed=False).count()
+
         return Response({
             'total_users': total_users,
             'active_users': active_users,
@@ -45,6 +76,8 @@ class AdminDashboardView(APIView):
             'official_challenges': official_challenges,
             'open_support_tickets': open_tickets,
             'in_progress_tickets': in_progress_tickets,
+            'pending_prizes': pending_prizes,
+            'pending_reports': pending_reports,
         })
 
 
@@ -58,6 +91,7 @@ class AdminUserListView(APIView):
 
     def get(self, request):
         search = request.query_params.get('search', '')
+        status_filter = request.query_params.get('status', '')  # 'active' or 'inactive'
         users = User.objects.all()
         
         if search:
@@ -65,6 +99,10 @@ class AdminUserListView(APIView):
                 Q(email__icontains=search) | 
                 Q(name__icontains=search)
             )
+        if status_filter == 'active':
+            users = users.filter(is_active=True)
+        elif status_filter == 'inactive':
+            users = users.filter(is_active=False)
         
         users = users.order_by('-created_at')
         
@@ -117,7 +155,14 @@ class AdminChallengeListView(APIView):
     pagination_class = AdminPagination
 
     def get(self, request):
-        challenges = Challenge.objects.all().order_by('-created_at')
+        search = request.query_params.get('search', '')
+        type_filter = request.query_params.get('type', '')
+        challenges = Challenge.objects.all()
+        if search:
+            challenges = challenges.filter(Q(name__icontains=search) | Q(description__icontains=search))
+        if type_filter:
+            challenges = challenges.filter(challenge_type=type_filter)
+        challenges = challenges.order_by('-created_at')
         
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(challenges, request)
@@ -128,23 +173,54 @@ class AdminChallengeListView(APIView):
 
 class AdminChallengeUpdateView(APIView):
     """
-    PUT /api/admin/challenges/<challenge_id>/
-    Update challenge (mark as official, activate/deactivate, set payment fields)
+    PUT /api/admin/challenges/<challenge_id>/  — full edit
+    DELETE /api/admin/challenges/<challenge_id>/  — delete challenge
     """
     permission_classes = [IsAdminUser]
+
+    def _parse_date(self, value):
+        if not value:
+            return None
+        d = parse_date(str(value)[:10])
+        if d:
+            return timezone.make_aware(timezone.datetime(d.year, d.month, d.day))
+        return value
 
     def put(self, request, challenge_id):
         try:
             challenge = Challenge.objects.get(id=challenge_id)
 
-            updatable = ['is_official', 'is_active', 'is_paid', 'price', 'currency', 'prize_description']
+            # Full editable fields
+            updatable = [
+                'name', 'description', 'challenge_type', 'goal_value', 'unit',
+                'is_official', 'is_active', 'is_paid', 'price', 'currency', 'prize_description',
+            ]
             for field in updatable:
                 if field in request.data:
                     setattr(challenge, field, request.data[field])
 
+            # Date fields need parsing
+            if 'start_date' in request.data:
+                challenge.start_date = self._parse_date(request.data['start_date'])
+            if 'end_date' in request.data:
+                challenge.end_date = self._parse_date(request.data['end_date'])
+
+            # Tasks
+            if 'tasks' in request.data:
+                challenge.default_tasks = _build_tasks(request.data['tasks'])
+
             challenge.save()
             serializer = ChallengeSerializer(challenge, context={'request': request})
             return Response(serializer.data)
+        except Challenge.DoesNotExist:
+            return Response({'detail': 'Challenge not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, challenge_id):
+        try:
+            challenge = Challenge.objects.get(id=challenge_id)
+            name = challenge.name
+            challenge.delete()
+            return Response({'detail': f'Challenge "{name}" deleted.'}, status=status.HTTP_200_OK)
         except Challenge.DoesNotExist:
             return Response({'detail': 'Challenge not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -186,7 +262,7 @@ class AdminChallengeCreateView(APIView):
                 price=request.data.get('price', 0),
                 currency=request.data.get('currency', 'NPR'),
                 prize_description=request.data.get('prize_description', ''),
-                default_tasks=[{'label': t} for t in request.data.get('tasks', []) if t],
+                default_tasks=_build_tasks(request.data.get('tasks', [])),
             )
             serializer = ChallengeSerializer(challenge, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -204,10 +280,18 @@ class AdminSupportTicketListView(APIView):
 
     def get(self, request):
         status_filter = request.query_params.get('status', '')
+        search = request.query_params.get('search', '')
         tickets = SupportTicket.objects.all()
         
         if status_filter:
             tickets = tickets.filter(status=status_filter)
+        if search:
+            tickets = tickets.filter(
+                Q(subject__icontains=search) |
+                Q(email__icontains=search) |
+                Q(name__icontains=search) |
+                Q(message__icontains=search)
+            )
         
         tickets = tickets.order_by('-created_at')
         
@@ -314,6 +398,107 @@ class FAQDetailView(APIView):
             return Response({'detail': 'FAQ not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
+class AdminReportedPostsView(APIView):
+    """
+    GET /api/admin/reported-posts/
+    Returns posts that have been reported (is_reported=True), with their pending reports.
+    Supports pagination via ?page= and ?page_size=
+    """
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        from challenges.models import Post, Report
+        posts = Post.objects.filter(is_reported=True).order_by('-created_at')
+        
+        paginator = AdminPagination()
+        page = paginator.paginate_queryset(posts, request)
+        
+        data = []
+        for post in page:
+            reports = Report.objects.filter(post=post, status='pending').select_related('reported_by')
+            data.append({
+                'post_id': str(post.id),
+                'content': post.content,
+                'image_urls': post.image_urls,
+                'is_removed': post.is_removed,
+                'created_at': post.created_at,
+                'author_id': str(post.user_id),
+                'author_name': getattr(post.user, 'name', None) or post.user.email,
+                'report_count': reports.count(),
+                'reports': [
+                    {
+                        'id': str(r.id),
+                        'reason': r.reason,
+                        'reported_by': getattr(r.reported_by, 'name', None) or r.reported_by.email,
+                        'created_at': r.created_at,
+                    }
+                    for r in reports
+                ],
+            })
+        return paginator.get_paginated_response(data)
+
+
+class AdminRemovePostView(APIView):
+    """
+    POST /api/admin/reported-posts/<post_id>/remove/
+    Sets post.is_removed=True and marks all pending reports as reviewed.
+    """
+    permission_classes = [IsAdminUser]
+
+    def post(self, request, post_id):
+        from challenges.models import Post, Report
+        try:
+            post = Post.objects.select_related('user').get(id=post_id)
+        except Post.DoesNotExist:
+            return Response({'detail': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        post.is_removed = True
+        post.save(update_fields=['is_removed'])
+
+        Report.objects.filter(post=post, status='pending').update(
+            status='reviewed',
+            reviewed_at=timezone.now(),
+        )
+
+        # Notify the post author
+        try:
+            from notifications.utils import notify
+            notify(
+                post.user, 'system',
+                '⚠️ Post Removed',
+                'Your post was removed by an admin for violating community guidelines.',
+            )
+        except Exception:
+            pass
+
+        return Response({'detail': 'Post removed and reports marked as reviewed.'})
+
+
+class AdminDismissReportsView(APIView):
+    """
+    POST /api/admin/reported-posts/<post_id>/dismiss/
+    Dismisses all pending reports for a post without removing it.
+    Clears the is_reported flag.
+    """
+    permission_classes = [IsAdminUser]
+
+    def post(self, request, post_id):
+        from challenges.models import Post, Report
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response({'detail': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        Report.objects.filter(post=post, status='pending').update(
+            status='dismissed',
+            reviewed_at=timezone.now(),
+        )
+        post.is_reported = False
+        post.save(update_fields=['is_reported'])
+
+        return Response({'detail': 'Reports dismissed. Post remains visible.'})
+
+
 class AdminChallengeLeaderboardView(APIView):
     """
     GET /api/admin/challenges/<challenge_id>/leaderboard/
@@ -332,7 +517,7 @@ class AdminChallengeLeaderboardView(APIView):
             ChallengeParticipant.objects
             .filter(challenge=challenge)
             .select_related('user')
-            .order_by('-progress')[:10]
+            .order_by('-progress')
         )
 
         data = []
@@ -396,9 +581,11 @@ class AdminAwardPrizeView(APIView):
         # Persist prize_paid on the participant record
         participant.prize_paid = True
         participant.prize_paid_at = timezone.now()
+        fields_to_update = ['prize_paid', 'prize_paid_at']
         if request.data.get('notes'):
             participant.prize_notes = request.data['notes']
-        participant.save(update_fields=['prize_paid', 'prize_paid_at', 'prize_notes'])
+            fields_to_update.append('prize_notes')
+        participant.save(update_fields=fields_to_update)
 
         # Notify the winner
         try:
@@ -419,3 +606,42 @@ class AdminAwardPrizeView(APIView):
             'prize_paid': True,
             'prize_paid_at': participant.prize_paid_at,
         })
+
+
+class AdminDisqualifyParticipantView(APIView):
+    """
+    DELETE /api/admin/challenges/<challenge_id>/participants/<participant_id>/
+    Removes a participant from a challenge (disqualify).
+    Notifies the user.
+    """
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request, challenge_id, participant_id):
+        try:
+            challenge = Challenge.objects.get(id=challenge_id)
+        except Challenge.DoesNotExist:
+            return Response({'detail': 'Challenge not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        from challenges.models import ChallengeParticipant
+        try:
+            participant = ChallengeParticipant.objects.select_related('user').get(
+                id=participant_id, challenge=challenge
+            )
+        except ChallengeParticipant.DoesNotExist:
+            return Response({'detail': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        user = participant.user
+        participant.delete()
+
+        # Notify the disqualified user
+        try:
+            from notifications.utils import notify
+            notify(
+                user, 'system',
+                '⚠️ Removed from Challenge',
+                f'You have been removed from "{challenge.name}" by an admin.',
+            )
+        except Exception:
+            pass
+
+        return Response({'detail': f'{user.email} has been removed from the challenge.'})
