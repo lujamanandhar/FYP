@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/center_toast.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/exercise.dart';
 import '../providers/exercise_library_provider.dart';
 import '../providers/new_workout_provider.dart';
@@ -443,9 +444,15 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                     if (exercise.videoUrl != null) ...[
                       const SizedBox(height: 24),
                       OutlinedButton.icon(
-                        onPressed: () {
-                          // TODO: Open video URL
-                          showCenterToast(context, 'Video link: Coming soon', isError: true);
+                        onPressed: () async {
+                          final uri = Uri.parse(exercise.videoUrl!);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri, mode: LaunchMode.externalApplication);
+                          } else {
+                            if (context.mounted) {
+                              showCenterToast(context, 'Could not open video link', isError: true);
+                            }
+                          }
                         },
                         icon: const Icon(Icons.play_circle_outline),
                         label: const Text('Watch Video'),
@@ -506,7 +513,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
   Color _getDifficultyColor(String difficulty) {
     switch (difficulty.toLowerCase()) {
       case 'beginner':
-        return Colors.green;
+        return const Color(0xFFE53935);
       case 'intermediate':
         return Colors.orange;
       case 'advanced':

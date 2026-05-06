@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../widgets/center_toast.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -55,7 +55,7 @@ const _kWarmupIntensePlan = GuidedPlan(
   difficulty: 'Intermediate',
   category: 'Full Body',
   estimatedMinutes: 10,
-  emoji: '⚡',
+  emoji: '',
   exercises: [
     GuidedExercise(name: 'Jumping Jacks', muscleGroup: 'Full Body', durationSeconds: 45, restSeconds: 10, instruction: 'Jump feet wide while raising arms overhead.'),
     GuidedExercise(name: 'Butt Kicks', muscleGroup: 'Hamstrings', durationSeconds: 40, restSeconds: 10, instruction: 'Jog in place, kicking heels up to your glutes.'),
@@ -74,7 +74,7 @@ const _kMorningWarmupPlan = GuidedPlan(
   difficulty: 'Beginner',
   category: 'Full Body',
   estimatedMinutes: 7,
-  emoji: '🌅',
+  emoji: '',
   exercises: [
     GuidedExercise(name: 'Neck Rolls', muscleGroup: 'Neck', durationSeconds: 30, restSeconds: 5, instruction: 'Slowly roll neck in full circles each direction.'),
     GuidedExercise(name: 'Shoulder Rolls', muscleGroup: 'Shoulders', durationSeconds: 30, restSeconds: 5, instruction: 'Roll shoulders forward and backward in large circles.'),
@@ -92,7 +92,7 @@ const _kStretchPlan = GuidedPlan(
   difficulty: 'Beginner',
   category: 'Full Body',
   estimatedMinutes: 5,
-  emoji: '🧘',
+  emoji: '',
   exercises: [
     GuidedExercise(name: 'Standing Quad Stretch', muscleGroup: 'Quads', durationSeconds: 30, restSeconds: 5, instruction: 'Stand on one leg, pull other foot to glutes. Hold.'),
     GuidedExercise(name: 'Hamstring Stretch', muscleGroup: 'Hamstrings', durationSeconds: 30, restSeconds: 5, instruction: 'Sit on floor, legs straight, reach for toes.'),
@@ -109,7 +109,7 @@ const _kStretchDeepPlan = GuidedPlan(
   difficulty: 'Intermediate',
   category: 'Full Body',
   estimatedMinutes: 10,
-  emoji: '🌿',
+  emoji: '',
   exercises: [
     GuidedExercise(name: 'Seated Forward Fold', muscleGroup: 'Hamstrings', durationSeconds: 45, restSeconds: 5, instruction: 'Sit with legs straight, fold forward reaching for feet.'),
     GuidedExercise(name: 'Butterfly Stretch', muscleGroup: 'Hips', durationSeconds: 45, restSeconds: 5, instruction: 'Sit with soles together, press knees toward floor.'),
@@ -128,7 +128,7 @@ const _kYogaStretchPlan = GuidedPlan(
   difficulty: 'Beginner',
   category: 'Full Body',
   estimatedMinutes: 8,
-  emoji: '🕉️',
+  emoji: '',
   exercises: [
     GuidedExercise(name: 'Mountain Pose', muscleGroup: 'Full Body', durationSeconds: 30, restSeconds: 5, instruction: 'Stand tall, feet together, arms at sides. Breathe deeply.'),
     GuidedExercise(name: 'Downward Dog', muscleGroup: 'Full Body', durationSeconds: 40, restSeconds: 5, instruction: 'Inverted V shape, hands and feet on floor, hips high.'),
@@ -1471,7 +1471,7 @@ class BodyFocusDifficultyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NutriLiftScaffold(
-      title: '$emoji $muscleLabel',
+      title: muscleLabel,
       showBackButton: true,
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -1593,7 +1593,7 @@ class BodyFocusExercisesScreen extends StatelessWidget {
 
   Color _diffColor(String d) {
     switch (d.toUpperCase()) {
-      case 'BEGINNER': return Colors.green;
+      case 'BEGINNER': return _kRed;
       case 'INTERMEDIATE': return Colors.orange;
       default: return _kRed;
     }
@@ -2220,10 +2220,7 @@ class _WorkoutCompletionScreenState
       final repo = ref.read(workoutRepositoryProvider);
       final durationMinutes = (widget.durationSeconds / 60).ceil().clamp(1, 600);
 
-      print('DEBUG: Creating exercise requests for ${widget.exercises.length} exercises');
-      
       final exerciseRequests = widget.exercises.asMap().entries.map((entry) {
-        print('DEBUG: Exercise ${entry.key}: id=${entry.value.id}, name=${entry.value.name}');
         return ExerciseSetRequest(
           exerciseId: '${entry.value.id}',
           order: entry.key,
@@ -2231,15 +2228,13 @@ class _WorkoutCompletionScreenState
             WorkoutSetRequest(
               setNumber: 1,
               reps: 10,
-              weight: 0.5, // minimum valid weight (bodyweight exercises)
+              weight: 0.5,
               completed: true,
             ),
           ],
           notes: entry.value.name,
         );
       }).toList();
-
-      print('DEBUG: Created ${exerciseRequests.length} exercise requests');
 
       final request = CreateWorkoutLogRequest(
         workoutName: widget.title,
@@ -2248,27 +2243,20 @@ class _WorkoutCompletionScreenState
         exercises: exerciseRequests,
       );
 
-      print('DEBUG: Submitting workout: ${request.workoutName}');
       await repo.logWorkout(request);
-      print('DEBUG: Workout saved successfully');
-      
       ref.read(workoutHistoryProvider.notifier).refresh();
 
-      // Wait for backend PR detection (now synchronous in serializer), then refresh PRs
       await Future.delayed(const Duration(milliseconds: 800));
       await ref.read(personalRecordsProvider.notifier).refresh();
 
-      // Refresh streak and notify dashboard
       try {
         await StreakService().fetchAllStreaks();
         DashboardRefreshService().notifyRefresh();
-        print('DEBUG: Streak refreshed after workout save');
       } catch (_) {}
 
       if (mounted) setState(() { _saving = false; _saved = true; });
     } catch (e, stackTrace) {
-      print('WorkoutCompletionScreen save error: $e');
-      print('Stack trace: $stackTrace');
+      debugPrint('WorkoutCompletionScreen save error: $e\n$stackTrace');
       if (mounted) setState(() { _saving = false; _saved = false; });
     }
   }
@@ -2283,7 +2271,7 @@ class _WorkoutCompletionScreenState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('🎉', style: TextStyle(fontSize: 64)),
+              const Icon(Icons.celebration_rounded, size: 64, color: Color(0xFFE53935)),
               const SizedBox(height: 16),
               const Text('Workout Complete!',
                   style: TextStyle(

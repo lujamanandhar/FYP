@@ -44,6 +44,41 @@ class GuidedPlan {
 }
 
 const List<GuidedPlan> kGuidedPlans = [
+  // ── Arms Beginner — Camera Tracking Plan ─────────────────────────────────
+  GuidedPlan(
+    id: 'arms_beginner_camera',
+    name: 'Arms Beginner',
+    description: 'Beginner arm workout with live camera rep counting. No equipment needed — just dumbbells.',
+    difficulty: 'Beginner',
+    category: 'Arms',
+    estimatedMinutes: 12,
+    emoji: '💪',
+    exercises: [
+      // Set 1 — Dumbbell Curl
+      GuidedExercise(name: 'Dumbbell Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 10, restSeconds: 20,
+          instruction: '1. Stand with dumbbells at sides\n2. Curl both arms up to shoulders\n3. Squeeze biceps at top\n4. Lower slowly with control'),
+      // Set 2 — Hammer Curl
+      GuidedExercise(name: 'Hammer Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 10, restSeconds: 20,
+          instruction: '1. Hold dumbbells with neutral grip (palms facing each other)\n2. Curl up keeping wrists straight\n3. Squeeze at top\n4. Lower slowly'),
+      // Set 3 — Bicep Curl
+      GuidedExercise(name: 'Bicep Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 10, restSeconds: 30,
+          instruction: '1. Arms at sides, palms forward\n2. Curl dumbbells to shoulders\n3. Keep elbows close to body\n4. Lower with control'),
+      // Round 2
+      GuidedExercise(name: 'Dumbbell Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 12, restSeconds: 20,
+          instruction: '1. Stand with dumbbells at sides\n2. Curl both arms up to shoulders\n3. Squeeze biceps at top\n4. Lower slowly with control'),
+      GuidedExercise(name: 'Hammer Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 12, restSeconds: 20,
+          instruction: '1. Hold dumbbells with neutral grip (palms facing each other)\n2. Curl up keeping wrists straight\n3. Squeeze at top\n4. Lower slowly'),
+      GuidedExercise(name: 'Bicep Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 12, restSeconds: 30,
+          instruction: '1. Arms at sides, palms forward\n2. Curl dumbbells to shoulders\n3. Keep elbows close to body\n4. Lower with control'),
+      // Round 3 — Burnout
+      GuidedExercise(name: 'Dumbbell Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 15, restSeconds: 20,
+          instruction: 'Final set! Push through the burn. Curl both arms up, squeeze hard at top.'),
+      GuidedExercise(name: 'Hammer Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 15, restSeconds: 20,
+          instruction: 'Final set! Neutral grip curls. Keep form strict even when tired.'),
+      GuidedExercise(name: 'Bicep Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 15, restSeconds: 30,
+          instruction: 'Last exercise! Give it everything. Curl up, squeeze, lower slowly.'),
+    ],
+  ),
   GuidedPlan(
     id: 'beginner_full_body',
     name: '10-Min Beginner Full Body',

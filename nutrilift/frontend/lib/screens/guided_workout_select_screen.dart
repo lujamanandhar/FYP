@@ -27,7 +27,7 @@ class _GuidedWorkoutSelectScreenState
 
   Color _difficultyColor(String d) {
     switch (d) {
-      case 'Beginner': return Colors.green;
+      case 'Beginner': return _kRed;
       case 'Intermediate': return Colors.orange;
       default: return _kRed;
     }

@@ -1,10 +1,11 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import '../models/exercise.dart';
+import '../services/rep_counting_service.dart' show isCameraTrackingSupported, kSupportedExerciseNames;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Exercise result — reps + weight per set per exercise
@@ -78,22 +79,37 @@ bool _lungeDetect(Map<PoseLandmarkType, PoseLandmark> lm, _RepState state, void 
 
 _Detector _detectorFor(String name) {
   final n = name.toLowerCase();
-  // Curl / bicep movements
-  if (n.contains('curl') || n.contains('bicep') || n.contains('hammer')) return _curlDetect;
-  // Row / pull movements (elbow flexion like curl)
-  if (n.contains('row') || n.contains('pull')) return _curlDetect;
-  // Push / press / dip / chest / tricep movements
-  if (n.contains('push') || n.contains('press') || n.contains('dip') || n.contains('chest') || n.contains('tricep') || n.contains('fly') || n.contains('flye')) return _pushUpDetect;
-  // Shoulder / overhead / lateral movements
-  if (n.contains('shoulder') || n.contains('overhead') || n.contains('lateral') || n.contains('raise')) return _pushUpDetect;
-  // Squat / deadlift / leg / calf movements
-  if (n.contains('squat') || n.contains('deadlift') || n.contains('leg') || n.contains('calf') || n.contains('glute') || n.contains('hip thrust')) return _squatDetect;
-  // Lunge / step movements
-  if (n.contains('lunge') || n.contains('step')) return _lungeDetect;
-  // Core / ab movements
-  if (n.contains('crunch') || n.contains('sit') || n.contains('ab') || n.contains('core') || n.contains('plank')) return _curlDetect;
-  // Default to squat (most generic full-body movement)
-  return _squatDetect;
+  // Curl: only dumbbell/bodyweight curls — not cable, barbell, machine, preacher, concentration
+  final isCurl = (n.contains('bicep curl') || n.contains('hammer curl') || n.contains('dumbbell curl'))
+      && !n.contains('cable') && !n.contains('barbell') && !n.contains('machine')
+      && !n.contains('preacher') && !n.contains('concentration') && !n.contains('ez bar');
+  if (isCurl) return _curlDetect;
+  // Push-up: only plain push-ups, not handstand/pike/decline/incline variants
+  if ((n.contains('push') || n.contains('pushup')) &&
+      !n.contains('handstand') && !n.contains('pike') &&
+      !n.contains('decline') && !n.contains('incline') &&
+      !n.contains('diamond') && !n.contains('archer') &&
+      !n.contains('clap') && !n.contains('one arm') && !n.contains('one-arm')) {
+    return _pushUpDetect;
+  }
+  if (n.contains('squat') && !n.contains('jump squat') && !n.contains('pistol')) return _squatDetect;
+  // All other exercises: return a no-op detector — never counts reps
+  return (lm, state, set) => false;
+}
+
+/// Whether the current exercise supports camera rep counting.
+bool _exerciseSupportedByCamera(String name) {
+  final n = name.toLowerCase();
+  final isCurl = (n.contains('bicep curl') || n.contains('hammer curl') || n.contains('dumbbell curl'))
+      && !n.contains('cable') && !n.contains('barbell') && !n.contains('machine')
+      && !n.contains('preacher') && !n.contains('concentration') && !n.contains('ez bar');
+  final isPushUp = (n.contains('push') || n.contains('pushup')) &&
+      !n.contains('handstand') && !n.contains('pike') &&
+      !n.contains('decline') && !n.contains('incline') &&
+      !n.contains('diamond') && !n.contains('archer') &&
+      !n.contains('clap') && !n.contains('one arm') && !n.contains('one-arm');
+  final isSquat = n.contains('squat') && !n.contains('jump squat') && !n.contains('pistol');
+  return isCurl || isPushUp || isSquat;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -320,11 +336,17 @@ class _CameraWorkoutPlayerScreenState extends State<CameraWorkoutPlayerScreen>
 
   String _detectorLabel(String name) {
     final n = name.toLowerCase();
-    if (n.contains('curl') || n.contains('bicep') || n.contains('hammer') || n.contains('row') || n.contains('pull')) return 'Elbow Curl';
-    if (n.contains('push') || n.contains('press') || n.contains('dip') || n.contains('chest') || n.contains('tricep') || n.contains('fly') || n.contains('shoulder') || n.contains('overhead') || n.contains('lateral') || n.contains('raise')) return 'Push/Press';
-    if (n.contains('lunge') || n.contains('step')) return 'Lunge';
-    if (n.contains('crunch') || n.contains('sit') || n.contains('ab') || n.contains('core')) return 'Core Flex';
-    return 'Squat/Hinge';
+    final isCurl = (n.contains('bicep curl') || n.contains('hammer curl') || n.contains('dumbbell curl'))
+        && !n.contains('cable') && !n.contains('barbell') && !n.contains('machine')
+        && !n.contains('preacher') && !n.contains('concentration') && !n.contains('ez bar');
+    if (isCurl) return 'Bicep Curl ✓';
+    if ((n.contains('push') || n.contains('pushup')) &&
+        !n.contains('handstand') && !n.contains('pike') &&
+        !n.contains('decline') && !n.contains('incline') &&
+        !n.contains('diamond') && !n.contains('archer') &&
+        !n.contains('clap') && !n.contains('one arm') && !n.contains('one-arm')) return 'Push-Up ✓';
+    if (n.contains('squat') && !n.contains('jump squat') && !n.contains('pistol')) return 'Squat ✓';
+    return 'Not Supported';
   }
 
   @override
@@ -363,6 +385,43 @@ class _CameraWorkoutPlayerScreenState extends State<CameraWorkoutPlayerScreen>
         AnimatedBuilder(animation: _flashAnim,
           builder: (_, __) => IgnorePointer(child: Container(color: Colors.white.withOpacity(_flashAnim.value)))),
 
+        // Coming Soon overlay for unsupported exercises
+        if (!_exerciseSupportedByCamera(_currentExercise.name))
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.75),
+              child: Center(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 32),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.videocam_off_rounded, size: 44, color: Color(0xFFE53935)),
+                      const SizedBox(height: 12),
+                      const Text('Camera Tracking\nComing Soon',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Auto rep counting is not yet available for ${_currentExercise.name}.\nPlease count reps manually.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600], height: 1.4),
+                      ),
+                      const SizedBox(height: 12),
+                      Text('Supported: Bicep Curl · Push-Up · Squat',
+                        style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+
         // Progress bar at top
         Positioned(top: 0, left: 0, right: 0, child: LinearProgressIndicator(
           value: progress.clamp(0.0, 1.0), minHeight: 3,
@@ -384,7 +443,7 @@ class _CameraWorkoutPlayerScreenState extends State<CameraWorkoutPlayerScreen>
             ])),
             // Confidence dot
             Container(width: 8, height: 8, decoration: BoxDecoration(
-              color: _confidence > 0.5 ? Colors.green : _confidence > 0.2 ? Colors.orange : Colors.red,
+              color: _confidence > 0.5 ? const Color(0xFFE53935) : _confidence > 0.2 ? Colors.orange : Colors.red,
               shape: BoxShape.circle)),
             const SizedBox(width: 4),
             Text('${(_confidence * 100).toInt()}%', style: const TextStyle(color: Colors.white, fontSize: 11)),
@@ -429,8 +488,8 @@ class _CameraWorkoutPlayerScreenState extends State<CameraWorkoutPlayerScreen>
         // State badge
         Positioned(top: 145, left: 16, child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(color: (isDown ? Colors.orange : Colors.green).withOpacity(0.85), borderRadius: BorderRadius.circular(16)),
-          child: Text(isDown ? '⬇ DOWN' : '⬆ UP', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+          decoration: BoxDecoration(color: (isDown ? Colors.orange : const Color(0xFFE53935)).withOpacity(0.85), borderRadius: BorderRadius.circular(16)),
+          child: Text(isDown ? 'DOWN' : 'UP', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
         )),
 
         // Rep counter — top right
@@ -504,7 +563,7 @@ class _CameraWorkoutPlayerScreenState extends State<CameraWorkoutPlayerScreen>
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
             child: Text(
-              _isLastSet && _isLastExercise ? 'Finish Workout' : _isLastSet ? 'Next Exercise →' : 'Set Done ($_reps reps)',
+              _isLastSet && _isLastExercise ? 'Finish Workout' : _isLastSet ? 'Next Exercise' : 'Set Done ($_reps reps)',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           )),
@@ -554,7 +613,7 @@ class _CamSkeletonPainter extends CustomPainter {
     final sx = size.width / imageSize.height;
     final sy = size.height / imageSize.width;
     Offset pt(PoseLandmark lm) { double x = lm.x * sx; if (mirror) x = size.width - x; return Offset(x, lm.y * sy); }
-    final line = Paint()..color = Colors.greenAccent.withOpacity(0.9)..strokeWidth = 4..strokeCap = StrokeCap.round;
+    final line = Paint()..color = const Color(0xFFE53935).withOpacity(0.9)..strokeWidth = 4..strokeCap = StrokeCap.round;
     final dot = Paint()..color = Colors.white..style = PaintingStyle.fill;
     for (final b in _bones) {
       final a = pose.landmarks[b[0]]; final bb = pose.landmarks[b[1]];
