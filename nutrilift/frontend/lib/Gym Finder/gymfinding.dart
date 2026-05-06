@@ -445,7 +445,7 @@ class _GymFindingScreenState extends State<GymFindingScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: gym['isOpen'] ? Colors.green : Colors.red,
+                      color: gym['isOpen'] ? const Color(0xFFE53935) : Colors.red,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(

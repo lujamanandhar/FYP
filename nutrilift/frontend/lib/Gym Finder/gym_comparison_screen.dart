@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../widgets/center_toast.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:geolocator/geolocator.dart';
@@ -34,6 +34,8 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
   List<String> _selectedForComparison = [];
   double _searchRadius = 5000; // Default 5km
   String? _searchAreaName;
+  List<GymPlace> _favoriteGyms = [];
+  bool _loadingFavorites = false;
 
   @override
   void initState() {
@@ -279,6 +281,9 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
   }
 
   List<GymPlace> get filteredGyms {
+    // Saved filter uses its own list
+    if (_selectedFilter == 'Saved') return _favoriteGyms;
+
     List<GymPlace> filtered = _gyms;
     
     // Apply search filter
@@ -308,6 +313,19 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
     }
     
     return filtered;
+  }
+
+  Future<void> _loadFavorites() async {
+    if (_loadingFavorites) return;
+    setState(() => _loadingFavorites = true);
+    try {
+      final favs = await _gymService.getFavoriteGyms();
+      if (mounted) setState(() => _favoriteGyms = favs);
+    } catch (e) {
+      if (mounted) showCenterToast(context, 'Could not load saved gyms', isError: true);
+    } finally {
+      if (mounted) setState(() => _loadingFavorites = false);
+    }
   }
 
   @override
@@ -440,7 +458,7 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: ['All', 'Near Me', 'Top Rated', 'Most Reviewed']
+                    children: ['All', 'Near Me', 'Top Rated', 'Most Reviewed', 'Saved']
                         .map((filter) => Padding(
                               padding: const EdgeInsets.only(right: 8),
                               child: FilterChip(
@@ -452,6 +470,7 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
                                 ),
                                 onSelected: (selected) {
                                   setState(() => _selectedFilter = filter);
+                                  if (filter == 'Saved') _loadFavorites();
                                 },
                               ),
                             ))
@@ -688,7 +707,7 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: gym.isOpen! ? Colors.green : Colors.red,
+                            color: gym.isOpen! ? const Color(0xFFE53935) : Colors.red,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -724,7 +743,7 @@ class _GymComparisonScreenState extends State<GymComparisonScreen> {
                       if (gym.priceLevel > 0)
                         Text(
                           gym.priceDisplay,
-                          style: TextStyle(color: Colors.green[700], fontSize: 14, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: const Color(0xFFE53935), fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                     ],
                   ),
@@ -823,7 +842,7 @@ class GymComparisonResultScreen extends StatelessWidget {
                 TableRow(
                   children: [
                     _buildTableCell('Rating', isLabel: true),
-                    ...gyms.map((gym) => _buildTableCell('${gym.rating} ⭐')),
+                    ...gyms.map((gym) => _buildTableCell('${gym.rating > 0 ? gym.rating.toStringAsFixed(1) : 'N/A'}')),
                   ],
                 ),
                 // Reviews Row
@@ -846,7 +865,7 @@ class GymComparisonResultScreen extends StatelessWidget {
                     _buildTableCell('Status', isLabel: true),
                     ...gyms.map((gym) => _buildTableCell(
                           gym.isOpen == true ? 'Open' : gym.isOpen == false ? 'Closed' : 'Unknown',
-                          color: gym.isOpen == true ? Colors.green : Colors.red,
+                          color: gym.isOpen == true ? const Color(0xFFE53935) : Colors.red,
                         )),
                   ],
                 ),
@@ -884,7 +903,7 @@ class GymComparisonResultScreen extends StatelessWidget {
                                 icon: const Icon(Icons.phone, size: 18),
                                 label: const Text('Call'),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
+                                  backgroundColor: const Color(0xFFE53935),
                                 ),
                               ),
                             ),

@@ -388,7 +388,7 @@ class _GymMapViewState extends State<GymMapView> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: _selectedGym!.isOpen! ? Colors.green : Colors.red,
+                                color: _selectedGym!.isOpen! ? const Color(0xFFE53935) : Colors.red,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(

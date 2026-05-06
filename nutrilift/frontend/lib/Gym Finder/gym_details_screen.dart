@@ -213,7 +213,7 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
                   children: [
                     Text(
                       _gym!.priceDisplay,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFFE53935)),
                     ),
                     const Text('Price', style: TextStyle(fontSize: 12)),
                   ],
@@ -223,7 +223,7 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _gym!.isOpen == true ? Colors.green : Colors.red,
+                        color: _gym!.isOpen == true ? const Color(0xFFE53935) : Colors.red,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -250,7 +250,7 @@ class _GymDetailsScreenState extends State<GymDetailsScreen>
                     icon: const Icon(Icons.phone),
                     label: const Text('Call'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: const Color(0xFFE53935),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
