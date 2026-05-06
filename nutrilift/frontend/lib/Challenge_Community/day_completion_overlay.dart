@@ -5,7 +5,7 @@ import '../services/app_config.dart';
 import 'community_provider.dart';
 
 const Color _kRed = Color(0xFFE53935);
-const Color _kGreen = Color(0xFF4CAF50);
+const Color _kGreen = Color(0xFFE53935); // unified to red theme
 
 /// Full-screen overlay shown after a day is completed.
 /// The day is already marked complete — this only offers sharing to community.
@@ -54,7 +54,7 @@ class _DayCompletionOverlayState extends State<DayCompletionOverlay>
   }
 
   String get _postContent =>
-      'I completed Day ${widget.dayNumber} of ${widget.challengeName}! 💪';
+      'I completed Day ${widget.dayNumber} of ${widget.challengeName}!';
 
   Future<void> _share() async {
     setState(() => _isSharing = true);
@@ -92,7 +92,7 @@ class _DayCompletionOverlayState extends State<DayCompletionOverlay>
               // ── Success animation ──────────────────────────────────
               ScaleTransition(
                 scale: _scaleAnim,
-                child: const Icon(Icons.check_circle, color: _kGreen, size: 100),
+                child: const Icon(Icons.check_circle, color: _kRed, size: 100),
               ),
               const SizedBox(height: 20),
 
@@ -152,7 +152,7 @@ class _DayCompletionOverlayState extends State<DayCompletionOverlay>
                   child: ElevatedButton(
                     onPressed: _isSharing ? null : _share,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _kGreen,
+                      backgroundColor: _kRed,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(

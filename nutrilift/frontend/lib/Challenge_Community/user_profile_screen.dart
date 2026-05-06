@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../widgets/center_toast.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
@@ -219,11 +219,11 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 children: [
-                                  _MiniStreak('💪', 'Workout', _allStreaks.workout.currentStreak),
+                                  _MiniStreak(Icons.fitness_center_rounded, 'Workout', _allStreaks.workout.currentStreak),
                                   Container(width: 1, height: 30, color: Colors.white30),
-                                  _MiniStreak('🍎', 'Nutrition', _allStreaks.nutrition.currentStreak),
+                                  _MiniStreak(Icons.restaurant_rounded, 'Nutrition', _allStreaks.nutrition.currentStreak),
                                   Container(width: 1, height: 30, color: Colors.white30),
-                                  _MiniStreak('🏆', 'Challenge', _allStreaks.challenge.currentStreak),
+                                  _MiniStreak(Icons.emoji_events_rounded, 'Challenge', _allStreaks.challenge.currentStreak),
                                 ],
                               ),
                             ),
@@ -582,13 +582,13 @@ class _AchievementsTabState extends State<_AchievementsTab> {
         Row(children: [
           Expanded(child: _SummaryCard(icon: Icons.calendar_today_rounded, label: 'Days Logged', value: '$totalDays', color: Colors.blue)),
           const SizedBox(width: 10),
-          Expanded(child: _SummaryCard(icon: Icons.local_fire_department_rounded, label: 'Streak', value: '$streak 🔥', color: Colors.orange)),
+          Expanded(child: _SummaryCard(icon: Icons.local_fire_department_rounded, label: 'Streak', value: '$streak days', color: Colors.orange)),
         ]),
         const SizedBox(height: 20),
 
         // ── Certificates ────────────────────────────────────────────
         if (widget.isOwnProfile) ...[
-          _SectionTitle(title: '🏆 Certificates', icon: Icons.workspace_premium),
+          _SectionTitle(title: 'Certificates', icon: Icons.workspace_premium),
           const SizedBox(height: 10),
           if (_loadingCerts)
             const Center(child: CircularProgressIndicator())
@@ -605,7 +605,7 @@ class _AchievementsTabState extends State<_AchievementsTab> {
 
         // ── Badges ──────────────────────────────────────────────────
         if (widget.isOwnProfile) ...[
-          _SectionTitle(title: '🎖️ Badges', icon: Icons.military_tech_outlined),
+          _SectionTitle(title: 'Badges', icon: Icons.military_tech_outlined),
           const SizedBox(height: 10),
           if (_loadingBadges)
             const Center(child: CircularProgressIndicator())
@@ -707,7 +707,7 @@ class _CertificateTile extends StatelessWidget {
                 color: const Color(0xFFFFD700).withOpacity(0.15),
                 shape: BoxShape.circle,
               ),
-              child: const Text('🏆', style: TextStyle(fontSize: 22)),
+              child: const Icon(Icons.emoji_events_rounded, color: Color(0xFFFFD700), size: 22),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -912,7 +912,7 @@ class _ChallengeCard extends StatelessWidget {
                 color: _kGreen.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text('Completed ✓',
+              child: const Text('Completed',
                   style: TextStyle(
                       color: _kGreen,
                       fontSize: 10,
@@ -1105,10 +1105,10 @@ class _PostViewerState extends State<_PostViewer> {
 
 // ── Mini streak display for profile ───────────────────────────────────────────
 class _MiniStreak extends StatelessWidget {
-  final String emoji;
+  final IconData icon;
   final String label;
   final int count;
-  const _MiniStreak(this.emoji, this.label, this.count);
+  const _MiniStreak(this.icon, this.label, this.count);
 
   @override
   Widget build(BuildContext context) {
@@ -1118,7 +1118,7 @@ class _MiniStreak extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('🔥$emoji', style: const TextStyle(fontSize: 14)),
+            Icon(icon, color: Colors.white, size: 14),
             const SizedBox(width: 4),
             Text('$count',
                 style: const TextStyle(

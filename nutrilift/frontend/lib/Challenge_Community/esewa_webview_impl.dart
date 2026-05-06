@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:dio/dio.dart';
+import '../services/dio_client.dart';
 
 /// eSewa payment using in-app WebView with HTML form POST.
-/// This is the correct approach — eSewa's endpoint requires a form POST,
-/// not a GET with query params.
 class EsewaWebViewImpl extends StatefulWidget {
   final Map<String, dynamic> params;
   final VoidCallback onSuccess;
@@ -23,6 +23,7 @@ class EsewaWebViewImpl extends StatefulWidget {
 class _EsewaWebViewImplState extends State<EsewaWebViewImpl> {
   late final WebViewController _controller;
   bool _loading = true;
+  bool _verifying = false;
 
   @override
   void initState() {
@@ -35,31 +36,90 @@ class _EsewaWebViewImplState extends State<EsewaWebViewImpl> {
     final esewaUrl = p['esewa_url'] as String;
     final successUrl = p['success_url'] as String;
     final failureUrl = p['failure_url'] as String;
-
-    // Build HTML that auto-submits a POST form — the only correct way to hit eSewa
     final html = _buildFormHtml(esewaUrl, p);
 
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(NavigationDelegate(
-        onPageStarted: (_) => setState(() => _loading = true),
-        onPageFinished: (_) => setState(() => _loading = false),
+        onPageStarted: (url) {
+          setState(() => _loading = true);
+          // Detect success redirect as soon as navigation starts
+          if (url.contains('/pay/verify') || url.contains(successUrl) ||
+              url.contains('/pay/success')) {
+            _handlePaymentSuccess(url);
+          } else if (url.contains('/pay/failure') || url.contains(failureUrl)) {
+            widget.onFailure();
+          }
+        },
+        onPageFinished: (url) {
+          setState(() => _loading = false);
+          // Also check on page finish in case onPageStarted missed it
+          if (url.contains('/pay/verify') || url.contains('/pay/success')) {
+            _handlePaymentSuccess(url);
+          }
+        },
         onNavigationRequest: (req) {
           final url = req.url;
-          // Detect success redirect
-          if (url.contains(successUrl) || url.contains('/pay/verify')) {
-            widget.onSuccess();
-            return NavigationDecision.prevent;
-          }
-          // Detect failure redirect
-          if (url.contains(failureUrl) || url.contains('/pay/failure')) {
+          if (url.contains('/pay/failure') || url.contains(failureUrl)) {
             widget.onFailure();
             return NavigationDecision.prevent;
           }
+          // Allow all other navigation (including eSewa pages)
           return NavigationDecision.navigate;
         },
       ))
       ..loadHtmlString(html, baseUrl: esewaUrl);
+  }
+
+  /// Called when eSewa redirects to our success URL.
+  Future<void> _handlePaymentSuccess(String url) async {
+    if (_verifying) return;
+    _verifying = true;
+    setState(() => _loading = true);
+
+    try {
+      final uri = Uri.tryParse(url);
+      final txnUuid = uri?.queryParameters['transaction_uuid'] ?? '';
+
+      final successUrl = widget.params['success_url'] as String;
+      final challengeIdMatch = RegExp(r'/challenges/([^/]+)/pay/').firstMatch(successUrl);
+      final challengeId = challengeIdMatch?.group(1) ?? '';
+
+      if (challengeId.isNotEmpty) {
+        final dio = DioClient().dio;
+        // Poll up to 5 times with 1s delay
+        for (int i = 0; i < 5; i++) {
+          await Future.delayed(const Duration(seconds: 1));
+          try {
+            final resp = await dio.get(
+              '/challenges/$challengeId/pay/success/',
+              queryParameters: txnUuid.isNotEmpty ? {'transaction_uuid': txnUuid} : null,
+            );
+            if (resp.data['status'] == 'COMPLETE') {
+              if (mounted) widget.onSuccess();
+              return;
+            }
+          } catch (_) {}
+        }
+        // Polling exhausted — payment NOT confirmed, treat as failure
+        if (mounted) {
+          setState(() { _loading = false; _verifying = false; });
+          widget.onFailure();
+        }
+        return;
+      }
+
+      // No challenge ID found — cannot verify, treat as failure
+      if (mounted) {
+        setState(() { _loading = false; _verifying = false; });
+        widget.onFailure();
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() { _loading = false; _verifying = false; });
+        widget.onFailure();
+      }
+    }
   }
 
   String _buildFormHtml(String action, Map<String, dynamic> p) {
@@ -107,14 +167,13 @@ class _EsewaWebViewImplState extends State<EsewaWebViewImpl> {
     return Stack(
       children: [
         WebViewWidget(controller: _controller),
-        if (_loading)
+        if (_loading || _verifying)
           Container(
             color: Colors.white,
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // eSewa official logo from their CDN
                   Image.network(
                     'https://esewa.com.np/common/images/esewa_logo.png',
                     width: 120,
@@ -130,7 +189,10 @@ class _EsewaWebViewImplState extends State<EsewaWebViewImpl> {
                   const SizedBox(height: 20),
                   const CircularProgressIndicator(color: Color(0xFF60BB46)),
                   const SizedBox(height: 12),
-                  const Text('Loading payment...', style: TextStyle(color: Colors.grey)),
+                  Text(
+                    _verifying ? 'Verifying payment...' : 'Loading payment...',
+                    style: const TextStyle(color: Colors.grey),
+                  ),
                 ],
               ),
             ),

@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../services/app_config.dart';
 import '../widgets/nutrilift_header.dart';
 import 'challenge_api_service.dart';
 import 'challenge_provider.dart';
@@ -103,7 +104,7 @@ class _ChallengeProgressScreenState extends State<ChallengeProgressScreen>
             onRefresh: _refresh,
             child: Column(
               children: [
-                // ── Summary card ──────────────────────────────────────
+                // -- Summary card --------------------------------------
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                   child: Card(
@@ -172,7 +173,7 @@ class _ChallengeProgressScreenState extends State<ChallengeProgressScreen>
                 ),
                 const SizedBox(height: 12),
 
-                // ── Inner tab bar: Daily Log | Leaderboard ────────────
+                // -- Inner tab bar: Daily Log | Leaderboard ------------
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Container(
@@ -201,7 +202,7 @@ class _ChallengeProgressScreenState extends State<ChallengeProgressScreen>
                 ),
                 const SizedBox(height: 8),
 
-                // ── Tab content ───────────────────────────────────────
+                // -- Tab content ---------------------------------------
                 Expanded(
                   child: TabBarView(
                     controller: _innerTabController,
@@ -231,7 +232,7 @@ class _ChallengeProgressScreenState extends State<ChallengeProgressScreen>
   }
 }
 
-// ─── Stat chip ────────────────────────────────────────────────────────────────
+// --- Stat chip ----------------------------------------------------------------
 class _StatChip extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -260,7 +261,7 @@ class _StatChip extends StatelessWidget {
   }
 }
 
-// ─── Daily Log Tab ────────────────────────────────────────────────────────────
+// --- Daily Log Tab ------------------------------------------------------------
 class _DailyLogTab extends StatelessWidget {
   final List<ChallengeDailyLogModel> logs;
   final bool loading;
@@ -308,7 +309,7 @@ class _DailyLogTab extends StatelessWidget {
   }
 }
 
-// ─── Leaderboard Tab ──────────────────────────────────────────────────────────
+// --- Leaderboard Tab ----------------------------------------------------------
 class _LeaderboardTab extends StatelessWidget {
   final List<ChallengeParticipantModel> leaderboard;
   final bool loading;
@@ -395,7 +396,7 @@ class _LeaderboardTab extends StatelessWidget {
                 CircleAvatar(
                   radius: 22,
                   backgroundColor: rankColor.withOpacity(0.2),
-                  backgroundImage: p.avatarUrl != null ? NetworkImage(p.avatarUrl!) : null,
+                  backgroundImage: p.avatarUrl != null ? NetworkImage(AppConfig.resolveMediaUrl(p.avatarUrl!)) : null,
                   child: p.avatarUrl == null
                       ? Text(p.username.isNotEmpty ? p.username[0].toUpperCase() : '?',
                           style: TextStyle(color: rankColor, fontWeight: FontWeight.bold, fontSize: 16))
@@ -456,7 +457,7 @@ class _LeaderboardTab extends StatelessWidget {
   }
 }
 
-// ─── Day Log Tile ─────────────────────────────────────────────────────────────
+// --- Day Log Tile -------------------------------------------------------------
 class _DayLogTile extends StatelessWidget {
   final ChallengeDailyLogModel log;
   const _DayLogTile({required this.log});

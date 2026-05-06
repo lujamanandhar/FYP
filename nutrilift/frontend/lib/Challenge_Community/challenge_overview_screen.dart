@@ -11,7 +11,7 @@ import 'challenge_progress_screen.dart';
 
 const Color _kRed = Color(0xFFE53935);
 const Color _kGold = Color(0xFFFFC107);
-const Color _kGreen = Color(0xFF4CAF50);
+const Color _kGreen = Color(0xFFE53935); // unified red theme
 
 // --- Standalone screen --------------------------------------------------------
 class ChallengeOverviewScreen extends StatefulWidget {
@@ -157,14 +157,19 @@ class _ChallengeOverviewBodyState extends State<ChallengeOverviewBody>
 
       // -- FAB --
       Positioned(
-        bottom: 20, right: 16,
-        child: FloatingActionButton.extended(
-          onPressed: _showCreateSheet,
-          backgroundColor: _kRed,
-          foregroundColor: Colors.white,
-          elevation: 4,
-          icon: const Icon(Icons.add),
-          label: const Text('Create', style: TextStyle(fontWeight: FontWeight.bold)),
+        bottom: 20, right: 0,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: FloatingActionButton.extended(
+              onPressed: _showCreateSheet,
+              backgroundColor: _kRed,
+              foregroundColor: Colors.white,
+              elevation: 4,
+              icon: const Icon(Icons.add),
+              label: const Text('Create', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
         ),
       ),
     ]);
@@ -304,7 +309,7 @@ class _ChallengeCard extends StatelessWidget {
 
   Color _typeColor(String t) {
     switch (t) {
-      case 'nutrition': return const Color(0xFF43A047);
+      case 'nutrition': return const Color(0xFFE53935);
       case 'workout': return const Color(0xFFFF7043);
       default: return const Color(0xFF7E57C2);
     }
@@ -496,48 +501,6 @@ class _ChallengeCard extends StatelessWidget {
   }
 }
 
-                // Action button � always navigate to details first
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: onTap,
-                    icon: Icon(
-                      challenge.isJoined
-                          ? Icons.today_rounded
-                          : (challenge.isPaid && !challenge.hasPaid
-                              ? Icons.lock_rounded
-                              : Icons.info_outline_rounded),
-                      size: 16,
-                    ),
-                    label: Text(
-                      challenge.isJoined
-                          ? 'View Details'
-                          : (challenge.isPaid && !challenge.hasPaid
-                              ? '${challenge.currency} ${challenge.price.toStringAsFixed(0)} � View Details'
-                              : 'View Details'),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: challenge.isJoined
-                          ? _kGreen
-                          : (challenge.isPaid && !challenge.hasPaid
-                              ? const Color(0xFF60BB46)
-                              : _kRed),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 11),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      elevation: 0,
-                    ),
-                  ),
-                ),
-              ]),
-            ),
-          ]),
-        ),
-      ),
-    );
-  }
-}
 
 class _MiniStat extends StatelessWidget {
   final IconData icon;
@@ -636,7 +599,7 @@ class _ActiveChallengeCard extends StatelessWidget {
 
   Color _typeColor(String t) {
     switch (t) {
-      case 'nutrition': return const Color(0xFF43A047);
+      case 'nutrition': return const Color(0xFFE53935);
       case 'workout': return const Color(0xFFFF7043);
       default: return const Color(0xFF7E57C2);
     }
@@ -827,14 +790,14 @@ class _CreateChallengeSheetState extends State<_CreateChallengeSheet> {
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 7));
   bool _loading = false;
-  final List<TextEditingController> _taskControllers = [];
+  // Each task: {'label': '...', 'type': 'manual'|'exercise'|'food'}
+  final List<Map<String, String>> _tasks = [];
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _descCtrl.dispose();
     _goalCtrl.dispose();
-    for (final c in _taskControllers) c.dispose();
     super.dispose();
   }
 
@@ -867,11 +830,7 @@ class _CreateChallengeSheetState extends State<_CreateChallengeSheet> {
       unit: _unit,
       startDate: _startDate,
       endDate: _endDate,
-      defaultTasks: _taskControllers
-          .map((c) => c.text.trim())
-          .where((s) => s.isNotEmpty)
-          .map((s) => {'label': s})
-          .toList(),
+      defaultTasks: _tasks,
     );
     setState(() => _loading = false);
     if (!mounted) return;
@@ -886,6 +845,14 @@ class _CreateChallengeSheetState extends State<_CreateChallengeSheet> {
   String _fmt(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
+  void _showAddTaskDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => _UserAddTaskDialog(
+        onAdd: (label, type) => setState(() => _tasks.add({'label': label, 'type': type})),
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -994,36 +961,49 @@ class _CreateChallengeSheetState extends State<_CreateChallengeSheet> {
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                     const Text('Daily Tasks (optional)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                     TextButton.icon(
-                      onPressed: () => setState(() => _taskControllers.add(TextEditingController())),
+                      onPressed: () => _showAddTaskDialog(),
                       icon: const Icon(Icons.add, size: 16, color: _kRed),
                       label: const Text('Add', style: TextStyle(color: _kRed, fontSize: 12)),
                     ),
                   ]),
-                  ..._taskControllers.asMap().entries.map((e) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: e.value,
-                              decoration: InputDecoration(
-                                hintText: 'Task ${e.key + 1}',
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(color: _kRed)),
-                              ),
-                            ),
+                  if (_tasks.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      child: const Text('No tasks yet. Tap "Add" to add daily tasks.',
+                          style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    )
+                  else
+                    ..._tasks.asMap().entries.map((e) {
+                      final i = e.key;
+                      final task = e.value;
+                      final isExercise = task['type'] == 'exercise';
+                      final isFood = task['type'] == 'food';
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isExercise ? Colors.blue[50] : isFood ? Colors.green[50] : Colors.grey[50],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isExercise ? Colors.blue[200]! : isFood ? Colors.green[200]! : Colors.grey[300]!,
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle_outline, color: Colors.red, size: 20),
-                            onPressed: () => setState(() {
-                              e.value.dispose();
-                              _taskControllers.removeAt(e.key);
-                            }),
+                        ),
+                        child: Row(children: [
+                          Text(isExercise ? '??' : isFood ? '??' : '?'),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(task['label'] ?? '', style: const TextStyle(fontSize: 13))),
+                          GestureDetector(
+                            onTap: () => setState(() => _tasks.removeAt(i)),
+                            child: const Icon(Icons.close, size: 16, color: Colors.grey),
                           ),
                         ]),
-                      )),
+                      );
+                    }),
                   const SizedBox(height: 20),
 
                   SizedBox(
@@ -1102,6 +1082,135 @@ class _DateTile extends StatelessWidget {
             Text(fmt, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
           ]),
         ]),
+      ),
+    );
+  }
+}
+
+// -- User Add Task Dialog ------------------------------------------------------
+
+class _UserAddTaskDialog extends StatefulWidget {
+  final void Function(String label, String type) onAdd;
+  const _UserAddTaskDialog({required this.onAdd});
+
+  @override
+  State<_UserAddTaskDialog> createState() => _UserAddTaskDialogState();
+}
+
+class _UserAddTaskDialogState extends State<_UserAddTaskDialog> {
+  final _ctrl = TextEditingController();
+  String _type = 'manual';
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text('Add Daily Task', style: TextStyle(fontWeight: FontWeight.bold)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _ctrl,
+            decoration: InputDecoration(
+              labelText: 'Task description *',
+              hintText: 'e.g. 30 Push-ups, Eat 30g protein',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: _kRed),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Text('Task Type', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, children: [
+            _TaskTypeChip(label: '? Manual', value: 'manual', selected: _type == 'manual',
+                color: Colors.grey[600]!, onTap: () => setState(() => _type = 'manual')),
+            _TaskTypeChip(label: '?? Exercise', value: 'exercise', selected: _type == 'exercise',
+                color: Colors.blue[700]!, onTap: () => setState(() => _type = 'exercise')),
+            _TaskTypeChip(label: '?? Food', value: 'food', selected: _type == 'food',
+                color: Colors.green[700]!, onTap: () => setState(() => _type = 'food')),
+          ]),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: _type == 'exercise' ? Colors.blue[50] : _type == 'food' ? Colors.green[50] : Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              _type == 'exercise'
+                  ? '?? Auto-verified: checks if you logged a workout today'
+                  : _type == 'food'
+                      ? '?? Auto-verified: checks if you logged nutrition today'
+                      : '?? You manually check this off yourself',
+              style: TextStyle(
+                fontSize: 11,
+                color: _type == 'exercise' ? Colors.blue[700] : _type == 'food' ? Colors.green[700] : Colors.grey[600],
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
+        ElevatedButton(
+          onPressed: () {
+            final label = _ctrl.text.trim();
+            if (label.isEmpty) return;
+            widget.onAdd(label, _type);
+            Navigator.pop(context);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _kRed, foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          child: const Text('Add Task'),
+        ),
+      ],
+    );
+  }
+}
+
+class _TaskTypeChip extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _TaskTypeChip({
+    required this.label, required this.value, required this.selected,
+    required this.color, required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? color.withOpacity(0.15) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: selected ? color : Colors.grey[300]!, width: selected ? 1.5 : 1),
+        ),
+        child: Text(label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+            color: selected ? color : Colors.grey[600],
+          ),
+        ),
       ),
     );
   }

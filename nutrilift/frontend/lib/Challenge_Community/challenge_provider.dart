@@ -72,9 +72,25 @@ class ChallengeProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      error = e.toString();
-      notifyListeners();
+      final msg = e.toString();
+      // "Already joined" is not a real error — just update local state
+      if (msg.contains('Already joined') || msg.contains('400')) {
+        final index = challenges.indexWhere((c) => c.id == id);
+        if (index != -1) {
+          challenges[index].isJoined = true;
+          notifyListeners();
+        }
+      } else {
+        error = msg;
+        notifyListeners();
+      }
     }
+  }
+
+  /// Clear any error state.
+  void clearError() {
+    error = null;
+    notifyListeners();
   }
 
   /// Leave a challenge by [id].

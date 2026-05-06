@@ -43,7 +43,7 @@ class _EsewaPaymentScreenState extends State<EsewaPaymentScreen> {
         if (mounted) {
           Navigator.pop(context);
           widget.onSuccess();
-          showCenterToast(context, '✅ Payment successful! You have joined the challenge.');
+          showCenterToast(context, 'Payment successful! You have joined the challenge.');
         }
         return;
       }
@@ -85,11 +85,15 @@ class _EsewaPaymentScreenState extends State<EsewaPaymentScreen> {
                       onSuccess: () {
                         Navigator.pop(context);
                         widget.onSuccess();
-                        showCenterToast(context, '✅ Payment successful! You have joined the challenge.');
+                        showCenterToast(context, 'Payment successful! You have joined the challenge.');
                       },
                       onFailure: () {
                         Navigator.pop(context);
-                        showCenterToast(context, '❌ Payment cancelled or failed.', isError: true);
+                        showCenterToast(
+                          context,
+                          'Payment failed or was cancelled. You have not been charged and have not joined the challenge.',
+                          isError: true,
+                        );
                       },
                     ),
     );
@@ -225,7 +229,8 @@ class _PaymentSheet extends StatelessWidget {
                 if (challenge.prizeDescription.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Text('🎁 ', style: TextStyle(fontSize: 14)),
+                    const Icon(Icons.card_giftcard_rounded, size: 16, color: Colors.brown),
+                    const SizedBox(width: 6),
                     Expanded(child: Text(challenge.prizeDescription,
                         style: const TextStyle(fontSize: 13, color: Colors.brown))),
                   ]),
@@ -236,13 +241,13 @@ class _PaymentSheet extends StatelessWidget {
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(color: const Color(0xFFFFEBEE), borderRadius: BorderRadius.circular(8)),
             child: const Column(children: [
-              Row(children: [Icon(Icons.check_circle, color: Color(0xFF4CAF50), size: 18), SizedBox(width: 8), Text('Certificate of completion', style: TextStyle(fontSize: 13))]),
+              Row(children: [Icon(Icons.check_circle, color: Color(0xFFE53935), size: 18), SizedBox(width: 8), Text('Certificate of completion', style: TextStyle(fontSize: 13))]),
               SizedBox(height: 4),
-              Row(children: [Icon(Icons.check_circle, color: Color(0xFF4CAF50), size: 18), SizedBox(width: 8), Text('Achievement badge on profile', style: TextStyle(fontSize: 13))]),
+              Row(children: [Icon(Icons.check_circle, color: Color(0xFFE53935), size: 18), SizedBox(width: 8), Text('Achievement badge on profile', style: TextStyle(fontSize: 13))]),
               SizedBox(height: 4),
-              Row(children: [Icon(Icons.check_circle, color: Color(0xFF4CAF50), size: 18), SizedBox(width: 8), Text('Prize for top finishers', style: TextStyle(fontSize: 13))]),
+              Row(children: [Icon(Icons.check_circle, color: Color(0xFFE53935), size: 18), SizedBox(width: 8), Text('Prize for top finishers', style: TextStyle(fontSize: 13))]),
             ]),
           ),
           const SizedBox(height: 20),

@@ -129,14 +129,19 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
             ),
             Positioned(
               bottom: 16,
-              right: 16,
-              child: FloatingActionButton.extended(
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => const CreatePostScreen())),
-                backgroundColor: _kRed,
-                foregroundColor: Colors.white,
-                icon: const Icon(Icons.add),
-                label: const Text('Post', style: TextStyle(fontWeight: FontWeight.bold)),
+              right: 0,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: FloatingActionButton.extended(
+                    onPressed: () => Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (_) => const CreatePostScreen())),
+                    backgroundColor: _kRed,
+                    foregroundColor: Colors.white,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Post', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
               ),
             ),
           ],
@@ -309,7 +314,49 @@ class _PostCardState extends State<_PostCard> {
                         );
                         if (confirm == true) provider.deletePost(post.id);
                       } else if (value == 'report') {
-                        showCenterToast(context, 'Post reported');
+                        final reasonCtrl = TextEditingController();
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: const Text('Report Post', style: TextStyle(fontWeight: FontWeight.bold)),
+                            content: TextField(
+                              controller: reasonCtrl,
+                              maxLines: 3,
+                              autofocus: true,
+                              decoration: InputDecoration(
+                                hintText: 'Describe why you are reporting this post...',
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: const BorderSide(color: _kRed),
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _kRed,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                child: const Text('Submit Report'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirmed == true && reasonCtrl.text.trim().isNotEmpty) {
+                          try {
+                            await CommunityApiService().reportPost(post.id, reasonCtrl.text.trim());
+                            if (context.mounted) showCenterToast(context, 'Post reported. Thank you.');
+                          } catch (_) {
+                            if (context.mounted) showCenterToast(context, 'Failed to report post', isError: true);
+                          }
+                        }
                       }
                     },
                     itemBuilder: (_) => [
