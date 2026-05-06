@@ -7,6 +7,8 @@ class AdminStats {
   final int officialChallenges;
   final int openSupportTickets;
   final int inProgressTickets;
+  final int pendingPrizes;
+  final int pendingReports;
 
   AdminStats({
     required this.totalUsers,
@@ -15,6 +17,8 @@ class AdminStats {
     required this.officialChallenges,
     required this.openSupportTickets,
     required this.inProgressTickets,
+    this.pendingPrizes = 0,
+    this.pendingReports = 0,
   });
 
   factory AdminStats.fromJson(Map<String, dynamic> json) {
@@ -25,6 +29,8 @@ class AdminStats {
       officialChallenges: json['official_challenges'] ?? 0,
       openSupportTickets: json['open_support_tickets'] ?? 0,
       inProgressTickets: json['in_progress_tickets'] ?? 0,
+      pendingPrizes: json['pending_prizes'] ?? 0,
+      pendingReports: json['pending_reports'] ?? 0,
     );
   }
 }
@@ -38,19 +44,21 @@ class AdminService {
     return AdminStats.fromJson(response.data);
   }
 
-  Future<Map<String, dynamic>> getUsers({int page = 1, String search = ''}) async {
+  Future<Map<String, dynamic>> getUsers({int page = 1, String search = '', String statusFilter = ''}) async {
     final dio = _dioClient.dio;
     final response = await dio.get('/admin/users/', queryParameters: {
       'page': page,
       if (search.isNotEmpty) 'search': search,
+      if (statusFilter.isNotEmpty) 'status': statusFilter,
     });
     return response.data;
   }
 
-  Future<Map<String, dynamic>> getChallenges({int page = 1}) async {
+  Future<Map<String, dynamic>> getChallenges({int page = 1, String search = ''}) async {
     final dio = _dioClient.dio;
     final response = await dio.get('/admin/challenges/', queryParameters: {
       'page': page,
+      if (search.isNotEmpty) 'search': search,
     });
     return response.data;
   }
@@ -67,6 +75,46 @@ class AdminService {
     });
   }
 
+  Future<void> editChallenge(String challengeId, {
+    String? name,
+    String? description,
+    String? challengeType,
+    double? goalValue,
+    String? unit,
+    String? startDate,
+    String? endDate,
+    bool? isOfficial,
+    bool? isActive,
+    bool? isPaid,
+    double? price,
+    String? currency,
+    String? prizeDescription,
+    List<Map<String, String>>? tasks,
+  }) async {
+    final dio = _dioClient.dio;
+    await dio.put('/admin/challenges/$challengeId/', data: {
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (challengeType != null) 'challenge_type': challengeType,
+      if (goalValue != null) 'goal_value': goalValue,
+      if (unit != null) 'unit': unit,
+      if (startDate != null) 'start_date': startDate,
+      if (endDate != null) 'end_date': endDate,
+      if (isOfficial != null) 'is_official': isOfficial,
+      if (isActive != null) 'is_active': isActive,
+      if (isPaid != null) 'is_paid': isPaid,
+      if (price != null) 'price': price,
+      if (currency != null) 'currency': currency,
+      if (prizeDescription != null) 'prize_description': prizeDescription,
+      if (tasks != null) 'tasks': tasks,
+    });
+  }
+
+  Future<void> deleteChallenge(String challengeId) async {
+    final dio = _dioClient.dio;
+    await dio.delete('/admin/challenges/$challengeId/');
+  }
+
   Future<void> createChallenge({
     required String name,
     required String description,
@@ -80,7 +128,7 @@ class AdminService {
     double price = 0,
     String currency = 'NPR',
     String prizeDescription = '',
-    List<String> tasks = const [],
+    List<Map<String, String>> tasks = const [],
   }) async {
     final dio = _dioClient.dio;
     await dio.post('/admin/challenges/create/', data: {
@@ -100,11 +148,12 @@ class AdminService {
     });
   }
 
-  Future<Map<String, dynamic>> getSupportTickets({int page = 1, String? status}) async {
+  Future<Map<String, dynamic>> getSupportTickets({int page = 1, String? status, String search = ''}) async {
     final dio = _dioClient.dio;
     final response = await dio.get('/admin/support-tickets/', queryParameters: {
       'page': page,
       if (status != null && status.isNotEmpty) 'status': status,
+      if (search.isNotEmpty) 'search': search,
     });
     return response.data;
   }
@@ -125,6 +174,22 @@ class AdminService {
     });
   }
 
+  Future<Map<String, dynamic>> getReportedPosts({int page = 1}) async {
+    final dio = _dioClient.dio;
+    final response = await dio.get('/admin/reported-posts/', queryParameters: {'page': page});
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<void> removePost(String postId) async {
+    final dio = _dioClient.dio;
+    await dio.post('/admin/reported-posts/$postId/remove/');
+  }
+
+  Future<void> dismissReports(String postId) async {
+    final dio = _dioClient.dio;
+    await dio.post('/admin/reported-posts/$postId/dismiss/');
+  }
+
   Future<Map<String, dynamic>> getAdminChallengeLeaderboard(String challengeId) async {
     final dio = _dioClient.dio;
     final response = await dio.get('/admin/challenges/$challengeId/leaderboard/');
@@ -137,6 +202,11 @@ class AdminService {
       'participant_id': participantId,
     });
     return response.data;
+  }
+
+  Future<void> disqualifyParticipant(String challengeId, String participantId) async {
+    final dio = _dioClient.dio;
+    await dio.delete('/admin/challenges/$challengeId/participants/$participantId/');
   }
 }
 

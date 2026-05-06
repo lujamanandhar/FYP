@@ -156,12 +156,17 @@ class _AdminFAQScreenState extends State<AdminFAQScreen> {
           // FAB overlay
           Positioned(
             bottom: 16,
-            right: 16,
-            child: FloatingActionButton(
-              heroTag: 'admin_faq_fab',
-              onPressed: () => _showDialog(),
-              backgroundColor: _kRed,
-              child: const Icon(Icons.add, color: Colors.white),
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: FloatingActionButton(
+                  heroTag: 'admin_faq_fab',
+                  onPressed: () => _showDialog(),
+                  backgroundColor: _kRed,
+                  child: const Icon(Icons.add, color: Colors.white),
+                ),
+              ),
             ),
           ),
         ],

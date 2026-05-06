@@ -1,10 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../widgets/center_toast.dart';
+import '../services/auth_service.dart';
+import '../UserManagement/login_screen.dart';
 import 'admin_service.dart';
 import 'admin_users_screen.dart';
 import 'admin_challenges_screen.dart';
 import 'admin_support_tickets_screen.dart';
 import 'admin_faq_screen.dart';
+import 'admin_reported_posts_screen.dart';
 
 const _kRed = Color(0xFFE53935);
 const _kBg = Color(0xFFF5F6FA);
@@ -50,7 +53,32 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
-  Future<void> _loadStats() => _loadAll();
+  Future<void> _logout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Logout', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Are you sure you want to logout from the admin panel?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: _kRed, foregroundColor: Colors.white),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    await AuthService().logout();
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (_) => false,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,13 +88,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ? const Center(child: CircularProgressIndicator(color: _kRed))
           : RefreshIndicator(
               color: _kRed,
-              onRefresh: _loadStats,
+              onRefresh: _loadAll,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header banner
+                    // Header banner with logout
                     Container(
                       width: double.infinity,
                       decoration: const BoxDecoration(
@@ -76,16 +104,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           bottomRight: Radius.circular(24),
                         ),
                       ),
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                      child: const Text(
-                        'Welcome back, Admin 👋',
-                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      padding: const EdgeInsets.fromLTRB(20, 4, 8, 24),
+                      child: Row(
+                        children: [
+                          const Expanded(
+                            child: Text(
+                              'Welcome back, Admin',
+                              style: TextStyle(color: Colors.white70, fontSize: 14),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.logout_rounded, color: Colors.white70),
+                            tooltip: 'Logout',
+                            onPressed: _logout,
+                          ),
+                        ],
                       ),
                     ),
 
                     const SizedBox(height: 20),
 
-                    // Stats grid
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Column(
@@ -93,6 +131,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         children: [
                           const _SectionLabel('Overview'),
                           const SizedBox(height: 12),
+
+                          // Tappable stat cards
                           GridView.count(
                             crossAxisCount: 2,
                             shrinkWrap: true,
@@ -101,14 +141,64 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             mainAxisSpacing: 12,
                             childAspectRatio: 1.4,
                             children: [
-                              _StatCard('Total Users', '${_stats?.totalUsers ?? 0}', Icons.people_alt_rounded, const Color(0xFF3B82F6)),
-                              _StatCard('Active Users', '${_stats?.activeUsers ?? 0}', Icons.person_outline, const Color(0xFF10B981)),
-                              _StatCard('Challenges', '${_stats?.totalChallenges ?? 0}', Icons.emoji_events_rounded, const Color(0xFFF59E0B)),
-                              _StatCard('Official', '${_stats?.officialChallenges ?? 0}', Icons.verified_rounded, const Color(0xFF8B5CF6)),
-                              _StatCard('Open Tickets', '${_stats?.openSupportTickets ?? 0}', Icons.support_agent_rounded, _kRed),
-                              _StatCard('In Progress', '${_stats?.inProgressTickets ?? 0}', Icons.pending_rounded, const Color(0xFFEC4899)),
+                              _StatCard(
+                                'Total Users', '${_stats?.totalUsers ?? 0}',
+                                Icons.people_alt_rounded, const Color(0xFF3B82F6),
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminUsersScreen())),
+                              ),
+                              _StatCard(
+                                'Active Users', '${_stats?.activeUsers ?? 0}',
+                                Icons.person_outline, const Color(0xFF10B981),
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminUsersScreen())),
+                              ),
+                              _StatCard(
+                                'Challenges', '${_stats?.totalChallenges ?? 0}',
+                                Icons.emoji_events_rounded, const Color(0xFFF59E0B),
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminChallengesScreen())),
+                              ),
+                              _StatCard(
+                                'Official', '${_stats?.officialChallenges ?? 0}',
+                                Icons.verified_rounded, const Color(0xFF8B5CF6),
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminChallengesScreen())),
+                              ),
+                              _StatCard(
+                                'Open Tickets', '${_stats?.openSupportTickets ?? 0}',
+                                Icons.support_agent_rounded, _kRed,
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSupportTicketsScreen())),
+                              ),
+                              _StatCard(
+                                'In Progress', '${_stats?.inProgressTickets ?? 0}',
+                                Icons.pending_rounded, const Color(0xFFEC4899),
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSupportTicketsScreen())),
+                              ),
                             ],
                           ),
+
+                          // Pending prizes alert
+                          if ((_stats?.pendingPrizes ?? 0) > 0) ...[
+                            const SizedBox(height: 12),
+                            _AlertBanner(
+                              color: const Color(0xFFF59E0B),
+                              bgColor: const Color(0xFFFFF3CD),
+                              icon: Icons.card_giftcard_rounded,
+                              title: '${_stats!.pendingPrizes} Prize${_stats!.pendingPrizes > 1 ? 's' : ''} Pending',
+                              subtitle: 'Tap to view challenges and award prizes',
+                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminChallengesScreen())),
+                            ),
+                          ],
+
+                          // Pending reports alert
+                          if ((_stats?.pendingReports ?? 0) > 0) ...[
+                            const SizedBox(height: 12),
+                            _AlertBanner(
+                              color: _kRed,
+                              bgColor: const Color(0xFFFEE2E2),
+                              icon: Icons.flag_rounded,
+                              title: '${_stats!.pendingReports} Reported Post${_stats!.pendingReports > 1 ? 's' : ''} Need Review',
+                              subtitle: 'Tap to review and moderate reported content',
+                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminReportedPostsScreen())),
+                            ),
+                          ],
 
                           const SizedBox(height: 24),
 
@@ -119,7 +209,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             icon: Icons.people_alt_rounded,
                             color: const Color(0xFF3B82F6),
                             title: 'User Management',
-                            subtitle: 'View, search and manage users',
+                            subtitle: '${_stats?.totalUsers ?? 0} total users',
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminUsersScreen())),
                           ),
                           const SizedBox(height: 10),
@@ -127,15 +217,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             icon: Icons.emoji_events_rounded,
                             color: const Color(0xFFF59E0B),
                             title: 'Challenge Management',
-                            subtitle: 'Create and manage challenges',
+                            subtitle: '${_stats?.totalChallenges ?? 0} challenges',
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminChallengesScreen())),
                           ),
                           const SizedBox(height: 10),
                           _ActionTile(
-                            icon: Icons.support_agent_rounded,
+                            icon: Icons.flag_rounded,
                             color: _kRed,
+                            title: 'Reported Posts',
+                            subtitle: (_stats?.pendingReports ?? 0) > 0
+                                ? '${_stats!.pendingReports} pending review'
+                                : 'No pending reports',
+                            badge: (_stats?.pendingReports ?? 0) > 0 ? '${_stats!.pendingReports}' : null,
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminReportedPostsScreen())),
+                          ),
+                          const SizedBox(height: 10),
+                          _ActionTile(
+                            icon: Icons.support_agent_rounded,
+                            color: const Color(0xFF0EA5E9),
                             title: 'Support Tickets',
                             subtitle: '${_stats?.openSupportTickets ?? 0} open tickets',
+                            badge: (_stats?.openSupportTickets ?? 0) > 0 ? '${_stats!.openSupportTickets}' : null,
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSupportTicketsScreen())),
                           ),
                           const SizedBox(height: 10),
@@ -150,8 +252,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           const SizedBox(height: 24),
 
                           // Recent users
-                          const _SectionLabel('Recent Users'),
-                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const _SectionLabel('Recent Users'),
+                              TextButton(
+                                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminUsersScreen())),
+                                child: const Text('See all', style: TextStyle(color: _kRed, fontSize: 13)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
                           if (_recentUsers.isEmpty)
                             const Center(child: Text('No users yet', style: TextStyle(color: Colors.grey)))
                           else
@@ -165,6 +276,55 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
               ),
             ),
+    );
+  }
+}
+
+class _AlertBanner extends StatelessWidget {
+  final Color color;
+  final Color bgColor;
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  const _AlertBanner({
+    required this.color, required this.bgColor, required this.icon,
+    required this.title, required this.subtitle, required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color, width: 1.5),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: color.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: color)),
+                  Text(subtitle, style: TextStyle(fontSize: 12, color: color.withOpacity(0.8))),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: color),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -187,34 +347,42 @@ class _StatCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color color;
-  const _StatCard(this.label, this.value, this.icon, this.color);
+  final VoidCallback? onTap;
+  const _StatCard(this.label, this.value, this.icon, this.color, {this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(10)),
-            child: Icon(icon, color: color, size: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
           ),
-          Column(
+          padding: const EdgeInsets.all(16),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-              Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(10)),
+                child: Icon(icon, color: color, size: 20),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                ],
+              ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -226,7 +394,11 @@ class _ActionTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
-  const _ActionTile({required this.icon, required this.color, required this.title, required this.subtitle, required this.onTap});
+  final String? badge;
+  const _ActionTile({
+    required this.icon, required this.color, required this.title,
+    required this.subtitle, required this.onTap, this.badge,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -255,6 +427,13 @@ class _ActionTile extends StatelessWidget {
                   ],
                 ),
               ),
+              if (badge != null)
+                Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+                  child: Text(badge!, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                ),
               Icon(Icons.chevron_right, color: Colors.grey[400]),
             ],
           ),
