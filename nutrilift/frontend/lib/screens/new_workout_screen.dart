@@ -672,16 +672,17 @@ class _NewWorkoutScreenState extends ConsumerState<NewWorkoutScreen> {
         // Notify home page to refresh dashboard
         DashboardRefreshService().notifyRefresh();
         
-        // Wait for backend to finish PR detection (serializer now handles this synchronously)
-        await Future.delayed(const Duration(milliseconds: 800));
-        
-        // Force refresh of PRs to show new records immediately
-        await ref.read(personalRecordsProvider.notifier).refresh();
-        
-        // Navigate back
+        // Navigate back first, then refresh PRs in background
         if (mounted) {
           Navigator.pop(context);
         }
+
+        // Background refresh — errors are silently ignored
+        Future.delayed(const Duration(milliseconds: 800), () {
+          try {
+            ref.read(personalRecordsProvider.notifier).refresh();
+          } catch (_) {}
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -1003,7 +1004,7 @@ class _ExerciseInputWidgetState extends ConsumerState<ExerciseInputWidget> {
                 icon: Icon(
                   set.completed ? Icons.check_circle : Icons.check_circle_outline,
                   size: 20,
-                  color: set.completed ? Colors.green : Colors.grey,
+                  color: set.completed ? const Color(0xFFE53935) : Colors.grey,
                 ),
                 onPressed: () {
                   ref.read(newWorkoutProvider.notifier).updateSet(

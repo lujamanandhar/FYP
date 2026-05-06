@@ -47,7 +47,7 @@ class _SessionReviewScreenState extends State<SessionReviewScreen> {
   }
 
   Color get _confidenceColor {
-    if (widget.confidence > 0.8) return Colors.green;
+    if (widget.confidence > 0.8) return const Color(0xFFE53935);
     if (widget.confidence > 0.6) return Colors.orange;
     return Colors.red;
   }

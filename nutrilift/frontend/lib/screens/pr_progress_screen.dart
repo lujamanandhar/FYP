@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../models/personal_record.dart';
@@ -137,7 +137,7 @@ class _PRProgressScreenState extends State<PRProgressScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        '↑ ${pr.improvementPercentage!.toStringAsFixed(1)}% improvement',
+                        '+\% improvement',
                         style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,

@@ -33,8 +33,16 @@ class AuthInterceptor {
   // Handle authentication failure
   void _handleAuthenticationFailure() {
     if (_isLoggingOut) return; // Prevent multiple logout operations
-    
-    _performLogout();
+
+    // Only force logout if the token is truly gone/invalid — not on transient 401s
+    _tokenService.isTokenValid().then((isValid) {
+      if (!isValid) {
+        _performLogout();
+      }
+      // If token is still valid, the 401 was transient — don't log out
+    }).catchError((_) {
+      // If we can't even check, don't force logout
+    });
   }
 
   // Perform logout and redirect to login screen

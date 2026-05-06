@@ -151,22 +151,15 @@ class GymService {
     int radius = 5000,
   }) async {
     try {
-      print('GymService: Searching gyms at lat=$latitude, lng=$longitude, radius=$radius');
       final dio = _dioClient.dio;
       final response = await dio.get('/gyms/nearby/', queryParameters: {
         'latitude': latitude,
         'longitude': longitude,
         'radius': radius,
       });
-      
-      print('GymService: Response status: ${response.statusCode}');
-      print('GymService: Response data: ${response.data}');
-      
       final List<dynamic> gyms = response.data['gyms'] ?? [];
-      print('GymService: Parsed ${gyms.length} gyms');
       return gyms.map((json) => GymPlace.fromJson(json)).toList();
     } catch (e) {
-      print('GymService: Error - $e');
       rethrow;
     }
   }
@@ -205,5 +198,21 @@ class GymService {
     final dio = _dioClient.dio;
     final response = await dio.get('/gyms/favorites/');
     return List<Map<String, dynamic>>.from(response.data);
+  }
+
+  Future<List<GymPlace>> getFavoriteGyms() async {
+    final favs = await getFavorites();
+    return favs.map((f) => GymPlace(
+      placeId: f['place_id'] ?? '',
+      name: f['name'] ?? '',
+      address: f['address'] ?? '',
+      latitude: (f['latitude'] ?? 0).toDouble(),
+      longitude: (f['longitude'] ?? 0).toDouble(),
+      rating: (f['rating'] ?? 0).toDouble(),
+      userRatingsTotal: f['user_ratings_total'] ?? 0,
+      isOpen: f['is_open'],
+      photos: List<String>.from(f['photos'] ?? []),
+      priceLevel: f['price_level'] ?? 0,
+    )).toList();
   }
 }

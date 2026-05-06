@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'app_config.dart';
 
 class TokenService {
   static final TokenService _instance = TokenService._internal();
@@ -142,9 +143,8 @@ class TokenService {
     }
 
     try {
-      // Import here to avoid circular dependency
-      final prefs = await SharedPreferences.getInstance();
-      final baseUrl = prefs.getString('base_url') ?? 'http://10.0.2.2:8000/api';
+      // Use AppConfig.baseUrl so it always matches the configured server
+      final baseUrl = AppConfig.baseUrl;
 
       // Use a plain Dio instance (no interceptors) to avoid infinite loop
       final dio = Dio(BaseOptions(

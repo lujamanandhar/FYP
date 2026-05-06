@@ -4,7 +4,7 @@
 ///   - Physical device (USB/WiFi): your computer's local IP e.g. '192.168.1.100'
 ///   - PC browser (Chrome): '127.0.0.1'
 class AppConfig {
-  static const String _baseHost = '10.0.2.2';
+  static const String _baseHost = '10.128.55.233';  // PC WiFi IP — phone must be on same network
   static const int _basePort = 8000;
 
   static String get baseUrl => 'http://$_baseHost:$_basePort/api';

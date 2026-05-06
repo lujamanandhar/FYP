@@ -88,6 +88,18 @@ class ErrorHandler {
       FlutterError.presentError(details);
       return;
     }
+
+    // Ignore layout/overflow errors — these are cosmetic and shouldn't interrupt the user
+    final errorStr = details.exception.toString().toLowerCase();
+    if (errorStr.contains('renderflex') ||
+        errorStr.contains('overflow') ||
+        errorStr.contains('pixels') ||
+        errorStr.contains('dioexception') ||
+        errorStr.contains('socketexception') ||
+        errorStr.contains('network') ||
+        errorStr.contains('connection')) {
+      return;
+    }
     
     // In release mode, show user-friendly error
     _showUserFriendlyError(
@@ -101,15 +113,32 @@ class ErrorHandler {
   void _handleAsyncError(Object error, StackTrace stack) {
     // Log error
     _logError('Async Error: $error', stack);
-    
+
     // In debug mode, print to console
     if (kDebugMode) {
       debugPrint('Async Error: $error');
       debugPrint('Stack trace: $stack');
       return;
     }
-    
-    // In release mode, show user-friendly error
+
+    // Ignore network/API errors — these are handled locally in each screen
+    final errorStr = error.toString().toLowerCase();
+    if (errorStr.contains('dioexception') ||
+        errorStr.contains('socketexception') ||
+        errorStr.contains('connection') ||
+        errorStr.contains('network') ||
+        errorStr.contains('timeout') ||
+        errorStr.contains('http') ||
+        errorStr.contains('401') ||
+        errorStr.contains('403') ||
+        errorStr.contains('404') ||
+        errorStr.contains('500') ||
+        errorStr.contains('apiexception') ||
+        error is SocketException) {
+      return;
+    }
+
+    // In release mode, show user-friendly error only for truly unexpected errors
     _showUserFriendlyError(
       'Unexpected Error',
       'An unexpected error occurred. Please restart the app if the problem persists.',
@@ -180,7 +209,7 @@ class ErrorHandler {
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: Colors.green,
+        backgroundColor: const Color(0xFFE53935),
         duration: const Duration(seconds: 3),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
@@ -307,7 +336,7 @@ class ErrorHandler {
             ],
           ),
           duration: Duration(seconds: 2),
-          backgroundColor: Colors.green,
+          backgroundColor: const Color(0xFFE53935),
         ),
       );
     }

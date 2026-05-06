@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
@@ -251,7 +251,7 @@ class _PersonalRecordsScreenState extends ConsumerState<PersonalRecordsScreen> {
     final dateStr = DateFormat('MMMM dd, yyyy').format(record.achievedDate);
     final buffer = StringBuffer();
     
-    buffer.writeln('🏆 New Personal Record! 🏆');
+    buffer.writeln('New Personal Record!');
     buffer.writeln();
     buffer.writeln('Exercise: ${record.exerciseName}');
     buffer.writeln('Max Weight: ${record.maxWeight.toStringAsFixed(1)} kg');
@@ -265,7 +265,7 @@ class _PersonalRecordsScreenState extends ConsumerState<PersonalRecordsScreen> {
     }
     
     buffer.writeln();
-    buffer.writeln('Tracked with NutriLift 💪');
+    buffer.writeln('Tracked with NutriLift');
     
     return buffer.toString();
   }

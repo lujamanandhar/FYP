@@ -326,7 +326,7 @@ class _ValidatedTextFormFieldState extends State<ValidatedTextFormField> {
             ),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
-                color: hasError ? Colors.red : (isValid ? Colors.green : Colors.blue),
+                color: hasError ? Colors.red : (isValid ? Colors.green : const Color(0xFFE53935)),
                 width: 2,
               ),
             ),

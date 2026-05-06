@@ -47,22 +47,13 @@ class WorkoutApiService implements WorkoutRepository {
   @override
   Future<WorkoutLog> logWorkout(CreateWorkoutLogRequest workout) async {
     try {
-      // Convert the request to match backend API format
       final requestData = _convertWorkoutLogRequest(workout);
-
-      print('DEBUG: Sending workout log request: $requestData');
-
       final response = await _dio.post(
         '/workouts/logs/log_workout/',
         data: requestData,
       );
-
-      print('DEBUG: Workout log response: ${response.data}');
-
       return WorkoutLog.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      print('DEBUG: Workout log error: ${e.response?.data}');
-      print('DEBUG: Status code: ${e.response?.statusCode}');
       throw _handleDioError(e, 'Failed to log workout');
     }
   }
