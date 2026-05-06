@@ -34,7 +34,7 @@ class _ChallengeCertificateScreenState extends State<ChallengeCertificateScreen>
       await file.writeAsBytes(bytes);
       await Share.shareXFiles(
         [XFile(file.path)],
-        text: '🏆 I completed the ${widget.completion.challengeName} challenge on NutriLift! Certificate #${widget.completion.certificateNumber}',
+        text: 'I completed the ${widget.completion.challengeName} challenge on NutriLift! Certificate #${widget.completion.certificateNumber}',
       );
     } catch (e) {
       if (mounted) {
@@ -222,7 +222,7 @@ class _CertificateCard extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        const Text('🎁', style: TextStyle(fontSize: 18)),
+                        const Icon(Icons.card_giftcard_rounded, color: Color(0xFFFFD700), size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(

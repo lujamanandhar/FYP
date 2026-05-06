@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+﻿import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../widgets/center_toast.dart';
@@ -14,6 +14,7 @@ import '../widgets/nutrilift_header.dart';
 import 'challenge_api_service.dart';
 import 'challenge_provider.dart';
 import 'day_completion_overlay.dart';
+import 'challenge_certificate_screen.dart';
 
 class ActiveChallengeScreen extends StatefulWidget {
   final String? challengeId;
@@ -59,7 +60,7 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
         final notifId = challenge.id.hashCode.abs() % 100000;
         await plugin.zonedSchedule(
           notifId,
-          '⏰ Challenge ends tomorrow!',
+          'Challenge ends tomorrow!',
           '"${challenge.name}" ends tomorrow. Complete your daily task!',
           tz.TZDateTime.from(oneDayBefore, tz.local),
           const NotificationDetails(
@@ -95,7 +96,34 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
   void _fetchLog() {
     final id = _resolveId();
     if (id != null) {
-      context.read<ChallengeProvider>().fetchTodayLog(id);
+      context.read<ChallengeProvider>().fetchTodayLog(id).then((_) {
+        // Auto-verify structured tasks after log loads
+        _autoVerifyTasks(id);
+      });
+    }
+  }
+
+  Future<void> _autoVerifyTasks(String challengeId) async {
+    try {
+      final provider = context.read<ChallengeProvider>();
+      final log = provider.todayLog;
+      if (log == null || log.isComplete) return;
+      final hasStructured = log.taskItems.any((t) => t.isStructured);
+      if (!hasStructured) return;
+
+      // Call verify endpoint to get live status from workout/nutrition logs
+      final result = await ChallengeApiService().verifyTodayLog(challengeId);
+      final updatedTasks = result['task_items'] as List?;
+      if (updatedTasks != null && mounted) {
+        // Update task items in the provider's log with verified status
+        final tasks = updatedTasks
+            .map((t) => DailyTaskItem.fromJson(t as Map<String, dynamic>))
+            .toList();
+        provider.todayLog?.taskItems = tasks;
+        provider.notifyListeners();
+      }
+    } catch (_) {
+      // Silently fail — verification is best-effort
     }
   }
 
@@ -324,8 +352,34 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
                           (c) => c.id == challengeId,
                           orElse: () => challenge!,
                         );
+
+                        // Check if challenge was just completed — fetch badges & certificate
+                        final justCompleted = updatedChallenge.participantProgress >= updatedChallenge.goalValue;
+                        List<BadgeModel> newBadges = [];
+                        ChallengeCompletionModel? completion;
+
+                        if (justCompleted) {
+                          // Fetch new badges earned
+                          try {
+                            final oldBadgeCount = provider.badges.length;
+                            await provider.fetchBadges();
+                            if (provider.badges.length > oldBadgeCount) {
+                              newBadges = provider.badges.sublist(oldBadgeCount);
+                            }
+                          } catch (_) {}
+
+                          // Fetch certificate
+                          try {
+                            final completions = await ChallengeApiService().fetchCompletions();
+                            completion = completions.firstWhere(
+                              (c) => c.challengeId == challengeId,
+                              orElse: () => completions.first,
+                            );
+                          } catch (_) {}
+                        }
+
                         final completedLog = provider.todayLog;
-                        if (completedLog != null) {
+                        if (completedLog != null && context.mounted) {
                           // Collect non-video image URLs for sharing
                           final imageUrls = completedLog.mediaUrls
                               .where((m) => !m.isVideo)
@@ -340,6 +394,64 @@ class _ActiveChallengeScreenState extends State<ActiveChallengeScreen> {
                               challengeId: challengeId,
                               firstMediaUrl: imageUrls.isNotEmpty ? imageUrls.first : null,
                               imageUrls: imageUrls,
+                            ),
+                          );
+                        }
+
+                        // Show badge earned dialog if new badges were awarded
+                        if (newBadges.isNotEmpty && context.mounted) {
+                          await showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              title: const Row(children: [
+                                Icon(Icons.military_tech, color: Colors.amber, size: 28),
+                                SizedBox(width: 8),
+                                Text('Badge Earned!', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ]),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: newBadges.map((b) => Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 6),
+                                  child: Row(children: [
+                                    CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor: Colors.amber[100],
+                                      backgroundImage: b.iconUrl.isNotEmpty ? NetworkImage(b.iconUrl) : null,
+                                      child: b.iconUrl.isEmpty ? const Icon(Icons.military_tech, color: Colors.amber) : null,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(b.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                        Text('+${b.pointsReward} pts', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                                      ],
+                                    )),
+                                  ]),
+                                )).toList(),
+                              ),
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFE53935),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                  child: const Text('Awesome!'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        // Navigate to certificate if challenge was completed
+                        if (completion != null && context.mounted) {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChallengeCertificateScreen(completion: completion!),
                             ),
                           );
                         }
@@ -536,7 +648,7 @@ class _DailyLogBody extends StatelessWidget {
                               Text(task.verificationMessage!,
                                   style: const TextStyle(fontSize: 11, color: Color(0xFFFF9800))),
                             if (isVerified)
-                              Text('Verified from your logs ✓',
+                              Text('Verified from your logs',
                                   style: const TextStyle(fontSize: 11, color: Color(0xFF4CAF50))),
                           ],
                         ),
@@ -550,7 +662,7 @@ class _DailyLogBody extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          task.type == 'exercise' ? '💪 Exercise' : '🥗 Food',
+                          task.type == 'exercise' ? 'Exercise' : 'Food',
                           style: TextStyle(
                             fontSize: 10,
                             color: task.type == 'exercise' ? Colors.blue[700] : Colors.green[700],

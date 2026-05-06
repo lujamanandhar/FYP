@@ -86,6 +86,7 @@ class ChallengeParticipantModel {
   final int currentStreak;
   final String? email;
   final String? participantId;
+  final bool? prizePaid;
 
   ChallengeParticipantModel({
     required this.rank,
@@ -96,6 +97,7 @@ class ChallengeParticipantModel {
     this.currentStreak = 0,
     this.email,
     this.participantId,
+    this.prizePaid,
   });
 
   factory ChallengeParticipantModel.fromJson(Map<String, dynamic> json) {
@@ -108,6 +110,7 @@ class ChallengeParticipantModel {
       currentStreak: json['current_streak'] as int? ?? 0,
       email: json['email'] as String?,
       participantId: json['participant_id'] as String?,
+      prizePaid: json['prize_paid'] as bool?,
     );
   }
 }

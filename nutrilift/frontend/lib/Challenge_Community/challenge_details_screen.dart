@@ -49,7 +49,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
   Color _typeColor(String type) {
     switch (type) {
       case 'nutrition':
-        return Colors.green;
+        return const Color(0xFFE53935);
       case 'workout':
         return Colors.orange;
       default:
@@ -157,7 +157,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                             ? Colors.red
                             : challenge.spotsLeft! <= 5
                                 ? Colors.orange
-                                : Colors.green,
+                                : const Color(0xFFE53935),
                       ),
                     ],
                   ],
@@ -261,7 +261,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                         label: const Text("Today's Daily Log",
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4CAF50),
+                          backgroundColor: const Color(0xFFE53935),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -327,16 +327,17 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                       if (current.isPaid && !current.hasPaid) {
                         // Show payment sheet
                         showPaymentSheet(context, current, () async {
-                          // Payment intercepted by WebView — now join the challenge directly
+                          // Payment done — backend verify may have already joined the user.
+                          // Try to join; if already joined (400) that's fine, just refresh.
                           try {
                             await provider.joinChallenge(challenge.id);
                           } catch (_) {
-                            // May already be joined if backend verify ran — ignore
+                            // Already joined or other error — refresh state anyway
                           }
+                          // Clear any error state before navigating
+                          provider.clearError();
                           await provider.fetchChallenges();
                           if (context.mounted) {
-                            showCenterToast(context, '✅ Payment successful! You have joined the challenge.');
-                            // Navigate to active challenge screen
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
