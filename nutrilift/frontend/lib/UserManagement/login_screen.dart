@@ -30,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen>
   final _authService = AuthService();
   final _formValidator = FormValidator();
 
+
   late final AnimationController _fadeCtrl;
   late final AnimationController _slideCtrl;
   late final Animation<double> _fadeAnim;
