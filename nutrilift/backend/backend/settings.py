@@ -312,7 +312,16 @@ ESEWA_SUCCESS_BASE_URL = None  # Replace with your ngrok URL
 ESEWA_SIMULATE_SUCCESS = config('ESEWA_SIMULATE_SUCCESS', default=False, cast=bool)
 
 
-# ── Email Configuration (console backend for FYP demo) ────────────────────────
-# Reset tokens print to the Django terminal — no real email server needed
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'nutrilift@example.com'
+# ── Email Configuration ────────────────────────────────────────────────────────
+# Set EMAIL_BACKEND to smtp to send real emails, or console for terminal output
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')  # Gmail App Password
+DEFAULT_FROM_EMAIL = 'NutriLift <lujamananadhar01@gmail.com>'
+
+# ── Google OAuth ───────────────────────────────────────────────────────────────
+GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
+GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')

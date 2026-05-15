@@ -46,6 +46,9 @@ urlpatterns = [
     # Token refresh — exchange refresh token for new access token
     path('token/refresh/', views.token_refresh, name='auth-token-refresh'),
 
+    # Google OAuth Sign-In
+    path('google/', views.google_auth, name='auth-google'),
+
     # Admin endpoints
     path('admin/dashboard/', admin_views.AdminDashboardView.as_view(), name='admin-dashboard'),
     path('admin/users/', admin_views.AdminUserListView.as_view(), name='admin-users'),

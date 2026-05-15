@@ -136,6 +136,13 @@ def register(request):
             from .jwt_utils import generate_refresh_token
             refresh_token = generate_refresh_token(user)
             
+            # Send welcome email
+            try:
+                from .email_utils import send_welcome_email
+                send_welcome_email(email, getattr(user, 'name', '') or '')
+            except Exception as e:
+                logger.warning(f"Welcome email failed for {email}: {e}")
+            
             # Prepare user profile data for response
             profile_serializer = UserProfileSerializer(user)
             
@@ -451,7 +458,7 @@ def password_reset_request(request):
     """
     POST /api/auth/password-reset/
     Body: { "email": "user@example.com" }
-    Generates a 6-digit OTP, prints to console, returns it in response for demo.
+    Sends a 6-digit OTP to the user's email.
     """
     import random
     from .models import PasswordResetOTP
@@ -463,7 +470,8 @@ def password_reset_request(request):
     try:
         user = User.objects.get(email=email)
     except User.DoesNotExist:
-        return Response({'message': 'If that email is registered, a code has been sent.', 'otp': ''})
+        # Don't reveal whether email exists
+        return Response({'message': 'If that email is registered, a code has been sent.'})
 
     # Generate 6-digit OTP
     otp = f"{random.randint(100000, 999999)}"
@@ -474,13 +482,19 @@ def password_reset_request(request):
     # Save new OTP
     PasswordResetOTP.objects.create(user=user, otp=otp)
 
-    # Print to Django terminal (visible during demo)
+    # Always print to terminal (useful for development)
     print(f"\n{'='*40}\nPASSWORD RESET OTP\nEmail: {email}\nOTP Code: {otp}\nExpires in 10 minutes\n{'='*40}\n")
 
-    return Response({
-        'message': 'OTP sent successfully.',
-        # otp NOT returned — user must read from terminal
-    })
+    # Send real email if SMTP is configured
+    try:
+        from .email_utils import send_otp_email
+        send_otp_email(email, getattr(user, 'name', '') or '', otp)
+        logger.info(f"Password reset OTP sent to {email}")
+    except Exception as e:
+        logger.warning(f"Email send failed for {email}: {e}. OTP printed to console.")
+        # Don't fail the request — OTP is still in terminal
+
+    return Response({'message': 'OTP sent successfully.'})
 
 
 @api_view(['POST'])
@@ -566,4 +580,85 @@ def token_refresh(request):
     return Response({
         'token': new_access,
         'refresh_token': new_refresh,
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def google_auth(request):
+    """
+    POST /api/auth/google/
+    Body: { "id_token": "<google_id_token>" }
+    Verifies the Google ID token, creates or retrieves the user, returns JWT.
+    """
+    from google.oauth2 import id_token as google_id_token
+    from google.auth.transport import requests as google_requests
+    from django.conf import settings as django_settings
+
+    token = request.data.get('id_token', '').strip()
+    if not token:
+        return Response({'error': 'id_token is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    client_id = django_settings.GOOGLE_CLIENT_ID
+    if not client_id:
+        return Response({'error': 'Google OAuth not configured on server.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    try:
+        # Verify the token with Google
+        idinfo = google_id_token.verify_oauth2_token(
+            token,
+            google_requests.Request(),
+            client_id,
+        )
+    except ValueError as e:
+        logger.warning(f"Google token verification failed: {e}")
+        return Response({'error': 'Invalid Google token.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    email = idinfo.get('email', '').lower().strip()
+    name = idinfo.get('name', '')
+    google_id = idinfo.get('sub', '')
+
+    if not email:
+        return Response({'error': 'Could not get email from Google account.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Get or create user
+    with transaction.atomic():
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                'name': name,
+                'is_active': True,
+            }
+        )
+        if created:
+            # Set unusable password — Google users don't need one
+            user.set_unusable_password()
+            user.save(update_fields=['password'])
+            logger.info(f"New user created via Google: {email}")
+            # Send welcome email
+            try:
+                from .email_utils import send_welcome_email
+                send_welcome_email(email, name)
+            except Exception as e:
+                logger.warning(f"Welcome email failed for {email}: {e}")
+        else:
+            # Update name if it changed
+            if name and user.name != name:
+                user.name = name
+                user.save(update_fields=['name'])
+
+    from .jwt_utils import generate_refresh_token
+    access_token = generate_jwt_token(user)
+    refresh_token = generate_refresh_token(user)
+    profile_serializer = UserProfileSerializer(user)
+
+    return Response({
+        'success': True,
+        'message': 'Google sign-in successful',
+        'data': {
+            'user': profile_serializer.data,
+            'token': access_token,
+            'refresh_token': refresh_token,
+            'is_new_user': created,
+        }
     }, status=status.HTTP_200_OK)
