@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart' as provider_pkg;
 import 'UserManagement/login_screen.dart';
 import 'services/auth_service.dart';
+import 'services/app_config.dart';
 import 'services/error_handler.dart';
 import 'services/notification_service.dart';
+import 'services/workout_reminder_service.dart';
 import 'Challenge_Community/challenge_provider.dart';
 import 'Challenge_Community/challenge_api_service.dart';
 import 'Challenge_Community/community_provider.dart';
@@ -14,8 +16,14 @@ import 'Challenge_Community/community_api_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Load saved server IP/port before anything else
+  await AppConfig.initialize();
+
   // Initialize local push notifications
   await NotificationService().initLocalNotifications();
+
+  // Reschedule any saved workout reminders
+  await WorkoutReminderService().rescheduleAll();
 
   // Initialize auth service with stored token so ApiClient has it in memory
   await AuthService().initialize();
