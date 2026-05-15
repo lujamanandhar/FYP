@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/nutrilift_header.dart';
 import 'guided_workout_plans.dart';
 import 'guided_workout_player_screen.dart';
+import 'camera_workout_setup_screen.dart';
 
 const Color _kRed = Color(0xFFE53935);
 
@@ -18,7 +19,7 @@ class _GuidedWorkoutSelectScreenState
   String _selectedCategory = 'All';
 
   static const _categories = [
-    'All', 'Full Body', 'Core', 'Upper', 'Lower', 'Cardio'
+    'All', 'Arms', 'Chest', 'Full Body', 'Core', 'Upper', 'Lower', 'Cardio'
   ];
 
   List<GuidedPlan> get _filtered => _selectedCategory == 'All'
@@ -30,6 +31,18 @@ class _GuidedWorkoutSelectScreenState
       case 'Beginner': return _kRed;
       case 'Intermediate': return Colors.orange;
       default: return _kRed;
+    }
+  }
+
+  void _onPlanTap(GuidedPlan plan) {
+    if (plan.isCameraWorkout) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => CameraWorkoutSetupScreen(plan: plan),
+      ));
+    } else {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => GuidedWorkoutPlayerScreen(plan: plan),
+      ));
     }
   }
 
@@ -83,12 +96,7 @@ class _GuidedWorkoutSelectScreenState
               itemBuilder: (_, i) => _PlanCard(
                 plan: _filtered[i],
                 difficultyColor: _difficultyColor(_filtered[i].difficulty),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        GuidedWorkoutPlayerScreen(plan: _filtered[i]),
-                  ),
-                ),
+                onTap: () => _onPlanTap(_filtered[i]),
               ),
             ),
           ),
@@ -153,11 +161,28 @@ class _PlanCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(plan.name,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15)),
+                          Row(children: [
+                            Text(plan.name,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15)),
+                            if (plan.isCameraWorkout) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.25),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                                  Icon(Icons.videocam_rounded, color: Colors.white, size: 11),
+                                  SizedBox(width: 3),
+                                  Text('Camera', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),
+                                ]),
+                              ),
+                            ],
+                          ]),
                           Text(plan.description,
                               style: const TextStyle(
                                   color: Colors.white70, fontSize: 12),

@@ -24,10 +24,13 @@ class GuidedPlan {
   final String name;
   final String description;
   final String difficulty; // Beginner / Intermediate / Advanced
-  final String category; // Full Body / Upper / Lower / Core / Cardio
+  final String category; // Full Body / Upper / Lower / Core / Cardio / Arms / Chest
   final int estimatedMinutes;
   final String emoji;
   final List<GuidedExercise> exercises;
+
+  /// If true, this plan uses the camera workout player with configurable sets/reps
+  final bool isCameraWorkout;
 
   const GuidedPlan({
     required this.id,
@@ -38,47 +41,81 @@ class GuidedPlan {
     required this.estimatedMinutes,
     required this.emoji,
     required this.exercises,
+    this.isCameraWorkout = false,
   });
 
   int get totalExercises => exercises.length;
 }
 
+// ── Camera-supported exercise definitions ─────────────────────────────────────
+
+/// Arms Beginner — the only fully supported camera workout.
+/// Exercises: Bicep Curl, Hammer Curl, Cable Curl
+const GuidedPlan kArmsBeginner = GuidedPlan(
+  id: 'arms_beginner_camera',
+  name: 'Arms Beginner',
+  description: 'Beginner arm workout with live camera rep counting. Bicep Curl, Hammer Curl, Cable Curl.',
+  difficulty: 'Beginner',
+  category: 'Arms',
+  estimatedMinutes: 15,
+  emoji: '💪',
+  isCameraWorkout: true,
+  exercises: [
+    GuidedExercise(
+      name: 'Bicep Curl',
+      muscleGroup: 'Biceps',
+      durationSeconds: 0,
+      reps: 10,
+      restSeconds: 30,
+      instruction: '1. Stand with dumbbells at sides, palms forward\n2. Curl both arms up to shoulders\n3. Squeeze biceps at top\n4. Lower slowly with control\n\nKeep elbows close to your body throughout.',
+    ),
+    GuidedExercise(
+      name: 'Hammer Curl',
+      muscleGroup: 'Biceps / Brachialis',
+      durationSeconds: 0,
+      reps: 10,
+      restSeconds: 30,
+      instruction: '1. Hold dumbbells with neutral grip (palms facing each other)\n2. Curl up keeping wrists straight\n3. Squeeze at top\n4. Lower slowly\n\nDo not swing your body.',
+    ),
+    GuidedExercise(
+      name: 'Cable Curl',
+      muscleGroup: 'Biceps',
+      durationSeconds: 0,
+      reps: 10,
+      restSeconds: 30,
+      instruction: '1. Stand facing cable machine, grip handle underhand\n2. Keep elbows pinned at sides\n3. Curl handle up to shoulders\n4. Squeeze at top, lower with control\n\nIf no cable, use a resistance band.',
+    ),
+  ],
+);
+
+/// Chest Beginner — camera supported (push-ups only).
+const GuidedPlan kChestBeginner = GuidedPlan(
+  id: 'chest_beginner_camera',
+  name: 'Chest Beginner',
+  description: 'Beginner chest workout with live camera rep counting. Push-up variations.',
+  difficulty: 'Beginner',
+  category: 'Chest',
+  estimatedMinutes: 12,
+  emoji: '🏋️',
+  isCameraWorkout: true,
+  exercises: [
+    GuidedExercise(
+      name: 'Push-ups',
+      muscleGroup: 'Chest',
+      durationSeconds: 0,
+      reps: 10,
+      restSeconds: 30,
+      instruction: '1. Place hands shoulder-width apart\n2. Keep body in a straight line\n3. Lower chest to ground\n4. Push back up fully\n\nKeep core tight throughout.',
+    ),
+  ],
+);
+
 const List<GuidedPlan> kGuidedPlans = [
-  // ── Arms Beginner — Camera Tracking Plan ─────────────────────────────────
-  GuidedPlan(
-    id: 'arms_beginner_camera',
-    name: 'Arms Beginner',
-    description: 'Beginner arm workout with live camera rep counting. No equipment needed — just dumbbells.',
-    difficulty: 'Beginner',
-    category: 'Arms',
-    estimatedMinutes: 12,
-    emoji: '💪',
-    exercises: [
-      // Set 1 — Dumbbell Curl
-      GuidedExercise(name: 'Dumbbell Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 10, restSeconds: 20,
-          instruction: '1. Stand with dumbbells at sides\n2. Curl both arms up to shoulders\n3. Squeeze biceps at top\n4. Lower slowly with control'),
-      // Set 2 — Hammer Curl
-      GuidedExercise(name: 'Hammer Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 10, restSeconds: 20,
-          instruction: '1. Hold dumbbells with neutral grip (palms facing each other)\n2. Curl up keeping wrists straight\n3. Squeeze at top\n4. Lower slowly'),
-      // Set 3 — Bicep Curl
-      GuidedExercise(name: 'Bicep Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 10, restSeconds: 30,
-          instruction: '1. Arms at sides, palms forward\n2. Curl dumbbells to shoulders\n3. Keep elbows close to body\n4. Lower with control'),
-      // Round 2
-      GuidedExercise(name: 'Dumbbell Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 12, restSeconds: 20,
-          instruction: '1. Stand with dumbbells at sides\n2. Curl both arms up to shoulders\n3. Squeeze biceps at top\n4. Lower slowly with control'),
-      GuidedExercise(name: 'Hammer Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 12, restSeconds: 20,
-          instruction: '1. Hold dumbbells with neutral grip (palms facing each other)\n2. Curl up keeping wrists straight\n3. Squeeze at top\n4. Lower slowly'),
-      GuidedExercise(name: 'Bicep Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 12, restSeconds: 30,
-          instruction: '1. Arms at sides, palms forward\n2. Curl dumbbells to shoulders\n3. Keep elbows close to body\n4. Lower with control'),
-      // Round 3 — Burnout
-      GuidedExercise(name: 'Dumbbell Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 15, restSeconds: 20,
-          instruction: 'Final set! Push through the burn. Curl both arms up, squeeze hard at top.'),
-      GuidedExercise(name: 'Hammer Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 15, restSeconds: 20,
-          instruction: 'Final set! Neutral grip curls. Keep form strict even when tired.'),
-      GuidedExercise(name: 'Bicep Curl', muscleGroup: 'Biceps', durationSeconds: 0, reps: 15, restSeconds: 30,
-          instruction: 'Last exercise! Give it everything. Curl up, squeeze, lower slowly.'),
-    ],
-  ),
+  // ── Camera-tracked plans (Arms + Chest Beginner) ──────────────────────────
+  kArmsBeginner,
+  kChestBeginner,
+
+  // ── Standard guided plans ─────────────────────────────────────────────────
   GuidedPlan(
     id: 'beginner_full_body',
     name: '10-Min Beginner Full Body',
@@ -171,3 +208,5 @@ const List<GuidedPlan> kGuidedPlans = [
     ],
   ),
 ];
+
+
