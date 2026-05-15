@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/nutrilift_header.dart';
 import '../models/workout_models.dart';
@@ -28,6 +29,7 @@ class _GuidedWorkoutPlayerScreenState
   int _currentIndex = 0;
   _Phase _phase = _Phase.exercise;
   int _secondsLeft = 0;
+  int _restTotal = 0; // tracks total rest seconds including extensions
   bool _paused = false;
   Timer? _timer;
   int _totalElapsed = 0; // total seconds elapsed
@@ -64,6 +66,7 @@ class _GuidedWorkoutPlayerScreenState
   void _startRest() {
     _phase = _Phase.rest;
     _secondsLeft = _current.restSeconds;
+    _restTotal = _current.restSeconds; // reset rest total
     _startTimer();
   }
 
@@ -71,19 +74,24 @@ class _GuidedWorkoutPlayerScreenState
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (_paused) return;
+      if (!mounted) { t.cancel(); return; }
       setState(() {
         _totalElapsed++;
         if (_secondsLeft > 0) {
           _secondsLeft--;
         } else {
           t.cancel();
-          _onTimerEnd();
         }
       });
+      // Call _onTimerEnd outside setState to avoid nested setState issues
+      if (_secondsLeft == 0) {
+        _onTimerEnd();
+      }
     });
   }
 
   void _onTimerEnd() {
+    HapticFeedback.heavyImpact(); // vibrate when timer ends
     if (_phase == _Phase.exercise) {
       _startRest();
     } else if (_phase == _Phase.rest) {
@@ -121,6 +129,15 @@ class _GuidedWorkoutPlayerScreenState
     if (_phase == _Phase.rest) {
       _timer?.cancel();
       _nextExercise();
+    }
+  }
+
+  void _extendRest() {
+    if (_phase == _Phase.rest) {
+      setState(() {
+        _secondsLeft += 20;
+        _restTotal += 20; // keep progress ring accurate
+      });
     }
   }
 
@@ -261,7 +278,7 @@ class _GuidedWorkoutPlayerScreenState
               _CircularTimer(
                 secondsLeft: _secondsLeft,
                 totalSeconds: isRest
-                    ? ex.restSeconds
+                    ? _restTotal
                     : ex.durationSeconds,
                 isRest: isRest,
                 paused: _paused,
@@ -339,6 +356,23 @@ class _GuidedWorkoutPlayerScreenState
                 ],
               ),
             ),
+
+            // +20s extend button during rest
+            if (isRest)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: OutlinedButton.icon(
+                  onPressed: _extendRest,
+                  icon: const Icon(Icons.add_rounded, size: 16),
+                  label: const Text('+20s', style: TextStyle(fontWeight: FontWeight.w600)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _kGreen,
+                    side: const BorderSide(color: _kGreen),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
+                ),
+              ),
 
             // Next exercise preview
             if (!isRest &&

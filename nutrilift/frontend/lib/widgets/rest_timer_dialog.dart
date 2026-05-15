@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 const Color _kRed = Color(0xFFE53935);
+const Color _kGreen = Color(0xFF4CAF50);
 
 /// Shows a rest timer bottom sheet after completing a set.
 /// Default rest time is 90 seconds, user can adjust.
@@ -48,16 +50,25 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
       setState(() {
         if (_remaining > 0) {
           _remaining--;
+          // Haptic pulse at 3 seconds remaining
+          if (_remaining <= 3 && _remaining > 0) {
+            HapticFeedback.lightImpact();
+          }
         } else {
           t.cancel();
           _running = false;
+          HapticFeedback.heavyImpact(); // vibrate when done
         }
       });
     });
   }
 
   void _addTime(int secs) {
-    setState(() => _remaining = (_remaining + secs).clamp(0, 600));
+    setState(() {
+      _remaining = (_remaining + secs).clamp(0, 600);
+      // If adding time, extend total so progress ring stays accurate
+      if (secs > 0) _total = (_total + secs).clamp(1, 600);
+    });
   }
 
   String get _timeStr {
@@ -130,11 +141,22 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _AdjustBtn(label: '-15s', onTap: () => _addTime(-15)),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               _AdjustBtn(label: '-30s', onTap: () => _addTime(-30)),
-              const SizedBox(width: 12),
-              _AdjustBtn(label: '+30s', onTap: () => _addTime(30)),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
+              // Prominent +20s button
+              ElevatedButton.icon(
+                onPressed: () => _addTime(20),
+                icon: const Icon(Icons.add_rounded, size: 16),
+                label: const Text('+20s', style: TextStyle(fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _kGreen,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+              const SizedBox(width: 8),
               _AdjustBtn(label: '+60s', onTap: () => _addTime(60)),
             ],
           ),
