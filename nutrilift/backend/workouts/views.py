@@ -137,11 +137,10 @@ class ExerciseViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """
         Clear exercise cache when new exercise is created.
-        
-        Requirements: 12.6
+        Admin-created exercises are not marked as custom.
         """
-        serializer.save(created_by=self.request.user, is_custom=True)
-        # Clear cache by clearing all keys (simple approach for local memory cache)
+        is_custom = not self.request.user.is_staff
+        serializer.save(created_by=self.request.user, is_custom=is_custom)
         cache.clear()
 
     def perform_update(self, serializer):

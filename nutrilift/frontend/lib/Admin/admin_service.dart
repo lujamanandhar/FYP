@@ -290,3 +290,125 @@ extension AdminServiceFAQ on AdminService {
     await dio.delete('/admin/faqs/$faqId/');
   }
 }
+
+// ── Exercise model ────────────────────────────────────────────────────────────
+
+class AdminExercise {
+  final int id;
+  final String name;
+  final String description;
+  final String category;
+  final String muscleGroup;
+  final String equipment;
+  final String difficulty;
+  final String instructions;
+  final String? imageUrl;
+  final String? videoUrl;
+  final double caloriesPerMinute;
+  final bool isCustom;
+
+  AdminExercise({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.category,
+    required this.muscleGroup,
+    required this.equipment,
+    required this.difficulty,
+    required this.instructions,
+    this.imageUrl,
+    this.videoUrl,
+    required this.caloriesPerMinute,
+    required this.isCustom,
+  });
+
+  factory AdminExercise.fromJson(Map<String, dynamic> json) => AdminExercise(
+        id: json['id'] as int,
+        name: json['name'] as String,
+        description: json['description'] as String? ?? '',
+        category: json['category'] as String,
+        muscleGroup: json['muscle_group'] as String,
+        equipment: json['equipment'] as String,
+        difficulty: json['difficulty'] as String,
+        instructions: json['instructions'] as String? ?? '',
+        imageUrl: json['image_url'] as String?,
+        videoUrl: json['video_url'] as String?,
+        caloriesPerMinute: (json['calories_per_minute'] as num?)?.toDouble() ?? 5.0,
+        isCustom: json['is_custom'] as bool? ?? false,
+      );
+}
+
+extension AdminServiceExercises on AdminService {
+  Future<List<AdminExercise>> getExercises({String search = '', String category = ''}) async {
+    final dio = _dioClient.dio;
+    final response = await dio.get('/exercises/', queryParameters: {
+      if (search.isNotEmpty) 'search': search,
+      if (category.isNotEmpty) 'category': category,
+    });
+    final List<dynamic> data = response.data is List
+        ? response.data
+        : (response.data['results'] ?? response.data['data'] ?? []);
+    return data.map((e) => AdminExercise.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<AdminExercise> createExercise({
+    required String name,
+    required String description,
+    required String category,
+    required String muscleGroup,
+    required String equipment,
+    required String difficulty,
+    required String instructions,
+    String? imageUrl,
+    String? videoUrl,
+    double caloriesPerMinute = 5.0,
+  }) async {
+    final dio = _dioClient.dio;
+    final response = await dio.post('/exercises/', data: {
+      'name': name,
+      'description': description,
+      'category': category,
+      'muscle_group': muscleGroup,
+      'equipment': equipment,
+      'difficulty': difficulty,
+      'instructions': instructions,
+      if (imageUrl != null && imageUrl.isNotEmpty) 'image_url': imageUrl,
+      if (videoUrl != null && videoUrl.isNotEmpty) 'video_url': videoUrl,
+      'calories_per_minute': caloriesPerMinute,
+    });
+    return AdminExercise.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<AdminExercise> updateExercise(int id, {
+    required String name,
+    required String description,
+    required String category,
+    required String muscleGroup,
+    required String equipment,
+    required String difficulty,
+    required String instructions,
+    String? imageUrl,
+    String? videoUrl,
+    double caloriesPerMinute = 5.0,
+  }) async {
+    final dio = _dioClient.dio;
+    final response = await dio.put('/exercises/$id/', data: {
+      'name': name,
+      'description': description,
+      'category': category,
+      'muscle_group': muscleGroup,
+      'equipment': equipment,
+      'difficulty': difficulty,
+      'instructions': instructions,
+      if (imageUrl != null && imageUrl.isNotEmpty) 'image_url': imageUrl,
+      if (videoUrl != null && videoUrl.isNotEmpty) 'video_url': videoUrl,
+      'calories_per_minute': caloriesPerMinute,
+    });
+    return AdminExercise.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<void> deleteExercise(int id) async {
+    final dio = _dioClient.dio;
+    await dio.delete('/exercises/$id/');
+  }
+}

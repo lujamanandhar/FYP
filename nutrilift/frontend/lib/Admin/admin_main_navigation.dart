@@ -5,6 +5,7 @@ import 'admin_challenges_screen.dart';
 import 'admin_reported_posts_screen.dart';
 import 'admin_support_tickets_screen.dart';
 import 'admin_faq_screen.dart';
+import 'admin_exercises_screen.dart';
 import 'admin_service.dart';
 
 const _kRed = Color(0xFFE53935);
@@ -21,7 +22,7 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
   int _pendingReports = 0;
   int _openTickets = 0;
 
-  static const _labels = ['Dashboard', 'Users', 'Challenges', 'Reports', 'Support', 'FAQs'];
+  static const _labels = ['Dashboard', 'Users', 'Challenges', 'Reports', 'Support', 'FAQs', 'Exercises'];
   static const _icons = [
     Icons.dashboard_rounded,
     Icons.people_alt_rounded,
@@ -29,6 +30,7 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
     Icons.flag_rounded,
     Icons.support_agent_rounded,
     Icons.help_outline_rounded,
+    Icons.fitness_center_rounded,
   ];
 
   @override
@@ -91,6 +93,7 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
           AdminReportedPostsScreen(),
           AdminSupportTicketsScreen(),
           AdminFAQScreen(),
+          AdminExercisesScreen(),
         ],
       ),
       bottomNavigationBar: Container(
