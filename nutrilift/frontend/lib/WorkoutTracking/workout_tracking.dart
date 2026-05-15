@@ -1782,13 +1782,10 @@ class BodyFocusExercisesScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => CameraWorkoutPlayerScreen(
+                    builder: (_) => ManualWorkoutPlayerScreen(
                       title: title,
                       exercises: exercises,
                       difficultyColor: difficultyColor,
-                      onComplete: (results, duration) {
-                        Navigator.pop(context);
-                      },
                     ),
                   ),
                 );
@@ -2264,7 +2261,7 @@ class _WorkoutCompletionScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -2275,12 +2272,12 @@ class _WorkoutCompletionScreenState
               const SizedBox(height: 16),
               const Text('Workout Complete!',
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.black87,
                       fontWeight: FontWeight.bold,
                       fontSize: 28)),
               const SizedBox(height: 6),
               Text(widget.title,
-                  style: const TextStyle(color: Colors.white54, fontSize: 15)),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 15)),
               const SizedBox(height: 10),
 
               // Save status
@@ -2290,10 +2287,10 @@ class _WorkoutCompletionScreenState
                       width: 14,
                       height: 14,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white38)),
+                          strokeWidth: 2, color: Color(0xFFE53935))),
                   const SizedBox(width: 8),
-                  const Text('Saving to history...',
-                      style: TextStyle(color: Colors.white38, fontSize: 12)),
+                  Text('Saving to history...',
+                      style: TextStyle(color: Colors.grey[500], fontSize: 12)),
                 ] else if (_saved) ...[
                   const Icon(Icons.check_circle_rounded,
                       color: Color(0xFF4CAF50), size: 16),
@@ -2340,15 +2337,16 @@ class _WorkoutCompletionScreenState
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.06),
+                  color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.grey[200]!),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Exercises Completed',
+                    Text('Exercises Completed',
                         style: TextStyle(
-                            color: Colors.white70,
+                            color: Colors.grey[700],
                             fontWeight: FontWeight.bold,
                             fontSize: 13)),
                     const SizedBox(height: 8),
@@ -2359,8 +2357,8 @@ class _WorkoutCompletionScreenState
                             color: widget.difficultyColor, size: 14),
                         const SizedBox(width: 8),
                         Text(e.name,
-                            style: const TextStyle(
-                                color: Colors.white60, fontSize: 12)),
+                            style: TextStyle(
+                                color: Colors.grey[600], fontSize: 12)),
                       ]),
                     )),
                   ],

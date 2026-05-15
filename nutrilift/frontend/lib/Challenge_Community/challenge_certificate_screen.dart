@@ -48,20 +48,20 @@ class _ChallengeCertificateScreenState extends State<ChallengeCertificateScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Certificate', style: TextStyle(color: Colors.white)),
+        title: const Text('Certificate', style: TextStyle(color: Colors.black87)),
         actions: [
           IconButton(
             icon: _sharing
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : const Icon(Icons.share, color: Colors.white),
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Color(0xFFE53935), strokeWidth: 2))
+                : const Icon(Icons.share, color: Colors.black87),
             onPressed: _sharing ? null : _shareCertificate,
           ),
         ],
