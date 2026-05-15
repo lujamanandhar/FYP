@@ -5,6 +5,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../widgets/nutrilift_header.dart';
 import 'change_password_screen.dart';
 import 'legal_screen.dart';
+import 'server_settings_screen.dart';
+import '../screens/workout_reminders_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -99,6 +101,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: _notificationsEnabled,
                 onChanged: _saveNotifications,
               ),
+              _tile(
+                icon: Icons.alarm_rounded,
+                title: 'Workout Reminders',
+                subtitle: 'Schedule weekly workout notifications',
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WorkoutRemindersScreen())),
+              ),
             ]),
             const SizedBox(height: 24),
 
@@ -123,6 +131,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: 'Clear Cache',
                 subtitle: 'Free up storage space',
                 onTap: _showClearCacheDialog,
+              ),
+            ]),
+            const SizedBox(height: 24),
+
+            // ── Developer ──────────────────────────────────────────────────────
+            _sectionHeader('Developer'),
+            _buildCard([
+              _tile(
+                icon: Icons.dns_outlined,
+                title: 'Server Settings',
+                subtitle: 'Change backend IP address',
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ServerSettingsScreen())),
               ),
             ]),
             const SizedBox(height: 24),

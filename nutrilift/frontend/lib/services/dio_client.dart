@@ -38,6 +38,8 @@ class DioClient {
   }
 
   Future<void> _onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+    // Always use the latest baseUrl in case server settings changed
+    options.baseUrl = AppConfig.baseUrl;
     final token = await _tokenService.getToken();
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
