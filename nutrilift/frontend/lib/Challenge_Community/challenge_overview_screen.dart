@@ -237,8 +237,12 @@ class _ChallengeList extends StatelessWidget {
           onJoin: () async {
             await provider.joinChallenge(c.id);
             if (context.mounted) {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => ActiveChallengeScreen(challengeId: c.id)));
+              if (provider.error != null) {
+                showCenterToast(context, provider.error!, isError: true);
+              } else {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => ActiveChallengeScreen(challengeId: c.id)));
+              }
             }
           },
           onLeave: () => _confirmLeave(context, provider, c),
@@ -370,7 +374,7 @@ class _ChallengeCard extends StatelessWidget {
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(challenge.name,
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                        maxLines: 1, overflow: TextOverflow.ellipsis),
+                        maxLines: 2, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
                     Row(children: [
                       if (official) ...[
