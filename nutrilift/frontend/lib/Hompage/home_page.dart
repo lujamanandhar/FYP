@@ -204,21 +204,29 @@ class _HomePageState extends State<HomePage>
     setState(() => _isLoading = true);
     try {
       final profile = await _authService.getProfile();
-      setState(() {
-        _userProfile = profile;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _userProfile = profile;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       // Retry once after a short delay in case of token initialization race
       await Future.delayed(const Duration(milliseconds: 500));
       try {
         final profile = await _authService.getProfile();
-        setState(() {
-          _userProfile = profile;
-          _isLoading = false;
-        });
-      } catch (_) {
-        setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() {
+            _userProfile = profile;
+            _isLoading = false;
+          });
+        }
+      } catch (retryError) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          // Show subtle error — don't block the whole dashboard
+          debugPrint('Profile load failed after retry: $retryError');
+        }
       }
     }
   }
