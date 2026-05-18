@@ -218,7 +218,9 @@ class _PostCardState extends State<_PostCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(post.username,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
                         Text(_timeAgo(post.createdAt),
                             style: TextStyle(color: Colors.grey[500], fontSize: 12)),
                       ],
@@ -395,7 +397,10 @@ class _PostCardState extends State<_PostCard> {
           if (post.content.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-              child: Text(post.content, style: const TextStyle(fontSize: 14, height: 1.5)),
+              child: Text(post.content,
+                  style: const TextStyle(fontSize: 14, height: 1.5),
+                  maxLines: 5,
+                  overflow: TextOverflow.ellipsis),
             ),
           Consumer<CommunityProvider>(
             builder: (context, provider, _) {
